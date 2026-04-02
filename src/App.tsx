@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { Navbar } from "@/components/layout/Navbar";
+import { AppShell } from "@/components/layout/AppShell";
 import DashboardPage from "./pages/Dashboard";
 import RandomPhrasesPage from "./pages/RandomPhrases";
 import AddPhrasePage from "./pages/AddPhrase";
@@ -18,8 +18,7 @@ const queryClient = new QueryClient();
 
 function AppRoutes() {
   return (
-    <>
-      <Navbar />
+    <AppShell>
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/login" element={<Navigate to="/dashboard" replace />} />
@@ -33,7 +32,7 @@ function AppRoutes() {
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-    </>
+    </AppShell>
   );
 }
 

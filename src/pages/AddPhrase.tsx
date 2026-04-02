@@ -72,56 +72,63 @@ export default function AddPhrasePage() {
   };
 
   return (
-    <div className="container max-w-xl py-8">
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Add a New Phrase</h1>
-          <p className="mt-1 text-muted-foreground">Enter a word or phrase and let AI explain it for you</p>
+    <div className="app-page">
+      <div className="page-stack mx-auto max-w-4xl pt-12">
+        <div className="text-center">
+          <p className="admin-kicker">Create</p>
+          <h1 className="admin-page-title">Add a New Phrase</h1>
+          <p className="admin-page-subtitle">Enter a word or phrase and let AI explain it for you.</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <Label htmlFor="phrase">Word or Phrase *</Label>
-            <Input id="phrase" value={phraseText} onChange={(e) => setPhraseText(e.target.value)} placeholder='e.g. "break the ice"' className="mt-1" />
-          </div>
+        <form onSubmit={handleSubmit} className="admin-panel admin-panel-body space-y-6">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+            <div className="space-y-6">
+              <div>
+                <Label htmlFor="phrase">Word or Phrase *</Label>
+                <Input id="phrase" value={phraseText} onChange={(e) => setPhraseText(e.target.value)} placeholder='e.g. "break the ice"' className="mt-2 h-12 rounded-xl" />
+              </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <Label>Phrase Type</Label>
-              <Select value={phraseType} onValueChange={(v) => setPhraseType(v as PhraseType)}>
-                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {phraseTypes.map((t) => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <div>
+                <Label htmlFor="notes">Personal Notes</Label>
+                <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Where did you see this phrase? Any notes for yourself..." className="mt-2 min-h-[180px] rounded-2xl" rows={6} />
+              </div>
             </div>
-            <div>
-              <Label>Category</Label>
-              <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {categories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                </SelectContent>
-              </Select>
+
+            <div className="space-y-5 rounded-[1.5rem] border bg-muted/20 p-5">
+              <div>
+                <Label>Phrase Type</Label>
+                <Select value={phraseType} onValueChange={(v) => setPhraseType(v as PhraseType)}>
+                  <SelectTrigger className="mt-2 h-12 rounded-xl"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {phraseTypes.map((t) => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Category</Label>
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger className="mt-2 h-12 rounded-xl"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {categories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Difficulty</Label>
+                <Select value={difficultyLevel} onValueChange={(v) => setDifficultyLevel(v as DifficultyLevel)}>
+                  <SelectTrigger className="mt-2 h-12 rounded-xl"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {difficultyLevels.map((d) => <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                The app will save the phrase and create the full explanation automatically.
+              </p>
             </div>
           </div>
 
-          <div>
-            <Label>Difficulty</Label>
-            <Select value={difficultyLevel} onValueChange={(v) => setDifficultyLevel(v as DifficultyLevel)}>
-              <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {difficultyLevels.map((d) => <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label htmlFor="notes">Personal Notes (optional)</Label>
-            <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Where did you see this phrase? Any notes for yourself..." className="mt-1" rows={3} />
-          </div>
-
-          <Button type="submit" className="w-full gap-2" disabled={loading}>
+          <Button type="submit" className="h-12 w-full gap-2 rounded-xl sm:w-auto sm:px-6" disabled={loading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             {loading ? "Generating AI explanation..." : "Save & Generate AI Explanation"}
           </Button>

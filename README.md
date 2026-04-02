@@ -1,3 +1,3 @@
-# PhrasePal AI
+# Lang-Vocabulary ai
 
 TODO: Document your project here

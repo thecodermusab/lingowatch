@@ -1,7 +1,7 @@
 export type PhraseType = "word" | "phrase" | "phrasal_verb" | "idiom" | "expression";
 export type DifficultyLevel = "beginner" | "intermediate" | "advanced";
 export type ExampleType = "simple" | "daily" | "work" | "extra" | "somali";
-export type ReviewRating = "easy" | "medium" | "hard";
+export type ReviewRating = "again" | "hard" | "good" | "easy";
 
 export interface UserProfile {
   id: string;

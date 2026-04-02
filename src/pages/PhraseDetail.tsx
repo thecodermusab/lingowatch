@@ -27,7 +27,7 @@ const difficultyLevels: { value: DifficultyLevel; label: string }[] = [
 
 function SectionCard({ icon: Icon, title, children, color = "bg-primary/10 text-primary" }: { icon: any; title: string; children: React.ReactNode; color?: string }) {
   return (
-    <div className="rounded-2xl border bg-card p-5">
+    <div className="admin-panel admin-panel-body">
       <div className="flex items-center gap-2">
         <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${color}`}>
           <Icon className="h-4 w-4" />
@@ -69,7 +69,7 @@ export default function PhraseDetailPage() {
 
   if (!phrase) {
     return (
-      <div className="container py-16 text-center">
+      <div className="app-page max-w-4xl py-16 text-center">
         <BookOpen className="mx-auto h-12 w-12 text-muted-foreground" />
         <h2 className="mt-4 text-xl font-semibold text-foreground">Phrase not found</h2>
         <Link to="/library"><Button className="mt-4">Go to Library</Button></Link>
@@ -158,15 +158,14 @@ export default function PhraseDetailPage() {
   };
 
   return (
-    <div className="container max-w-2xl py-8">
-      <div className="space-y-6">
-        {/* Header */}
-        <div>
+    <div className="app-page">
+      <div className="page-stack">
+        <div className="admin-panel admin-panel-body">
           <button onClick={() => navigate(-1)} className="mb-4 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-4 w-4" /> Back
           </button>
           {isEditing ? (
-            <div className="space-y-4 rounded-2xl border bg-card p-5">
+            <div className="space-y-4 rounded-[1.5rem] border bg-muted/20 p-5">
               <div>
                 <Label htmlFor="phrase-text">Word or Phrase</Label>
                 <Input id="phrase-text" value={phraseText} onChange={(e) => setPhraseText(e.target.value)} className="mt-1" />
@@ -211,10 +210,10 @@ export default function PhraseDetailPage() {
           ) : (
             <div className="flex items-start justify-between">
               <div>
-                <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                <span className="admin-chip">
                   {phrase.phraseType.replace("_", " ")}
                 </span>
-                <h1 className="mt-2 text-3xl font-bold text-foreground">{phrase.phraseText}</h1>
+                <h1 className="mt-3 text-4xl font-semibold tracking-tight text-foreground">{phrase.phraseText}</h1>
                 {ex?.pronunciationText && (
                   <div className="mt-1 flex items-center gap-2">
                     <p className="text-sm text-muted-foreground">{ex.pronunciationText}</p>
@@ -226,37 +225,36 @@ export default function PhraseDetailPage() {
               </div>
             </div>
           )}
-          {/* Actions */}
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-6 flex flex-wrap gap-2">
             {isEditing ? (
               <>
-                <Button size="sm" onClick={handleSaveEdit} className="gap-1" disabled={isSaving}>
+                <Button size="sm" onClick={handleSaveEdit} className="h-10 gap-1 rounded-xl px-4" disabled={isSaving}>
                   {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                   Save Changes
                 </Button>
-                <Button variant="outline" size="sm" onClick={handleCancelEdit} className="gap-1" disabled={isSaving}>
+                <Button variant="outline" size="sm" onClick={handleCancelEdit} className="h-10 gap-1 rounded-xl px-4" disabled={isSaving}>
                   <X className="h-4 w-4" /> Cancel
                 </Button>
               </>
             ) : (
               <>
-                <Button variant={phrase.isFavorite ? "default" : "outline"} size="sm" onClick={() => toggleFavorite(phrase.id)} className="gap-1">
+                <Button variant={phrase.isFavorite ? "default" : "outline"} size="sm" onClick={() => toggleFavorite(phrase.id)} className="h-10 gap-1 rounded-xl px-4">
                   <Star className={`h-4 w-4 ${phrase.isFavorite ? "fill-current" : ""}`} />
                   {phrase.isFavorite ? "Favorited" : "Favorite"}
                 </Button>
-                <Button variant={phrase.isLearned ? "default" : "outline"} size="sm" onClick={() => toggleLearned(phrase.id)} className="gap-1">
+                <Button variant={phrase.isLearned ? "default" : "outline"} size="sm" onClick={() => toggleLearned(phrase.id)} className="h-10 gap-1 rounded-xl px-4">
                   <CheckCircle2 className="h-4 w-4" />
                   {phrase.isLearned ? "Learned ✓" : "Mark Learned"}
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => setIsEditing(true)} className="gap-1">
+                <Button variant="outline" size="sm" onClick={() => setIsEditing(true)} className="h-10 gap-1 rounded-xl px-4">
                   <Edit className="h-4 w-4" /> Edit
                 </Button>
                 <Link to="/review">
-                  <Button variant="outline" size="sm" className="gap-1">
+                  <Button variant="outline" size="sm" className="h-10 gap-1 rounded-xl px-4">
                     <RotateCcw className="h-4 w-4" /> Review
                   </Button>
                 </Link>
-                <Button variant="outline" size="sm" onClick={handleDelete} className="gap-1 text-destructive hover:bg-destructive/10">
+                <Button variant="outline" size="sm" onClick={handleDelete} className="h-10 gap-1 rounded-xl px-4 text-destructive hover:bg-destructive/10">
                   <Trash2 className="h-4 w-4" /> Delete
                 </Button>
               </>
@@ -264,97 +262,94 @@ export default function PhraseDetailPage() {
           </div>
         </div>
 
-        {/* Standard Meaning */}
-        {ex?.standardMeaning && (
-          <SectionCard icon={BookOpen} title="Standard Meaning">
-            <p className="text-foreground">{ex.standardMeaning}</p>
-          </SectionCard>
-        )}
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+          <div className="space-y-6">
+            {ex?.standardMeaning && (
+              <SectionCard icon={BookOpen} title="Standard Meaning">
+                <p className="text-foreground">{ex.standardMeaning}</p>
+              </SectionCard>
+            )}
 
-        {/* Easy Meaning */}
-        {ex?.easyMeaning && (
-          <SectionCard icon={Lightbulb} title="Easy Meaning ✨" color="bg-accent/10 text-accent-foreground">
-            <p className="text-lg font-medium text-foreground">{ex.easyMeaning}</p>
-          </SectionCard>
-        )}
+            {ex?.easyMeaning && (
+              <SectionCard icon={Lightbulb} title="Easy Meaning ✨" color="bg-accent/10 text-accent-foreground">
+                <p className="text-lg font-medium text-foreground">{ex.easyMeaning}</p>
+              </SectionCard>
+            )}
 
-        {/* AI Explanation */}
-        {ex?.aiExplanation && (
-          <SectionCard icon={MessageCircle} title="AI Explanation">
-            <p className="text-foreground leading-relaxed">{ex.aiExplanation}</p>
-          </SectionCard>
-        )}
+            {ex?.usageContext && (
+              <SectionCard icon={MessageCircle} title="When People Use This">
+                <p className="text-foreground">{ex.usageContext}</p>
+              </SectionCard>
+            )}
 
-        {/* When to Use */}
-        {ex?.usageContext && (
-          <SectionCard icon={MessageCircle} title="When People Use This">
-            <p className="text-foreground">{ex.usageContext}</p>
-          </SectionCard>
-        )}
+            {ex?.commonMistake && (
+              <SectionCard icon={AlertTriangle} title="Common Mistake" color="bg-destructive/10 text-destructive">
+                <p className="text-foreground">{ex.commonMistake}</p>
+              </SectionCard>
+            )}
 
-        {/* Examples */}
-        {examples.length > 0 && (
-          <SectionCard icon={BookOpen} title="Example Sentences">
-            <ul className="space-y-2">
-              {examples.filter(e => e.exampleType !== "somali").map((ex, i) => (
-                <li key={i} className="flex items-start gap-2">
-                  <span className="mt-1 rounded bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-secondary-foreground uppercase">{ex.exampleType}</span>
-                  <p className="text-sm italic text-foreground">"{ex.exampleText}"</p>
-                </li>
-              ))}
-            </ul>
-          </SectionCard>
-        )}
-
-        {/* Somali Section */}
-        {(ex?.somaliMeaning || ex?.somaliExplanation) && (
-          <div className="rounded-2xl border-2 border-somali/20 bg-somali/5 p-5">
-            <div className="flex items-center gap-2">
-              <Globe className="h-5 w-5 text-somali" />
-              <h3 className="font-semibold text-foreground">Somali Support 🇸🇴</h3>
-            </div>
-            <div className="mt-4 space-y-3">
-              {ex?.somaliMeaning && (
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-somali">Meaning</p>
-                  <p className="mt-1 text-lg font-medium text-foreground">{ex.somaliMeaning}</p>
+            {ex?.relatedPhrases && ex.relatedPhrases.length > 0 && (
+              <SectionCard icon={BookOpen} title="Related Phrases">
+                <div className="flex flex-wrap gap-2">
+                  {ex.relatedPhrases.map((rp, i) => (
+                    <span key={i} className="rounded-full border bg-secondary px-3 py-1 text-sm text-secondary-foreground">{rp}</span>
+                  ))}
                 </div>
-              )}
-              {ex?.somaliExplanation && (
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-somali">Explanation</p>
-                  <p className="mt-1 text-foreground">{ex.somaliExplanation}</p>
-                </div>
-              )}
-              {ex?.somaliSentence && (
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-somali">Example</p>
-                  <p className="mt-1 italic text-foreground">"{ex.somaliSentence}"</p>
-                </div>
-              )}
-            </div>
+              </SectionCard>
+            )}
           </div>
-        )}
 
-        {/* Common Mistake */}
-        {ex?.commonMistake && (
-          <SectionCard icon={AlertTriangle} title="Common Mistake" color="bg-destructive/10 text-destructive">
-            <p className="text-foreground">{ex.commonMistake}</p>
-          </SectionCard>
-        )}
+          <div className="space-y-6">
+            {ex?.aiExplanation && (
+              <SectionCard icon={MessageCircle} title="AI Explanation">
+                <p className="text-foreground leading-relaxed">{ex.aiExplanation}</p>
+              </SectionCard>
+            )}
 
-        {/* Related Phrases */}
-        {ex?.relatedPhrases && ex.relatedPhrases.length > 0 && (
-          <SectionCard icon={BookOpen} title="Related Phrases">
-            <div className="flex flex-wrap gap-2">
-              {ex.relatedPhrases.map((rp, i) => (
-                <span key={i} className="rounded-full border bg-secondary px-3 py-1 text-sm text-secondary-foreground">{rp}</span>
-              ))}
-            </div>
-          </SectionCard>
-        )}
+            {examples.length > 0 && (
+              <SectionCard icon={BookOpen} title="Example Sentences">
+                <ul className="space-y-2">
+                  {examples.filter(e => e.exampleType !== "somali").map((ex, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <span className="mt-1 rounded bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-secondary-foreground uppercase">{ex.exampleType}</span>
+                      <p className="text-sm italic text-foreground">"{ex.exampleText}"</p>
+                    </li>
+                  ))}
+                </ul>
+              </SectionCard>
+            )}
 
-        {/* Notes */}
+            {(ex?.somaliMeaning || ex?.somaliExplanation) && (
+              <div className="admin-panel border-somali/20 bg-somali/5 p-5">
+                <div className="flex items-center gap-2">
+                  <Globe className="h-5 w-5 text-somali" />
+                  <h3 className="font-semibold text-foreground">Somali Support 🇸🇴</h3>
+                </div>
+                <div className="mt-4 space-y-3">
+                  {ex?.somaliMeaning && (
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-somali">Meaning</p>
+                      <p className="mt-1 text-lg font-medium text-foreground">{ex.somaliMeaning}</p>
+                    </div>
+                  )}
+                  {ex?.somaliExplanation && (
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-somali">Explanation</p>
+                      <p className="mt-1 text-foreground">{ex.somaliExplanation}</p>
+                    </div>
+                  )}
+                  {ex?.somaliSentence && (
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-somali">Example</p>
+                      <p className="mt-1 italic text-foreground">"{ex.somaliSentence}"</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
         <SectionCard icon={Edit} title="Your Notes">
           {isEditingNotes ? (
             <div className="space-y-3">
@@ -384,7 +379,6 @@ export default function PhraseDetailPage() {
           )}
         </SectionCard>
 
-        {/* Meta */}
         <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
           <span>Category: {phrase.category}</span>
           <span>Difficulty: {phrase.difficultyLevel}</span>

@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 40 33% 98%;
+    --background: 220 25% 97%;
     --foreground: 220 25% 12%;
 
     --card: 0 0% 100%;
@@ -13,13 +13,13 @@
     --popover: 0 0% 100%;
     --popover-foreground: 220 25% 12%;
 
-    --primary: 170 50% 38%;
+    --primary: 214 31% 19%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 38 25% 93%;
+    --secondary: 220 16% 95%;
     --secondary-foreground: 220 25% 12%;
 
-    --muted: 38 18% 92%;
+    --muted: 220 16% 95%;
     --muted-foreground: 220 10% 46%;
 
     --accent: 38 92% 50%;
@@ -28,20 +28,20 @@
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 38 20% 88%;
-    --input: 38 20% 88%;
-    --ring: 170 50% 38%;
+    --border: 220 16% 88%;
+    --input: 220 16% 88%;
+    --ring: 214 31% 19%;
 
     --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 170 50% 38%;
+    --sidebar-primary: 214 31% 19%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 38 25% 93%;
     --sidebar-accent-foreground: 220 25% 12%;
     --sidebar-border: 38 20% 88%;
-    --sidebar-ring: 170 50% 38%;
+    --sidebar-ring: 214 31% 19%;
 
     /* Custom tokens */
     --success: 152 60% 40%;
@@ -95,5 +95,63 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
+  }
+}
+
+@layer components {
+  .app-page {
+    @apply container max-w-7xl py-8;
+  }
+
+  .page-stack {
+    @apply space-y-6;
+  }
+
+  .admin-panel {
+    @apply rounded-[1.75rem] border border-[#e5e9ef] bg-white shadow-[0_12px_30px_rgba(15,23,42,0.045)];
+  }
+
+  .admin-panel-body {
+    @apply p-5 sm:p-6;
+  }
+
+  .admin-toolbar {
+    @apply flex flex-col gap-3 rounded-[1.5rem] border border-[#e5e9ef] bg-[#f8fafc] p-4 shadow-[0_10px_24px_rgba(15,23,42,0.03)] sm:flex-row sm:flex-wrap sm:items-center;
+  }
+
+  .admin-kicker {
+    @apply text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground;
+  }
+
+  .admin-page-title {
+    @apply text-3xl font-semibold tracking-tight text-foreground;
+  }
+
+  .admin-page-subtitle {
+    @apply mt-1 text-sm text-muted-foreground;
+  }
+
+  .admin-stat-card {
+    @apply rounded-[1.5rem] border border-[#e5e9ef] bg-white p-5 shadow-[0_10px_24px_rgba(15,23,42,0.03)];
+  }
+
+  .admin-list {
+    @apply overflow-hidden rounded-[1.5rem] border border-[#e5e9ef] bg-white shadow-[0_10px_24px_rgba(15,23,42,0.03)];
+  }
+
+  .admin-list-row {
+    @apply flex flex-col gap-4 border-b border-[#edf1f5] px-5 py-4 transition-colors last:border-b-0 hover:bg-[#f8fafc] lg:flex-row lg:items-center lg:justify-between;
+  }
+
+  .admin-chip {
+    @apply inline-flex items-center rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary;
+  }
+
+  .workspace-section-header {
+    @apply flex items-center justify-between border-b border-[#111318] bg-[#1b1d21] px-5 py-3 text-white sm:px-6;
+  }
+
+  .workspace-table-head {
+    @apply grid gap-3 border-b border-[#edf1f5] bg-[#fbfcfd] px-5 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:px-6;
   }
 }

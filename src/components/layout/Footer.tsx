@@ -10,7 +10,7 @@ export function Footer() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
               <BookOpen className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="font-semibold text-foreground">PhrasePal AI</span>
+            <span className="font-semibold text-foreground">Lang-Vocabulary ai</span>
           </div>
           <p className="text-sm text-muted-foreground">
             Learn English phrases simply. Built for Somali speakers and all ESL learners.

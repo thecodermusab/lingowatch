@@ -355,11 +355,12 @@ export default function RandomPhrasesPage() {
   }, []);
 
   return (
-    <div className="container max-w-3xl py-8">
-      <div className="space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-bold text-foreground">Random Learning</h1>
-          <p className="text-muted-foreground">
+    <div className="app-page">
+      <div className="page-stack max-w-6xl">
+        <div>
+          <p className="admin-kicker">Explore</p>
+          <h1 className="admin-page-title">Random Learning</h1>
+          <p className="admin-page-subtitle">
             Switch between vocabulary and phrases, then explore real imported entries you have not saved yet.
           </p>
         </div>
@@ -375,35 +376,27 @@ export default function RandomPhrasesPage() {
             }
           }}
         >
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="vocabulary">Vocabulary</TabsTrigger>
-            <TabsTrigger value="phrases">Phrases</TabsTrigger>
+          <TabsList className="grid h-14 w-full max-w-sm grid-cols-2 rounded-2xl bg-white p-1 shadow-[0_10px_24px_rgba(15,23,42,0.05)]">
+            <TabsTrigger
+              value="vocabulary"
+              className="rounded-xl text-base font-semibold text-muted-foreground data-[state=active]:bg-[#223044] data-[state=active]:text-white data-[state=active]:shadow-none"
+            >
+              Vocabulary
+            </TabsTrigger>
+            <TabsTrigger
+              value="phrases"
+              className="rounded-xl text-base font-semibold text-muted-foreground data-[state=active]:bg-[#6b49db] data-[state=active]:text-white data-[state=active]:shadow-none"
+            >
+              Phrases
+            </TabsTrigger>
           </TabsList>
         </Tabs>
 
-        <div className="rounded-2xl border bg-card p-6">
-          <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-            <span>Starter bank: {phraseBank.length}</span>
-            <span>Imported bank: {importedPhrases.length}</span>
-            <span>Total in bank: {fullPhraseBank.length}</span>
-            <span>Saved: {phrases.length}</span>
-            <span>Unseen: {unseenPhrases.length}</span>
-          </div>
-          <p className="mt-3 text-sm text-muted-foreground">
-            {bankLoading ? "Loading imported phrase bank..." : importedSourceLabel}
-          </p>
-          {browseMode === "vocabulary" ? (
-            <p className="mt-2 text-sm text-muted-foreground">
-              {onlyCommonWords ? "Showing common vocabulary words only." : "Showing all vocabulary words, including rarer ones."}
-            </p>
-          ) : null}
-        </div>
-
-        <div className="flex flex-wrap items-end gap-4 rounded-2xl border bg-card p-6">
+        <div className="admin-toolbar items-end">
           <div className="min-w-[220px] flex-1">
             <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Difficulty</p>
             <Select value={difficultyFilter} onValueChange={(value) => setDifficultyFilter(value as "all" | DifficultyLevel)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="h-11 rounded-xl"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Levels</SelectItem>
                 <SelectItem value="beginner">Beginner</SelectItem>
@@ -417,7 +410,7 @@ export default function RandomPhrasesPage() {
             <div className="min-w-[220px] flex-1">
               <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Type</p>
               <Select value={typeFilter} onValueChange={(value) => setTypeFilter(value as "all" | PhraseType)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-11 rounded-xl"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Phrase Types</SelectItem>
                   <SelectItem value="phrase">Phrase</SelectItem>
@@ -430,7 +423,7 @@ export default function RandomPhrasesPage() {
           ) : (
             <div className="min-w-[220px] flex-1">
               <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Vocabulary</p>
-              <div className="flex h-10 items-center justify-between rounded-md border px-4">
+              <div className="flex h-11 items-center justify-between rounded-xl border px-4">
                 <Label htmlFor="common-words-toggle" className="text-sm font-medium text-foreground">
                   Only common words
                 </Label>
@@ -446,7 +439,7 @@ export default function RandomPhrasesPage() {
           <div className="min-w-[220px] flex-1">
             <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Category</p>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="h-11 rounded-xl"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
                 {availableCategories.map((category) => (
@@ -459,7 +452,7 @@ export default function RandomPhrasesPage() {
           <div className="min-w-[220px]">
             <Button
               variant="outline"
-              className="w-full"
+              className="h-11 w-full rounded-xl"
               onClick={() => {
                 setDifficultyFilter("all");
                 setTypeFilter("all");
@@ -473,7 +466,7 @@ export default function RandomPhrasesPage() {
         </div>
 
         {!currentPhrase ? (
-          <div className="rounded-2xl border bg-card p-10 text-center">
+          <div className="admin-panel p-10 text-center">
             <BookOpen className="mx-auto h-10 w-10 text-muted-foreground" />
             <h2 className="mt-4 text-xl font-semibold text-foreground">No phrases match these filters</h2>
             <p className="mt-2 text-muted-foreground">
@@ -481,7 +474,7 @@ export default function RandomPhrasesPage() {
             </p>
           </div>
         ) : (
-          <div className="rounded-3xl border bg-card p-8 shadow-sm">
+          <div className="admin-panel p-8">
             <div className="flex flex-wrap gap-2">
               <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
                 {currentPhrase.phraseType.replace("_", " ")}
@@ -526,76 +519,82 @@ export default function RandomPhrasesPage() {
         )}
 
         {preview && currentPhrase && (
-          <div ref={previewRef} className="space-y-4 rounded-3xl border bg-card p-8">
+          <div ref={previewRef} className="admin-panel space-y-4 p-8">
             <div>
               <h3 className="text-xl font-semibold text-foreground">{currentPhrase.phraseText}</h3>
               <p className="text-sm text-muted-foreground">Full explanation preview</p>
             </div>
 
-            <div className="rounded-2xl border p-5">
-              <div className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-primary" />
-                <h4 className="font-semibold text-foreground">Standard Meaning</h4>
-              </div>
-              <p className="mt-3 text-foreground">{renderLookupText(preview.standardMeaning)}</p>
-            </div>
+            <div className="grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+              <div className="space-y-4">
+                <div className="rounded-2xl border p-5">
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="h-4 w-4 text-primary" />
+                    <h4 className="font-semibold text-foreground">Standard Meaning</h4>
+                  </div>
+                  <p className="mt-3 text-foreground">{renderLookupText(preview.standardMeaning)}</p>
+                </div>
 
-            <div className="rounded-2xl border p-5">
-              <div className="flex items-center gap-2">
-                <Lightbulb className="h-4 w-4 text-primary" />
-                <h4 className="font-semibold text-foreground">Easy Meaning</h4>
-              </div>
-              <p className="mt-3 text-foreground">{renderLookupText(preview.easyMeaning)}</p>
-            </div>
+                <div className="rounded-2xl border p-5">
+                  <div className="flex items-center gap-2">
+                    <Lightbulb className="h-4 w-4 text-primary" />
+                    <h4 className="font-semibold text-foreground">Easy Meaning</h4>
+                  </div>
+                  <p className="mt-3 text-foreground">{renderLookupText(preview.easyMeaning)}</p>
+                </div>
 
-            <div className="rounded-2xl border p-5">
-              <div className="flex items-center gap-2">
-                <MessageCircle className="h-4 w-4 text-primary" />
-                <h4 className="font-semibold text-foreground">AI Explanation</h4>
-              </div>
-              <p className="mt-3 text-foreground">{renderLookupText(preview.aiExplanation)}</p>
-            </div>
+                <div className="rounded-2xl border p-5">
+                  <div className="flex items-center gap-2">
+                    <MessageCircle className="h-4 w-4 text-primary" />
+                    <h4 className="font-semibold text-foreground">When People Use This</h4>
+                  </div>
+                  <p className="mt-3 text-foreground">{renderLookupText(preview.usageContext)}</p>
+                </div>
 
-            <div className="rounded-2xl border p-5">
-              <div className="flex items-center gap-2">
-                <MessageCircle className="h-4 w-4 text-primary" />
-                <h4 className="font-semibold text-foreground">When People Use This</h4>
+                <div className="rounded-2xl border p-5">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4 text-primary" />
+                    <h4 className="font-semibold text-foreground">Common Mistake</h4>
+                  </div>
+                  <p className="mt-3 text-foreground">{renderLookupText(preview.commonMistake)}</p>
+                </div>
               </div>
-              <p className="mt-3 text-foreground">{renderLookupText(preview.usageContext)}</p>
-            </div>
 
-            <div className="rounded-2xl border p-5">
-              <div className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-primary" />
-                <h4 className="font-semibold text-foreground">Examples</h4>
-              </div>
-              <ul className="mt-3 space-y-2">
-                {preview.examples.map((example, index) => (
-                  <li key={index} className="text-foreground">
-                    <span className="font-medium">{example.type}:</span> {renderLookupText(example.text)}
-                  </li>
-                ))}
-              </ul>
-            </div>
+              <div className="space-y-4">
+                <div className="rounded-2xl border p-5">
+                  <div className="flex items-center gap-2">
+                    <MessageCircle className="h-4 w-4 text-primary" />
+                    <h4 className="font-semibold text-foreground">AI Explanation</h4>
+                  </div>
+                  <p className="mt-3 text-foreground">{renderLookupText(preview.aiExplanation)}</p>
+                </div>
 
-            <div className="rounded-2xl border p-5">
-              <div className="flex items-center gap-2">
-                <Globe className="h-4 w-4 text-primary" />
-                <h4 className="font-semibold text-foreground">Somali Support</h4>
-              </div>
-              <div className="mt-3 space-y-2 text-foreground">
-                <p><span className="font-medium">Meaning:</span> {renderLookupText(preview.somaliMeaning)}</p>
-                <p><span className="font-medium">Explanation:</span> {renderLookupText(preview.somaliExplanation)}</p>
-                <p><span className="font-medium">Example:</span> {renderLookupText(preview.somaliSentence)}</p>
-              </div>
-            </div>
+                <div className="rounded-2xl border p-5">
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="h-4 w-4 text-primary" />
+                    <h4 className="font-semibold text-foreground">Examples</h4>
+                  </div>
+                  <ul className="mt-3 space-y-2">
+                    {preview.examples.map((example, index) => (
+                      <li key={index} className="text-foreground">
+                        <span className="font-medium">{example.type}:</span> {renderLookupText(example.text)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-            <div className="rounded-2xl border p-5">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-primary" />
-                <h4 className="font-semibold text-foreground">Common Mistake</h4>
+                <div className="rounded-2xl border p-5">
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-4 w-4 text-primary" />
+                    <h4 className="font-semibold text-foreground">Somali Support</h4>
+                  </div>
+                  <div className="mt-3 space-y-2 text-foreground">
+                    <p><span className="font-medium">Meaning:</span> {renderLookupText(preview.somaliMeaning)}</p>
+                    <p><span className="font-medium">Explanation:</span> {renderLookupText(preview.somaliExplanation)}</p>
+                    <p><span className="font-medium">Example:</span> {renderLookupText(preview.somaliSentence)}</p>
+                  </div>
+                </div>
               </div>
-              <p className="mt-3 text-foreground">{renderLookupText(preview.commonMistake)}</p>
             </div>
           </div>
         )}

@@ -143,8 +143,25 @@ export function usePhraseStore() {
       if (!phrase?.review) return;
 
       const now = new Date();
-      const daysMap: Record<ReviewRating, number> = { hard: 1, medium: 3, easy: 7 };
-      const nextDate = new Date(now.getTime() + daysMap[rating] * 86400000);
+      const nextDate = new Date(now);
+      const currentConfidence = phrase.review.confidenceScore;
+
+      if (rating === "again") {
+        nextDate.setMinutes(nextDate.getMinutes() + 10);
+      } else if (rating === "hard") {
+        nextDate.setDate(nextDate.getDate() + 1);
+      } else if (rating === "good") {
+        nextDate.setDate(nextDate.getDate() + (currentConfidence >= 60 ? 4 : 3));
+      } else {
+        nextDate.setDate(nextDate.getDate() + (currentConfidence >= 60 ? 10 : 7));
+      }
+
+      const confidenceDelta: Record<ReviewRating, number> = {
+        again: -15,
+        hard: 5,
+        good: 12,
+        easy: 20,
+      };
 
       updatePhrase(id, {
         review: {
@@ -153,7 +170,7 @@ export function usePhraseStore() {
           difficultyRating: rating,
           lastReviewedAt: now.toISOString(),
           nextReviewAt: nextDate.toISOString(),
-          confidenceScore: Math.min(100, phrase.review.confidenceScore + (rating === "easy" ? 20 : rating === "medium" ? 10 : 5)),
+          confidenceScore: Math.max(0, Math.min(100, currentConfidence + confidenceDelta[rating])),
         },
       });
     },

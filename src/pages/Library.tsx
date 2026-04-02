@@ -4,7 +4,7 @@ import { usePhraseStore } from "@/hooks/usePhraseStore";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Search, PlusCircle, Star, BookOpen, Filter } from "lucide-react";
+import { Search, PlusCircle, Star, BookOpen } from "lucide-react";
 import { categories } from "@/lib/mockData";
 import { PhraseType } from "@/types";
 
@@ -18,7 +18,6 @@ export default function LibraryPage() {
   const [typeFilter, setTypeFilter] = useState<"all" | PhraseType>("all");
   const [statusFilter, setStatusFilter] = useState<FilterStatus>("all");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
-  const [showFilters, setShowFilters] = useState(false);
 
   const filtered = useMemo(() => {
     let result = [...phrases];
@@ -33,6 +32,7 @@ export default function LibraryPage() {
           p.explanation?.standardMeaning.toLowerCase().includes(q)
       );
     }
+
     if (categoryFilter !== "all") result = result.filter((p) => p.category === categoryFilter);
     if (typeFilter !== "all") result = result.filter((p) => p.phraseType === typeFilter);
     if (statusFilter === "learned") result = result.filter((p) => p.isLearned);
@@ -49,115 +49,111 @@ export default function LibraryPage() {
   }, [phrases, search, categoryFilter, typeFilter, statusFilter, sortBy]);
 
   return (
-    <div className="container py-8">
-      <div className="space-y-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="app-page">
+      <div className="page-stack">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Your Phrase Library</h1>
-            <p className="text-muted-foreground">{phrases.length} phrases saved</p>
+            <p className="admin-kicker">Library</p>
+            <h1 className="admin-page-title">Your Phrase Library</h1>
+            <p className="admin-page-subtitle">{phrases.length} phrases saved</p>
           </div>
           <Link to="/add-phrase">
-            <Button className="gap-2"><PlusCircle className="h-4 w-4" /> Add Phrase</Button>
+            <Button className="h-11 gap-2 rounded-xl px-5">
+              <PlusCircle className="h-4 w-4" /> Add Phrase
+            </Button>
           </Link>
         </div>
 
-        {/* Search + Filter Toggle */}
-        <div className="flex gap-2">
-          <div className="relative flex-1">
+        <div className="admin-toolbar">
+          <div className="relative min-w-0 flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search phrases, meanings, notes..." className="pl-10" />
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search phrases, meanings, notes..." className="h-11 rounded-xl pl-10" />
           </div>
-          <Button variant="outline" onClick={() => setShowFilters(!showFilters)} className="gap-2">
-            <Filter className="h-4 w-4" /> Filters
-          </Button>
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="h-11 w-full rounded-xl sm:w-[180px]"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              {categories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={typeFilter} onValueChange={(v) => setTypeFilter(v as "all" | PhraseType)}>
+            <SelectTrigger className="h-11 w-full rounded-xl sm:w-[160px]"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="word">Word</SelectItem>
+              <SelectItem value="phrase">Phrase</SelectItem>
+              <SelectItem value="phrasal_verb">Phrasal Verb</SelectItem>
+              <SelectItem value="idiom">Idiom</SelectItem>
+              <SelectItem value="expression">Expression</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as FilterStatus)}>
+            <SelectTrigger className="h-11 w-full rounded-xl sm:w-[150px]"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="learned">Learned</SelectItem>
+              <SelectItem value="not_learned">Not Learned</SelectItem>
+              <SelectItem value="favorite">Favorites</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
+            <SelectTrigger className="h-11 w-full rounded-xl sm:w-[150px]"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="newest">Newest</SelectItem>
+              <SelectItem value="oldest">Oldest</SelectItem>
+              <SelectItem value="alphabetical">A-Z</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
-        {showFilters && (
-          <div className="grid gap-3 rounded-xl border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="admin-panel overflow-hidden">
+          <div className="workspace-section-header">
             <div>
-              <label className="mb-1 block text-xs font-medium text-muted-foreground">Category</label>
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  {categories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-muted-foreground">Type</label>
-              <Select value={typeFilter} onValueChange={(v) => setTypeFilter(v as any)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="word">Word</SelectItem>
-                  <SelectItem value="phrase">Phrase</SelectItem>
-                  <SelectItem value="phrasal_verb">Phrasal Verb</SelectItem>
-                  <SelectItem value="idiom">Idiom</SelectItem>
-                  <SelectItem value="expression">Expression</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-muted-foreground">Status</label>
-              <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as FilterStatus)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="learned">Learned</SelectItem>
-                  <SelectItem value="not_learned">Not Learned</SelectItem>
-                  <SelectItem value="favorite">Favorites</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-muted-foreground">Sort</label>
-              <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="newest">Newest First</SelectItem>
-                  <SelectItem value="oldest">Oldest First</SelectItem>
-                  <SelectItem value="alphabetical">A → Z</SelectItem>
-                </SelectContent>
-              </Select>
+              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/45">Results</p>
+              <h2 className="mt-1 text-xl font-semibold text-white">{filtered.length} entries</h2>
             </div>
           </div>
-        )}
 
-        {/* Phrase List */}
-        {filtered.length === 0 ? (
-          <div className="rounded-2xl border bg-card p-10 text-center">
-            <BookOpen className="mx-auto h-10 w-10 text-muted-foreground" />
-            <h3 className="mt-3 font-semibold text-foreground">
-              {phrases.length === 0 ? "No phrases yet" : "No phrases match your filters"}
-            </h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {phrases.length === 0 ? "Add your first phrase to get started!" : "Try adjusting your search or filters"}
-            </p>
-          </div>
-        ) : (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((phrase) => (
-              <Link key={phrase.id} to={`/phrase/${phrase.id}`} className="group rounded-2xl border bg-card p-5 transition-all hover:shadow-md">
-                <div className="flex items-start justify-between">
-                  <span className="inline-block rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-                    {phrase.phraseType.replace("_", " ")}
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    {phrase.isFavorite && <Star className="h-4 w-4 fill-accent text-accent" />}
-                    {phrase.isLearned && <span className="rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-semibold text-success">✓</span>}
+          {filtered.length === 0 ? (
+            <div className="p-10 text-center">
+              <BookOpen className="mx-auto h-10 w-10 text-muted-foreground" />
+              <h3 className="mt-3 font-semibold text-foreground">
+                {phrases.length === 0 ? "No phrases yet" : "No phrases match your filters"}
+              </h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {phrases.length === 0 ? "Add your first phrase to get started." : "Try adjusting your filters."}
+              </p>
+            </div>
+          ) : (
+            <div>
+              <div className="workspace-table-head hidden lg:grid lg:grid-cols-[minmax(0,1.5fr)_140px_120px_120px]">
+                <span>Phrase</span>
+                <span>Category</span>
+                <span>Difficulty</span>
+                <span>Status</span>
+              </div>
+              {filtered.map((phrase) => (
+                <Link key={phrase.id} to={`/phrase/${phrase.id}`} className="admin-list-row block">
+                  <div className="min-w-0 flex-1 lg:grid lg:grid-cols-[minmax(0,1.5fr)_140px_120px_120px] lg:items-center lg:gap-3">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="admin-chip">{phrase.phraseType.replace("_", " ")}</span>
+                      </div>
+                      <h3 className="mt-2 text-xl font-semibold text-foreground">{phrase.phraseText}</h3>
+                      <p className="mt-1 line-clamp-2 max-w-3xl text-sm text-muted-foreground">{phrase.explanation?.easyMeaning}</p>
+                    </div>
+                    <div className="mt-3 text-sm text-muted-foreground lg:mt-0 lg:text-foreground">{phrase.category}</div>
+                    <div className="text-sm text-muted-foreground lg:text-foreground">{phrase.difficultyLevel}</div>
+                    <div className="flex items-center gap-2 lg:justify-start">
+                      {phrase.isFavorite && <Star className="h-4 w-4 fill-accent text-accent" />}
+                      {phrase.isLearned && <span className="rounded-full bg-success/10 px-2.5 py-1 text-xs font-semibold text-success">Learned</span>}
+                    </div>
                   </div>
-                </div>
-                <h3 className="mt-2 text-lg font-semibold text-foreground group-hover:text-primary">{phrase.phraseText}</h3>
-                <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{phrase.explanation?.easyMeaning}</p>
-                <div className="mt-3 flex items-center gap-2">
-                  <span className="rounded-md bg-secondary px-2 py-0.5 text-xs text-secondary-foreground">{phrase.category}</span>
-                  <span className="text-xs text-muted-foreground">{phrase.difficultyLevel}</span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
