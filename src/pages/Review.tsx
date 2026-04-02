@@ -6,6 +6,7 @@ import { ReviewRating, Phrase } from "@/types";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
+import { getReviewTimingPreview } from "@/lib/review";
 
 type ReviewMode = "phrase_to_meaning" | "meaning_to_phrase" | "english_to_somali" | "somali_to_english";
 
@@ -20,35 +21,30 @@ const ratingConfig: {
   rating: ReviewRating;
   label: string;
   shortcut: string;
-  eta: string;
   buttonClassName: string;
 }[] = [
   {
     rating: "again",
     label: "Again",
     shortcut: "1",
-    eta: "10m",
     buttonClassName: "border-destructive text-destructive hover:bg-destructive/10",
   },
   {
     rating: "hard",
     label: "Hard",
     shortcut: "2",
-    eta: "1d",
     buttonClassName: "border-orange-400 text-orange-600 hover:bg-orange-50",
   },
   {
     rating: "good",
     label: "Good",
     shortcut: "3",
-    eta: "3d",
     buttonClassName: "border-primary text-primary hover:bg-primary/10",
   },
   {
     rating: "easy",
     label: "Easy",
     shortcut: "4",
-    eta: "7d",
     buttonClassName: "border-success text-success hover:bg-success/10",
   },
 ];
@@ -96,6 +92,10 @@ export default function ReviewPage() {
 
   const reviewList = useMemo(() => (dueForReview.length > 0 ? dueForReview : phrases.slice(0, 10)), [dueForReview, phrases]);
   const currentPhrase = reviewList[currentIndex];
+  const timingPreview = useMemo(
+    () => getReviewTimingPreview(currentPhrase?.review),
+    [currentPhrase]
+  );
 
   const goToNextCard = () => {
     setRevealed(false);
@@ -271,7 +271,7 @@ export default function ReviewPage() {
                             <span className="text-sm font-semibold">{item.label}</span>
                             <span className="text-xs font-medium opacity-70">{item.shortcut}</span>
                           </div>
-                          <p className="mt-2 text-xs font-medium opacity-70">{item.eta}</p>
+                          <p className="mt-2 text-xs font-medium opacity-70">{timingPreview[item.rating].label}</p>
                         </button>
                       ))}
                     </div>

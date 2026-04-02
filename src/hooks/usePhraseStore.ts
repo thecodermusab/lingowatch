@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Phrase, PhraseType, DifficultyLevel, ReviewRating, DashboardStats } from "@/types";
 import { generateAIExplanation } from "@/lib/ai";
+import { buildNextReviewDate } from "@/lib/review";
 
 const STORAGE_KEY = "phrasepal_phrases";
 
@@ -143,18 +144,8 @@ export function usePhraseStore() {
       if (!phrase?.review) return;
 
       const now = new Date();
-      const nextDate = new Date(now);
       const currentConfidence = phrase.review.confidenceScore;
-
-      if (rating === "again") {
-        nextDate.setMinutes(nextDate.getMinutes() + 10);
-      } else if (rating === "hard") {
-        nextDate.setDate(nextDate.getDate() + 1);
-      } else if (rating === "good") {
-        nextDate.setDate(nextDate.getDate() + (currentConfidence >= 60 ? 4 : 3));
-      } else {
-        nextDate.setDate(nextDate.getDate() + (currentConfidence >= 60 ? 10 : 7));
-      }
+      const nextDate = buildNextReviewDate(phrase.review, rating, now);
 
       const confidenceDelta: Record<ReviewRating, number> = {
         again: -15,
