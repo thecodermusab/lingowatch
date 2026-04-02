@@ -1,3 +1,3 @@
-# Welcome to your Lovable project
+# PhrasePal AI
 
 TODO: Document your project here

@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import { useAuth } from "@/contexts/AuthContext";
 import { usePhraseStore } from "@/hooks/usePhraseStore";
 import { Button } from "@/components/ui/button";
 import { RotateCcw, Eye, EyeOff, ChevronRight, CheckCircle2, BookOpen } from "lucide-react";
@@ -17,8 +16,7 @@ const modeLabels: Record<ReviewMode, string> = {
 };
 
 export default function ReviewPage() {
-  const { user } = useAuth();
-  const { phrases, getDueForReview, reviewPhrase } = usePhraseStore(user?.id);
+  const { phrases, getDueForReview, reviewPhrase } = usePhraseStore();
   const dueForReview = getDueForReview();
   const [mode, setMode] = useState<ReviewMode>("phrase_to_meaning");
   const [currentIndex, setCurrentIndex] = useState(0);

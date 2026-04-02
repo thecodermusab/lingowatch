@@ -15,7 +15,6 @@ export interface UserProfile {
 
 export interface Phrase {
   id: string;
-  userId: string;
   phraseText: string;
   phraseType: PhraseType;
   category: string;

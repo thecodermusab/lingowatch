@@ -24,7 +24,7 @@ function StatCard({ icon: Icon, label, value, color, index }: { icon: any; label
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const { phrases, getStats, getDueForReview } = usePhraseStore(user?.id);
+  const { phrases, getStats, getDueForReview } = usePhraseStore();
   const stats = getStats();
   const dueForReview = getDueForReview();
   const recentPhrases = [...phrases].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5);

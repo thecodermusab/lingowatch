@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 import { usePhraseStore } from "@/hooks/usePhraseStore";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,8 +12,7 @@ type SortOption = "newest" | "oldest" | "alphabetical";
 type FilterStatus = "all" | "learned" | "not_learned" | "favorite";
 
 export default function LibraryPage() {
-  const { user } = useAuth();
-  const { phrases } = usePhraseStore(user?.id);
+  const { phrases } = usePhraseStore();
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState<"all" | PhraseType>("all");

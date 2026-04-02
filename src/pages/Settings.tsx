@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,15 +7,69 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { DifficultyLevel } from "@/types";
+import { getAIHealth, testAIConnection } from "@/lib/ai";
+import { Loader2 } from "lucide-react";
 
 export default function SettingsPage() {
   const { user, updateProfile } = useAuth();
   const { toast } = useToast();
+  const [aiProvider, setAiProvider] = useState("unknown");
+  const [aiModel, setAiModel] = useState("unknown");
+  const [aiConfigured, setAiConfigured] = useState(false);
+  const [statusLoading, setStatusLoading] = useState(true);
+  const [testLoading, setTestLoading] = useState(false);
 
   if (!user) return null;
 
+  useEffect(() => {
+    let active = true;
+
+    async function loadStatus() {
+      try {
+        const result = await getAIHealth();
+        if (!active) return;
+        setAiProvider(result.provider);
+        setAiModel(result.model);
+        setAiConfigured(result.configured);
+      } catch {
+        if (!active) return;
+        setAiProvider("offline");
+        setAiModel("unavailable");
+        setAiConfigured(false);
+      } finally {
+        if (active) {
+          setStatusLoading(false);
+        }
+      }
+    }
+
+    loadStatus();
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const handleSave = () => {
     toast({ title: "Settings saved!" });
+  };
+
+  const handleTestAI = async () => {
+    setTestLoading(true);
+    try {
+      const result = await testAIConnection();
+      setAiProvider(result.provider);
+      setAiModel(result.model);
+      setAiConfigured(true);
+      toast({ title: "AI connection works", description: result.message });
+    } catch (error) {
+      toast({
+        title: "AI test failed",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive",
+      });
+    } finally {
+      setTestLoading(false);
+    }
   };
 
   return (
@@ -71,6 +126,30 @@ export default function SettingsPage() {
             </div>
             <Switch checked={user.somaliModeEnabled} onCheckedChange={(v) => updateProfile({ somaliModeEnabled: v })} />
           </div>
+        </div>
+
+        <div className="space-y-5 rounded-2xl border bg-card p-6">
+          <h2 className="font-semibold text-foreground">AI Connection</h2>
+          <div className="space-y-2 text-sm">
+            <p className="text-foreground">
+              Provider: <span className="font-medium">{statusLoading ? "Loading..." : aiProvider}</span>
+            </p>
+            <p className="text-foreground">
+              Model: <span className="font-medium">{statusLoading ? "Loading..." : aiModel}</span>
+            </p>
+            <p className={aiConfigured ? "text-success" : "text-muted-foreground"}>
+              {statusLoading
+                ? "Checking backend..."
+                : aiConfigured
+                  ? "AI is configured."
+                  : "AI is not ready yet. Check your .env.local and backend server."}
+            </p>
+          </div>
+
+          <Button onClick={handleTestAI} variant="outline" className="w-full" disabled={testLoading || statusLoading}>
+            {testLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Test AI Connection
+          </Button>
         </div>
 
         <Button onClick={handleSave} className="w-full">Save Settings</Button>

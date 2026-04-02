@@ -1,9 +1,29 @@
+import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 import { usePhraseStore } from "@/hooks/usePhraseStore";
 import { Button } from "@/components/ui/button";
-import { Star, Heart, Trash2, ArrowLeft, RotateCcw, CheckCircle2, Volume2, Globe, BookOpen, Lightbulb, MessageCircle, AlertTriangle, Edit } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Star, Trash2, ArrowLeft, RotateCcw, CheckCircle2, Volume2, Globe, BookOpen, Lightbulb, MessageCircle, AlertTriangle, Edit, Loader2, Save, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { categories } from "@/lib/mockData";
+import { DifficultyLevel, PhraseType } from "@/types";
+
+const phraseTypes: { value: PhraseType; label: string }[] = [
+  { value: "word", label: "Word" },
+  { value: "phrase", label: "Phrase" },
+  { value: "phrasal_verb", label: "Phrasal Verb" },
+  { value: "idiom", label: "Idiom" },
+  { value: "expression", label: "Expression" },
+];
+
+const difficultyLevels: { value: DifficultyLevel; label: string }[] = [
+  { value: "beginner", label: "Beginner" },
+  { value: "intermediate", label: "Intermediate" },
+  { value: "advanced", label: "Advanced" },
+];
 
 function SectionCard({ icon: Icon, title, children, color = "bg-primary/10 text-primary" }: { icon: any; title: string; children: React.ReactNode; color?: string }) {
   return (
@@ -21,12 +41,32 @@ function SectionCard({ icon: Icon, title, children, color = "bg-primary/10 text-
 
 export default function PhraseDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
-  const { phrases, toggleFavorite, toggleLearned, deletePhrase } = usePhraseStore(user?.id);
+  const { phrases, toggleFavorite, toggleLearned, deletePhrase, savePhraseEdits, updatePhrase } = usePhraseStore();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [isSavingNotes, setIsSavingNotes] = useState(false);
+  const [phraseText, setPhraseText] = useState("");
+  const [phraseType, setPhraseType] = useState<PhraseType>("phrase");
+  const [category, setCategory] = useState("Daily Life");
+  const [difficultyLevel, setDifficultyLevel] = useState<DifficultyLevel>("beginner");
+  const [notes, setNotes] = useState("");
+  const [noteDraft, setNoteDraft] = useState("");
 
   const phrase = phrases.find((p) => p.id === id);
+
+  useEffect(() => {
+    if (!phrase) return;
+    setPhraseText(phrase.phraseText);
+    setPhraseType(phrase.phraseType);
+    setCategory(phrase.category);
+    setDifficultyLevel(phrase.difficultyLevel);
+    setNotes(phrase.notes);
+    setNoteDraft(phrase.notes);
+  }, [phrase]);
+
   if (!phrase) {
     return (
       <div className="container py-16 text-center">
@@ -46,12 +86,74 @@ export default function PhraseDetailPage() {
     navigate("/library");
   };
 
+  const handleCancelEdit = () => {
+    setPhraseText(phrase.phraseText);
+    setPhraseType(phrase.phraseType);
+    setCategory(phrase.category);
+    setDifficultyLevel(phrase.difficultyLevel);
+    setNotes(phrase.notes);
+    setIsEditing(false);
+  };
+
+  const handleCancelNotesEdit = () => {
+    setNoteDraft(phrase.notes);
+    setIsEditingNotes(false);
+  };
+
+  const handleSaveEdit = async () => {
+    const trimmedPhraseText = phraseText.trim();
+
+    if (!trimmedPhraseText) {
+      toast({ title: "Please enter a phrase", variant: "destructive" });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      await savePhraseEdits(phrase.id, {
+        phraseText: trimmedPhraseText,
+        phraseType,
+        category,
+        difficultyLevel,
+        notes,
+      });
+      toast({ title: "Phrase updated" });
+      setIsEditing(false);
+    } catch (error) {
+      toast({
+        title: "Failed to update phrase",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleSpeak = () => {
     if ("speechSynthesis" in window) {
       const u = new SpeechSynthesisUtterance(phrase.phraseText);
       u.lang = "en-US";
       u.rate = 0.8;
       speechSynthesis.speak(u);
+    }
+  };
+
+  const handleSaveNotes = async () => {
+    setIsSavingNotes(true);
+    try {
+      updatePhrase(phrase.id, { notes: noteDraft });
+      setNotes(noteDraft);
+      setIsEditingNotes(false);
+      toast({ title: "Notes updated" });
+    } catch (error) {
+      toast({
+        title: "Failed to update notes",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSavingNotes(false);
     }
   };
 
@@ -63,40 +165,102 @@ export default function PhraseDetailPage() {
           <button onClick={() => navigate(-1)} className="mb-4 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-4 w-4" /> Back
           </button>
-          <div className="flex items-start justify-between">
-            <div>
-              <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                {phrase.phraseType.replace("_", " ")}
-              </span>
-              <h1 className="mt-2 text-3xl font-bold text-foreground">{phrase.phraseText}</h1>
-              {ex?.pronunciationText && (
-                <div className="mt-1 flex items-center gap-2">
-                  <p className="text-sm text-muted-foreground">{ex.pronunciationText}</p>
-                  <button onClick={handleSpeak} className="rounded-full p-1 text-primary hover:bg-primary/10">
-                    <Volume2 className="h-4 w-4" />
-                  </button>
+          {isEditing ? (
+            <div className="space-y-4 rounded-2xl border bg-card p-5">
+              <div>
+                <Label htmlFor="phrase-text">Word or Phrase</Label>
+                <Input id="phrase-text" value={phraseText} onChange={(e) => setPhraseText(e.target.value)} className="mt-1" />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <Label>Phrase Type</Label>
+                  <Select value={phraseType} onValueChange={(value) => setPhraseType(value as PhraseType)}>
+                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {phraseTypes.map((item) => <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </div>
-              )}
+                <div>
+                  <Label>Category</Label>
+                  <Select value={category} onValueChange={setCategory}>
+                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {categories.map((item) => <SelectItem key={item} value={item}>{item}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div>
+                <Label>Difficulty</Label>
+                <Select value={difficultyLevel} onValueChange={(value) => setDifficultyLevel(value as DifficultyLevel)}>
+                  <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {difficultyLevels.map((item) => <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="notes">Notes</Label>
+                <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} className="mt-1" rows={4} />
+              </div>
+              <p className="text-sm text-muted-foreground">
+                If you change the phrase text or phrase type, the AI explanation will update too.
+              </p>
             </div>
-          </div>
+          ) : (
+            <div className="flex items-start justify-between">
+              <div>
+                <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                  {phrase.phraseType.replace("_", " ")}
+                </span>
+                <h1 className="mt-2 text-3xl font-bold text-foreground">{phrase.phraseText}</h1>
+                {ex?.pronunciationText && (
+                  <div className="mt-1 flex items-center gap-2">
+                    <p className="text-sm text-muted-foreground">{ex.pronunciationText}</p>
+                    <button onClick={handleSpeak} className="rounded-full p-1 text-primary hover:bg-primary/10">
+                      <Volume2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
           {/* Actions */}
           <div className="mt-4 flex flex-wrap gap-2">
-            <Button variant={phrase.isFavorite ? "default" : "outline"} size="sm" onClick={() => toggleFavorite(phrase.id)} className="gap-1">
-              <Star className={`h-4 w-4 ${phrase.isFavorite ? "fill-current" : ""}`} />
-              {phrase.isFavorite ? "Favorited" : "Favorite"}
-            </Button>
-            <Button variant={phrase.isLearned ? "default" : "outline"} size="sm" onClick={() => toggleLearned(phrase.id)} className="gap-1">
-              <CheckCircle2 className="h-4 w-4" />
-              {phrase.isLearned ? "Learned ✓" : "Mark Learned"}
-            </Button>
-            <Link to="/review">
-              <Button variant="outline" size="sm" className="gap-1">
-                <RotateCcw className="h-4 w-4" /> Review
-              </Button>
-            </Link>
-            <Button variant="outline" size="sm" onClick={handleDelete} className="gap-1 text-destructive hover:bg-destructive/10">
-              <Trash2 className="h-4 w-4" /> Delete
-            </Button>
+            {isEditing ? (
+              <>
+                <Button size="sm" onClick={handleSaveEdit} className="gap-1" disabled={isSaving}>
+                  {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  Save Changes
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleCancelEdit} className="gap-1" disabled={isSaving}>
+                  <X className="h-4 w-4" /> Cancel
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant={phrase.isFavorite ? "default" : "outline"} size="sm" onClick={() => toggleFavorite(phrase.id)} className="gap-1">
+                  <Star className={`h-4 w-4 ${phrase.isFavorite ? "fill-current" : ""}`} />
+                  {phrase.isFavorite ? "Favorited" : "Favorite"}
+                </Button>
+                <Button variant={phrase.isLearned ? "default" : "outline"} size="sm" onClick={() => toggleLearned(phrase.id)} className="gap-1">
+                  <CheckCircle2 className="h-4 w-4" />
+                  {phrase.isLearned ? "Learned ✓" : "Mark Learned"}
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setIsEditing(true)} className="gap-1">
+                  <Edit className="h-4 w-4" /> Edit
+                </Button>
+                <Link to="/review">
+                  <Button variant="outline" size="sm" className="gap-1">
+                    <RotateCcw className="h-4 w-4" /> Review
+                  </Button>
+                </Link>
+                <Button variant="outline" size="sm" onClick={handleDelete} className="gap-1 text-destructive hover:bg-destructive/10">
+                  <Trash2 className="h-4 w-4" /> Delete
+                </Button>
+              </>
+            )}
           </div>
         </div>
 
@@ -191,11 +355,34 @@ export default function PhraseDetailPage() {
         )}
 
         {/* Notes */}
-        {phrase.notes && (
-          <SectionCard icon={Edit} title="Your Notes">
-            <p className="text-foreground">{phrase.notes}</p>
-          </SectionCard>
-        )}
+        <SectionCard icon={Edit} title="Your Notes">
+          {isEditingNotes ? (
+            <div className="space-y-3">
+              <Textarea
+                value={noteDraft}
+                onChange={(e) => setNoteDraft(e.target.value)}
+                rows={4}
+                placeholder="Add your notes here..."
+              />
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" onClick={handleSaveNotes} className="gap-1" disabled={isSavingNotes}>
+                  {isSavingNotes ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  Save Notes
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleCancelNotesEdit} className="gap-1" disabled={isSavingNotes}>
+                  <X className="h-4 w-4" /> Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-foreground">{phrase.notes || "No notes yet."}</p>
+              <Button variant="outline" size="sm" onClick={() => setIsEditingNotes(true)} className="gap-1">
+                <Edit className="h-4 w-4" /> {phrase.notes ? "Edit Notes" : "Add Notes"}
+              </Button>
+            </div>
+          )}
+        </SectionCard>
 
         {/* Meta */}
         <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">

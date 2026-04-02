@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { Phrase, PhraseType, DifficultyLevel, ReviewRating, AIGenerationResult, DashboardStats } from "@/types";
-import { generateMockAI } from "@/lib/mockData";
+import { Phrase, PhraseType, DifficultyLevel, ReviewRating, DashboardStats } from "@/types";
+import { generateAIExplanation } from "@/lib/ai";
 
 const STORAGE_KEY = "phrasepal_phrases";
 
@@ -17,35 +17,46 @@ function savePhrases(phrases: Phrase[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(phrases));
 }
 
-export function usePhraseStore(userId?: string) {
+export function usePhraseStore() {
   const [phrases, setPhrases] = useState<Phrase[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const all = loadPhrases();
-    setPhrases(userId ? all.filter((p) => p.userId === userId) : []);
+    setPhrases(loadPhrases());
     setIsLoading(false);
-  }, [userId]);
+  }, []);
 
   const persist = useCallback((updated: Phrase[]) => {
     setPhrases(updated);
-    const all = loadPhrases();
-    const otherUsers = all.filter((p) => p.userId !== userId);
-    savePhrases([...otherUsers, ...updated]);
-  }, [userId]);
+    savePhrases(updated);
+  }, []);
 
   const addPhrase = useCallback(
-    async (data: { phraseText: string; phraseType: PhraseType; category: string; notes: string; difficultyLevel: DifficultyLevel }) => {
-      if (!userId) return null;
+    async (
+      data: { phraseText: string; phraseType: PhraseType; category: string; notes: string; difficultyLevel: DifficultyLevel },
+      aiResultOverride?: {
+        standardMeaning: string;
+        easyMeaning: string;
+        aiExplanation: string;
+        usageContext: string;
+        examples: { type: "simple" | "daily" | "work" | "extra" | "somali"; text: string }[];
+        somaliMeaning: string;
+        somaliExplanation: string;
+        somaliSentence: string;
+        commonMistake: string;
+        pronunciationText: string;
+        relatedPhrases: string[];
+        phraseType: PhraseType;
+      }
+    ) => {
       setIsLoading(true);
 
-      const aiResult = await generateMockAI(data.phraseText);
+      const aiResult = aiResultOverride ?? await generateAIExplanation(data.phraseText);
 
       const now = new Date().toISOString();
       const id = crypto.randomUUID();
       const newPhrase: Phrase = {
         id,
-        userId,
         phraseText: data.phraseText,
         phraseType: aiResult.phraseType || data.phraseType,
         category: data.category,
@@ -90,7 +101,7 @@ export function usePhraseStore(userId?: string) {
       setIsLoading(false);
       return newPhrase;
     },
-    [userId, phrases, persist]
+    [phrases, persist]
   );
 
   const updatePhrase = useCallback(
@@ -164,6 +175,76 @@ export function usePhraseStore(userId?: string) {
     return phrases.filter((p) => p.review && new Date(p.review.nextReviewAt) <= now);
   }, [phrases]);
 
+  const savePhraseEdits = useCallback(
+    async (
+      id: string,
+      updates: {
+        phraseText: string;
+        phraseType: PhraseType;
+        category: string;
+        notes: string;
+        difficultyLevel: DifficultyLevel;
+      }
+    ) => {
+      const phrase = phrases.find((item) => item.id === id);
+      if (!phrase) return null;
+
+      const trimmedPhraseText = updates.phraseText.trim();
+      const shouldRefreshAI =
+        trimmedPhraseText !== phrase.phraseText || updates.phraseType !== phrase.phraseType;
+
+      setIsLoading(true);
+
+      let explanation = phrase.explanation;
+      let examples = phrase.examples;
+
+      if (shouldRefreshAI) {
+        const aiResult = await generateAIExplanation(trimmedPhraseText);
+        explanation = {
+          id: phrase.explanation?.id ?? crypto.randomUUID(),
+          phraseId: id,
+          standardMeaning: aiResult.standardMeaning,
+          easyMeaning: aiResult.easyMeaning,
+          aiExplanation: aiResult.aiExplanation,
+          usageContext: aiResult.usageContext,
+          somaliMeaning: aiResult.somaliMeaning,
+          somaliExplanation: aiResult.somaliExplanation,
+          somaliSentence: aiResult.somaliSentence,
+          commonMistake: aiResult.commonMistake,
+          pronunciationText: aiResult.pronunciationText,
+          relatedPhrases: aiResult.relatedPhrases,
+        };
+        examples = aiResult.examples.map((example, index) => ({
+          id: phrase.examples?.[index]?.id ?? crypto.randomUUID(),
+          phraseId: id,
+          exampleText: example.text,
+          exampleType: example.type,
+        }));
+      }
+
+      const updated = phrases.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              phraseText: trimmedPhraseText,
+              phraseType: updates.phraseType,
+              category: updates.category,
+              notes: updates.notes,
+              difficultyLevel: updates.difficultyLevel,
+              explanation,
+              examples,
+              updatedAt: new Date().toISOString(),
+            }
+          : item
+      );
+
+      persist(updated);
+      setIsLoading(false);
+      return updated.find((item) => item.id === id) ?? null;
+    },
+    [phrases, persist]
+  );
+
   return {
     phrases,
     isLoading,
@@ -175,5 +256,6 @@ export function usePhraseStore(userId?: string) {
     reviewPhrase,
     getStats,
     getDueForReview,
+    savePhraseEdits,
   };
 }

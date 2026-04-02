@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 import { usePhraseStore } from "@/hooks/usePhraseStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,8 +26,7 @@ const difficultyLevels: { value: DifficultyLevel; label: string }[] = [
 ];
 
 export default function AddPhrasePage() {
-  const { user } = useAuth();
-  const { addPhrase } = usePhraseStore(user?.id);
+  const { addPhrase } = usePhraseStore();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -62,8 +60,12 @@ export default function AddPhrasePage() {
         toast({ title: "Phrase saved!", description: `"${trimmed}" has been added with AI explanations.` });
         navigate(`/phrase/${result.id}`);
       }
-    } catch {
-      toast({ title: "Failed to save phrase", variant: "destructive" });
+    } catch (error) {
+      toast({
+        title: "Failed to save phrase",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
