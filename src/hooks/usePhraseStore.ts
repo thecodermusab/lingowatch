@@ -18,6 +18,66 @@ function savePhrases(phrases: Phrase[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(phrases));
 }
 
+function normalizePhraseKey(text: string) {
+  return text.trim().toLowerCase();
+}
+
+function sanitizePhrase(input: Phrase): Phrase {
+  const now = new Date().toISOString();
+  const phraseId = input.id || crypto.randomUUID();
+  const createdAt = input.createdAt || now;
+  const updatedAt = input.updatedAt || createdAt;
+
+  return {
+    ...input,
+    id: phraseId,
+    phraseText: input.phraseText?.trim() || "",
+    notes: input.notes || "",
+    tags: Array.isArray(input.tags) ? input.tags : [],
+    isFavorite: Boolean(input.isFavorite),
+    isLearned: Boolean(input.isLearned),
+    createdAt,
+    updatedAt,
+    explanation: input.explanation
+      ? {
+          ...input.explanation,
+          id: input.explanation.id || crypto.randomUUID(),
+          phraseId,
+          relatedPhrases: Array.isArray(input.explanation.relatedPhrases) ? input.explanation.relatedPhrases : [],
+        }
+      : undefined,
+    examples: Array.isArray(input.examples)
+      ? input.examples.map((example) => ({
+          ...example,
+          id: example.id || crypto.randomUUID(),
+          phraseId,
+        }))
+      : [],
+    review: input.review
+      ? {
+          ...input.review,
+          id: input.review.id || crypto.randomUUID(),
+          phraseId,
+          reviewCount: Number.isFinite(input.review.reviewCount) ? input.review.reviewCount : 0,
+          nextReviewAt: input.review.nextReviewAt || now,
+          confidenceScore: Number.isFinite(input.review.confidenceScore) ? input.review.confidenceScore : 0,
+        }
+      : {
+          id: crypto.randomUUID(),
+          phraseId,
+          reviewCount: 0,
+          nextReviewAt: now,
+          confidenceScore: 0,
+        },
+  };
+}
+
+function isPhraseLike(value: unknown): value is Phrase {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Partial<Phrase>;
+  return typeof candidate.phraseText === "string" && typeof candidate.phraseType === "string";
+}
+
 export function usePhraseStore() {
   const [phrases, setPhrases] = useState<Phrase[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -253,6 +313,47 @@ export function usePhraseStore() {
     [phrases, persist]
   );
 
+  const exportBackup = useCallback(() => {
+    return [...phrases].sort((a, b) => a.phraseText.localeCompare(b.phraseText));
+  }, [phrases]);
+
+  const importBackup = useCallback(
+    (incomingPhrases: Phrase[]) => {
+      const sanitizedIncoming = incomingPhrases.filter(isPhraseLike).map(sanitizePhrase).filter((phrase) => phrase.phraseText);
+      const mergedMap = new Map<string, Phrase>();
+
+      for (const phrase of phrases) {
+        mergedMap.set(normalizePhraseKey(phrase.phraseText), phrase);
+      }
+
+      let importedCount = 0;
+      let replacedCount = 0;
+
+      for (const phrase of sanitizedIncoming) {
+        const key = normalizePhraseKey(phrase.phraseText);
+        if (mergedMap.has(key)) {
+          replacedCount += 1;
+        } else {
+          importedCount += 1;
+        }
+        mergedMap.set(key, phrase);
+      }
+
+      const merged = Array.from(mergedMap.values()).sort(
+        (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      );
+
+      persist(merged);
+
+      return {
+        importedCount,
+        replacedCount,
+        totalCount: merged.length,
+      };
+    },
+    [phrases, persist]
+  );
+
   return {
     phrases,
     isLoading,
@@ -265,5 +366,7 @@ export function usePhraseStore() {
     getStats,
     getDueForReview,
     savePhraseEdits,
+    exportBackup,
+    importBackup,
   };
 }
