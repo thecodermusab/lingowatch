@@ -198,7 +198,6 @@
     state.currentIndex = -1;
 
     ensureInterface();
-    attachOverlay(video);
     attachLButton();
     injectQuickSaveModal();
     loadSubtitlesForCurrentPage(forceReload);
@@ -278,15 +277,15 @@
       const rect = video.getBoundingClientRect();
       const playerVisible = rect.bottom > 72 && rect.top < window.innerHeight - 72 && rect.width > 0 && rect.height > 0;
 
-      sidebar.style.setProperty("position", "sticky", "important");
-      sidebar.style.setProperty("top", "56px", "important");
+      sidebar.style.setProperty("position", "relative", "important");
+      sidebar.style.removeProperty("top");
       sidebar.style.removeProperty("left");
       sidebar.style.removeProperty("right");
       sidebar.style.removeProperty("bottom");
       sidebar.style.setProperty("width", "100%", "important");
-      sidebar.style.setProperty("height", "574px", "important");
-      sidebar.style.setProperty("min-height", "574px", "important");
-      sidebar.style.setProperty("max-height", "574px", "important");
+      sidebar.style.setProperty("height", "auto", "important");
+      sidebar.style.removeProperty("min-height");
+      sidebar.style.removeProperty("max-height");
       sidebar.style.setProperty("margin-bottom", "16px", "important");
       sidebar.style.setProperty("visibility", playerVisible ? "visible" : "hidden", "important");
       sidebar.style.setProperty("pointer-events", playerVisible ? "auto" : "none", "important");
@@ -448,34 +447,61 @@
     observer.observe(document.body, { childList: true, subtree: true });
   }
 
-  function attachOverlay(video) {
-    const parent = video.parentElement || document.body;
-    const computed = window.getComputedStyle(parent);
-
-    if (computed.position === "static") {
-      parent.style.position = "relative";
-    }
-
-    if (state.elements.overlay?.parentElement === parent) {
-      return;
-    }
-
-    state.elements.overlay?.remove();
-    const overlay = document.createElement("div");
-    overlay.id = "lw-overlay";
-    overlay.className = "lw-hidden";
-    overlay.innerHTML = `
-      <div id="lw-overlay-primary" class="lw-overlay-pill lw-sub-primary"></div>
-      <div id="lw-overlay-translation" class="lw-overlay-pill lw-sub-translation"></div>
-    `;
-
-    parent.appendChild(overlay);
-    overlay.addEventListener("click", handleOverlayClick);
-
-    state.elements.overlay = overlay;
-    state.elements.overlayPrimary = overlay.querySelector("#lw-overlay-primary");
-    state.elements.overlayTranslation = overlay.querySelector("#lw-overlay-translation");
+  function dispatchSubtitle(original, translation) {
+    window.dispatchEvent(
+      new CustomEvent("lw:subtitle", {
+        detail: { original: original || "", translation: translation || "" },
+      })
+    );
   }
+
+  // Word clicked in the subtitle overlay → open popup centered above the word
+  window.addEventListener("lw:word-click", (e) => {
+    const { word, rect, subtitleContext } = e.detail ?? {};
+    if (!word || !rect) return;
+    closeHoverTooltip();
+
+    if (subtitleContext) state.subtitleClickContext = subtitleContext;
+
+    // Always anchor to top-right of the video player for subtitle word clicks
+    // so the popup never blocks video content
+    const popupWidth = 380;
+    const player = document.querySelector("#movie_player") || document.querySelector("video")?.parentElement;
+    const playerRect = player ? player.getBoundingClientRect() : null;
+
+    let anchorRect;
+    if (playerRect) {
+      // Top-right corner of the video, with small margin
+      const left = Math.max(8, playerRect.right - popupWidth - 16);
+      anchorRect = { left, right: left + popupWidth, top: playerRect.top + 12, bottom: playerRect.top + 32, width: popupWidth, height: 20 };
+    } else {
+      // Fallback: top-right of viewport
+      const left = window.innerWidth - popupWidth - 16;
+      anchorRect = { left, right: left + popupWidth, top: 16, bottom: 36, width: popupWidth, height: 20 };
+    }
+
+    state.lastAnchorRect = anchorRect;
+    showWordPopup(word, anchorRect);
+  });
+
+  // Reposition popup when layout changes (fullscreen, resize)
+  function repositionOnLayoutChange() {
+    const popup = state.elements?.popup;
+    if (!popup || popup.style.display === "none") return;
+    const popupWidth = 380;
+    const player = document.querySelector("#movie_player") || document.querySelector("video")?.parentElement;
+    const playerRect = player ? player.getBoundingClientRect() : null;
+    if (playerRect) {
+      const left = Math.max(8, playerRect.right - popupWidth - 16);
+      const anchorRect = { left, right: left + popupWidth, top: playerRect.top + 12, bottom: playerRect.top + 32, width: popupWidth, height: 20 };
+      state.lastAnchorRect = anchorRect;
+      positionPopup(popup, anchorRect);
+    }
+  }
+
+  document.addEventListener("fullscreenchange", repositionOnLayoutChange);
+  document.addEventListener("webkitfullscreenchange", repositionOnLayoutChange);
+  window.addEventListener("resize", repositionOnLayoutChange);
 
   function attachLButton() {
     if (document.getElementById("lw-toggle-btn")) {
@@ -776,17 +802,6 @@
         state.currentVideo.play().catch(() => {});
       }
     }
-  }
-
-  function handleOverlayClick(event) {
-    const wordTarget = event.target.closest(".lw-word");
-    if (!wordTarget) {
-      return;
-    }
-
-    event.preventDefault();
-    event.stopPropagation();
-    openWordPopupFromTarget(wordTarget);
   }
 
   function handlePopupClick(event) {
@@ -1645,50 +1660,13 @@
     }
   }
 
-  async function updateOverlay(text) {
-    const overlay = state.elements.overlay;
-    if (!overlay || !state.elements.overlayPrimary || !state.elements.overlayTranslation) {
-      return;
-    }
-
+  function updateOverlay(text) {
     if (!text) {
-      overlay.classList.add("lw-hidden");
-      state.elements.overlayPrimary.innerHTML = "";
-      state.elements.overlayTranslation.textContent = "";
+      dispatchSubtitle("", "");
       return;
     }
-
-    const translationOnly = isYouTubePage() && hasVisibleYouTubeCaptions();
-    overlay.classList.remove("lw-hidden");
-    overlay.classList.toggle("lw-translation-only", translationOnly);
-
-    if (translationOnly) {
-      state.elements.overlayPrimary.innerHTML = "";
-      state.elements.overlayPrimary.style.display = "none";
-    } else {
-      state.elements.overlayPrimary.style.display = "inline-flex";
-      state.elements.overlayPrimary.innerHTML = wrapWordsInLine(text);
-    }
-
-    state.elements.overlayTranslation.textContent = "Translating...";
-
-    const requestId = ++state.overlayRequestId;
-    const translation = await translateToSomali(text, "");
-    if (requestId !== state.overlayRequestId) {
-      return;
-    }
-
-    state.elements.overlayTranslation.textContent = translation;
-  }
-
-  function hasVisibleYouTubeCaptions() {
-    const container = document.querySelector(".ytp-caption-window-container");
-    if (!container) {
-      return false;
-    }
-
-    const text = container.textContent?.trim();
-    return Boolean(text);
+    // subtitle.js handles its own translation using the baked-in API key
+    dispatchSubtitle(text, "");
   }
 
   function wrapWordsInLine(text) {
@@ -1746,27 +1724,24 @@
   }
 
   function positionPopup(popup, rect) {
-    const sidebarRect = state.elements.sidebar?.getBoundingClientRect();
-    const sidebarLeft = sidebarRect ? sidebarRect.left : window.innerWidth;
     const popupWidth = popup.offsetWidth || 380;
     const popupHeight = popup.offsetHeight || 420;
-    const maxLeft = sidebarLeft - popupWidth - 16;
-    let left = Math.min(rect.left, maxLeft);
-    left = Math.max(left, 8);
     const gutter = 12;
-    const minTop = 16;
-    const maxTop = Math.max(window.innerHeight - popupHeight - 16, minTop);
+    const minTop = 8;
+
+    // Clamp left within viewport
+    const left = Math.max(gutter, Math.min(rect.left, window.innerWidth - popupWidth - gutter));
+
+    // Place above rect if space, else below
+    let top;
     const spaceAbove = rect.top - gutter;
     const spaceBelow = window.innerHeight - rect.bottom - gutter;
-
-    let top;
     if (spaceAbove >= popupHeight || spaceAbove > spaceBelow) {
       top = rect.top - popupHeight - gutter;
     } else {
       top = rect.bottom + gutter;
     }
-
-    top = Math.max(minTop, Math.min(top, maxTop));
+    top = Math.max(minTop, Math.min(top, window.innerHeight - popupHeight - gutter));
 
     popup.style.left = `${left}px`;
     popup.style.top = `${top}px`;
@@ -1776,7 +1751,7 @@
     ensureInterface();
     const popup = state.elements.popup;
     const requestId = ++state.popupRequestId;
-    const currentLine = state.subtitles[state.currentIndex]?.text || "";
+    const currentLine = state.subtitleClickContext || state.subtitles[state.currentIndex]?.text || "";
 
     const skeletonHtml = `
       <div class="lw-loading">
@@ -1798,23 +1773,23 @@
         </div>
       </div>
       <div class="lw-popup-tabs">
-        <button type="button" class="lw-popup-tab active" data-popup-action="tab" data-tab="explain">Explain</button>
-        <button type="button" class="lw-popup-tab" data-popup-action="tab" data-tab="examples">Examples</button>
-        <button type="button" class="lw-popup-tab" data-popup-action="tab" data-tab="grammar">Grammar</button>
+        <button type="button" class="lw-popup-tab active" data-popup-action="tab" data-tab="learn">Learn</button>
+        <button type="button" class="lw-popup-tab" data-popup-action="tab" data-tab="usage">Usage</button>
+        <button type="button" class="lw-popup-tab" data-popup-action="tab" data-tab="somali">Somali 🇸🇴</button>
       </div>
       <div class="lw-popup-body">
-        <div class="lw-popup-panel" id="lw-panel-explain">${skeletonHtml}</div>
-        <div class="lw-popup-panel" id="lw-panel-examples" style="display:none">${skeletonHtml}</div>
-        <div class="lw-popup-panel" id="lw-panel-grammar" style="display:none">${skeletonHtml}</div>
-      </div>
-      <div class="lw-popup-links">
-        <a href="https://reverso.net/translation/english-somali/${encodeURIComponent(word)}" target="_blank" class="lw-popup-link">Re</a>
-        <a href="https://dictionary.cambridge.org/dictionary/english/${encodeURIComponent(word)}" target="_blank" class="lw-popup-link">Ca</a>
-        <a href="https://translate.google.com/?sl=en&tl=so&text=${encodeURIComponent(word)}" target="_blank" class="lw-popup-link">Gl</a>
+        <div class="lw-popup-panel" id="lw-panel-learn">${skeletonHtml}</div>
+        <div class="lw-popup-panel" id="lw-panel-usage" style="display:none">${skeletonHtml}</div>
+        <div class="lw-popup-panel" id="lw-panel-somali" style="display:none">${skeletonHtml}</div>
       </div>
       <div class="lw-popup-actions">
         <button type="button" class="lw-action-save" id="lw-popup-save-btn" data-popup-action="open-save" data-word="${escapeAttribute(word)}" data-translation="">✓ Save</button>
         <button type="button" class="lw-action-ignore" data-popup-action="ignore" data-word="${escapeAttribute(word)}">🚫</button>
+        <div class="lw-popup-links-inline">
+          <a href="https://reverso.net/translation/english-somali/${encodeURIComponent(word)}" target="_blank" class="lw-popup-link">Re</a>
+          <a href="https://dictionary.cambridge.org/dictionary/english/${encodeURIComponent(word)}" target="_blank" class="lw-popup-link">Ca</a>
+          <a href="https://translate.google.com/?sl=en&tl=so&text=${encodeURIComponent(word)}" target="_blank" class="lw-popup-link">Gl</a>
+        </div>
         <div class="lw-action-custom-translation" id="lw-custom-translation-area" style="display:none">
           <input id="lw-custom-input" placeholder="Add your own Somali translation..." />
           <button type="button" data-popup-action="save-custom" data-word="${escapeAttribute(word)}">Save</button>
@@ -1825,7 +1800,7 @@
     popup.style.display = "flex";
     positionPopup(popup, rect);
 
-    // Phase 1: fetch all word data (AI + dict + Datamuse in parallel)
+    // Fetch all word data (AI + dict + Datamuse in parallel)
     const { aiData, dictEntries, synonyms, antonyms } = await getFullWordData(word, currentLine);
     if (requestId !== state.popupRequestId) return;
 
@@ -1833,9 +1808,8 @@
     state.lastPopupSynonyms = synonyms;
     state.lastPopupAntonyms = antonyms;
 
-    const meanings = dictEntries[0]?.meanings || [];
-    const phonetic = dictEntries[0]?.phonetic || "";
-    const translation = aiData?.somalTranslation || await translateToSomali(word, "");
+    const phonetic = dictEntries[0]?.phonetic || aiData?.pronunciationText || "";
+    const translation = aiData?.somaliMeaning || "";
     if (requestId !== state.popupRequestId) return;
 
     // Update header
@@ -1856,108 +1830,133 @@
       }).join("");
     }
 
-    // Render Explain tab
-    const explainPanel = popup.querySelector("#lw-panel-explain");
-    if (explainPanel) {
-      explainPanel.innerHTML = `
-        ${aiData?.contextExplanation ? `
-          <div class="lw-explain-context-box">
-            <div class="lw-explain-context-label">In this context</div>
-            <div class="lw-explain-context-text">${escapeHtml(aiData.contextExplanation)}</div>
+    // aiData fields from /api/ai/explain:
+    // standardMeaning, easyMeaning, aiExplanation, usageContext,
+    // examples [{type, text}], somaliMeaning, somaliExplanation, somaliSentence,
+    // commonMistake, relatedPhrases[]
+    const meanings = dictEntries[0]?.meanings || [];
+    const dictDef = meanings[0]?.definitions?.[0]?.definition || "";
+    const examples = (aiData?.examples || []).filter(ex => ex.type !== "somali");
+
+    // === Learn tab: Standard Meaning + Easy Meaning + AI Explanation + Examples ===
+    const learnPanel = popup.querySelector("#lw-panel-learn");
+    if (learnPanel) {
+      learnPanel.innerHTML = `
+        ${aiData?.standardMeaning || dictDef ? `
+          <div class="lw-easy-meaning-box" style="border-color:rgba(148,163,184,0.3);background:rgba(148,163,184,0.06)">
+            <div class="lw-easy-meaning-label" style="color:#94a3b8">Standard Meaning</div>
+            <div class="lw-easy-meaning-text" style="font-size:13px;font-weight:400">${escapeHtml(aiData?.standardMeaning || dictDef)}</div>
           </div>
         ` : ""}
-        <div class="lw-popup-word-orange">${escapeHtml(word)}</div>
-        ${meanings.slice(0, 2).map((m) => `
-          <div class="lw-popup-pos">(${escapeHtml(m.partOfSpeech)})</div>
-          ${m.definitions.slice(0, 2).map((d) => `<div class="lw-popup-def-row">${escapeHtml(d.definition)}</div>`).join("")}
-        `).join("")}
-        ${synonyms.length ? `
-          <div class="lw-popup-divider"></div>
-          <div class="lw-section-label">Synonyms (${synonyms.length})</div>
-          <div class="lw-chips-wrap">${chips(synonyms)}</div>
+        ${aiData?.easyMeaning ? `
+          <div class="lw-easy-meaning-box" style="margin-top:10px">
+            <div class="lw-easy-meaning-label">Easy Meaning ✨</div>
+            <div class="lw-easy-meaning-text">${escapeHtml(aiData.easyMeaning)}</div>
+          </div>
         ` : ""}
-        ${aiData?.synonymsSomali?.length ? `
-          <div class="lw-section-label" style="margin-top:10px">Synonyms in Somali</div>
-          <div class="lw-chips-wrap">${chips(aiData.synonymsSomali, "somali", false)}</div>
-        ` : ""}
-        ${antonyms.length ? `
+        ${aiData?.aiExplanation ? `
           <div class="lw-popup-divider"></div>
-          <div class="lw-section-label">Antonyms (${antonyms.length})</div>
-          <div class="lw-chips-wrap">${chips(antonyms, "antonym")}</div>
-        ` : ""}
-        ${aiData?.alternatives?.length ? `
-          <div class="lw-popup-divider"></div>
-          <div class="lw-alts-label">Somali alternatives</div>
-          <div class="lw-alts-row">${aiData.alternatives.map((a) => `<span class="lw-alt-chip">${escapeHtml(a)}</span>`).join("")}</div>
+          <div class="lw-section-label">AI Explanation</div>
+          <div class="lw-ai-explanation">${escapeHtml(aiData.aiExplanation)}</div>
         ` : ""}
         ${currentLine ? `
           <div class="lw-popup-divider"></div>
-          <div class="lw-section-label">Examples: Current text</div>
-          <div class="lw-example-card current">
-            <div class="lw-example-content"><div class="lw-example-text">${highlightWordInText(escapeHtml(currentLine), word)}</div></div>
-            ${audioBtn(currentLine)}
+          <div class="lw-section-label">From this subtitle</div>
+          <div class="lw-examples-list">
+            <div class="lw-example-row current">
+              <span class="lw-example-type-tag" style="background:rgba(249,115,22,0.18);color:#f97316">NOW</span>
+              <span class="lw-example-row-text">${highlightWordInText(escapeHtml(currentLine), word)}</span>
+              ${audioBtn(currentLine, true)}
+            </div>
           </div>
         ` : ""}
-        ${aiData?.exampleSentence ? `
-          <div class="lw-section-label" style="margin-top:6px">Another example</div>
-          <div class="lw-example-card">
-            <div class="lw-example-content"><div class="lw-example-text">${highlightWordInText(escapeHtml(aiData.exampleSentence), word)}</div></div>
-            ${audioBtn(aiData.exampleSentence)}
+        ${examples.length ? `
+          <div class="lw-popup-divider"></div>
+          <div class="lw-section-label">Example Sentences</div>
+          <div class="lw-examples-list">
+            ${examples.map((ex) => `
+              <div class="lw-example-row">
+                ${ex.type ? `<span class="lw-example-type-tag">${escapeHtml(ex.type.toUpperCase())}</span>` : ""}
+                <span class="lw-example-row-text">${highlightWordInText(escapeHtml(ex.text), word)}</span>
+                ${audioBtn(ex.text, true)}
+              </div>
+            `).join("")}
           </div>
         ` : ""}
+        ${synonyms.length ? `
+          <div class="lw-popup-divider"></div>
+          <div class="lw-section-label">Synonyms</div>
+          <div class="lw-chips-wrap">${chips(synonyms)}</div>
+        ` : ""}
+        ${antonyms.length ? `
+          <div class="lw-popup-divider"></div>
+          <div class="lw-section-label">Antonyms</div>
+          <div class="lw-chips-wrap">${chips(antonyms, "antonym")}</div>
+        ` : ""}
+        ${!aiData && !dictDef && !currentLine ? `<div class="lw-popup-empty">No data found for "${escapeHtml(word)}"</div>` : ""}
       `;
     }
 
-    // Render Grammar tab
-    const grammarPanel = popup.querySelector("#lw-panel-grammar");
-    if (grammarPanel) {
-      grammarPanel.innerHTML = meanings.map((m) => `
-        <div class="lw-grammar-pos-header">${escapeHtml(m.partOfSpeech)}</div>
-        ${m.definitions.slice(0, 4).map((d) => `
-          <div class="lw-grammar-def-block">
-            <div class="lw-grammar-def-text">${escapeHtml(d.definition)}</div>
-            ${d.example ? `
-              <div class="lw-grammar-def-example">
-                <span>"${escapeHtml(d.example)}"</span>
-                ${audioBtn(d.example, true)}
-              </div>
-            ` : ""}
+    // === Usage tab: When People Use This + Common Mistake + Related Phrases ===
+    const usagePanel = popup.querySelector("#lw-panel-usage");
+    if (usagePanel) {
+      const phrases = aiData?.relatedPhrases || [];
+      usagePanel.innerHTML = `
+        ${aiData?.usageContext ? `
+          <div class="lw-usage-box">
+            <div class="lw-usage-label">When People Use This</div>
+            <div class="lw-usage-text">${escapeHtml(aiData.usageContext)}</div>
           </div>
-        `).join("")}
-        ${m.synonyms?.length ? `
+        ` : ""}
+        ${aiData?.commonMistake ? `
+          ${aiData?.usageContext ? `<div class="lw-popup-divider"></div>` : ""}
+          <div class="lw-mistakes-box">
+            <div class="lw-mistakes-label">⚠️ Common Mistake</div>
+            <div class="lw-mistakes-text">${escapeHtml(aiData.commonMistake)}</div>
+          </div>
+        ` : ""}
+        ${phrases.length ? `
+          <div class="lw-popup-divider"></div>
+          <div class="lw-section-label">Related Phrases</div>
+          <div class="lw-chips-wrap">
+            ${phrases.map((p) => `<span class="lw-phrase-chip">${escapeHtml(p)}</span>`).join("")}
+          </div>
+        ` : ""}
+        ${synonyms.length ? `
+          <div class="lw-popup-divider"></div>
           <div class="lw-section-label">Synonyms</div>
-          <div class="lw-chips-wrap">${chips(m.synonyms.slice(0, 10))}</div>
+          <div class="lw-chips-wrap">${chips(synonyms)}</div>
         ` : ""}
-        ${m.antonyms?.length ? `
+        ${antonyms.length ? `
+          <div class="lw-popup-divider"></div>
           <div class="lw-section-label">Antonyms</div>
-          <div class="lw-chips-wrap">${chips(m.antonyms.slice(0, 10), "antonym")}</div>
+          <div class="lw-chips-wrap">${chips(antonyms, "antonym")}</div>
         ` : ""}
-      `).join('<div class="lw-popup-divider"></div>') || `<div class="lw-popup-empty">No grammar data found</div>`;
+        ${!aiData?.usageContext && !aiData?.commonMistake && !phrases.length ? `<div class="lw-popup-empty">No usage data available</div>` : ""}
+      `;
+    }
+
+    // === Somali tab: Somali Meaning + Explanation + Example ===
+    const somaliPanel = popup.querySelector("#lw-panel-somali");
+    if (somaliPanel) {
+      somaliPanel.innerHTML = `
+        <div class="lw-somali-main-box">
+          <div class="lw-somali-flag-row">🇸🇴 <span class="lw-somali-word-label">Somali Support</span></div>
+          ${aiData?.somaliMeaning ? `<div class="lw-somali-translation">${escapeHtml(aiData.somaliMeaning)}</div>` : ""}
+          ${aiData?.somaliExplanation ? `<div class="lw-somali-note">${escapeHtml(aiData.somaliExplanation)}</div>` : ""}
+        </div>
+        ${aiData?.somaliSentence ? `
+          <div class="lw-popup-divider"></div>
+          <div class="lw-section-label">Somali Example</div>
+          <div class="lw-example-card">
+            <div class="lw-example-content"><div class="lw-example-text" style="font-style:italic">${escapeHtml(aiData.somaliSentence)}</div></div>
+          </div>
+        ` : ""}
+        ${!aiData?.somaliMeaning ? `<div class="lw-popup-empty">No Somali data available</div>` : ""}
+      `;
     }
 
     positionPopup(popup, rect);
-
-    // Phase 2: fetch examples (makes a second AI call — loads after explain/grammar)
-    const examples = await getAllExamples(word, dictEntries, currentLine);
-    if (requestId !== state.popupRequestId) return;
-
-    const examplesPanel = popup.querySelector("#lw-panel-examples");
-    if (examplesPanel) {
-      examplesPanel.innerHTML = examples.length ? `
-        <div class="lw-examples-count">${examples.length} examples</div>
-        ${examples.map((ex, i) => `
-          <div class="lw-example-card ${ex.isCurrent ? "current" : ""}">
-            <div class="lw-example-number">${i + 1}</div>
-            <div class="lw-example-content">
-              <div class="lw-example-text">${highlightWordInText(escapeHtml(ex.text), word)}</div>
-              ${ex.isCurrent ? `<div class="lw-example-badge">current video</div>` : ""}
-              ${ex.source === "ai" ? `<div class="lw-example-badge ai">AI generated</div>` : ""}
-            </div>
-            ${audioBtn(ex.text)}
-          </div>
-        `).join("")}
-      ` : `<div class="lw-popup-empty">No examples found for "${escapeHtml(word)}"</div>`;
-    }
   }
 
   function closeWordPopup() {
@@ -2147,63 +2146,28 @@
   }
 
   async function getFullWordData(word, sentenceContext) {
-    // Fetch dictionary data and AI data in parallel
     const [dictEntries, aiData] = await Promise.all([
       fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`)
         .then(r => r.ok ? r.json() : [])
         .catch(() => []),
-      (async () => {
-        try {
-          const apiKey = await new Promise(resolve => {
-            chrome.storage.local.get(["anthropicApiKey"], result => resolve(result.anthropicApiKey || ""));
-          });
-          if (!apiKey) return null;
-          const resp = await fetch("https://api.anthropic.com/v1/messages", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "x-api-key": apiKey,
-              "anthropic-version": "2023-06-01",
-              "anthropic-dangerous-direct-browser-access": "true"
-            },
-            body: JSON.stringify({
-              model: "claude-sonnet-4-20250514",
-              max_tokens: 1200,
-              messages: [{
-                role: "user",
-                content: `The user is a Somali student learning English. They clicked the word "${word}". The subtitle line was: "${sentenceContext}"
-
-Respond ONLY in this exact JSON format, no other text:
-{
-  "contextExplanation": "2-3 simple sentences explaining the word in this context",
-  "somalTranslation": "main somali translation",
-  "alternatives": ["somali alt1", "somali alt2", "somali alt3"],
-  "synonyms": ["syn1", "syn2", "syn3", "syn4", "syn5", "syn6", "syn7", "syn8"],
-  "synonymsSomali": ["somali1", "somali2", "somali3"],
-  "antonyms": ["ant1", "ant2", "ant3", "ant4"]
-}`
-              }]
-            })
-          });
-          const data = await resp.json();
-          return JSON.parse(data.content[0].text);
-        } catch (_e) {
-          return null;
-        }
-      })()
+      fetch("http://127.0.0.1:3001/api/ai/explain", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phraseText: word })
+      })
+        .then(r => r.ok ? r.json() : null)
+        .catch(() => null)
     ]);
 
-    // Fetch Datamuse synonyms in parallel (rel_syn = synonyms, rel_ant = antonyms, ml = related)
-    const [datamuseSyn, datamuseAnt, datamuseMl] = await Promise.all([
+    // Fetch Datamuse synonyms/antonyms in parallel
+    const [datamuseSyn, datamuseAnt] = await Promise.all([
       fetch(`https://api.datamuse.com/words?rel_syn=${encodeURIComponent(word)}&max=15`)
         .then(r => r.json()).then(arr => arr.map(x => x.word)).catch(() => []),
       fetch(`https://api.datamuse.com/words?rel_ant=${encodeURIComponent(word)}&max=8`)
-        .then(r => r.json()).then(arr => arr.map(x => x.word)).catch(() => []),
-      fetch(`https://api.datamuse.com/words?ml=${encodeURIComponent(word)}&max=10`)
         .then(r => r.json()).then(arr => arr.map(x => x.word)).catch(() => [])
     ]);
 
-    // Extract dict synonyms/antonyms from Free Dictionary entries
+    // Extract dict synonyms/antonyms
     const dictSyns = [];
     const dictAnts = [];
     for (const entry of dictEntries) {
@@ -2217,23 +2181,12 @@ Respond ONLY in this exact JSON format, no other text:
       }
     }
 
-    // Merge and deduplicate synonyms from all 3 sources (AI first = highest quality)
-    const aiSyns = aiData?.synonyms || [];
-    const allSyns = [...new Set([...aiSyns, ...dictSyns, ...datamuseSyn, ...datamuseMl])]
-      .filter(s => s && s.toLowerCase() !== word.toLowerCase())
-      .slice(0, 30);
+    const allSyns = [...new Set([...dictSyns, ...datamuseSyn])]
+      .filter(s => s && s.toLowerCase() !== word.toLowerCase()).slice(0, 20);
+    const allAnts = [...new Set([...dictAnts, ...datamuseAnt])]
+      .filter(s => s && s.toLowerCase() !== word.toLowerCase()).slice(0, 10);
 
-    const aiAnts = aiData?.antonyms || [];
-    const allAnts = [...new Set([...aiAnts, ...dictAnts, ...datamuseAnt])]
-      .filter(s => s && s.toLowerCase() !== word.toLowerCase())
-      .slice(0, 12);
-
-    return {
-      aiData,
-      dictEntries,
-      synonyms: allSyns,
-      antonyms: allAnts
-    };
+    return { aiData, dictEntries, synonyms: allSyns, antonyms: allAnts };
   }
 
   async function getAllExamples(word, dictEntries, currentLine) {
@@ -2324,7 +2277,7 @@ Respond ONLY in this exact JSON format, no other text:
   async function translateToSomali(text, fallback) {
     const key = text.trim();
     if (!key) {
-      return "";
+      return fallback || "";
     }
 
     if (state.translationCache[key]) {
@@ -2332,15 +2285,18 @@ Respond ONLY in this exact JSON format, no other text:
     }
 
     try {
-      const response = await fetch(
-        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|so`
-      );
-      const data = await response.json();
-      const translation = data.responseData?.translatedText?.trim() || fallback;
-      state.translationCache[key] = translation;
+      const response = await chrome.runtime.sendMessage({
+        type: "TRANSLATE",
+        text: key,
+        target: "so",
+      });
+      const translation = response?.translation?.trim() || fallback || "";
+      if (translation) {
+        state.translationCache[key] = translation;
+      }
       return translation;
     } catch (_error) {
-      return fallback;
+      return fallback || "";
     }
   }
 

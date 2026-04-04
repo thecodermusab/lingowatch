@@ -48,4 +48,48 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     sendResponse({ urls: subtitleUrls[sender.tab?.id] || [] });
     return true;
   }
+
+  if (msg.type === "TRANSLATE") {
+    const text = msg.text || "";
+    const target = msg.target || "so";
+
+    chrome.storage.local.get(["googleApiKey"], async (result) => {
+      const apiKey = result.googleApiKey || "";
+
+      if (apiKey) {
+        // Google Translate Cloud API v2
+        try {
+          const resp = await fetch(
+            `https://translation.googleapis.com/language/translate/v2?key=${apiKey}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ q: text, target, format: "text" }),
+            }
+          );
+          const data = await resp.json();
+          const translation =
+            data.data?.translations?.[0]?.translatedText?.trim() || "";
+          sendResponse({ translation });
+        } catch (e) {
+          sendResponse({ translation: "", error: String(e) });
+        }
+      } else {
+        // Fallback: MyMemory (free, no key)
+        try {
+          const resp = await fetch(
+            `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${target}`
+          );
+          const data = await resp.json();
+          const translation =
+            data.responseData?.translatedText?.trim() || "";
+          sendResponse({ translation });
+        } catch (e) {
+          sendResponse({ translation: "", error: String(e) });
+        }
+      }
+    });
+
+    return true; // keep channel open for async sendResponse
+  }
 });

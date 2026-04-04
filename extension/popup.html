@@ -5,112 +5,238 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LingoWatch</title>
     <style>
+      *, *::before, *::after { box-sizing: border-box; }
+
       body {
         margin: 0;
-        min-width: 320px;
-        padding: 18px;
+        width: 340px;
+        padding: 16px;
         background: #0b0d10;
         color: #f3f4f6;
         font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+        font-size: 13px;
       }
 
       .shell {
-        overflow: hidden;
         border: 1px solid #1d242c;
-        border-radius: 24px;
+        border-radius: 20px;
         background: #11161c;
-        box-shadow: 0 22px 42px rgba(0, 0, 0, 0.34);
+        overflow: hidden;
       }
 
       .hero {
-        padding: 18px 18px 16px;
+        padding: 16px 18px 14px;
         background: linear-gradient(135deg, #181a1e 0%, #243141 100%);
       }
 
       .kicker {
-        margin: 0 0 6px;
-        color: rgba(255, 255, 255, 0.42);
+        margin: 0 0 4px;
+        color: rgba(255,255,255,0.42);
         font-size: 10px;
         font-weight: 700;
         letter-spacing: 0.16em;
         text-transform: uppercase;
       }
 
-      h1 {
-        margin: 0;
-        color: #ffffff;
-        font-size: 22px;
-        line-height: 1.1;
-      }
+      h1 { margin: 0; font-size: 20px; }
 
-      .subtitle {
-        margin: 6px 0 0;
-        color: rgba(255, 255, 255, 0.72);
-        font-size: 13px;
-        line-height: 1.5;
-      }
+      .body { padding: 14px 16px 16px; }
 
-      .body {
-        padding: 18px;
-        background: linear-gradient(180deg, #11161c 0%, #0f1419 100%);
-      }
-
-      .panel {
-        margin-bottom: 14px;
-        padding: 14px;
-        border: 1px solid #242c35;
-        border-radius: 18px;
-        background: #14181d;
-      }
-
-      .panel p {
-        margin: 0;
-        color: #94a3b8;
-        font-size: 13px;
-        line-height: 1.6;
-      }
-
-      button {
+      /* ── Sidebar toggle ── */
+      .sidebar-btn {
         width: 100%;
         border: 0;
-        border-radius: 14px;
-        padding: 13px 16px;
+        border-radius: 12px;
+        padding: 11px 14px;
         background: #243141;
         color: #fff;
         cursor: pointer;
         font-size: 13px;
         font-weight: 700;
-        box-shadow: 0 12px 20px rgba(36, 49, 65, 0.22);
-        transition: transform 0.15s ease, background 0.15s ease;
+        transition: background 0.15s;
+        margin-bottom: 6px;
       }
-
-      button:hover {
-        background: #1b2530;
-        transform: translateY(-1px);
-      }
+      .sidebar-btn:hover { background: #1b2530; }
 
       #lw-popup-status {
-        margin-top: 12px;
-        min-height: 18px;
+        min-height: 16px;
+        color: #64748b;
+        font-size: 11px;
+        margin-bottom: 14px;
+      }
+
+      /* ── Section heading ── */
+      .section-label {
+        color: rgba(255,255,255,0.38);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin: 14px 0 8px;
+      }
+
+      /* ── Settings card ── */
+      .card {
+        border: 1px solid #1d2530;
+        border-radius: 14px;
+        padding: 12px 14px;
+        background: #0f1419;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      /* ── Form rows ── */
+      .row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .row label {
         color: #94a3b8;
+        flex-shrink: 0;
         font-size: 12px;
-        font-weight: 600;
+      }
+
+      input[type="text"],
+      input[type="password"],
+      select {
+        background: #1a2232;
+        border: 1px solid #253040;
+        border-radius: 8px;
+        color: #e2e8f0;
+        font-size: 12px;
+        padding: 5px 8px;
+        outline: none;
+        width: 160px;
+      }
+
+      input[type="text"]:focus,
+      input[type="password"]:focus,
+      select:focus {
+        border-color: #3ea6ff;
+      }
+
+      input[type="range"] {
+        width: 130px;
+        accent-color: #3ea6ff;
+      }
+
+      .range-val {
+        color: #64748b;
+        font-size: 11px;
+        width: 28px;
+        text-align: right;
+      }
+
+      /* ── Save button ── */
+      .save-btn {
+        width: 100%;
+        border: 0;
+        border-radius: 10px;
+        padding: 9px 12px;
+        background: #1e4976;
+        color: #fff;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 700;
+        margin-top: 2px;
+        transition: background 0.15s;
+      }
+      .save-btn:hover { background: #1a3f68; }
+
+      #lw-save-status {
+        min-height: 14px;
+        color: #4ade80;
+        font-size: 11px;
+        text-align: center;
+        margin-top: 6px;
+      }
+
+      .divider {
+        border: none;
+        border-top: 1px solid #1a2030;
+        margin: 6px 0 0;
       }
     </style>
   </head>
   <body>
     <div class="shell">
       <div class="hero">
-        <p class="kicker">Workspace</p>
-        <h1>Lingowatch</h1>
-        <p class="subtitle">Open the learning sidebar on a YouTube video page.</p>
+        <p class="kicker">LingoWatch</p>
+        <h1>PhrasePal</h1>
       </div>
       <div class="body">
-        <div class="panel">
-          <p>Use this on a YouTube video page while the video is open.</p>
-        </div>
-        <button id="lw-popup-toggle" type="button">Open YouTube sidebar</button>
+
+        <!-- Sidebar toggle -->
+        <button class="sidebar-btn" id="lw-popup-toggle" type="button">
+          Open learning sidebar
+        </button>
         <div id="lw-popup-status"></div>
+
+        <hr class="divider">
+
+        <!-- API key -->
+        <p class="section-label">Translation</p>
+        <div class="card">
+          <div class="row">
+            <label for="lw-api-key">Google API key</label>
+            <input id="lw-api-key" type="password" placeholder="AIza…" autocomplete="off" />
+          </div>
+          <p style="margin:0;color:#475569;font-size:11px;line-height:1.5;">
+            Optional — uses free fallback if empty.<br>
+            Get a key at Google Cloud Console → Cloud Translation API.
+          </p>
+        </div>
+
+        <!-- Subtitle overlay settings -->
+        <p class="section-label">Subtitle overlay</p>
+        <div class="card">
+          <div class="row">
+            <label for="lw-sub-enabled">Enabled</label>
+            <select id="lw-sub-enabled">
+              <option value="true">On</option>
+              <option value="false">Off</option>
+            </select>
+          </div>
+          <div class="row">
+            <label for="lw-sub-mode">Show</label>
+            <select id="lw-sub-mode">
+              <option value="dual">Both lines</option>
+              <option value="original">Original only</option>
+              <option value="translation">Translation only</option>
+            </select>
+          </div>
+          <div class="row">
+            <label for="lw-sub-order">Order</label>
+            <select id="lw-sub-order">
+              <option value="original-top">Original on top</option>
+              <option value="translation-top">Translation on top</option>
+            </select>
+          </div>
+          <div class="row">
+            <label for="lw-sub-fontsize">Font size</label>
+            <input id="lw-sub-fontsize" type="range" min="14" max="36" step="1" value="22" />
+            <span class="range-val" id="lw-sub-fontsize-val">22</span>
+          </div>
+          <div class="row">
+            <label for="lw-sub-offset">Position</label>
+            <input id="lw-sub-offset" type="range" min="20" max="160" step="4" value="60" />
+            <span class="range-val" id="lw-sub-offset-val">60</span>
+          </div>
+          <div class="row">
+            <label for="lw-sub-opacity">Background</label>
+            <input id="lw-sub-opacity" type="range" min="40" max="98" step="2" value="82" />
+            <span class="range-val" id="lw-sub-opacity-val">82%</span>
+          </div>
+        </div>
+
+        <button class="save-btn" id="lw-save-settings" type="button">Save settings</button>
+        <div id="lw-save-status"></div>
+
       </div>
     </div>
     <script src="popup.js"></script>

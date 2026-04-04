@@ -10,6 +10,7 @@
     "import:phrases": "node scripts/build-phrase-bank.mjs",
     "build": "vite build",
     "build:dev": "vite build --mode development",
+    "build:subtitle": "vite build --config vite.subtitle.config.ts",
     "lint": "npm run lint:extension",
     "lint:extension": "eslint \"extension/**/*.js\" \"eslint.config.js\"",
     "lint:repo": "eslint \"src/**/*.{ts,tsx}\" \"src/test/**/*.ts\" \"server/**/*.{js,mjs}\" \"scripts/**/*.{js,mjs}\" \"extension/**/*.js\" \"*.config.js\" \"*.config.ts\" \"playwright-fixture.ts\"",
