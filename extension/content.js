@@ -199,9 +199,8 @@
 
     ensureInterface();
     attachOverlay(video);
-    attachLButton(video);
+    attachLButton();
     injectQuickSaveModal();
-    toggleSidebar(true);
     loadSubtitlesForCurrentPage(forceReload);
     bindVideoSync(video);
     bindSidebarLayout(video);
@@ -478,44 +477,61 @@
     state.elements.overlayTranslation = overlay.querySelector("#lw-overlay-translation");
   }
 
-  function attachLButton(video) {
-    const parent = video.parentElement || document.body;
-    if (parent.querySelector("#lw-toggle-btn")) {
+  function attachLButton() {
+    if (document.getElementById("lw-toggle-btn")) {
       return;
     }
 
     const btn = document.createElement("button");
     btn.id = "lw-toggle-btn";
     btn.type = "button";
-    btn.textContent = "L";
-    btn.title = "LingoWatch — toggle sidebar";
-    parent.appendChild(btn);
+    btn.setAttribute("aria-label", "Toggle LingoWatch");
+    btn.setAttribute("data-tooltip", "LingoWatch — open learning panel");
+    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+    </svg>`;
 
-    btn.addEventListener("click", () => {
-      if (state.subtitles.length > 0) {
-        toggleSidebar(!state.sidebarOpen);
-      } else {
-        openQuickSaveModal();
-      }
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleSidebar(!state.sidebarOpen);
     });
+    btn.addEventListener("mousedown", (e) => e.stopPropagation());
 
     state.elements.lButton = btn;
+
+    // Poll for YouTube's player controls bar — it loads asynchronously
+    let attempts = 0;
+    const tryInject = setInterval(() => {
+      attempts++;
+      const timeDisplay = document.querySelector(".ytp-time-display");
+      if (timeDisplay) {
+        clearInterval(tryInject);
+        timeDisplay.insertAdjacentElement("afterend", btn);
+        return;
+      }
+      const leftControls = document.querySelector(".ytp-left-controls");
+      if (leftControls) {
+        clearInterval(tryInject);
+        leftControls.appendChild(btn);
+        return;
+      }
+      if (attempts >= 75) { // give up after ~15s
+        clearInterval(tryInject);
+      }
+    }, 200);
   }
 
   function updateLButton() {
     const btn = state.elements.lButton;
-    if (!btn) {
-      return;
-    }
-
-    if (state.subtitles.length === 0) {
-      btn.textContent = "+";
-      btn.title = "No subtitles found — tap to save a word manually";
-      btn.classList.add("lw-btn-no-subs");
+    if (!btn) return;
+    if (state.sidebarOpen) {
+      btn.classList.add("lw-btn-active");
+      btn.setAttribute("data-tooltip", "Close LingoWatch");
     } else {
-      btn.textContent = "L";
-      btn.title = "LingoWatch — toggle sidebar";
-      btn.classList.remove("lw-btn-no-subs");
+      btn.classList.remove("lw-btn-active");
+      btn.setAttribute("data-tooltip", "LingoWatch — open learning panel");
     }
   }
 
@@ -819,6 +835,7 @@
     ensureInterface();
     state.sidebarOpen = open;
     state.elements.sidebar.classList.toggle("lw-hidden", !open);
+    updateLButton();
   }
 
   function jumpToLine(startTime) {
