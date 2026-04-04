@@ -4,20 +4,23 @@ import { usePhraseStore } from "@/hooks/usePhraseStore";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Search, PlusCircle, Star, BookOpen } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Search, PlusCircle, Star, BookOpen, Trash2, CheckCircle2, Heart } from "lucide-react";
 import { categories } from "@/lib/mockData";
 import { PhraseType } from "@/types";
+import { getReviewStage } from "@/lib/review";
 
-type SortOption = "newest" | "oldest" | "alphabetical";
+type SortOption = "newest" | "oldest" | "alphabetical" | "review_due" | "hardest";
 type FilterStatus = "all" | "learned" | "not_learned" | "favorite";
 
 export default function LibraryPage() {
-  const { phrases } = usePhraseStore();
+  const { phrases, bulkDeletePhrases, bulkUpdatePhrases } = usePhraseStore();
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState<"all" | PhraseType>("all");
   const [statusFilter, setStatusFilter] = useState<FilterStatus>("all");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const filtered = useMemo(() => {
     let result = [...phrases];
@@ -29,7 +32,15 @@ export default function LibraryPage() {
           p.phraseText.toLowerCase().includes(q) ||
           p.notes.toLowerCase().includes(q) ||
           p.explanation?.easyMeaning.toLowerCase().includes(q) ||
-          p.explanation?.standardMeaning.toLowerCase().includes(q)
+          p.explanation?.standardMeaning.toLowerCase().includes(q) ||
+          p.explanation?.aiExplanation.toLowerCase().includes(q) ||
+          p.explanation?.somaliMeaning.toLowerCase().includes(q) ||
+          p.explanation?.somaliExplanation.toLowerCase().includes(q) ||
+          p.explanation?.somaliSentence.toLowerCase().includes(q) ||
+          p.explanation?.usageContext.toLowerCase().includes(q) ||
+          p.explanation?.commonMistake.toLowerCase().includes(q) ||
+          p.explanation?.relatedPhrases.some((item) => item.toLowerCase().includes(q)) ||
+          p.examples?.some((example) => example.exampleText.toLowerCase().includes(q))
       );
     }
 
@@ -42,11 +53,43 @@ export default function LibraryPage() {
     result.sort((a, b) => {
       if (sortBy === "newest") return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       if (sortBy === "oldest") return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      if (sortBy === "review_due") return new Date(a.review?.nextReviewAt ?? a.createdAt).getTime() - new Date(b.review?.nextReviewAt ?? b.createdAt).getTime();
+      if (sortBy === "hardest") return (a.review?.confidenceScore ?? 0) - (b.review?.confidenceScore ?? 0);
       return a.phraseText.localeCompare(b.phraseText);
     });
 
     return result;
   }, [phrases, search, categoryFilter, typeFilter, statusFilter, sortBy]);
+
+  const allVisibleSelected = filtered.length > 0 && filtered.every((phrase) => selectedIds.includes(phrase.id));
+  const selectedCount = selectedIds.length;
+
+  const toggleSelection = (id: string) => {
+    setSelectedIds((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
+  };
+
+  const handleSelectAllVisible = (checked: boolean) => {
+    setSelectedIds(checked ? filtered.map((phrase) => phrase.id) : []);
+  };
+
+  const handleBulkDelete = () => {
+    if (!selectedIds.length) return;
+    if (!window.confirm(`Delete ${selectedIds.length} selected entries? This cannot be undone.`)) return;
+    bulkDeletePhrases(selectedIds);
+    setSelectedIds([]);
+  };
+
+  const handleBulkFavorite = () => {
+    if (!selectedIds.length) return;
+    bulkUpdatePhrases(selectedIds, { isFavorite: true });
+    setSelectedIds([]);
+  };
+
+  const handleBulkLearned = () => {
+    if (!selectedIds.length) return;
+    bulkUpdatePhrases(selectedIds, { isLearned: true });
+    setSelectedIds([]);
+  };
 
   return (
     <div className="app-page">
@@ -102,9 +145,26 @@ export default function LibraryPage() {
               <SelectItem value="newest">Newest</SelectItem>
               <SelectItem value="oldest">Oldest</SelectItem>
               <SelectItem value="alphabetical">A-Z</SelectItem>
+              <SelectItem value="review_due">Next Review</SelectItem>
+              <SelectItem value="hardest">Hardest</SelectItem>
             </SelectContent>
           </Select>
         </div>
+
+        {selectedCount > 0 ? (
+          <div className="admin-toolbar">
+            <p className="text-sm font-medium text-foreground">{selectedCount} selected</p>
+            <Button variant="outline" className="h-11 rounded-xl" onClick={handleBulkFavorite}>
+              <Heart className="h-4 w-4" /> Favorite
+            </Button>
+            <Button variant="outline" className="h-11 rounded-xl" onClick={handleBulkLearned}>
+              <CheckCircle2 className="h-4 w-4" /> Mark Learned
+            </Button>
+            <Button variant="outline" className="h-11 rounded-xl text-destructive hover:bg-destructive/10" onClick={handleBulkDelete}>
+              <Trash2 className="h-4 w-4" /> Delete
+            </Button>
+          </div>
+        ) : null}
 
         <div className="admin-panel overflow-hidden">
           <div className="workspace-section-header">
@@ -126,30 +186,48 @@ export default function LibraryPage() {
             </div>
           ) : (
             <div>
-              <div className="workspace-table-head hidden lg:grid lg:grid-cols-[minmax(0,1.5fr)_140px_120px_120px]">
+              <div className="workspace-table-head hidden lg:grid lg:grid-cols-[40px_minmax(0,1.5fr)_140px_120px_140px]">
+                <div className="flex items-center">
+                  <Checkbox checked={allVisibleSelected} onCheckedChange={(checked) => handleSelectAllVisible(checked === true)} />
+                </div>
                 <span>Phrase</span>
                 <span>Category</span>
                 <span>Difficulty</span>
                 <span>Status</span>
               </div>
               {filtered.map((phrase) => (
-                <Link key={phrase.id} to={`/phrase/${phrase.id}`} className="admin-list-row block">
-                  <div className="min-w-0 flex-1 lg:grid lg:grid-cols-[minmax(0,1.5fr)_140px_120px_120px] lg:items-center lg:gap-3">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="admin-chip">{phrase.phraseType.replace("_", " ")}</span>
-                      </div>
-                      <h3 className="mt-2 text-xl font-semibold text-foreground">{phrase.phraseText}</h3>
-                      <p className="mt-1 line-clamp-2 max-w-3xl text-sm text-muted-foreground">{phrase.explanation?.easyMeaning}</p>
+                <div key={phrase.id} className="admin-list-row">
+                  <div className="flex items-start gap-3 lg:grid lg:w-full lg:grid-cols-[40px_minmax(0,1.5fr)_140px_120px_140px] lg:items-center lg:gap-3">
+                    <div className="pt-1 lg:pt-0">
+                      <Checkbox checked={selectedIds.includes(phrase.id)} onCheckedChange={() => toggleSelection(phrase.id)} />
                     </div>
+                    <Link to={`/phrase/${phrase.id}`} className="min-w-0">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="admin-chip">{phrase.phraseType.replace("_", " ")}</span>
+                          {phrase.review ? (
+                            <span className="rounded-full bg-secondary px-2.5 py-1 text-[11px] font-medium text-secondary-foreground">
+                              {getReviewStage(phrase.review)}
+                            </span>
+                          ) : null}
+                        </div>
+                        <h3 className="mt-2 text-xl font-semibold text-foreground">{phrase.phraseText}</h3>
+                        <p className="mt-1 line-clamp-2 max-w-3xl text-sm text-muted-foreground">{phrase.explanation?.easyMeaning}</p>
+                      </div>
+                    </Link>
                     <div className="mt-3 text-sm text-muted-foreground lg:mt-0 lg:text-foreground">{phrase.category}</div>
                     <div className="text-sm text-muted-foreground lg:text-foreground">{phrase.difficultyLevel}</div>
                     <div className="flex items-center gap-2 lg:justify-start">
                       {phrase.isFavorite && <Star className="h-4 w-4 fill-accent text-accent" />}
                       {phrase.isLearned && <span className="rounded-full bg-success/10 px-2.5 py-1 text-xs font-semibold text-success">Learned</span>}
+                      {phrase.review?.nextReviewAt ? (
+                        <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                          {new Date(phrase.review.nextReviewAt).toLocaleDateString()}
+                        </span>
+                      ) : null}
                     </div>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           )}

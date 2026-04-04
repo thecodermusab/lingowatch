@@ -10,6 +10,7 @@ import { Star, Trash2, ArrowLeft, RotateCcw, CheckCircle2, Volume2, Globe, BookO
 import { useToast } from "@/hooks/use-toast";
 import { categories } from "@/lib/mockData";
 import { DifficultyLevel, PhraseType } from "@/types";
+import { getReviewStage } from "@/lib/review";
 
 const phraseTypes: { value: PhraseType; label: string }[] = [
   { value: "word", label: "Word" },
@@ -79,6 +80,7 @@ export default function PhraseDetailPage() {
 
   const ex = phrase.explanation;
   const examples = phrase.examples || [];
+  const reviewStage = getReviewStage(phrase.review);
 
   const handleDelete = () => {
     deletePhrase(phrase.id);
@@ -260,6 +262,14 @@ export default function PhraseDetailPage() {
               </>
             )}
           </div>
+          <div className="mt-4 flex flex-wrap gap-3 text-xs text-muted-foreground">
+            <span>Stage: {reviewStage}</span>
+            <span>Category: {phrase.category}</span>
+            <span>Difficulty: {phrase.difficultyLevel}</span>
+            <span>Added: {new Date(phrase.createdAt).toLocaleDateString()}</span>
+            {phrase.review?.lastReviewedAt && <span>Last reviewed: {new Date(phrase.review.lastReviewedAt).toLocaleDateString()}</span>}
+            {phrase.review && <span>Next review: {new Date(phrase.review.nextReviewAt).toLocaleDateString()}</span>}
+          </div>
         </div>
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
@@ -378,13 +388,6 @@ export default function PhraseDetailPage() {
             </div>
           )}
         </SectionCard>
-
-        <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-          <span>Category: {phrase.category}</span>
-          <span>Difficulty: {phrase.difficultyLevel}</span>
-          <span>Added: {new Date(phrase.createdAt).toLocaleDateString()}</span>
-          {phrase.review && <span>Reviewed: {phrase.review.reviewCount} times</span>}
-        </div>
       </div>
     </div>
   );

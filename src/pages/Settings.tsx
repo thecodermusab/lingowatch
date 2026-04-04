@@ -7,10 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { DifficultyLevel } from "@/types";
-import { getAIHealth, testAIConnection } from "@/lib/ai";
+import { getAIHealth, getAllAIProviderStatuses, testAIConnection } from "@/lib/ai";
 import { loadImportedPhraseBank, phraseBank } from "@/lib/phraseBank";
 import { Download, Loader2, Upload } from "lucide-react";
+import { Phrase, PhraseType, DifficultyLevel } from "@/types";
 
 export default function SettingsPage() {
   const { user, updateProfile } = useAuth();
@@ -21,12 +21,26 @@ export default function SettingsPage() {
   const [aiConfigured, setAiConfigured] = useState(false);
   const [statusLoading, setStatusLoading] = useState(true);
   const [testLoading, setTestLoading] = useState(false);
+  const [providerStatuses, setProviderStatuses] = useState<Array<{
+    provider: "gemini" | "grok" | "openrouter" | "cerebras";
+    model: string;
+    configured: boolean;
+    ok: boolean;
+    message: string;
+  }>>([]);
   const [importedCount, setImportedCount] = useState(0);
   const [totalCount, setTotalCount] = useState(phraseBank.length);
   const [sourceLabel, setSourceLabel] = useState("Imported file not found");
   const [bankLoading, setBankLoading] = useState(true);
   const [importLoading, setImportLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [importPreview, setImportPreview] = useState<{
+    phrases: Phrase[];
+    profile?: typeof user;
+    fileName: string;
+    duplicateCount: number;
+    newCount: number;
+  } | null>(null);
 
   if (!user) return null;
 
@@ -35,16 +49,18 @@ export default function SettingsPage() {
 
     async function loadStatus() {
       try {
-        const result = await getAIHealth();
+        const [result, statuses] = await Promise.all([getAIHealth(), getAllAIProviderStatuses()]);
         if (!active) return;
         setAiProvider(result.provider);
         setAiModel(result.model);
         setAiConfigured(result.configured);
+        setProviderStatuses(statuses);
       } catch {
         if (!active) return;
         setAiProvider("offline");
         setAiModel("unavailable");
         setAiConfigured(false);
+        setProviderStatuses([]);
       } finally {
         if (active) {
           setStatusLoading(false);
@@ -56,7 +72,7 @@ export default function SettingsPage() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [user?.preferredAiProvider]);
 
   useEffect(() => {
     let active = true;
@@ -93,12 +109,17 @@ export default function SettingsPage() {
   const handleTestAI = async () => {
     setTestLoading(true);
     try {
-      const result = await testAIConnection();
+      const [result, statuses] = await Promise.all([testAIConnection(), getAllAIProviderStatuses()]);
       setAiProvider(result.provider);
       setAiModel(result.model);
       setAiConfigured(true);
+      setProviderStatuses(statuses);
       toast({ title: "AI connection works", description: result.message });
     } catch (error) {
+      try {
+        const statuses = await getAllAIProviderStatuses();
+        setProviderStatuses(statuses);
+      } catch {}
       toast({
         title: "AI test failed",
         description: error instanceof Error ? error.message : "Unknown error",
@@ -113,7 +134,7 @@ export default function SettingsPage() {
     if (!user) return;
 
     const backup = {
-      app: "Lang-Vocabulary ai",
+      app: "Lingowatch",
       version: 1,
       exportedAt: new Date().toISOString(),
       profile: user,
@@ -134,6 +155,53 @@ export default function SettingsPage() {
     toast({ title: "Backup exported" });
   };
 
+  const parseCsvImport = (raw: string): Phrase[] => {
+    const lines = raw.split(/\r?\n/).filter(Boolean);
+    if (lines.length < 2) {
+      throw new Error("CSV file is empty.");
+    }
+
+    const headers = lines[0].split(",").map((item) => item.trim());
+    const getIndex = (name: string) => headers.findIndex((header) => header.toLowerCase() === name.toLowerCase());
+    const phraseTextIndex = getIndex("phraseText");
+    if (phraseTextIndex === -1) {
+      throw new Error("CSV needs a phraseText column.");
+    }
+
+    return lines.slice(1).map((line) => {
+      const cells = line.split(",").map((item) => item.trim());
+      const phraseText = cells[phraseTextIndex] || "";
+      const phraseType = (cells[getIndex("phraseType")] as PhraseType) || "word";
+      const category = cells[getIndex("category")] || "Imported";
+      const difficultyLevel = (cells[getIndex("difficultyLevel")] as DifficultyLevel) || "beginner";
+      const notes = cells[getIndex("notes")] || "Imported from CSV";
+      const now = new Date().toISOString();
+      const id = crypto.randomUUID();
+
+      return {
+        id,
+        phraseText,
+        phraseType,
+        category,
+        notes,
+        isFavorite: false,
+        isLearned: false,
+        tags: [],
+        difficultyLevel,
+        createdAt: now,
+        updatedAt: now,
+        examples: [],
+        review: {
+          id: crypto.randomUUID(),
+          phraseId: id,
+          reviewCount: 0,
+          nextReviewAt: now,
+          confidenceScore: 0,
+        },
+      } as Phrase;
+    }).filter((phrase) => phrase.phraseText);
+  };
+
   const handleImportFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -141,24 +209,35 @@ export default function SettingsPage() {
     setImportLoading(true);
     try {
       const raw = await file.text();
-      const parsed = JSON.parse(raw) as {
-        profile?: typeof user;
-        phrases?: typeof phrases;
-      };
+      let parsedPhrases: Phrase[] = [];
+      let parsedProfile: typeof user | undefined;
 
-      if (!parsed || !Array.isArray(parsed.phrases)) {
-        throw new Error("This file does not contain a valid backup.");
+      if (file.name.toLowerCase().endsWith(".csv")) {
+        parsedPhrases = parseCsvImport(raw);
+      } else {
+        const parsed = JSON.parse(raw) as {
+          profile?: typeof user;
+          phrases?: Phrase[];
+        };
+
+        if (!parsed || !Array.isArray(parsed.phrases)) {
+          throw new Error("This file does not contain a valid backup.");
+        }
+
+        parsedPhrases = parsed.phrases;
+        parsedProfile = parsed.profile;
       }
 
-      const result = importBackup(parsed.phrases);
+      const existingKeys = new Set(phrases.map((phrase) => phrase.phraseText.trim().toLowerCase()));
+      const duplicateCount = parsedPhrases.filter((phrase) => existingKeys.has(phrase.phraseText.trim().toLowerCase())).length;
+      const newCount = parsedPhrases.length - duplicateCount;
 
-      if (parsed.profile) {
-        updateProfile(parsed.profile);
-      }
-
-      toast({
-        title: "Backup imported",
-        description: `${result.importedCount} added, ${result.replacedCount} updated.`,
+      setImportPreview({
+        phrases: parsedPhrases,
+        profile: parsedProfile,
+        fileName: file.name,
+        duplicateCount,
+        newCount,
       });
     } catch (error) {
       toast({
@@ -170,6 +249,30 @@ export default function SettingsPage() {
       setImportLoading(false);
       event.target.value = "";
     }
+  };
+
+  const handleConfirmImport = () => {
+    if (!importPreview) return;
+
+    const result = importBackup(importPreview.phrases);
+
+    if (importPreview.profile) {
+      updateProfile(importPreview.profile);
+    }
+
+    toast({
+      title: "Import completed",
+      description: `${result.importedCount} added, ${result.replacedCount} updated.`,
+    });
+
+    setImportPreview(null);
+  };
+
+  const providerLabels: Record<"gemini" | "grok" | "openrouter" | "cerebras", string> = {
+    gemini: "Gemini",
+    grok: "Grok",
+    openrouter: "OpenRouter",
+    cerebras: "Cerebras",
   };
 
   return (
@@ -202,9 +305,22 @@ export default function SettingsPage() {
               <p className="admin-kicker">AI</p>
               <h2 className="mt-1 text-xl font-semibold text-foreground">AI connection</h2>
             </div>
+            <div>
+              <Label>Preferred Provider</Label>
+              <Select value={user.preferredAiProvider} onValueChange={(value) => updateProfile({ preferredAiProvider: value as "gemini" | "grok" | "openrouter" | "cerebras" })}>
+                <SelectTrigger className="mt-2 h-12 rounded-xl"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="gemini">Gemini</SelectItem>
+                  <SelectItem value="grok">Grok</SelectItem>
+                  <SelectItem value="openrouter">OpenRouter</SelectItem>
+                  <SelectItem value="cerebras">Cerebras</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="mt-2 text-sm text-muted-foreground">When quota is reached, switch provider here and test again from the website.</p>
+            </div>
             <div className="grid gap-3">
               <div className="rounded-[1.25rem] border bg-muted/20 px-4 py-3">
-                <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Provider</p>
+                <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Active Provider</p>
                 <p className="mt-1 text-base font-semibold text-foreground">{statusLoading ? "Loading..." : aiProvider}</p>
               </div>
               <div className="rounded-[1.25rem] border bg-muted/20 px-4 py-3">
@@ -223,9 +339,48 @@ export default function SettingsPage() {
               </div>
             </div>
 
+            <div className="space-y-3">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">All Providers</p>
+                <p className="mt-1 text-sm text-muted-foreground">See which provider is working, limited, or not configured.</p>
+              </div>
+              <div className="grid gap-3">
+                {providerStatuses.map((status) => (
+                  <div key={status.provider} className="rounded-[1.25rem] border bg-muted/20 px-4 py-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">{providerLabels[status.provider]}</p>
+                        <p className="text-xs text-muted-foreground">{status.model}</p>
+                      </div>
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                          status.ok
+                            ? "bg-emerald-500/10 text-emerald-600"
+                            : status.message.toLowerCase().includes("quota")
+                              ? "bg-destructive/10 text-destructive"
+                              : status.configured
+                                ? "bg-amber-500/10 text-amber-600"
+                                : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {status.ok
+                          ? "Working"
+                          : status.message.toLowerCase().includes("quota")
+                            ? "Quota reached"
+                            : status.configured
+                              ? "Unavailable"
+                              : "Not configured"}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm text-muted-foreground">{status.message}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <Button onClick={handleTestAI} variant="outline" className="h-12 w-full rounded-xl" disabled={testLoading || statusLoading}>
               {testLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Test AI Connection
+              Test All Providers
             </Button>
           </div>
 
@@ -265,6 +420,14 @@ export default function SettingsPage() {
                 <p className="text-sm text-muted-foreground">Show Somali meanings and explanations.</p>
               </div>
               <Switch checked={user.somaliModeEnabled} onCheckedChange={(v) => updateProfile({ somaliModeEnabled: v })} />
+            </div>
+
+            <div className="flex items-center justify-between rounded-[1.25rem] border bg-muted/20 px-4 py-3">
+              <div>
+                <p className="font-medium text-foreground">Auto-play audio</p>
+                <p className="text-sm text-muted-foreground">Play pronunciation automatically on review cards.</p>
+              </div>
+              <Switch checked={user.autoPlayAudioEnabled} onCheckedChange={(v) => updateProfile({ autoPlayAudioEnabled: v })} />
             </div>
           </div>
 
@@ -315,11 +478,11 @@ export default function SettingsPage() {
 
               <div className="rounded-[1.25rem] border bg-muted/20 p-4">
                 <p className="text-sm font-semibold text-foreground">Import backup</p>
-                <p className="mt-1 text-sm text-muted-foreground">Import a previous JSON backup. Existing phrases with the same text will be updated.</p>
+                <p className="mt-1 text-sm text-muted-foreground">Import JSON backup or CSV. Existing phrases with the same text will be updated after confirmation.</p>
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="application/json,.json"
+                  accept="application/json,.json,text/csv,.csv"
                   className="hidden"
                   onChange={handleImportFile}
                 />
@@ -330,10 +493,35 @@ export default function SettingsPage() {
                   disabled={importLoading}
                 >
                   {importLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                  Import JSON
+                  Import File
                 </Button>
               </div>
             </div>
+
+            {importPreview ? (
+              <div className="rounded-[1.25rem] border bg-muted/20 p-4">
+                <p className="text-sm font-semibold text-foreground">Import preview</p>
+                <p className="mt-1 text-sm text-muted-foreground">{importPreview.fileName}</p>
+                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                  <div className="rounded-xl border bg-white px-4 py-3">
+                    <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Rows</p>
+                    <p className="mt-1 font-semibold text-foreground">{importPreview.phrases.length}</p>
+                  </div>
+                  <div className="rounded-xl border bg-white px-4 py-3">
+                    <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">New</p>
+                    <p className="mt-1 font-semibold text-foreground">{importPreview.newCount}</p>
+                  </div>
+                  <div className="rounded-xl border bg-white px-4 py-3">
+                    <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Duplicates</p>
+                    <p className="mt-1 font-semibold text-foreground">{importPreview.duplicateCount}</p>
+                  </div>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <Button className="h-11 rounded-xl" onClick={handleConfirmImport}>Confirm Import</Button>
+                  <Button variant="outline" className="h-11 rounded-xl" onClick={() => setImportPreview(null)}>Cancel</Button>
+                </div>
+              </div>
+            ) : null}
           </div>
 
           <div className="xl:col-span-2 flex justify-center">

@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { usePhraseStore } from "@/hooks/usePhraseStore";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, Eye, BookOpen, Keyboard } from "lucide-react";
+import { RotateCcw, Eye, BookOpen, Keyboard, Volume2 } from "lucide-react";
 import { ReviewRating, Phrase } from "@/types";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
-import { getReviewTimingPreview } from "@/lib/review";
+import { getReviewStage, getReviewTimingPreview } from "@/lib/review";
 
 type ReviewMode = "phrase_to_meaning" | "meaning_to_phrase" | "english_to_somali" | "somali_to_english";
 
@@ -96,6 +96,25 @@ export default function ReviewPage() {
     () => getReviewTimingPreview(currentPhrase?.review),
     [currentPhrase]
   );
+  const reviewStage = useMemo(
+    () => getReviewStage(currentPhrase?.review),
+    [currentPhrase]
+  );
+
+  function speakCurrentPrompt() {
+    if (!currentPhrase || !("speechSynthesis" in window)) return;
+    const text =
+      mode === "english_to_somali" || mode === "phrase_to_meaning"
+        ? currentPhrase.phraseText
+        : mode === "meaning_to_phrase"
+          ? currentPhrase.phraseText
+          : currentPhrase.phraseText;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "en-US";
+    utterance.rate = 0.85;
+    window.speechSynthesis.speak(utterance);
+  }
 
   const goToNextCard = () => {
     setRevealed(false);
@@ -144,6 +163,11 @@ export default function ReviewPage() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentPhrase, revealed]);
+
+  useEffect(() => {
+    if (!currentPhrase || !user?.autoPlayAudioEnabled) return;
+    speakCurrentPrompt();
+  }, [currentPhrase?.id, mode, user?.autoPlayAudioEnabled]);
 
   if (reviewList.length === 0) {
     return (
@@ -200,9 +224,23 @@ export default function ReviewPage() {
                     Card {currentIndex + 1} of {reviewList.length}
                   </p>
                 </div>
-                <div className="rounded-xl border bg-muted/20 px-3 py-2 text-right">
-                  <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Due Now</p>
-                  <p className="mt-1 text-sm font-medium text-foreground">{dueForReview.length}</p>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={speakCurrentPrompt}
+                    className="rounded-xl border bg-muted/20 p-2 text-foreground transition-colors hover:bg-muted"
+                    aria-label="Play pronunciation"
+                  >
+                    <Volume2 className="h-4 w-4" />
+                  </button>
+                  <div className="rounded-xl border bg-muted/20 px-3 py-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">Stage</span>
+                      <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-foreground">
+                        {reviewStage}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
 

@@ -3,11 +3,15 @@ import { Phrase, PhraseType, DifficultyLevel, ReviewRating, DashboardStats } fro
 import { generateAIExplanation } from "@/lib/ai";
 import { buildNextReviewDate } from "@/lib/review";
 
-const STORAGE_KEY = "phrasepal_phrases";
+const STORAGE_KEY = "lingowatch_phrases";
+const LEGACY_STORAGE_KEY = "phrasepal_phrases";
 
 function loadPhrases(): Phrase[] {
   try {
-    const data = localStorage.getItem(STORAGE_KEY);
+    const data = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY);
+    if (data && !localStorage.getItem(STORAGE_KEY)) {
+      localStorage.setItem(STORAGE_KEY, data);
+    }
     return data ? JSON.parse(data) : [];
   } catch {
     return [];
@@ -182,6 +186,14 @@ export function usePhraseStore() {
     [phrases, persist]
   );
 
+  const bulkDeletePhrases = useCallback(
+    (ids: string[]) => {
+      const idSet = new Set(ids);
+      persist(phrases.filter((phrase) => !idSet.has(phrase.id)));
+    },
+    [phrases, persist]
+  );
+
   const toggleFavorite = useCallback(
     (id: string) => {
       const p = phrases.find((p) => p.id === id);
@@ -196,6 +208,18 @@ export function usePhraseStore() {
       if (p) updatePhrase(id, { isLearned: !p.isLearned });
     },
     [phrases, updatePhrase]
+  );
+
+  const bulkUpdatePhrases = useCallback(
+    (ids: string[], updates: Partial<Pick<Phrase, "isFavorite" | "isLearned">>) => {
+      const idSet = new Set(ids);
+      const now = new Date().toISOString();
+      const updated = phrases.map((phrase) =>
+        idSet.has(phrase.id) ? { ...phrase, ...updates, updatedAt: now } : phrase
+      );
+      persist(updated);
+    },
+    [phrases, persist]
   );
 
   const reviewPhrase = useCallback(
@@ -360,8 +384,10 @@ export function usePhraseStore() {
     addPhrase,
     updatePhrase,
     deletePhrase,
+    bulkDeletePhrases,
     toggleFavorite,
     toggleLearned,
+    bulkUpdatePhrases,
     reviewPhrase,
     getStats,
     getDueForReview,

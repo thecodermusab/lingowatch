@@ -1,0 +1,20 @@
+[
+  {
+    "id": "f914112e-96b3-4d1e-9a70-382c9475af9b",
+    "key": "workflow::https://www.youtube.com/watch?v=Y1JK98cdLwc::8.031639::These three websites started as simple",
+    "word": "workflow",
+    "displayWord": "workflow",
+    "translation": "socodka shaqada",
+    "note": "",
+    "sentenceContext": "These three websites started as simple",
+    "sourceHost": "www.youtube.com",
+    "sourceTitle": "(296) This ChatGPT + Codex Workflow Changed How I Design Websites - YouTube",
+    "sourceUrl": "https://www.youtube.com/watch?v=Y1JK98cdLwc",
+    "timestampSeconds": 8.031639,
+    "sourceType": "youtube",
+    "status": "imported",
+    "importedPhraseId": "4d7a79ea-6add-4a27-b519-6a36dcd3a570",
+    "createdAt": "2026-04-02T16:58:30.907Z",
+    "updatedAt": "2026-04-02T16:59:02.617Z"
+  }
+]

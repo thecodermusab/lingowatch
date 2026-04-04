@@ -8,7 +8,8 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
-const STORAGE_KEY = "phrasepal_user";
+const STORAGE_KEY = "lingowatch_user";
+const LEGACY_STORAGE_KEY = "phrasepal_user";
 
 function createDefaultProfile(): UserProfile {
   return {
@@ -18,6 +19,8 @@ function createDefaultProfile(): UserProfile {
     preferredLanguage: "somali",
     englishLevel: "beginner",
     somaliModeEnabled: true,
+    autoPlayAudioEnabled: false,
+    preferredAiProvider: "gemini",
     createdAt: new Date().toISOString(),
   };
 }
@@ -28,11 +31,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let profile = createDefaultProfile();
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY);
 
     if (stored) {
       try {
-        profile = JSON.parse(stored) as UserProfile;
+        profile = { ...profile, ...(JSON.parse(stored) as UserProfile) };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
       } catch {}
     } else {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));

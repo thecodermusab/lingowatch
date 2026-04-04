@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LingoWatch</title>
+    <style>
+      body {
+        margin: 0;
+        min-width: 320px;
+        padding: 18px;
+        background: #0b0d10;
+        color: #f3f4f6;
+        font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+
+      .shell {
+        overflow: hidden;
+        border: 1px solid #1d242c;
+        border-radius: 24px;
+        background: #11161c;
+        box-shadow: 0 22px 42px rgba(0, 0, 0, 0.34);
+      }
+
+      .hero {
+        padding: 18px 18px 16px;
+        background: linear-gradient(135deg, #181a1e 0%, #243141 100%);
+      }
+
+      .kicker {
+        margin: 0 0 6px;
+        color: rgba(255, 255, 255, 0.42);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        color: #ffffff;
+        font-size: 22px;
+        line-height: 1.1;
+      }
+
+      .subtitle {
+        margin: 6px 0 0;
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .body {
+        padding: 18px;
+        background: linear-gradient(180deg, #11161c 0%, #0f1419 100%);
+      }
+
+      .panel {
+        margin-bottom: 14px;
+        padding: 14px;
+        border: 1px solid #242c35;
+        border-radius: 18px;
+        background: #14181d;
+      }
+
+      .panel p {
+        margin: 0;
+        color: #94a3b8;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      button {
+        width: 100%;
+        border: 0;
+        border-radius: 14px;
+        padding: 13px 16px;
+        background: #243141;
+        color: #fff;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 700;
+        box-shadow: 0 12px 20px rgba(36, 49, 65, 0.22);
+        transition: transform 0.15s ease, background 0.15s ease;
+      }
+
+      button:hover {
+        background: #1b2530;
+        transform: translateY(-1px);
+      }
+
+      #lw-popup-status {
+        margin-top: 12px;
+        min-height: 18px;
+        color: #94a3b8;
+        font-size: 12px;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <div class="hero">
+        <p class="kicker">Workspace</p>
+        <h1>Lingowatch</h1>
+        <p class="subtitle">Open the learning sidebar on a YouTube video page.</p>
+      </div>
+      <div class="body">
+        <div class="panel">
+          <p>Use this on a YouTube video page while the video is open.</p>
+        </div>
+        <button id="lw-popup-toggle" type="button">Open YouTube sidebar</button>
+        <div id="lw-popup-status"></div>
+      </div>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>

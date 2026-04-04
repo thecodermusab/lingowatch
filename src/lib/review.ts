@@ -31,3 +31,9 @@ export function buildNextReviewDate(review: ReviewData | undefined, rating: Revi
   const preview = getReviewTimingPreview(review)[rating];
   return new Date(from.getTime() + preview.minutes * 60 * 1000);
 }
+
+export function getReviewStage(review?: ReviewData) {
+  if (!review || review.reviewCount === 0) return "New";
+  if (review.confidenceScore < 45 || review.reviewCount < 3) return "Learning";
+  return "Review";
+}

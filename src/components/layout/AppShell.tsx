@@ -1,7 +1,8 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, PlusCircle, Library, RotateCcw, Settings, Menu, X, Shuffle } from "lucide-react";
+import { LayoutDashboard, PlusCircle, Library, RotateCcw, Settings, Menu, X, Shuffle, BarChart3, Inbox, PlayCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { SelectionLearningOverlay } from "@/components/learning/SelectionLearningOverlay";
 
 const navGroups = [
   [
@@ -11,7 +12,10 @@ const navGroups = [
   ],
   [
     { to: "/library", label: "Library", icon: Library },
+    { to: "/inbox", label: "Inbox", icon: Inbox },
+    { to: "/watch", label: "Watch", icon: PlayCircle },
     { to: "/review", label: "Review", icon: RotateCcw },
+    { to: "/progress", label: "Progress", icon: BarChart3 },
   ],
   [
     { to: "/settings", label: "Settings", icon: Settings },
@@ -56,17 +60,19 @@ function SidebarLinks({ onNavigate }: { onNavigate?: () => void }) {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { user } = useAuth();
+  const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const mainRef = useRef<HTMLElement | null>(null);
 
   return (
     <div className="min-h-screen bg-[#f4f6f8]">
       <header className="sticky top-0 z-40 border-b border-[#e5e9ef] bg-[#f4f6f8]/90 backdrop-blur lg:hidden">
         <div className="flex h-16 items-center justify-between px-4">
           <Link to="/dashboard" className="flex items-center gap-3">
-            <img src="/Logo.png" alt="Lang-Vocabulary ai logo" className="h-10 w-10 rounded-xl object-cover shadow-sm" />
+            <img src="/Logo.png" alt="Lingowatch logo" className="h-10 w-10 rounded-xl object-cover shadow-sm" />
             <div>
-              <p className="text-base font-semibold text-foreground">Lang-Vocabulary ai</p>
-              <p className="text-xs text-muted-foreground">Learn faster</p>
+              <p className="text-base font-semibold text-foreground">Lingowatch</p>
+              <p className="text-xs text-muted-foreground">Watch, save, learn</p>
             </div>
           </Link>
 
@@ -85,10 +91,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="flex h-full flex-col rounded-[1.75rem] bg-[#181a1e] text-white shadow-[0_18px_42px_rgba(0,0,0,0.22)]">
             <div className="px-5 py-5">
               <Link to="/dashboard" className="flex items-center gap-4 rounded-2xl">
-                <img src="/Logo.png" alt="Lang-Vocabulary ai logo" className="h-11 w-11 rounded-2xl object-cover bg-white" />
+                <img src="/Logo.png" alt="Lingowatch logo" className="h-11 w-11 rounded-2xl object-cover bg-white" />
                 <div>
                   <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/35">Workspace</p>
-                  <p className="text-lg font-semibold text-white">Lang-Vocabulary ai</p>
+                  <p className="text-lg font-semibold text-white">Lingowatch</p>
                 </div>
               </Link>
             </div>
@@ -117,8 +123,8 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="flex h-full flex-col rounded-[1.75rem] bg-[#181a1e] text-white shadow-xl">
               <div className="mb-2 flex items-center justify-between px-5 py-5">
                 <Link to="/dashboard" className="flex items-center gap-3" onClick={() => setMobileOpen(false)}>
-                  <img src="/Logo.png" alt="Lang-Vocabulary ai logo" className="h-10 w-10 rounded-xl object-cover" />
-                  <span className="text-base font-semibold text-white">Lang-Vocabulary ai</span>
+                  <img src="/Logo.png" alt="Lingowatch logo" className="h-10 w-10 rounded-xl object-cover" />
+                  <span className="text-base font-semibold text-white">Lingowatch</span>
                 </Link>
                 <button type="button" className="rounded-xl border border-white/10 p-2 text-white/80" onClick={() => setMobileOpen(false)}>
                   <X className="h-5 w-5" />
@@ -133,7 +139,10 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       ) : null}
 
-      <main className="min-h-screen bg-[#f4f6f8] lg:pl-80">{children}</main>
+      <main ref={mainRef} className="min-h-screen bg-[#f4f6f8] lg:pl-80">
+        {children}
+      </main>
+      {location.pathname !== "/random-phrases" ? <SelectionLearningOverlay containerRef={mainRef} /> : null}
     </div>
   );
 }

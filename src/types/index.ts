@@ -10,6 +10,8 @@ export interface UserProfile {
   preferredLanguage: string;
   englishLevel: DifficultyLevel;
   somaliModeEnabled: boolean;
+  autoPlayAudioEnabled: boolean;
+  preferredAiProvider: "gemini" | "grok" | "openrouter" | "cerebras";
   createdAt: string;
 }
 
