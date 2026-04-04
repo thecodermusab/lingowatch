@@ -33,7 +33,7 @@ export function DualSubtitleStack({ original, translation, settings }: DualSubti
       style={{
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
+        alignItems: "stretch",
         gap: `${lineSpacing}px`,
         width: "100%",
       }}

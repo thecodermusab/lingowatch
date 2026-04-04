@@ -35,28 +35,15 @@ function handleWordClick(e: React.MouseEvent<HTMLSpanElement>, raw: string, subt
   );
 }
 
-function WordSpan({ token, fontSize, subtitleContext }: { token: string; fontSize: number; subtitleContext: string }) {
+function WordSpan({ token, subtitleContext }: { token: string; subtitleContext: string }) {
   const word = cleanWord(token);
-  if (!word) {
-    // punctuation / whitespace — render plain
-    return <span style={{ whiteSpace: "pre" }}>{token}</span>;
-  }
+  if (!word) return <span style={{ whiteSpace: "pre" }}>{token}</span>;
   return (
     <span
       onClick={(e) => handleWordClick(e as React.MouseEvent<HTMLSpanElement>, token, subtitleContext)}
-      style={{
-        cursor: "pointer",
-        borderRadius: "2px",
-        padding: "0 1px",
-        transition: "background 0.1s",
-      }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLSpanElement).style.background =
-          "rgba(255,255,255,0.18)";
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLSpanElement).style.background = "";
-      }}
+      style={{ cursor: "pointer", borderRadius: "2px", padding: "0 1px", transition: "background 0.1s" }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLSpanElement).style.background = "rgba(255,255,255,0.18)"; }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLSpanElement).style.background = ""; }}
     >
       {token}
     </span>
@@ -64,20 +51,14 @@ function WordSpan({ token, fontSize, subtitleContext }: { token: string; fontSiz
 }
 
 export function SubtitleLine({ text, primary, fontSize, bgOpacity, subtitleContext = "" }: SubtitleLineProps) {
-  if (!text.trim()) return null;
-
   const size = primary ? fontSize : Math.round(fontSize * 0.8);
-
-  // Split into word/non-word tokens preserving spaces and punctuation
   const tokens = text.split(/(\s+)/);
 
   return (
     <div
       style={{
-        display: "block",
         width: "100%",
         padding: primary ? "6px 20px 7px" : "4px 16px 5px",
-        borderRadius: "4px",
         background: `rgba(8, 8, 8, ${bgOpacity})`,
         color: primary ? "#ffffff" : "#a3e635",
         fontSize: `${size}px`,
@@ -88,20 +69,19 @@ export function SubtitleLine({ text, primary, fontSize, bgOpacity, subtitleConte
           ? "0 1px 6px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,0.8)"
           : "0 1px 3px rgba(0,0,0,0.8)",
         letterSpacing: "0.01em",
-        wordBreak: "break-word",
         textAlign: "center",
+        wordBreak: "break-word",
         boxSizing: "border-box",
-        // Enable clicks only on the primary (English) line
         pointerEvents: primary ? "auto" : "none",
+        // Reserve height for 2 lines to prevent vertical jumping
+        minHeight: `calc(${size * 1.4 * 2}px + ${primary ? 13 : 9}px)`,
       }}
     >
       {primary
         ? tokens.map((token, i) =>
-            /^\s+$/.test(token) ? (
-              <span key={i} style={{ whiteSpace: "pre" }}>{token}</span>
-            ) : (
-              <WordSpan key={i} token={token} fontSize={size} subtitleContext={subtitleContext} />
-            )
+            /^\s+$/.test(token)
+              ? <span key={i} style={{ whiteSpace: "pre" }}>{token}</span>
+              : <WordSpan key={i} token={token} subtitleContext={subtitleContext} />
           )
         : text}
     </div>

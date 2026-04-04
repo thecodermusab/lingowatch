@@ -52,7 +52,7 @@ saveButton.addEventListener("click", () => {
   const apiKey = document.getElementById("lw-api-key").value.trim();
 
   const subtitleSettings = {
-    enabled: document.getElementById("lw-sub-enabled").value === "true",
+    enabled: true,
     mode: document.getElementById("lw-sub-mode").value,
     order: document.getElementById("lw-sub-order").value,
     fontSize: Number(document.getElementById("lw-sub-fontsize").value),

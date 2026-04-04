@@ -238,6 +238,7 @@
         if (state.subtitles.length) return; // VTT subtitles loaded — no need
         const segments = container.querySelectorAll(".ytp-caption-segment");
         const text = Array.from(segments).map(s => s.textContent || "").join(" ").replace(/\s+/g, " ").trim();
+        if (!text) return; // don't clear — keep last subtitle visible
         dispatchSubtitle(text, "");
       });
       liveCaptionObserver.observe(container, { childList: true, subtree: true, characterData: true });

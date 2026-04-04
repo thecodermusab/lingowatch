@@ -16,48 +16,43 @@ function findPlayer(): HTMLElement | null {
   );
 }
 
-function mountOverlay() {
-  if (document.getElementById(HOST_ID)) return;
+// Single persistent host + root — never destroyed, just moved between players
+let hostEl: HTMLDivElement | null = null;
 
+function ensureOverlay() {
   const player = findPlayer();
-  if (!player) return;
+  if (!player) return false;
 
   if (window.getComputedStyle(player).position === "static") {
     player.style.position = "relative";
   }
 
-  const host = document.createElement("div");
-  host.id = HOST_ID;
-  // Stretch over the player, don't block pointer events on the host
-  host.style.cssText =
-    "position:absolute;inset:0;pointer-events:none;overflow:visible;z-index:2147483646;";
-  player.appendChild(host);
+  if (!hostEl) {
+    // First time: create host and React root
+    hostEl = document.createElement("div");
+    hostEl.id = HOST_ID;
+    hostEl.style.cssText =
+      "position:absolute;inset:0;pointer-events:none;overflow:visible;z-index:2147483646;";
+    const root = createRoot(hostEl);
+    root.render(<SubtitleOverlay />);
+  }
 
-  const root = createRoot(host);
-  root.render(<SubtitleOverlay />);
+  // Move host to current player if it's detached or in a different player
+  if (hostEl.parentElement !== player) {
+    player.appendChild(hostEl);
+  }
+
+  return true;
 }
 
 function tryMount(retries = 20) {
-  if (document.getElementById(HOST_ID)) return;
-  const player = findPlayer();
-  if (player) {
-    mountOverlay();
-  } else if (retries > 0) {
-    setTimeout(() => tryMount(retries - 1), 500);
-  }
+  if (ensureOverlay()) return;
+  if (retries > 0) setTimeout(() => tryMount(retries - 1), 300);
 }
 
-// Reinitialise on YouTube SPA navigation
+// On SPA navigation: move the existing overlay to the new player immediately
 window.addEventListener("yt-navigate-finish", () => {
-  document.getElementById(HOST_ID)?.remove();
-  setTimeout(() => tryMount(), 800);
-});
-
-// Clear subtitle when navigating away
-window.addEventListener("yt-navigate-start", () => {
-  window.dispatchEvent(
-    new CustomEvent("lw:subtitle", { detail: { original: "", translation: "" } })
-  );
+  if (!ensureOverlay()) setTimeout(() => tryMount(), 300);
 });
 
 tryMount();
