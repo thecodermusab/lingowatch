@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { cwd, env } from "node:process";
 import * as YoutubeTranscriptModule from "youtube-transcript/dist/youtube-transcript.esm.js";
+import { neon } from "@neondatabase/serverless";
 
 const PORT = Number(env.PORT || 3001);
 const HOST = env.HOST || "127.0.0.1";
@@ -10,8 +11,11 @@ const ROOT_DIR = cwd();
 const ENV_FILES = [join(ROOT_DIR, ".env"), join(ROOT_DIR, ".env.local")];
 const DATA_DIR = join(ROOT_DIR, "server", "data");
 const INBOX_FILE = join(DATA_DIR, "inbox-captures.json");
+const EXT_PHRASES_FILE = join(DATA_DIR, "ext-saved-phrases.json");
 
 loadEnvFile();
+
+const sql = env.DATABASE_URL ? neon(env.DATABASE_URL) : null;
 
 const SYSTEM_PROMPT = `
 You are an English phrase learning assistant.
@@ -229,6 +233,102 @@ createServer(async (req, res) => {
       sendJson(res, 500, { error: message });
       return;
     }
+  }
+
+  // Extension → save a word directly into the website's phrase library
+  if (req.method === "GET" && pathname === "/api/extension/saved-phrases") {
+    try {
+      const data = existsSync(EXT_PHRASES_FILE) ? JSON.parse(readFileSync(EXT_PHRASES_FILE, "utf8")) : [];
+      sendJson(res, 200, data);
+    } catch { sendJson(res, 200, []); }
+    return;
+  }
+
+  if (req.method === "POST" && pathname === "/api/extension/save-phrase") {
+    try {
+      const body = await readJsonBody(req);
+      if (!body?.phraseText) { sendJson(res, 400, { error: "phraseText required" }); return; }
+
+      const existing = existsSync(EXT_PHRASES_FILE)
+        ? JSON.parse(readFileSync(EXT_PHRASES_FILE, "utf8"))
+        : [];
+
+      const now = new Date().toISOString();
+      const id = body.id || crypto.randomUUID();
+      const phraseText = String(body.phraseText).trim();
+
+      // Remove existing entry for same word (case-insensitive)
+      const filtered = existing.filter(p => p.phraseText?.toLowerCase() !== phraseText.toLowerCase());
+
+      const phrase = {
+        id,
+        phraseText,
+        phraseType: body.phraseType || "word",
+        category: body.category || "YouTube",
+        notes: body.notes || "",
+        isFavorite: false,
+        isLearned: false,
+        tags: ["youtube"],
+        difficultyLevel: body.difficultyLevel || "intermediate",
+        createdAt: now,
+        updatedAt: now,
+        explanation: body.explanation || null,
+        examples: body.examples || [],
+        review: { id: crypto.randomUUID(), phraseId: id, reviewCount: 0, nextReviewAt: now, confidenceScore: 0 },
+      };
+
+      filtered.unshift(phrase);
+      if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
+      writeFileSync(EXT_PHRASES_FILE, JSON.stringify(filtered, null, 2));
+      sendJson(res, 200, { ok: true, phrase });
+    } catch (err) {
+      sendJson(res, 500, { error: String(err) });
+    }
+    return;
+  }
+
+  // ── Saved words (Neon) ──────────────────────────────────────────
+  if (req.method === "GET" && pathname === "/api/words") {
+    try {
+      if (!sql) { sendJson(res, 200, []); return; }
+      const rows = await sql`SELECT * FROM saved_words ORDER BY saved_at DESC`;
+      sendJson(res, 200, rows);
+    } catch (err) { sendJson(res, 500, { error: String(err) }); }
+    return;
+  }
+
+  if (req.method === "POST" && pathname === "/api/words") {
+    try {
+      if (!sql) { sendJson(res, 503, { error: "Database not configured" }); return; }
+      const body = await readJsonBody(req);
+      const word = String(body?.word || "").trim().toLowerCase();
+      if (!word) { sendJson(res, 400, { error: "word is required" }); return; }
+      const rows = await sql`
+        INSERT INTO saved_words (word, display_word, translation, note, source, is_manual, is_custom_translation)
+        VALUES (${word}, ${body.displayWord || body.display_word || word}, ${body.translation || ""}, ${body.note || ""}, ${body.source || ""}, ${body.isManual || false}, ${body.isCustomTranslation || false})
+        ON CONFLICT (word) DO UPDATE SET
+          display_word = EXCLUDED.display_word,
+          translation = EXCLUDED.translation,
+          note = EXCLUDED.note,
+          source = EXCLUDED.source,
+          is_manual = EXCLUDED.is_manual,
+          is_custom_translation = EXCLUDED.is_custom_translation,
+          saved_at = NOW()
+        RETURNING *
+      `;
+      sendJson(res, 200, rows[0]);
+    } catch (err) { sendJson(res, 500, { error: String(err) }); }
+    return;
+  }
+
+  if (req.method === "DELETE" && pathname.startsWith("/api/words/")) {
+    try {
+      if (!sql) { sendJson(res, 503, { error: "Database not configured" }); return; }
+      const word = decodeURIComponent(pathname.slice("/api/words/".length));
+      await sql`DELETE FROM saved_words WHERE word = ${word}`;
+      sendJson(res, 200, { ok: true });
+    } catch (err) { sendJson(res, 500, { error: String(err) }); }
+    return;
   }
 
   if (req.method === "POST" && pathname === "/api/extension/word-insights") {

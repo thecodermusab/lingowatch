@@ -103,10 +103,6 @@ export function AppShell({ children }: { children: ReactNode }) {
               <SidebarLinks />
             </div>
 
-            <div className="border-t border-white/10 px-6 py-5">
-              <p className="text-sm font-medium text-white">{user?.fullName}</p>
-              <p className="text-xs text-white/45">{user?.preferredLanguage}</p>
-            </div>
           </div>
         </div>
       </aside>

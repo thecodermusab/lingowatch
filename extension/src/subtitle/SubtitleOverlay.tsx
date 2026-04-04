@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { DualSubtitleStack } from "./DualSubtitleStack";
 import { useSettings } from "./store";
 import { SubtitlePayload } from "./types";
@@ -24,6 +24,15 @@ export function SubtitleOverlay() {
   const [sub, setSub] = useState<SubtitlePayload>({ original: "", translation: "" });
   const [visible, setVisible] = useState(false);
   const requestId = useRef(0);
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const scheduleHide = useCallback(() => {
+    if (hideTimer.current) clearTimeout(hideTimer.current);
+    hideTimer.current = setTimeout(() => {
+      setVisible(false);
+      setSub({ original: "", translation: "" });
+    }, 300);
+  }, []);
 
   useEffect(() => {
     const handle = async (e: Event) => {
@@ -31,17 +40,17 @@ export function SubtitleOverlay() {
         (e as CustomEvent<SubtitlePayload>).detail ?? {};
 
       if (!original && !preTranslated) {
-        setVisible(false);
-        setSub({ original: "", translation: "" });
+        scheduleHide();
         return;
       }
 
+      // Cancel any pending hide when a new subtitle arrives
+      if (hideTimer.current) clearTimeout(hideTimer.current);
+
       const id = ++requestId.current;
-      // Show original immediately
       setSub({ original, translation: preTranslated || "" });
       setVisible(true);
 
-      // If subtitle.js has its own key, translate here; otherwise use whatever content.js sent
       if (!preTranslated && original) {
         const t = await translate(original);
         if (id !== requestId.current) return;
@@ -51,16 +60,15 @@ export function SubtitleOverlay() {
 
     window.addEventListener("lw:subtitle", handle);
     return () => window.removeEventListener("lw:subtitle", handle);
-  }, []);
+  }, [scheduleHide]);
 
-  // Hide YouTube's own captions whenever our overlay is active
   useEffect(() => {
     const shouldHide = settings.enabled && visible;
     setYtCaptionsHidden(shouldHide);
     return () => setYtCaptionsHidden(false);
   }, [settings.enabled, visible]);
 
-  if (!settings.enabled || !visible) return null;
+  if (!settings.enabled) return null;
 
   return (
     <div
@@ -73,8 +81,10 @@ export function SubtitleOverlay() {
         display: "flex",
         justifyContent: "center",
         zIndex: 2147483647,
-        pointerEvents: "none", // individual lines override this where needed
+        pointerEvents: "none",
         userSelect: "none",
+        opacity: visible ? 1 : 0,
+        transition: "opacity 0.12s ease",
       }}
     >
       <DualSubtitleStack

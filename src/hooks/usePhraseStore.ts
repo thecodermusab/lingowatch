@@ -87,8 +87,58 @@ export function usePhraseStore() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setPhrases(loadPhrases());
+    const local = loadPhrases();
+    setPhrases(local);
     setIsLoading(false);
+
+    // Merge phrases saved from the extension (Neon) and legacy file-based store
+    Promise.all([
+      fetch("http://127.0.0.1:3001/api/words").then(r => r.ok ? r.json() : []).catch(() => []),
+      fetch("http://127.0.0.1:3001/api/extension/saved-phrases").then(r => r.ok ? r.json() : []).catch(() => []),
+    ]).then(([neonWords, extPhrases]: [unknown[], Phrase[]]) => {
+      const current = loadPhrases();
+      const map = new Map(current.map(p => [p.phraseText.toLowerCase(), p]));
+      let changed = false;
+
+      // Merge Neon saved words
+      for (const row of neonWords as Array<{ word: string; display_word: string; translation: string; saved_at: string }>) {
+        const key = row.word.toLowerCase();
+        if (!map.has(key)) {
+          const now = row.saved_at ? new Date(row.saved_at).toISOString() : new Date().toISOString();
+          map.set(key, sanitizePhrase({
+            id: crypto.randomUUID(),
+            phraseText: row.display_word || row.word,
+            phraseType: "word" as const,
+            category: "Extension",
+            notes: row.translation || "",
+            isFavorite: false,
+            isLearned: false,
+            tags: ["extension"],
+            difficultyLevel: "intermediate" as const,
+            createdAt: now,
+            updatedAt: now,
+            examples: [],
+          }));
+          changed = true;
+        }
+      }
+
+      // Merge legacy extension phrases
+      for (const ep of extPhrases) {
+        if (!map.has(ep.phraseText.toLowerCase())) {
+          map.set(ep.phraseText.toLowerCase(), ep);
+          changed = true;
+        }
+      }
+
+      if (changed) {
+        const merged = Array.from(map.values()).sort(
+          (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        );
+        setPhrases(merged);
+        savePhrases(merged);
+      }
+    });
   }, []);
 
   const persist = useCallback((updated: Phrase[]) => {

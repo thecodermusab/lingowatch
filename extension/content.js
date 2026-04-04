@@ -1,4 +1,10 @@
 (function initLingoWatch() {
+  // Guard: extension context can be invalidated when the extension is reloaded
+  // while the tab is still open. Bail out silently in that case.
+  try {
+    if (!chrome?.runtime?.id) return;
+  } catch (_e) { return; }
+
   if (window.__lingoWatchLoaded) {
     return;
   }
@@ -72,11 +78,7 @@
       }
     });
 
-    chrome.storage.onChanged.addListener((changes, areaName) => {
-      if (areaName === "local" && changes.savedWords && state.elements.savedList) {
-        renderSavedTab();
-      }
-    });
+    // savedWords now synced via Neon — no local storage listener needed
   }
 
   function setupKeyboardShortcuts() {
@@ -227,10 +229,31 @@
       video.addEventListener(eventName, sync);
     });
 
+    // Fallback: read YouTube's live caption DOM when VTT subtitles aren't loaded
+    let liveCaptionObserver = null;
+    function startLiveCaptionObserver() {
+      const container = document.querySelector(".ytp-caption-window-container");
+      if (!container || liveCaptionObserver) return;
+      liveCaptionObserver = new MutationObserver(() => {
+        if (state.subtitles.length) return; // VTT subtitles loaded — no need
+        const segments = container.querySelectorAll(".ytp-caption-segment");
+        const text = Array.from(segments).map(s => s.textContent || "").join(" ").replace(/\s+/g, " ").trim();
+        dispatchSubtitle(text, "");
+      });
+      liveCaptionObserver.observe(container, { childList: true, subtree: true, characterData: true });
+    }
+
+    // Try immediately, and also after a short delay for late-loading CC
+    startLiveCaptionObserver();
+    const liveObserverTimer = setTimeout(startLiveCaptionObserver, 3000);
+
     state.videoSyncCleanup = () => {
       eventNames.forEach((eventName) => {
         video.removeEventListener(eventName, sync);
       });
+      liveCaptionObserver?.disconnect();
+      liveCaptionObserver = null;
+      clearTimeout(liveObserverTimer);
     };
 
     sync();
@@ -344,9 +367,7 @@
       <div class="lw-header">
         <div class="lw-header-top">
           <div class="lw-brand">
-            <span class="lw-brand-kicker">Workspace</span>
             <span class="lw-brand-title">Lingowatch</span>
-            <span class="lw-brand-subtitle">Watch, save, learn</span>
           </div>
           <div class="lw-header-actions">
             <button type="button" class="lw-icon-button" data-action="settings" aria-label="Shortcuts">⌘</button>
@@ -463,45 +484,31 @@
 
     if (subtitleContext) state.subtitleClickContext = subtitleContext;
 
-    // Always anchor to top-right of the video player for subtitle word clicks
-    // so the popup never blocks video content
+    // Center popup horizontally over the clicked word, place it above the subtitle
     const popupWidth = 380;
-    const player = document.querySelector("#movie_player") || document.querySelector("video")?.parentElement;
-    const playerRect = player ? player.getBoundingClientRect() : null;
+    const wordCenterX = rect.left + rect.width / 2;
+    const left = Math.max(8, Math.min(wordCenterX - popupWidth / 2, window.innerWidth - popupWidth - 8));
 
-    let anchorRect;
-    if (playerRect) {
-      // Top-right corner of the video, with small margin
-      const left = Math.max(8, playerRect.right - popupWidth - 16);
-      anchorRect = { left, right: left + popupWidth, top: playerRect.top + 12, bottom: playerRect.top + 32, width: popupWidth, height: 20 };
-    } else {
-      // Fallback: top-right of viewport
-      const left = window.innerWidth - popupWidth - 16;
-      anchorRect = { left, right: left + popupWidth, top: 16, bottom: 36, width: popupWidth, height: 20 };
-    }
+    const anchorRect = {
+      left,
+      right: left + popupWidth,
+      top: rect.top,
+      bottom: rect.bottom,
+      width: popupWidth,
+      height: rect.height,
+    };
 
     state.lastAnchorRect = anchorRect;
     showWordPopup(word, anchorRect);
   });
 
-  // Reposition popup when layout changes (fullscreen, resize)
-  function repositionOnLayoutChange() {
-    const popup = state.elements?.popup;
-    if (!popup || popup.style.display === "none") return;
-    const popupWidth = 380;
-    const player = document.querySelector("#movie_player") || document.querySelector("video")?.parentElement;
-    const playerRect = player ? player.getBoundingClientRect() : null;
-    if (playerRect) {
-      const left = Math.max(8, playerRect.right - popupWidth - 16);
-      const anchorRect = { left, right: left + popupWidth, top: playerRect.top + 12, bottom: playerRect.top + 32, width: popupWidth, height: 20 };
-      state.lastAnchorRect = anchorRect;
-      positionPopup(popup, anchorRect);
-    }
+  // Close popup on fullscreen change — coordinates are stale after layout shift
+  function onFullscreenChange() {
+    closeWordPopup();
   }
 
-  document.addEventListener("fullscreenchange", repositionOnLayoutChange);
-  document.addEventListener("webkitfullscreenchange", repositionOnLayoutChange);
-  window.addEventListener("resize", repositionOnLayoutChange);
+  document.addEventListener("fullscreenchange", onFullscreenChange);
+  document.addEventListener("webkitfullscreenchange", onFullscreenChange);
 
   function attachLButton() {
     if (document.getElementById("lw-toggle-btn")) {
@@ -700,33 +707,22 @@
     const translation = document.getElementById("lw-quick-translation-input")?.value.trim() || "";
     const note = document.getElementById("lw-quick-note-input")?.value.trim() || "";
 
-    chrome.storage.local.get(["savedWords"], (result) => {
-      const saved = result.savedWords || [];
-      const existing = saved.findIndex((w) => w.word === word.toLowerCase());
+    const entry = {
+      word: word.toLowerCase(),
+      displayWord: word,
+      translation,
+      note,
+      isManual: true,
+      source: window.location.hostname,
+    };
 
-      const entry = {
-        word: word.toLowerCase(),
-        displayWord: word,
-        translation,
-        note,
-        isManual: true,
-        savedAt: new Date().toLocaleDateString(),
-        source: window.location.hostname
-      };
-
-      if (existing >= 0) {
-        saved[existing] = entry;
-        showToast(`"${word}" updated ✓`);
-      } else {
-        saved.unshift(entry);
-        showToast(`"${word}" saved ✓`);
-      }
-
-      chrome.storage.local.set({ savedWords: saved }, () => {
-        renderSavedTab();
-      });
-      closeQuickSaveModal();
+    saveWordToDb(entry).then(async () => {
+      const savedWords = await getSavedWords();
+      const alreadyExisted = savedWords.some((w) => w.word === word.toLowerCase());
+      showToast(alreadyExisted ? `"${word}" updated ✓` : `"${word}" saved ✓`);
+      renderSavedTab();
     });
+    closeQuickSaveModal();
   }
 
   function handleSidebarClick(event) {
@@ -816,8 +812,7 @@
     if (action === "close") { closeWordPopup(); return; }
     if (action === "speak") { pronounce(word); return; }
     if (action === "tab") { switchPopupTab(button.dataset.tab); return; }
-    if (action === "open-save") { openSaveWithCustomTranslation(word, button.dataset.translation || ""); return; }
-    if (action === "save-custom") { saveWithCustom(word); return; }
+    if (action === "save-word") { saveWordToLibrary(word); return; }
     if (action === "ignore") { ignoreWord(word); return; }
     if (action === "lookup-synonym") { lookupSynonym(word); return; }
     if (action === "pronounce-sentence") { pronounceSentence(button.dataset.text || ""); return; }
@@ -880,7 +875,7 @@
 
   async function loadFrequencyData() {
     try {
-      const response = await fetch(chrome.runtime.getURL("data/frequency.json"));
+      const response = await fetch(chrome.runtime?.getURL("data/frequency.json"));
       if (!response.ok) {
         return;
       }
@@ -1647,25 +1642,22 @@
   }
 
   function scrollSidebarToLine(index) {
-    const activeLine = state.elements.subtitleList.querySelector(`.lw-line[data-index="${index}"]`);
-    if (!activeLine) {
-      return;
-    }
+    const list = state.elements.subtitleList;
+    const activeLine = list?.querySelector(`.lw-line[data-index="${index}"]`);
+    if (!activeLine || !list) return;
 
-    const parentRect = state.elements.subtitleList.getBoundingClientRect();
+    const parentRect = list.getBoundingClientRect();
     const lineRect = activeLine.getBoundingClientRect();
     const outsideVisibleRange = lineRect.top < parentRect.top + 60 || lineRect.bottom > parentRect.bottom - 60;
     if (outsideVisibleRange) {
-      activeLine.scrollIntoView({ block: "center", behavior: "smooth" });
+      // Scroll only within the sidebar list, never the page
+      const targetScrollTop = list.scrollTop + (lineRect.top - parentRect.top) - (parentRect.height / 2) + (lineRect.height / 2);
+      list.scrollTo({ top: targetScrollTop, behavior: "smooth" });
     }
   }
 
   function updateOverlay(text) {
-    if (!text) {
-      dispatchSubtitle("", "");
-      return;
-    }
-    // subtitle.js handles its own translation using the baked-in API key
+    if (!text) return; // keep last subtitle visible until the next one arrives
     dispatchSubtitle(text, "");
   }
 
@@ -1720,7 +1712,25 @@
     }
 
     closeHoverTooltip();
-    showWordPopup(word, target.getBoundingClientRect());
+
+    // Always anchor popup to the left of the sidebar, near the top — consistent position
+    const sidebar = state.elements.sidebar;
+    const popupWidth = 380;
+    if (sidebar && sidebar.isConnected) {
+      const sRect = sidebar.getBoundingClientRect();
+      const left = sRect.left - popupWidth - 24;
+      const anchorRect = {
+        left: Math.max(8, left),
+        right: Math.max(8, left) + popupWidth,
+        top: sRect.top - 30,
+        bottom: sRect.top - 10,
+        width: popupWidth,
+        height: 20,
+      };
+      showWordPopup(word, anchorRect);
+    } else {
+      showWordPopup(word, target.getBoundingClientRect());
+    }
   }
 
   function positionPopup(popup, rect) {
@@ -1768,7 +1778,7 @@
           <div class="lw-popup-translation-main" id="lw-popup-translation-el">...</div>
         </div>
         <div class="lw-popup-header-right">
-          <button type="button" class="lw-popup-speak" data-popup-action="speak" data-word="${escapeAttribute(word)}">🔊</button>
+          <button type="button" class="lw-popup-speak" data-popup-action="speak" data-word="${escapeAttribute(word)}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/></svg></button>
           <button type="button" class="lw-popup-close" data-popup-action="close">✕</button>
         </div>
       </div>
@@ -1783,16 +1793,17 @@
         <div class="lw-popup-panel" id="lw-panel-somali" style="display:none">${skeletonHtml}</div>
       </div>
       <div class="lw-popup-actions">
-        <button type="button" class="lw-action-save" id="lw-popup-save-btn" data-popup-action="open-save" data-word="${escapeAttribute(word)}" data-translation="">✓ Save</button>
-        <button type="button" class="lw-action-ignore" data-popup-action="ignore" data-word="${escapeAttribute(word)}">🚫</button>
+        <button type="button" class="lw-btn-save" id="lw-popup-save-btn" data-popup-action="save-word" data-word="${escapeAttribute(word)}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+          Save word
+        </button>
+        <button type="button" class="lw-btn-ignore" data-popup-action="ignore" data-word="${escapeAttribute(word)}" title="Ignore">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
         <div class="lw-popup-links-inline">
           <a href="https://reverso.net/translation/english-somali/${encodeURIComponent(word)}" target="_blank" class="lw-popup-link">Re</a>
           <a href="https://dictionary.cambridge.org/dictionary/english/${encodeURIComponent(word)}" target="_blank" class="lw-popup-link">Ca</a>
           <a href="https://translate.google.com/?sl=en&tl=so&text=${encodeURIComponent(word)}" target="_blank" class="lw-popup-link">Gl</a>
-        </div>
-        <div class="lw-action-custom-translation" id="lw-custom-translation-area" style="display:none">
-          <input id="lw-custom-input" placeholder="Add your own Somali translation..." />
-          <button type="button" data-popup-action="save-custom" data-word="${escapeAttribute(word)}">Save</button>
         </div>
       </div>
     `;
@@ -1819,7 +1830,7 @@
     if (saveBtn) saveBtn.dataset.translation = translation;
 
     // Helpers
-    const audioSvg = (size) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.259 0-1.994.988-1.252 2.02C4.484 11.059 5 12.5 5 14.5c0 2.001-.516 3.441-1.252 4.979C2.514 20.488 3.249 21 4.508 21H6.44l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06z"/></svg>`;
+    const audioSvg = (size) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/></svg>`;
     function audioBtn(text, small = false) {
       return `<button type="button" class="lw-example-audio-btn${small ? " small" : ""}" data-popup-action="pronounce-sentence" data-text="${escapeAttribute(text)}" title="Listen">${audioSvg(small ? 12 : 14)}</button>`;
     }
@@ -1842,12 +1853,6 @@
     const learnPanel = popup.querySelector("#lw-panel-learn");
     if (learnPanel) {
       learnPanel.innerHTML = `
-        ${aiData?.standardMeaning || dictDef ? `
-          <div class="lw-easy-meaning-box" style="border-color:rgba(148,163,184,0.3);background:rgba(148,163,184,0.06)">
-            <div class="lw-easy-meaning-label" style="color:#94a3b8">Standard Meaning</div>
-            <div class="lw-easy-meaning-text" style="font-size:13px;font-weight:400">${escapeHtml(aiData?.standardMeaning || dictDef)}</div>
-          </div>
-        ` : ""}
         ${aiData?.easyMeaning ? `
           <div class="lw-easy-meaning-box" style="margin-top:10px">
             <div class="lw-easy-meaning-label">Easy Meaning ✨</div>
@@ -1969,12 +1974,16 @@
   function lookupSynonym(word) {
     closeWordPopup();
     setTimeout(() => {
-      const rect = {
-        left: window.innerWidth / 2 - 190,
-        top: window.innerHeight / 2 - 220,
-        right: window.innerWidth / 2 + 190,
-        bottom: window.innerHeight / 2 - 200,
-      };
+      const sidebar = state.elements.sidebar;
+      const popupWidth = 380;
+      let rect;
+      if (sidebar && sidebar.isConnected) {
+        const sRect = sidebar.getBoundingClientRect();
+        const left = Math.max(8, sRect.left - popupWidth - 24);
+        rect = { left, right: left + popupWidth, top: sRect.top - 30, bottom: sRect.top - 10, width: popupWidth, height: 20 };
+      } else {
+        rect = { left: window.innerWidth / 2 - 190, top: window.innerHeight / 2 - 220, right: window.innerWidth / 2 + 190, bottom: window.innerHeight / 2 - 200 };
+      }
       showWordPopup(word, rect);
     }, 150);
   }
@@ -2114,35 +2123,76 @@
       return;
     }
 
-    chrome.storage.local.get(["savedWords"], (result) => {
-      const saved = result.savedWords || [];
-      const existing = saved.findIndex((w) => w.word === word);
-      const existingEntry = existing >= 0 ? saved[existing] : null;
-      const ai = state.lastPopupAiData;
-      const entry = {
-        ...existingEntry,
-        word,
-        displayWord: existingEntry?.displayWord || word,
-        translation: customTranslation,
-        isCustomTranslation: true,
-        synonyms: state.lastPopupSynonyms.length ? state.lastPopupSynonyms : (existingEntry?.synonyms || []),
-        antonyms: state.lastPopupAntonyms.length ? state.lastPopupAntonyms : (existingEntry?.antonyms || []),
-        source: existingEntry?.source || window.location.hostname,
-        savedAt: new Date().toLocaleDateString()
-      };
-
-      if (existing >= 0) {
-        saved[existing] = entry;
-      } else {
-        saved.unshift(entry);
-      }
-
-      chrome.storage.local.set({ savedWords: saved }, () => {
-        renderSavedTab();
-        showToast("Word saved ✓");
-        closeWordPopup();
-      });
+    saveWordToDb({
+      word: word.toLowerCase(),
+      displayWord: word,
+      translation: customTranslation,
+      isCustomTranslation: true,
+      source: window.location.hostname,
+    }).then(() => {
+      renderSavedTab();
+      showToast("Word saved ✓");
+      closeWordPopup();
     });
+  }
+
+  async function saveWordToLibrary(word) {
+    const ai = state.lastPopupAiData;
+    const btn = document.getElementById("lw-popup-save-btn");
+    if (btn) { btn.disabled = true; btn.textContent = "Saving..."; }
+
+    const phraseId = crypto.randomUUID();
+    const now = new Date().toISOString();
+
+    const payload = {
+      id: phraseId,
+      phraseText: word,
+      phraseType: ai?.phraseType || "word",
+      category: "YouTube",
+      notes: "",
+      difficultyLevel: "intermediate",
+      explanation: ai ? {
+        id: crypto.randomUUID(),
+        phraseId,
+        standardMeaning: ai.standardMeaning || "",
+        easyMeaning: ai.easyMeaning || "",
+        aiExplanation: ai.aiExplanation || "",
+        usageContext: ai.usageContext || "",
+        somaliMeaning: ai.somaliMeaning || "",
+        somaliExplanation: ai.somaliExplanation || "",
+        somaliSentence: ai.somaliSentence || "",
+        commonMistake: ai.commonMistake || "",
+        pronunciationText: ai.pronunciationText || "",
+        relatedPhrases: ai.relatedPhrases || [],
+      } : null,
+      examples: (ai?.examples || []).map(ex => ({
+        id: crypto.randomUUID(),
+        phraseId,
+        exampleText: ex.text,
+        exampleType: ex.type,
+      })),
+    };
+
+    try {
+      await fetch("http://127.0.0.1:3001/api/extension/save-phrase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+    } catch (_e) {}
+
+    // Save to Neon
+    await saveWordToDb({ word: word.toLowerCase(), displayWord: word, translation: ai?.somaliMeaning || "", source: window.location.hostname });
+    renderSavedTab();
+
+    if (btn) {
+      btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Saved!`;
+      btn.style.background = "rgba(34,197,94,0.2)";
+      btn.style.borderColor = "rgba(34,197,94,0.4)";
+      btn.style.color = "#4ade80";
+    }
+    showToast(`"${word}" saved to library ✓`);
+    setTimeout(() => closeWordPopup(), 800);
   }
 
   async function getFullWordData(word, sentenceContext) {
@@ -2306,23 +2356,13 @@
       showToast("Already saved");
       return;
     }
-
-    const entry = {
-      word,
-      translation,
-      savedAt: new Date().toLocaleDateString()
-    };
-
-    savedWords.unshift(entry);
-    await setSavedWords(savedWords);
+    await saveWordToDb({ word: word.toLowerCase(), displayWord: word, translation, source: window.location.hostname });
     await renderSavedTab();
     showToast("Word saved! ✓");
   }
 
   async function deleteWord(word) {
-    const savedWords = await getSavedWords();
-    const filtered = savedWords.filter((entry) => entry.word !== word);
-    await setSavedWords(filtered);
+    await deleteWordFromDb(word);
     await renderSavedTab();
   }
 
@@ -2373,18 +2413,38 @@
     setTimeout(() => toast.remove(), 2000);
   }
 
-  function getSavedWords() {
-    return new Promise((resolve) => {
-      chrome.storage.local.get(["savedWords"], (result) => {
-        resolve(result.savedWords || []);
-      });
-    });
+  async function getSavedWords() {
+    try {
+      const res = await fetch("http://127.0.0.1:3001/api/words");
+      if (!res.ok) return [];
+      const rows = await res.json();
+      return rows.map((r) => ({
+        word: r.word,
+        displayWord: r.display_word,
+        translation: r.translation,
+        note: r.note,
+        source: r.source,
+        isManual: r.is_manual,
+        isCustomTranslation: r.is_custom_translation,
+        savedAt: new Date(r.saved_at).toLocaleDateString(),
+      }));
+    } catch { return []; }
   }
 
-  function setSavedWords(savedWords) {
-    return new Promise((resolve) => {
-      chrome.storage.local.set({ savedWords }, resolve);
-    });
+  async function saveWordToDb(entry) {
+    try {
+      await fetch("http://127.0.0.1:3001/api/words", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(entry),
+      });
+    } catch { /* ignore */ }
+  }
+
+  async function deleteWordFromDb(word) {
+    try {
+      await fetch(`http://127.0.0.1:3001/api/words/${encodeURIComponent(word)}`, { method: "DELETE" });
+    } catch { /* ignore */ }
   }
 
   function decodeHtmlEntities(text) {
