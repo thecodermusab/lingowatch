@@ -1,6 +1,6 @@
 import { ReactNode, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, PlusCircle, Library, RotateCcw, Settings, Menu, X, Shuffle, BarChart3, Inbox, PlayCircle } from "lucide-react";
+import { LayoutDashboard, PlusCircle, Library, RotateCcw, Settings, Menu, X, Shuffle, BarChart3, ChevronDown, BookText } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { SelectionLearningOverlay } from "@/components/learning/SelectionLearningOverlay";
 
@@ -12,8 +12,7 @@ const navGroups = [
   ],
   [
     { to: "/library", label: "Library", icon: Library },
-    { to: "/inbox", label: "Inbox", icon: Inbox },
-    { to: "/watch", label: "Watch", icon: PlayCircle },
+    { to: "/stories", label: "Stories", icon: BookText },
     { to: "/review", label: "Review", icon: RotateCcw },
     { to: "/progress", label: "Progress", icon: BarChart3 },
   ],
@@ -22,8 +21,14 @@ const navGroups = [
   ],
 ];
 
+const hiddenPages = [
+  { to: "/inbox", label: "Inbox" },
+  { to: "/watch", label: "Watch" },
+];
+
 function SidebarLinks({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation();
+  const [hiddenOpen, setHiddenOpen] = useState(false);
 
   return (
     <div className="space-y-6">
@@ -32,7 +37,6 @@ function SidebarLinks({ onNavigate }: { onNavigate?: () => void }) {
           <div className="space-y-1.5">
             {group.map((item) => {
               const active = location.pathname === item.to;
-
               return (
                 <Link
                   key={item.to}
@@ -54,6 +58,40 @@ function SidebarLinks({ onNavigate }: { onNavigate?: () => void }) {
           </div>
         </div>
       ))}
+
+      <div className="border-t border-white/10 pt-6">
+        <button
+          type="button"
+          onClick={() => setHiddenOpen((o) => !o)}
+          className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-white/40 transition-colors hover:bg-white/5 hover:text-white/60"
+        >
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5">
+            <ChevronDown className={`h-4 w-4 transition-transform ${hiddenOpen ? "rotate-180" : ""}`} />
+          </span>
+          <span>Hidden pages</span>
+        </button>
+        {hiddenOpen && (
+          <div className="mt-1 space-y-1.5 pl-4">
+            {hiddenPages.map((item) => {
+              const active = location.pathname === item.to;
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={onNavigate}
+                  className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-colors ${
+                    active
+                      ? "bg-white/10 text-white"
+                      : "text-white/50 hover:bg-white/5 hover:text-white"
+                  }`}
+                >
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -17,6 +17,7 @@ const ReviewPage = lazy(() => import("./pages/Review"));
 const ProgressPage = lazy(() => import("./pages/Progress"));
 const SettingsPage = lazy(() => import("./pages/Settings"));
 const WatchWorkspacePage = lazy(() => import("./pages/WatchWorkspace"));
+const StoriesPage = lazy(() => import("./pages/Stories"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -52,6 +53,8 @@ function AppRoutes() {
         <Route path="/progress" element={<ProgressPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/watch" element={<WatchWorkspacePage />} />
+        <Route path="/stories" element={<StoriesPage />} />
+        <Route path="/stories/:id" element={<StoriesPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>

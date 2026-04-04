@@ -342,6 +342,17 @@
 }
 
 /* ── Word popup ──────────────────────────────────────────────── */
+#lw-popup-arrow {
+  position: fixed;
+  width: 12px;
+  height: 12px;
+  background: #e8e8e8;
+  border: none;
+  display: none;
+  z-index: 2147483646;
+  pointer-events: none;
+}
+
 #lw-word-popup {
   position: fixed;
   width: 380px;

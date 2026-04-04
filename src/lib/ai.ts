@@ -74,6 +74,27 @@ export async function generateAIExplanation(phraseText: string): Promise<AIGener
   return response.json();
 }
 
+export async function generateStory(words: string[]): Promise<{ title: string; content: string }> {
+  const preferredProvider = getPreferredAiProvider();
+  const response = await fetch("/api/ai/story", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ words, preferredProvider }),
+  });
+
+  if (!response.ok) {
+    let message = "Could not generate story";
+    try {
+      const data = await response.json();
+      if (typeof data?.error === "string") message = simplifyAiErrorMessage(data.error);
+    } catch {}
+    throw new Error(message);
+  }
+
+  const data = await response.json();
+  return { title: String(data.title || "Untitled Story"), content: String(data.story || "") };
+}
+
 export interface RandomPhraseRequest {
   count?: number;
   difficulty?: "all" | DifficultyLevel;

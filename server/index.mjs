@@ -162,6 +162,27 @@ createServer(async (req, res) => {
     }
   }
 
+  if (req.method === "POST" && pathname === "/api/ai/story") {
+    try {
+      const body = await readJsonBody(req);
+      const words = Array.isArray(body?.words) ? body.words.map((w) => String(w || "").trim()).filter(Boolean) : [];
+      const preferredProvider = normalizePreferredProvider(body?.preferredProvider);
+
+      if (!words.length) {
+        sendJson(res, 400, { error: "words array is required" });
+        return;
+      }
+
+      const { title, content } = await generateStory(words, preferredProvider);
+      sendJson(res, 200, { title, story: content });
+      return;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not generate story";
+      sendJson(res, 500, { error: message });
+      return;
+    }
+  }
+
   if (req.method === "POST" && pathname === "/api/ai/random-phrases") {
     try {
       const body = await readJsonBody(req);
@@ -691,6 +712,81 @@ async function getExtensionWordAiExplanation({ word, sentenceContext, preferredP
   return {
     aiExplanation: stringOrFallback(result?.aiExplanation, ""),
   };
+}
+
+const STORY_SYSTEM_PROMPT = `You are an English learning story writer for beginners and intermediate learners (A2-B1 level). When given a list of words, write a short simple story (100-160 words) that uses ALL the given words naturally. Rules:
+- Use very simple, everyday sentences. Short sentences are better.
+- No difficult vocabulary beyond the given words.
+- The story should be fun and easy to understand.
+- Bold the given words using **word** markdown.
+- First line must be the story title formatted exactly as: TITLE: Your Story Title
+- Then a blank line, then the story.
+- Return plain text only, no JSON, no extra commentary.`;
+
+async function generateStory(words, preferredProvider) {
+  const wordList = words.join(", ");
+  const raw = await requestTextFromProviders({
+    preferredProvider,
+    systemPrompt: STORY_SYSTEM_PROMPT,
+    userPrompt: `Write a simple English learning story using all of these words: ${wordList}`,
+  });
+
+  // Parse title from first line
+  const lines = raw.trim().split("\n");
+  let title = "Untitled Story";
+  let content = raw.trim();
+
+  const titleLine = lines[0].trim();
+  if (titleLine.toUpperCase().startsWith("TITLE:")) {
+    title = titleLine.slice(6).trim();
+    content = lines.slice(1).join("\n").trim();
+  }
+
+  return { title, content };
+}
+
+async function generateTextWithGemini(systemPrompt, userPrompt) {
+  const apiKey = env.GEMINI_API_KEY;
+  const model = env.GEMINI_MODEL || "gemini-2.5-flash";
+
+  if (!apiKey) throw new Error("Missing GEMINI_API_KEY in .env.local");
+
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: systemPrompt }] },
+      contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+    }),
+  });
+
+  if (!response.ok) throw new Error(`Gemini request failed: ${await response.text()}`);
+
+  const data = await response.json();
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error("Gemini returned an empty response");
+  return text;
+}
+
+async function requestTextFromProviders({ preferredProvider, systemPrompt, userPrompt }) {
+  const providers = getProviderChain(preferredProvider);
+  const errors = [];
+
+  for (const provider of providers) {
+    try {
+      // Use text-mode (no JSON mime type) for all providers
+      if (provider === "gemini") return await generateTextWithGemini(systemPrompt, userPrompt);
+      if (provider === "grok") return await explainWithGrokPrompt(systemPrompt, userPrompt);
+      if (provider === "openrouter") return await explainWithOpenRouterPrompt(systemPrompt, userPrompt);
+      if (provider === "cerebras") return await explainWithCerebrasPrompt(systemPrompt, userPrompt);
+      if (provider === "antigravity") return await explainWithAntigravityPrompt(systemPrompt, userPrompt);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown provider error";
+      errors.push({ provider, message: summarizeProviderError(provider, message) });
+    }
+  }
+
+  throw new Error(summarizeCombinedProviderErrors(errors));
 }
 
 function normalizePreferredProvider(value) {

@@ -1,21 +1,26 @@
 import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { usePhraseStore } from "@/hooks/usePhraseStore";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Search, PlusCircle, Star, BookOpen, Trash2, CheckCircle2, Heart } from "lucide-react";
+import { Search, PlusCircle, Star, BookOpen, Trash2, CheckCircle2, Heart, BookText } from "lucide-react";
 import { categories } from "@/lib/mockData";
 import { PhraseType } from "@/types";
 import { getReviewStage } from "@/lib/review";
+import { generateStory } from "@/lib/ai";
+import { useToast } from "@/hooks/use-toast";
 
 type SortOption = "newest" | "oldest" | "alphabetical" | "review_due" | "hardest";
 type FilterStatus = "all" | "learned" | "not_learned" | "favorite";
 
 export default function LibraryPage() {
   const { phrases, bulkDeletePhrases, bulkUpdatePhrases } = usePhraseStore();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [search, setSearch] = useState("");
+  const [makingStory, setMakingStory] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState<"all" | PhraseType>("all");
   const [statusFilter, setStatusFilter] = useState<FilterStatus>("all");
@@ -91,6 +96,24 @@ export default function LibraryPage() {
     setSelectedIds([]);
   };
 
+  const handleMakeStory = async () => {
+    if (!selectedIds.length) return;
+    const words = phrases.filter((p) => selectedIds.includes(p.id)).map((p) => p.phraseText);
+    setMakingStory(true);
+    try {
+      const { title, content } = await generateStory(words);
+      const stored = JSON.parse(localStorage.getItem("lingowatch_stories") || "[]");
+      const entry = { id: crypto.randomUUID(), title, words, content, createdAt: new Date().toISOString() };
+      localStorage.setItem("lingowatch_stories", JSON.stringify([entry, ...stored]));
+      setSelectedIds([]);
+      navigate("/stories");
+    } catch (error) {
+      toast({ title: "Could not generate story", description: error instanceof Error ? error.message : "Unknown error", variant: "destructive" });
+    } finally {
+      setMakingStory(false);
+    }
+  };
+
   return (
     <div className="app-page">
       <div className="page-stack">
@@ -159,6 +182,9 @@ export default function LibraryPage() {
             </Button>
             <Button variant="outline" className="h-11 rounded-xl" onClick={handleBulkLearned}>
               <CheckCircle2 className="h-4 w-4" /> Mark Learned
+            </Button>
+            <Button variant="outline" className="h-11 rounded-xl" onClick={handleMakeStory} disabled={makingStory}>
+              <BookText className="h-4 w-4" /> {makingStory ? "Generating..." : "Make Story"}
             </Button>
             <Button variant="outline" className="h-11 rounded-xl text-destructive hover:bg-destructive/10" onClick={handleBulkDelete}>
               <Trash2 className="h-4 w-4" /> Delete

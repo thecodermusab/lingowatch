@@ -399,16 +399,21 @@
     const popup = document.createElement("div");
     popup.id = "lw-word-popup";
 
+    const popupArrow = document.createElement("div");
+    popupArrow.id = "lw-popup-arrow";
+
     const tooltip = document.createElement("div");
     tooltip.id = "lw-hover-tooltip";
 
     document.body.appendChild(popup);
+    document.body.appendChild(popupArrow);
     document.body.appendChild(tooltip);
     injectSidebar(sidebar);
 
     state.elements = {
       sidebar,
       popup,
+      popupArrow,
       tooltip,
       subtitleList: sidebar.querySelector("#lw-subtitle-list"),
       wordsPanel: sidebar.querySelector("#lw-words-panel"),
@@ -1738,6 +1743,7 @@
     const popupWidth = popup.offsetWidth || 380;
     const popupHeight = popup.offsetHeight || 420;
     const gutter = 12;
+    const arrowSize = 10;
     const minTop = 8;
 
     // Clamp left within viewport
@@ -1747,7 +1753,8 @@
     let top;
     const spaceAbove = rect.top - gutter;
     const spaceBelow = window.innerHeight - rect.bottom - gutter;
-    if (spaceAbove >= popupHeight || spaceAbove > spaceBelow) {
+    const above = spaceAbove >= popupHeight || spaceAbove > spaceBelow;
+    if (above) {
       top = rect.top - popupHeight - gutter;
     } else {
       top = rect.bottom + gutter;
@@ -1756,6 +1763,33 @@
 
     popup.style.left = `${left}px`;
     popup.style.top = `${top}px`;
+
+    // Position the arrow centered on the popup column
+    const arrow = state.elements.popupArrow;
+    if (arrow) {
+      const arrowLeft = left + popupWidth / 2 - arrowSize / 2;
+      if (above) {
+        // Popup above word → bottom-right corner of the square points down
+        // Only border-right and border-bottom are exposed (top-left hidden behind popup)
+        arrow.style.top = `${top + popupHeight - 6}px`;
+        arrow.style.transform = "rotate(45deg)";
+        arrow.style.borderTop = "none";
+        arrow.style.borderLeft = "none";
+        arrow.style.borderRight = "1px solid rgba(220,220,220,0.4)";
+        arrow.style.borderBottom = "1px solid rgba(220,220,220,0.4)";
+      } else {
+        // Popup below word → top-left corner of the square points up
+        // Only border-top and border-left are exposed (bottom-right hidden behind popup)
+        arrow.style.top = `${top - arrowSize + 6}px`;
+        arrow.style.transform = "rotate(45deg)";
+        arrow.style.borderBottom = "none";
+        arrow.style.borderRight = "none";
+        arrow.style.borderTop = "1px solid rgba(220,220,220,0.4)";
+        arrow.style.borderLeft = "1px solid rgba(220,220,220,0.4)";
+      }
+      arrow.style.left = `${arrowLeft}px`;
+      arrow.style.display = "block";
+    }
   }
 
   async function showWordPopup(word, rect) {
@@ -1970,6 +2004,9 @@
       state.elements.popup.style.display = "none";
       state.popupRequestId++;
     }
+    if (state.elements.popupArrow) {
+      state.elements.popupArrow.style.display = "none";
+    }
   }
 
   function lookupSynonym(word) {
@@ -2054,9 +2091,23 @@
     const tooltipWidth = 260;
     const maxLeft = sidebarLeft - tooltipWidth - 16;
     const left = Math.max(Math.min(rect.left, maxLeft), 8);
+
+    // If the word popup is open, position the tooltip below it and align to popup's left
+    const popupEl = state.elements.popup;
+    const popupOpen = popupEl && popupEl.style.display !== "none";
+    let tooltipTop, tooltipLeft;
+    if (popupOpen) {
+      const popupRect = popupEl.getBoundingClientRect();
+      tooltipTop = popupRect.bottom + 8;
+      tooltipLeft = popupRect.left;
+    } else {
+      tooltipTop = Math.max(Math.min(rect.bottom + 8, window.innerHeight - 16), 8);
+      tooltipLeft = left;
+    }
+
     tooltip.style.display = "block";
-    tooltip.style.top = `${Math.max(Math.min(rect.bottom + 8, window.innerHeight - 16), 8)}px`;
-    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${tooltipTop}px`;
+    tooltip.style.left = `${tooltipLeft}px`;
     tooltip.innerHTML = `<div class="lw-ht-header"><span class="lw-ht-word">${escapeHtml(word)}</span><span class="lw-ht-colon"> : </span><span class="lw-ht-translation">...</span></div>`;
 
     const [wordTranslation, lineTranslation] = await Promise.all([
