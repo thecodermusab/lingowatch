@@ -94,7 +94,7 @@ export default function AddPhrasePage() {
               </div>
             </div>
 
-            <div className="space-y-5 rounded-[1.5rem] border bg-muted/20 p-5">
+            <div className="space-y-5 rounded-[1.5rem] border border-border bg-secondary/22 p-5">
               <div>
                 <Label>Phrase Type</Label>
                 <Select value={phraseType} onValueChange={(v) => setPhraseType(v as PhraseType)}>

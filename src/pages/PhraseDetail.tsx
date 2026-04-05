@@ -167,7 +167,7 @@ export default function PhraseDetailPage() {
             <ArrowLeft className="h-4 w-4" /> Back
           </button>
           {isEditing ? (
-            <div className="space-y-4 rounded-[1.5rem] border bg-muted/20 p-5">
+            <div className="space-y-4 rounded-[1.5rem] border border-border bg-secondary/22 p-5">
               <div>
                 <Label htmlFor="phrase-text">Word or Phrase</Label>
                 <Input id="phrase-text" value={phraseText} onChange={(e) => setPhraseText(e.target.value)} className="mt-1" />

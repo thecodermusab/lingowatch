@@ -376,7 +376,7 @@ export default function RandomPhrasesPage() {
             }
           }}
         >
-          <TabsList className="grid h-14 w-full max-w-sm grid-cols-2 rounded-2xl bg-white p-1 shadow-[0_10px_24px_rgba(15,23,42,0.05)]">
+          <TabsList className="grid h-14 w-full max-w-sm grid-cols-2 rounded-2xl border border-border bg-card p-1 shadow-[0_10px_24px_rgba(15,23,42,0.05)]">
             <TabsTrigger
               value="vocabulary"
               className="rounded-xl text-base font-semibold text-muted-foreground data-[state=active]:bg-[#223044] data-[state=active]:text-white data-[state=active]:shadow-none"

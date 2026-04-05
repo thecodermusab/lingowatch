@@ -1,8 +1,8 @@
 import { ReactNode, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, PlusCircle, Library, RotateCcw, Settings, Menu, X, Shuffle, BarChart3, ChevronDown, BookText } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import { LayoutDashboard, PlusCircle, Library, RotateCcw, Settings, Menu, X, Shuffle, BarChart3, BookText, Sun, Moon } from "lucide-react";
 import { SelectionLearningOverlay } from "@/components/learning/SelectionLearningOverlay";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const navGroups = [
   [
@@ -21,14 +21,9 @@ const navGroups = [
   ],
 ];
 
-const hiddenPages = [
-  { to: "/inbox", label: "Inbox" },
-  { to: "/watch", label: "Watch" },
-];
-
 function SidebarLinks({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation();
-  const [hiddenOpen, setHiddenOpen] = useState(false);
+  const { isDark, toggleTheme } = useTheme();
 
   return (
     <div className="space-y-6">
@@ -59,52 +54,19 @@ function SidebarLinks({ onNavigate }: { onNavigate?: () => void }) {
         </div>
       ))}
 
-      <div className="border-t border-white/10 pt-6">
-        <button
-          type="button"
-          onClick={() => setHiddenOpen((o) => !o)}
-          className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-white/40 transition-colors hover:bg-white/5 hover:text-white/60"
-        >
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5">
-            <ChevronDown className={`h-4 w-4 transition-transform ${hiddenOpen ? "rotate-180" : ""}`} />
-          </span>
-          <span>Hidden pages</span>
-        </button>
-        {hiddenOpen && (
-          <div className="mt-1 space-y-1.5 pl-4">
-            {hiddenPages.map((item) => {
-              const active = location.pathname === item.to;
-              return (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  onClick={onNavigate}
-                  className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-colors ${
-                    active
-                      ? "bg-white/10 text-white"
-                      : "text-white/50 hover:bg-white/5 hover:text-white"
-                  }`}
-                >
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
-          </div>
-        )}
-      </div>
     </div>
   );
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const mainRef = useRef<HTMLElement | null>(null);
+  const { isDark, toggleTheme } = useTheme();
 
   return (
-    <div className="min-h-screen bg-[#f4f6f8]">
-      <header className="sticky top-0 z-40 border-b border-[#e5e9ef] bg-[#f4f6f8]/90 backdrop-blur lg:hidden">
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur lg:hidden">
         <div className="flex h-16 items-center justify-between px-4">
           <Link to="/dashboard" className="flex items-center gap-3">
             <img src="/Logo.png" alt="Lingowatch logo" className="h-10 w-10 rounded-xl object-cover shadow-sm" />
@@ -116,7 +78,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
           <button
             type="button"
-            className="rounded-xl border border-[#e5e9ef] bg-white p-2 text-foreground shadow-sm"
+            className="rounded-xl border border-border bg-card p-2 text-foreground shadow-sm"
             onClick={() => setMobileOpen((open) => !open)}
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -124,15 +86,26 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <aside className="fixed inset-y-0 left-0 hidden w-80 bg-[#f4f6f8] lg:block">
+      <aside className="fixed inset-y-0 left-0 hidden w-80 bg-background lg:block">
         <div className="h-full p-4">
-          <div className="flex h-full flex-col rounded-[1.75rem] bg-[#181a1e] text-white shadow-[0_18px_42px_rgba(0,0,0,0.22)]">
+          <div className="flex h-full flex-col rounded-[1.75rem] border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-[0_18px_42px_rgba(0,0,0,0.22)]">
             <div className="px-5 py-5">
               <Link to="/dashboard" className="flex items-center gap-4 rounded-2xl">
-                <img src="/Logo.png" alt="Lingowatch logo" className="h-11 w-11 rounded-2xl object-cover bg-white" />
-                <div>
+                <img src="/Logo.png" alt="Lingowatch logo" className="h-11 w-11 rounded-2xl object-cover bg-white/95" />
+                <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
+                  <div className="min-w-0">
                   <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/35">Workspace</p>
-                  <p className="text-lg font-semibold text-white">Lingowatch</p>
+                    <p className="text-lg font-semibold text-white">Lingowatch</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={toggleTheme}
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+                    aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+                    title={isDark ? "Light mode" : "Dark mode"}
+                  >
+                    {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                  </button>
                 </div>
               </Link>
             </div>
@@ -153,12 +126,23 @@ export function AppShell({ children }: { children: ReactNode }) {
             onClick={() => setMobileOpen(false)}
             aria-label="Close menu"
           />
-          <div className="absolute left-0 top-0 h-full w-80 bg-[#f4f6f8] p-4">
-            <div className="flex h-full flex-col rounded-[1.75rem] bg-[#181a1e] text-white shadow-xl">
+          <div className="absolute left-0 top-0 h-full w-80 bg-background p-4">
+            <div className="flex h-full flex-col rounded-[1.75rem] border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-xl">
               <div className="mb-2 flex items-center justify-between px-5 py-5">
                 <Link to="/dashboard" className="flex items-center gap-3" onClick={() => setMobileOpen(false)}>
                   <img src="/Logo.png" alt="Lingowatch logo" className="h-10 w-10 rounded-xl object-cover" />
-                  <span className="text-base font-semibold text-white">Lingowatch</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-base font-semibold text-white">Lingowatch</span>
+                    <button
+                      type="button"
+                      onClick={toggleTheme}
+                      className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+                      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+                      title={isDark ? "Light mode" : "Dark mode"}
+                    >
+                      {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </Link>
                 <button type="button" className="rounded-xl border border-white/10 p-2 text-white/80" onClick={() => setMobileOpen(false)}>
                   <X className="h-5 w-5" />
@@ -173,7 +157,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       ) : null}
 
-      <main ref={mainRef} className="min-h-screen bg-[#f4f6f8] lg:pl-80">
+      <main ref={mainRef} className="min-h-screen bg-background lg:pl-80">
         {children}
       </main>
       {location.pathname !== "/random-phrases" ? <SelectionLearningOverlay containerRef={mainRef} /> : null}

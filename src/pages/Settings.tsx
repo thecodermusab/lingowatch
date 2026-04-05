@@ -503,15 +503,15 @@ export default function SettingsPage() {
                 <p className="text-sm font-semibold text-foreground">Import preview</p>
                 <p className="mt-1 text-sm text-muted-foreground">{importPreview.fileName}</p>
                 <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-xl border bg-white px-4 py-3">
+                  <div className="rounded-xl border border-border bg-card px-4 py-3">
                     <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Rows</p>
                     <p className="mt-1 font-semibold text-foreground">{importPreview.phrases.length}</p>
                   </div>
-                  <div className="rounded-xl border bg-white px-4 py-3">
+                  <div className="rounded-xl border border-border bg-card px-4 py-3">
                     <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">New</p>
                     <p className="mt-1 font-semibold text-foreground">{importPreview.newCount}</p>
                   </div>
-                  <div className="rounded-xl border bg-white px-4 py-3">
+                  <div className="rounded-xl border border-border bg-card px-4 py-3">
                     <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Duplicates</p>
                     <p className="mt-1 font-semibold text-foreground">{importPreview.duplicateCount}</p>
                   </div>
