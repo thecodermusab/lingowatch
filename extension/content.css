@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+
 /* ── LingoWatch – PhrasePal workspace shell over proven logic ─ */
 
 /* ── Sidebar shell ───────────────────────────────────────────── */
@@ -9,7 +11,7 @@
     radial-gradient(circle at top, rgba(58, 78, 107, 0.32), transparent 42%),
     linear-gradient(180deg, #171d24 0%, #0d1015 58%, #090c11 100%);
   color: #e5e7eb;
-  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   font-size: 14px;
   display: flex;
   flex-direction: column;
@@ -492,7 +494,7 @@
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
   display: none;
   flex-direction: column;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1), top 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -564,8 +566,7 @@
 .lw-popup-tabs {
   display: flex;
   gap: 8px;
-  padding: 10px 14px 0;
-  background: #181c20;
+  margin-bottom: 14px;
   flex-shrink: 0;
 }
 
@@ -591,7 +592,7 @@
 .lw-popup-body {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 18px 18px;
+  padding: 12px 18px 18px;
   max-height: 280px;
 }
 
@@ -1108,7 +1109,7 @@
   background: rgba(28, 28, 28, 0.9);
   color: #fff;
   font-size: 12px;
-  font-family: "Roboto", Arial, sans-serif;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   white-space: nowrap;
   padding: 4px 8px;
   border-radius: 4px;

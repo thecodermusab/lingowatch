@@ -64,7 +64,7 @@ export function SubtitleLine({ text, primary, fontSize, bgOpacity, subtitleConte
         fontSize: `${size}px`,
         fontWeight: primary ? 700 : 500,
         lineHeight: 1.4,
-        fontFamily: '"Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif',
+        fontFamily: '"Plus Jakarta Sans", system-ui, sans-serif',
         textShadow: primary
           ? "0 1px 6px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,0.8)"
           : "0 1px 3px rgba(0,0,0,0.8)",

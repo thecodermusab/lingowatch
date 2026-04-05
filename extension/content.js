@@ -2210,12 +2210,12 @@
           <button type="button" class="lw-popup-close" data-popup-action="close">✕</button>
         </div>
       </div>
-      <div class="lw-popup-tabs">
-        <button type="button" class="lw-popup-tab active" data-popup-action="tab" data-tab="learn">Learn</button>
-        <button type="button" class="lw-popup-tab" data-popup-action="tab" data-tab="usage">Usage</button>
-        <button type="button" class="lw-popup-tab" data-popup-action="tab" data-tab="somali">Somali 🇸🇴</button>
-      </div>
       <div class="lw-popup-body">
+        <div class="lw-popup-tabs">
+          <button type="button" class="lw-popup-tab active" data-popup-action="tab" data-tab="learn">Learn</button>
+          <button type="button" class="lw-popup-tab" data-popup-action="tab" data-tab="usage">Usage</button>
+          <button type="button" class="lw-popup-tab" data-popup-action="tab" data-tab="somali">Somali</button>
+        </div>
         <div class="lw-popup-panel" id="lw-panel-learn">${skeletonHtml}</div>
         <div class="lw-popup-panel" id="lw-panel-usage" style="display:none">${skeletonHtml}</div>
         <div class="lw-popup-panel" id="lw-panel-somali" style="display:none">${skeletonHtml}</div>
@@ -2283,7 +2283,7 @@
       learnPanel.innerHTML = `
         ${aiData?.easyMeaning ? `
           <div class="lw-easy-meaning-box" style="margin-top:10px">
-            <div class="lw-easy-meaning-label">Easy Meaning ✨</div>
+            <div class="lw-easy-meaning-label">Easy Meaning</div>
             <div class="lw-easy-meaning-text">${escapeHtml(aiData.easyMeaning)}</div>
           </div>
         ` : ""}
@@ -2354,7 +2354,7 @@
         ${aiData?.commonMistake ? `
           ${aiData?.usageContext ? `<div class="lw-popup-divider"></div>` : ""}
           <div class="lw-mistakes-box">
-            <div class="lw-mistakes-label">⚠️ Common Mistake</div>
+            <div class="lw-mistakes-label">Common Mistake</div>
             <div class="lw-mistakes-text">${escapeHtml(aiData.commonMistake)}</div>
           </div>
         ` : ""}
@@ -2384,7 +2384,7 @@
     if (somaliPanel) {
       somaliPanel.innerHTML = `
         <div class="lw-somali-main-box">
-          <div class="lw-somali-flag-row">🇸🇴 <span class="lw-somali-word-label">Somali Support</span></div>
+          <div class="lw-somali-flag-row"><span class="lw-somali-word-label">Somali Support</span></div>
           ${aiData?.somaliMeaning ? `<div class="lw-somali-translation">${escapeHtml(aiData.somaliMeaning)}</div>` : ""}
           ${aiData?.somaliExplanation ? `<div class="lw-somali-note">${escapeHtml(aiData.somaliExplanation)}</div>` : ""}
         </div>
@@ -2455,6 +2455,14 @@
   function handleWordHover(event) {
     const target = event.target instanceof Element ? event.target : null;
     if (!target) {
+      return;
+    }
+
+    const popupOpen = isElementVisible(state.elements.popup);
+    const overlayWordTarget = target.closest(".lw-overlay-word");
+    if (popupOpen && overlayWordTarget) {
+      clearTimeout(state.hoverTimer);
+      closeHoverTooltip();
       return;
     }
 
