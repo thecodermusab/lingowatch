@@ -54,6 +54,95 @@
     "Rank 8001+"
   ];
 
+  function hasLiveExtensionContext() {
+    try {
+      return Boolean(chrome?.runtime?.id);
+    } catch (_error) {
+      return false;
+    }
+  }
+
+  function safeRuntimeGetUrl(path) {
+    if (!hasLiveExtensionContext()) {
+      return "";
+    }
+
+    try {
+      return chrome.runtime.getURL(path);
+    } catch (_error) {
+      return "";
+    }
+  }
+
+  function safeRuntimeSendMessage(message, callback) {
+    if (!hasLiveExtensionContext()) {
+      callback?.(null);
+      return false;
+    }
+
+    try {
+      chrome.runtime.sendMessage(message, (response) => {
+        if (chrome.runtime?.lastError) {
+          callback?.(null);
+          return;
+        }
+
+        callback?.(response);
+      });
+      return true;
+    } catch (_error) {
+      callback?.(null);
+      return false;
+    }
+  }
+
+  async function safeRuntimeSendMessageAsync(message) {
+    if (!hasLiveExtensionContext()) {
+      return null;
+    }
+
+    try {
+      return await chrome.runtime.sendMessage(message);
+    } catch (_error) {
+      return null;
+    }
+  }
+
+  function safeStorageLocalGet(keys, callback) {
+    if (!hasLiveExtensionContext()) {
+      callback?.({});
+      return;
+    }
+
+    try {
+      chrome.storage.local.get(keys, (result) => {
+        if (chrome.runtime?.lastError) {
+          callback?.({});
+          return;
+        }
+
+        callback?.(result || {});
+      });
+    } catch (_error) {
+      callback?.({});
+    }
+  }
+
+  function safeStorageLocalSet(value, callback) {
+    if (!hasLiveExtensionContext()) {
+      callback?.();
+      return;
+    }
+
+    try {
+      chrome.storage.local.set(value, () => {
+        callback?.();
+      });
+    } catch (_error) {
+      callback?.();
+    }
+  }
+
   loadFrequencyData();
   setupMessaging();
   setupKeyboardShortcuts();
@@ -316,12 +405,133 @@
       secondaryInner.style.setProperty("overflow", "visible", "important");
     }
 
+    let activeFullscreenHost = null;
+    let activeFullscreenMain = null;
+    let previousFullscreenHostDisplay = "";
+    let previousFullscreenHostAlignItems = "";
+    let previousFullscreenHostJustifyContent = "";
+    let previousFullscreenHostGap = "";
+    let previousFullscreenHostBoxSizing = "";
+    let previousFullscreenHostPadding = "";
+    let previousFullscreenHostOverflow = "";
+
+    const resetFullscreenHostLayout = () => {
+      if (!activeFullscreenHost) {
+        return;
+      }
+
+      if (activeFullscreenMain?.isConnected) {
+        while (activeFullscreenMain.firstChild) {
+          activeFullscreenHost.insertBefore(activeFullscreenMain.firstChild, activeFullscreenMain);
+        }
+        activeFullscreenMain.remove();
+      }
+
+      if (previousFullscreenHostDisplay) {
+        activeFullscreenHost.style.setProperty("display", previousFullscreenHostDisplay);
+      } else {
+        activeFullscreenHost.style.removeProperty("display");
+      }
+
+      if (previousFullscreenHostAlignItems) {
+        activeFullscreenHost.style.setProperty("align-items", previousFullscreenHostAlignItems);
+      } else {
+        activeFullscreenHost.style.removeProperty("align-items");
+      }
+
+      if (previousFullscreenHostJustifyContent) {
+        activeFullscreenHost.style.setProperty("justify-content", previousFullscreenHostJustifyContent);
+      } else {
+        activeFullscreenHost.style.removeProperty("justify-content");
+      }
+
+      if (previousFullscreenHostGap) {
+        activeFullscreenHost.style.setProperty("gap", previousFullscreenHostGap);
+      } else {
+        activeFullscreenHost.style.removeProperty("gap");
+      }
+
+      if (previousFullscreenHostBoxSizing) {
+        activeFullscreenHost.style.setProperty("box-sizing", previousFullscreenHostBoxSizing);
+      } else {
+        activeFullscreenHost.style.removeProperty("box-sizing");
+      }
+
+      if (previousFullscreenHostPadding) {
+        activeFullscreenHost.style.setProperty("padding", previousFullscreenHostPadding);
+      } else {
+        activeFullscreenHost.style.removeProperty("padding");
+      }
+
+      if (previousFullscreenHostOverflow) {
+        activeFullscreenHost.style.setProperty("overflow", previousFullscreenHostOverflow);
+      } else {
+        activeFullscreenHost.style.removeProperty("overflow");
+      }
+
+      activeFullscreenHost = null;
+      activeFullscreenMain = null;
+      previousFullscreenHostDisplay = "";
+      previousFullscreenHostAlignItems = "";
+      previousFullscreenHostJustifyContent = "";
+      previousFullscreenHostGap = "";
+      previousFullscreenHostBoxSizing = "";
+      previousFullscreenHostPadding = "";
+      previousFullscreenHostOverflow = "";
+    };
+
+    const applyFullscreenHostLayout = (host) => {
+      if (activeFullscreenHost !== host) {
+        resetFullscreenHostLayout();
+        activeFullscreenHost = host;
+        previousFullscreenHostDisplay = host.style.display || "";
+        previousFullscreenHostAlignItems = host.style.alignItems || "";
+        previousFullscreenHostJustifyContent = host.style.justifyContent || "";
+        previousFullscreenHostGap = host.style.gap || "";
+        previousFullscreenHostBoxSizing = host.style.boxSizing || "";
+        previousFullscreenHostPadding = host.style.padding || "";
+        previousFullscreenHostOverflow = host.style.overflow || "";
+      }
+
+      let main = Array.from(host.children).find((child) => child.id === "lw-fullscreen-main") || null;
+      if (!main) {
+        main = document.createElement("div");
+        main.id = "lw-fullscreen-main";
+        while (host.firstChild) {
+          if (host.firstChild === sidebar) {
+            break;
+          }
+          main.appendChild(host.firstChild);
+        }
+        host.insertBefore(main, sidebar.parentElement === host ? sidebar : null);
+      }
+
+      activeFullscreenMain = main;
+      main.style.setProperty("position", "relative", "important");
+      main.style.setProperty("flex", "1 1 auto", "important");
+      main.style.setProperty("min-width", "0", "important");
+      main.style.setProperty("height", "100%", "important");
+      main.style.setProperty("overflow", "hidden", "important");
+
+      host.style.setProperty("display", "flex", "important");
+      host.style.setProperty("align-items", "stretch", "important");
+      host.style.setProperty("justify-content", "flex-start", "important");
+      host.style.setProperty("gap", "20px", "important");
+      host.style.setProperty("box-sizing", "border-box", "important");
+      host.style.setProperty("padding", "20px", "important");
+      host.style.setProperty("overflow", "hidden", "important");
+    };
+
     const syncLayout = () => {
       if (!sidebar.isConnected) {
         return;
       }
 
+      const fullscreenHost = isYouTubePage() ? getSidebarFullscreenHost(video) : null;
+
       if (!isYouTubePage()) {
+        resetFullscreenHostLayout();
+        sidebar.classList.remove("lw-fullscreen-panel");
         sidebar.style.setProperty("position", "fixed", "important");
         sidebar.style.setProperty("right", "0", "important");
         sidebar.style.setProperty("left", "auto", "important");
@@ -336,6 +546,40 @@
         return;
       }
 
+      if (fullscreenHost) {
+        const maxPanelWidth = Math.max(220, fullscreenHost.clientWidth - 280);
+        const panelWidth = Math.min(
+          360,
+          Math.max(260, Math.round(fullscreenHost.clientWidth * 0.28)),
+          maxPanelWidth
+        );
+
+        applyFullscreenHostLayout(fullscreenHost);
+        injectSidebar(sidebar, fullscreenHost);
+        sidebar.classList.add("lw-fullscreen-panel");
+        sidebar.style.setProperty("position", "relative", "important");
+        sidebar.style.setProperty("top", "auto", "important");
+        sidebar.style.setProperty("right", "auto", "important");
+        sidebar.style.setProperty("left", "auto", "important");
+        sidebar.style.setProperty("bottom", "auto", "important");
+        sidebar.style.setProperty("flex", `0 0 ${panelWidth}px`, "important");
+        sidebar.style.setProperty("width", `${panelWidth}px`, "important");
+        sidebar.style.setProperty("height", "100%", "important");
+        sidebar.style.setProperty("min-height", "0", "important");
+        sidebar.style.setProperty("max-height", "100%", "important");
+        sidebar.style.setProperty("margin-bottom", "0", "important");
+        sidebar.style.setProperty("visibility", "visible", "important");
+        sidebar.style.setProperty("pointer-events", "auto", "important");
+        sidebar.style.setProperty("z-index", "1", "important");
+        return;
+      }
+
+      if (sidebar.classList.contains("lw-fullscreen-panel")) {
+        injectSidebar(sidebar);
+      }
+
+      resetFullscreenHostLayout();
+      sidebar.classList.remove("lw-fullscreen-panel");
       const rect = video.getBoundingClientRect();
       const playerVisible = rect.bottom > 72 && rect.top < window.innerHeight - 72 && rect.width > 0 && rect.height > 0;
 
@@ -351,6 +595,7 @@
       sidebar.style.setProperty("margin-bottom", "16px", "important");
       sidebar.style.setProperty("visibility", playerVisible ? "visible" : "hidden", "important");
       sidebar.style.setProperty("pointer-events", playerVisible ? "auto" : "none", "important");
+      sidebar.style.removeProperty("z-index");
     };
 
     syncLayout();
@@ -363,11 +608,16 @@
     const onWindowResize = () => syncLayout();
     window.addEventListener("resize", onWindowResize);
     window.addEventListener("scroll", onWindowResize, { passive: true });
+    document.addEventListener("fullscreenchange", onWindowResize);
+    document.addEventListener("webkitfullscreenchange", onWindowResize);
 
     state.sidebarLayoutCleanup = () => {
       resizeObserver.disconnect();
       window.removeEventListener("resize", onWindowResize);
       window.removeEventListener("scroll", onWindowResize);
+      document.removeEventListener("fullscreenchange", onWindowResize);
+      document.removeEventListener("webkitfullscreenchange", onWindowResize);
+      resetFullscreenHostLayout();
       if (secondaryInner) {
         if (previousSecondaryInnerPosition) {
           secondaryInner.style.setProperty("position", previousSecondaryInnerPosition);
@@ -388,6 +638,31 @@
         }
       }
     };
+  }
+
+  function getFullscreenElement() {
+    return document.fullscreenElement || document.webkitFullscreenElement || null;
+  }
+
+  function getSidebarFullscreenHost(video) {
+    const fullscreenElement = getFullscreenElement();
+    if (!(fullscreenElement instanceof Element)) {
+      return null;
+    }
+
+    if (video && fullscreenElement !== video && !fullscreenElement.contains(video) && !video.contains(fullscreenElement)) {
+      return null;
+    }
+
+    const host = fullscreenElement.matches("#movie_player, .html5-video-player, .html5-video-container")
+      ? fullscreenElement
+      : fullscreenElement.querySelector("#movie_player, .html5-video-player, .html5-video-container") || fullscreenElement;
+
+    if (window.getComputedStyle(host).position === "static") {
+      host.style.setProperty("position", "relative", "important");
+    }
+
+    return host;
   }
 
   function ensureInterface() {
@@ -465,14 +740,14 @@
     document.addEventListener("mouseout", handleWordHoverOut);
 
     // Load ignored words into state
-    chrome.storage.local.get(["ignoredWords"], (result) => {
+    safeStorageLocalGet(["ignoredWords"], (result) => {
       (result.ignoredWords || []).forEach((w) => state.ignoredWords.add(w));
     });
 
     renderSavedTab();
   }
 
-  function injectSidebar(sidebar) {
+  function injectSidebar(sidebar, targetHost = null) {
     if (!isYouTubePage()) {
       // Fixed sidebar on the right edge for generic sites
       sidebar.style.cssText = [
@@ -486,6 +761,13 @@
         "z-index: 2147483646 !important"
       ].join(";");
       document.body.appendChild(sidebar);
+      return;
+    }
+
+    if (targetHost instanceof Element) {
+      if (sidebar.parentElement !== targetHost) {
+        targetHost.appendChild(sidebar);
+      }
       return;
     }
 
@@ -939,7 +1221,12 @@
 
   async function loadFrequencyData() {
     try {
-      const response = await fetch(chrome.runtime?.getURL("data/frequency.json"));
+      const frequencyUrl = safeRuntimeGetUrl("data/frequency.json");
+      if (!frequencyUrl) {
+        return;
+      }
+
+      const response = await fetch(frequencyUrl);
       if (!response.ok) {
         return;
       }
@@ -1006,8 +1293,8 @@
       return;
     }
 
-    chrome.runtime.sendMessage({ type: "GET_SUBTITLE_URLS" }, (response) => {
-      if (chrome.runtime.lastError || !response?.urls?.length) {
+    safeRuntimeSendMessage({ type: "GET_SUBTITLE_URLS" }, (response) => {
+      if (!response?.urls?.length) {
         return;
       }
       if (!state.subtitles.length) {
@@ -2505,11 +2792,11 @@
   function ignoreWord(word) {
     const normalizedWord = word.toLowerCase();
     state.ignoredWords.add(normalizedWord);
-    chrome.storage.local.get(["ignoredWords"], (result) => {
+    safeStorageLocalGet(["ignoredWords"], (result) => {
       const ignored = result.ignoredWords || [];
       if (!ignored.includes(normalizedWord)) {
         ignored.push(normalizedWord);
-        chrome.storage.local.set({ ignoredWords: ignored });
+        safeStorageLocalSet({ ignoredWords: ignored });
       }
     });
 
@@ -2632,7 +2919,7 @@
       fetch(`https://api.datamuse.com/words?rel_ant=${encodeURIComponent(word)}&max=8`)
         .then(r => r.json()).then(arr => arr.map(x => x.word)).catch(() => []),
       new Promise(resolve => {
-        chrome.runtime.sendMessage({ type: "FETCH_TATOEBA", word }, response => {
+        safeRuntimeSendMessage({ type: "FETCH_TATOEBA", word }, (response) => {
           resolve(response?.results || []);
         });
       })
@@ -2678,7 +2965,7 @@
     let aiExamples = [];
     try {
       const apiKey = await new Promise(resolve => {
-        chrome.storage.local.get(["anthropicApiKey"], result => resolve(result.anthropicApiKey || ""));
+        safeStorageLocalGet(["anthropicApiKey"], (result) => resolve(result.anthropicApiKey || ""));
       });
       if (apiKey) {
         const resp = await fetch("https://api.anthropic.com/v1/messages", {
@@ -2756,7 +3043,7 @@
     }
 
     try {
-      const response = await chrome.runtime.sendMessage({
+      const response = await safeRuntimeSendMessageAsync({
         type: "TRANSLATE",
         text: key,
         target: "so",

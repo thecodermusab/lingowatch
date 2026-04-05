@@ -24,6 +24,16 @@
   display: none;
 }
 
+#lw-sidebar.lw-fullscreen-panel {
+  width: min(360px, calc(100% - 40px));
+  height: calc(100% - 40px);
+  min-height: 0;
+  max-height: calc(100% - 40px);
+  margin-bottom: 0;
+  border-radius: 18px;
+  box-shadow: 0 28px 54px rgba(0, 0, 0, 0.45);
+}
+
 /* ── Header / tabs ───────────────────────────────────────────── */
 .lw-header {
   padding: 10px 14px 10px;
@@ -146,6 +156,12 @@
   background: rgba(5, 8, 12, 0.96);
 }
 
+#lw-sidebar.lw-fullscreen-panel .lw-panels,
+#lw-sidebar.lw-fullscreen-panel .lw-panel.active {
+  flex: 1;
+  min-height: 0;
+}
+
 .lw-panel {
   display: none;
 }
@@ -164,6 +180,13 @@
   overflow-y: auto;
   background: transparent;
   padding: 0 0 24px;
+}
+
+#lw-sidebar.lw-fullscreen-panel .lw-subtitle-list,
+#lw-sidebar.lw-fullscreen-panel #lw-words-panel,
+#lw-sidebar.lw-fullscreen-panel #lw-saved-list {
+  max-height: none;
+  height: 100%;
 }
 
 /* ── Subtitle lines ──────────────────────────────────────────── */
