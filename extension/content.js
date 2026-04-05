@@ -1640,32 +1640,43 @@
       return;
     }
 
+    const speakIcon = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M11 5 6.8 8.5H4a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h2.8L11 19V5Z"/><path d="M15.5 8.5a4.5 4.5 0 0 1 0 7"/><path d="M18.5 6a8 8 0 0 1 0 12"/></svg>`;
+    const deleteIcon = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M8 7l1 12h6l1-12"/><path d="M10 11v5"/><path d="M14 11v5"/></svg>`;
+
     state.elements.savedList.innerHTML = savedWords.map((entry) => `
-      <div class="lw-saved-item">
-        <div class="lw-saved-left">
+      <article class="lw-saved-item">
+        <div class="lw-saved-main">
           <div class="lw-saved-top-row">
             <span class="lw-saved-word">${escapeHtml(entry.displayWord || entry.word)}</span>
             ${entry.isManual ? '<span class="lw-manual-badge">manual</span>' : ""}
             ${entry.isCustomTranslation ? '<span class="lw-custom-badge">custom</span>' : ""}
           </div>
-          <span class="lw-saved-translation">
-            ${entry.translation ? `🇸🇴 ${escapeHtml(entry.translation)}` : '<em style="color:#555">no translation</em>'}
-          </span>
-          ${entry.note ? `<span class="lw-saved-note">📝 ${escapeHtml(entry.note)}</span>` : ""}
+          <div class="lw-saved-translation-row">
+            <span class="lw-saved-flag">Somali</span>
+            <span class="lw-saved-translation">
+              ${entry.translation ? escapeHtml(entry.translation) : '<em class="lw-saved-fallback">No translation yet</em>'}
+            </span>
+          </div>
+          ${entry.note ? `<div class="lw-saved-note">${escapeHtml(entry.note)}</div>` : ""}
           ${entry.synonyms?.length ? `
             <div class="lw-saved-synonyms">
               ${entry.synonyms.slice(0, 4).map((s) => `<span class="lw-saved-syn-chip">${escapeHtml(s)}</span>`).join("")}
             </div>
           ` : ""}
-          <span class="lw-saved-date">
-            ${escapeHtml(entry.savedAt)}${entry.source ? ` · ${escapeHtml(entry.source)}` : ""}
-          </span>
+          <div class="lw-saved-meta">
+            <span class="lw-saved-date">${escapeHtml(entry.savedAt)}</span>
+            ${entry.source ? `<span class="lw-saved-source">${escapeHtml(entry.source)}</span>` : ""}
+          </div>
         </div>
         <div class="lw-saved-actions">
-          <button type="button" data-saved-action="speak" data-word="${escapeAttribute(entry.word)}">🔊</button>
-          <button type="button" data-saved-action="delete" data-word="${escapeAttribute(entry.word)}">🗑</button>
+          <button type="button" class="lw-saved-action-btn" data-saved-action="speak" data-word="${escapeAttribute(entry.word)}" aria-label="Listen to ${escapeAttribute(entry.word)}" title="Listen">
+            ${speakIcon}
+          </button>
+          <button type="button" class="lw-saved-action-btn lw-saved-action-btn-danger" data-saved-action="delete" data-word="${escapeAttribute(entry.word)}" aria-label="Delete ${escapeAttribute(entry.word)}" title="Delete">
+            ${deleteIcon}
+          </button>
         </div>
-      </div>
+      </article>
     `).join("");
   }
 
@@ -1991,7 +2002,7 @@
           <div class="lw-section-label">From this subtitle</div>
           <div class="lw-examples-list">
             <div class="lw-example-row current">
-              <span class="lw-example-type-tag" style="background:rgba(249,115,22,0.18);color:#f97316">NOW</span>
+              <span class="lw-example-type-tag lw-example-type-tag-current">Now</span>
               <span class="lw-example-row-text">${highlightWordInText(escapeHtml(currentLine), word)}</span>
               ${audioBtn(currentLine, true)}
             </div>
@@ -2010,7 +2021,7 @@
             `).join("")}
             ${(tatoebaExamples || []).map(ex => `
               <div class="lw-example-row">
-                <span class="lw-example-type-tag" style="background:rgba(14,165,233,0.15);color:#38bdf8">REAL</span>
+                <span class="lw-example-type-tag lw-example-type-tag-real">Real</span>
                 <span class="lw-example-row-text">${highlightWordInText(escapeHtml(ex.text), word)}</span>
                 ${ex.audioUrl
                   ? `<button type="button" class="lw-example-audio-btn small" data-popup-action="play-audio-url" data-url="${escapeAttribute(ex.audioUrl)}" title="Listen">${audioSvg(12)}</button>`
@@ -2210,11 +2221,8 @@
 
     clearTimeout(state.hoverTimer);
     setTimeout(() => {
-      const tooltip = state.elements.tooltip;
-      if (tooltip && !tooltip.matches(":hover")) {
-        closeHoverTooltip();
-      }
-    }, 300);
+      closeHoverTooltip();
+    }, 120);
   }
 
   function isElementVisible(element) {
@@ -2333,6 +2341,51 @@
     tooltip.style.top = `${top}px`;
   }
 
+  function getHoverPhraseCandidates(wordEl) {
+    const baseWord = (wordEl.dataset.word || wordEl.textContent || "").trim().toLowerCase();
+    if (!baseWord) {
+      return [];
+    }
+
+    const lineContent = wordEl.closest(".lw-line-content");
+    if (!lineContent) {
+      return [baseWord];
+    }
+
+    const wordElements = Array.from(lineContent.querySelectorAll(".lw-word"));
+    const wordIndex = wordElements.indexOf(wordEl);
+    if (wordIndex === -1) {
+      return [baseWord];
+    }
+
+    const nextWords = wordElements
+      .slice(wordIndex, wordIndex + 4)
+      .map((element) => cleanWord(element.textContent || "").toLowerCase())
+      .filter(Boolean);
+
+    const candidates = [];
+    for (let length = 1; length <= nextWords.length; length += 1) {
+      const phrase = nextWords.slice(0, length).join(" ").trim();
+      if (phrase && !candidates.includes(phrase)) {
+        candidates.push(phrase);
+      }
+    }
+
+    return candidates;
+  }
+
+  function getPrimaryHoverMeaning(translation) {
+    const normalized = (translation || "").trim();
+    if (!normalized) {
+      return "";
+    }
+
+    return normalized
+      .split(/[;,]/)
+      .map((part) => part.trim())
+      .filter(Boolean)[0] || normalized;
+  }
+
   async function showHoverTooltip(wordEl, word, rect) {
     if (!word) word = (wordEl.dataset.word || wordEl.textContent || "").trim().toLowerCase();
     if (!word) return;
@@ -2344,15 +2397,16 @@
     if (rect.width === 0 || rect.height === 0 || rect.bottom < 0 || rect.top > window.innerHeight) return;
 
     tooltip.style.display = "block";
-    tooltip.innerHTML = `<div class="lw-ht-header"><span class="lw-ht-word">${escapeHtml(word)}</span><span class="lw-ht-colon"> : </span><span class="lw-ht-translation">...</span></div>`;
+    tooltip.innerHTML = `<div class="lw-ht-primary"><div class="lw-ht-word">${escapeHtml(word)}</div><div class="lw-ht-translation">...</div></div>`;
     positionHoverTooltip(tooltip, rect);
 
     const hoveredLine = wordEl.closest(".lw-line");
     const hoveredSubtitle = hoveredLine ? state.subtitles[Number(hoveredLine.dataset.index)] : null;
     const contextText = hoveredSubtitle?.text || state.subtitles[state.currentIndex]?.text || "";
+    const phraseCandidates = getHoverPhraseCandidates(wordEl);
 
-    const [wordTranslation, lineTranslation] = await Promise.all([
-      translateToSomali(word, ""),
+    const [candidateTranslations, lineTranslation] = await Promise.all([
+      Promise.all(phraseCandidates.map((candidate) => translateToSomali(candidate, ""))),
       contextText ? translateToSomali(contextText, "") : Promise.resolve("")
     ]);
 
@@ -2360,13 +2414,47 @@
       return;
     }
 
+    const translationOptions = phraseCandidates.reduce((options, candidate, index) => {
+      const translation = (candidateTranslations[index] || "").trim();
+      if (!translation) {
+        return options;
+      }
+
+      const normalizedTranslation = candidate.includes(" ")
+        ? translation
+        : getPrimaryHoverMeaning(translation);
+
+      if (!normalizedTranslation) {
+        return options;
+      }
+
+      const isDuplicate = options.some((option) => option.translation === normalizedTranslation);
+      if (!isDuplicate) {
+        options.push({ phrase: candidate, translation: normalizedTranslation });
+      }
+      return options;
+    }, []);
+
+    const primaryOption = translationOptions[0] || { phrase: word, translation: word };
+    const extraOptions = translationOptions
+      .filter((option, index) => index > 0 && option.phrase.includes(" "))
+      .slice(0, 3);
+
     tooltip.innerHTML = `
-      <div class="lw-ht-header">
-        <span class="lw-ht-toggle"></span>
-        <span class="lw-ht-word">${escapeHtml(word)}</span>
-        <span class="lw-ht-colon"> : </span>
-        <span class="lw-ht-translation">${escapeHtml(wordTranslation)}</span>
+      <div class="lw-ht-primary">
+        <div class="lw-ht-word">${escapeHtml(primaryOption.phrase)}</div>
+        <div class="lw-ht-translation">${escapeHtml(primaryOption.translation)}</div>
       </div>
+      ${extraOptions.length ? `
+        <div class="lw-ht-options">
+          ${extraOptions.map((option) => `
+            <div class="lw-ht-option">
+              <div class="lw-ht-option-phrase">${escapeHtml(option.phrase)}</div>
+              <div class="lw-ht-option-translation">${escapeHtml(option.translation)}</div>
+            </div>
+          `).join("")}
+        </div>
+      ` : ""}
       ${lineTranslation ? `<div class="lw-ht-divider"></div><div class="lw-ht-sentence">${escapeHtml(lineTranslation)}</div>` : ""}
     `;
     positionHoverTooltip(tooltip, rect);

@@ -98,28 +98,26 @@ export default function DashboardPage() {
             icon={BookMarked}
             label="Total Phrases"
             value={stats.totalPhrases}
-            color="bg-white/15 text-white"
+            color="bg-[rgba(0,210,180,0.1)] text-[#00d2b4]"
             index={0}
-            className="border-[#6b49db] bg-[#6b49db]"
-            valueClassName="text-white"
-            labelClassName="text-white/80"
+            className="border-[rgba(0,210,180,0.2)] shadow-[0_0_0_1px_rgba(0,210,180,0.08),0_0_24px_rgba(0,210,180,0.07)]"
+            valueClassName="text-[#00d2b4]"
           />
           <StatCard icon={LearnedIcon} label="Learned" value={stats.learnedPhrases} color="bg-success/10 text-success" index={1} />
           <StatCard
             icon={FavoritesIcon}
             label="Favorites"
             value={stats.favoritePhrases}
-            color="bg-white/15 text-white"
+            color="bg-[rgba(0,210,180,0.1)] text-[#00d2b4]"
             index={2}
-            className="border-[#6b49db] bg-[#6b49db]"
-            valueClassName="text-white"
-            labelClassName="text-white/80"
+            className="border-[rgba(0,210,180,0.2)] shadow-[0_0_0_1px_rgba(0,210,180,0.08),0_0_24px_rgba(0,210,180,0.07)]"
+            valueClassName="text-[#00d2b4]"
           />
           <StatCard icon={DueIcon} label="Due for Review" value={stats.dueForReview} color="bg-accent/10 text-accent-foreground" index={3} />
         </div>
 
         {dueForReview.length > 0 && (
-          <div className="admin-panel border-[#6b49db]/20 bg-[linear-gradient(135deg,rgba(107,73,219,0.14),rgba(107,73,219,0.06))]">
+          <div className="admin-panel border-[rgba(0,210,180,0.2)] bg-[linear-gradient(135deg,rgba(0,210,180,0.07),rgba(0,210,180,0.02))] shadow-[0_0_24px_rgba(0,210,180,0.06)]">
             <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
               <div>
                 <p className="admin-kicker">Review Queue</p>
