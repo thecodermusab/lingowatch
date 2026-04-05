@@ -23,8 +23,10 @@ chrome.storage.local.get(["googleApiKey", "subtitleSettings"], (result) => {
   document.getElementById("lw-api-key").value = apiKey;
 
   const s = result.subtitleSettings || {};
-  if (s.enabled !== undefined)
-    document.getElementById("lw-sub-enabled").value = String(s.enabled);
+  if (s.enabled !== undefined) {
+    const el = document.getElementById("lw-sub-enabled");
+    if (el) el.value = String(s.enabled);
+  }
   if (s.mode)
     document.getElementById("lw-sub-mode").value = s.mode;
   if (s.order)
