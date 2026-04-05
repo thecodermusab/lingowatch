@@ -11,6 +11,7 @@ import { PhraseType } from "@/types";
 import { getReviewStage } from "@/lib/review";
 import { generateStory } from "@/lib/ai";
 import { useToast } from "@/hooks/use-toast";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 
 type SortOption = "newest" | "oldest" | "alphabetical" | "review_due" | "hardest";
 type FilterStatus = "all" | "learned" | "not_learned" | "favorite";
@@ -26,6 +27,8 @@ export default function LibraryPage() {
   const [statusFilter, setStatusFilter] = useState<FilterStatus>("all");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const filtered = useMemo(() => {
     let result = [...phrases];
@@ -77,11 +80,20 @@ export default function LibraryPage() {
     setSelectedIds(checked ? filtered.map((phrase) => phrase.id) : []);
   };
 
-  const handleBulkDelete = () => {
+  const handleBulkDelete = async () => {
     if (!selectedIds.length) return;
-    if (!window.confirm(`Delete ${selectedIds.length} selected entries? This cannot be undone.`)) return;
-    bulkDeletePhrases(selectedIds);
-    setSelectedIds([]);
+    setIsDeleting(true);
+    try {
+      await bulkDeletePhrases(selectedIds);
+      setSelectedIds([]);
+      setShowDeleteDialog(false);
+      toast({
+        title: selectedIds.length === 1 ? "Phrase deleted" : "Phrases deleted",
+        description: `${selectedIds.length} ${selectedIds.length === 1 ? "entry was" : "entries were"} removed.`,
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const handleBulkFavorite = () => {
@@ -116,6 +128,15 @@ export default function LibraryPage() {
 
   return (
     <div className="app-page">
+      <DeleteConfirmDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={handleBulkDelete}
+        isPending={isDeleting}
+        title={selectedCount === 1 ? "Delete this phrase?" : `Delete ${selectedCount} phrases?`}
+        description="This will permanently remove the selected entries."
+        confirmLabel="Delete"
+      />
       <div className="page-stack">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
@@ -186,7 +207,7 @@ export default function LibraryPage() {
             <Button variant="outline" className="h-11 rounded-xl" onClick={handleMakeStory} disabled={makingStory}>
               <BookText className="h-4 w-4" /> {makingStory ? "Generating..." : "Make Story"}
             </Button>
-            <Button variant="outline" className="h-11 rounded-xl text-destructive hover:bg-destructive/10" onClick={handleBulkDelete}>
+            <Button variant="outline" className="h-11 rounded-xl text-destructive hover:bg-destructive/10" onClick={() => setShowDeleteDialog(true)}>
               <Trash2 className="h-4 w-4" /> Delete
             </Button>
           </div>

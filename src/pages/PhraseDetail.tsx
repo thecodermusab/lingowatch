@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { categories } from "@/lib/mockData";
 import { DifficultyLevel, PhraseType } from "@/types";
 import { getReviewStage } from "@/lib/review";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 
 const phraseTypes: { value: PhraseType; label: string }[] = [
   { value: "word", label: "Word" },
@@ -55,6 +56,8 @@ export default function PhraseDetailPage() {
   const [difficultyLevel, setDifficultyLevel] = useState<DifficultyLevel>("beginner");
   const [notes, setNotes] = useState("");
   const [noteDraft, setNoteDraft] = useState("");
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const phrase = phrases.find((p) => p.id === id);
 
@@ -82,10 +85,16 @@ export default function PhraseDetailPage() {
   const examples = phrase.examples || [];
   const reviewStage = getReviewStage(phrase.review);
 
-  const handleDelete = () => {
-    deletePhrase(phrase.id);
-    toast({ title: "Phrase deleted" });
-    navigate("/library");
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deletePhrase(phrase.id);
+      toast({ title: "Phrase deleted" });
+      navigate("/library");
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
+    }
   };
 
   const handleCancelEdit = () => {
@@ -161,6 +170,14 @@ export default function PhraseDetailPage() {
 
   return (
     <div className="app-page">
+      <DeleteConfirmDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={handleDelete}
+        isPending={isDeleting}
+        title="Delete this phrase?"
+        description="This phrase will be removed from your library."
+      />
       <div className="page-stack">
         <div className="admin-panel admin-panel-body">
           <button onClick={() => navigate(-1)} className="mb-4 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
@@ -256,7 +273,7 @@ export default function PhraseDetailPage() {
                     <RotateCcw className="h-4 w-4" /> Review
                   </Button>
                 </Link>
-                <Button variant="outline" size="sm" onClick={handleDelete} className="h-10 gap-1 rounded-xl px-4 text-destructive hover:bg-destructive/10">
+                <Button variant="outline" size="sm" onClick={() => setShowDeleteDialog(true)} className="h-10 gap-1 rounded-xl px-4 text-destructive hover:bg-destructive/10">
                   <Trash2 className="h-4 w-4" /> Delete
                 </Button>
               </>

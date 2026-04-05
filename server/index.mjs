@@ -12,6 +12,7 @@ const ENV_FILES = [join(ROOT_DIR, ".env"), join(ROOT_DIR, ".env.local")];
 const DATA_DIR = join(ROOT_DIR, "server", "data");
 const INBOX_FILE = join(DATA_DIR, "inbox-captures.json");
 const EXT_PHRASES_FILE = join(DATA_DIR, "ext-saved-phrases.json");
+const WORLD_STORIES_FILE = join(DATA_DIR, "world-stories.json");
 
 loadEnvFile();
 
@@ -308,6 +309,37 @@ createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "DELETE" && pathname.startsWith("/api/extension/saved-phrases/")) {
+    try {
+      const entryId = decodeURIComponent(pathname.slice("/api/extension/saved-phrases/".length)).trim();
+
+      if (!entryId) {
+        sendJson(res, 400, { error: "entry id is required" });
+        return;
+      }
+
+      const existing = existsSync(EXT_PHRASES_FILE)
+        ? JSON.parse(readFileSync(EXT_PHRASES_FILE, "utf8"))
+        : [];
+
+      const updated = existing.filter(
+        (phrase) => phrase?.id !== entryId && String(phrase?.phraseText || "").trim().toLowerCase() !== entryId.toLowerCase()
+      );
+
+      if (updated.length === existing.length) {
+        sendJson(res, 404, { error: "Phrase not found" });
+        return;
+      }
+
+      if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
+      writeFileSync(EXT_PHRASES_FILE, JSON.stringify(updated, null, 2));
+      sendJson(res, 200, { ok: true });
+    } catch (err) {
+      sendJson(res, 500, { error: String(err) });
+    }
+    return;
+  }
+
   // ── Saved words (Neon) ──────────────────────────────────────────
   if (req.method === "GET" && pathname === "/api/words") {
     try {
@@ -516,6 +548,14 @@ createServer(async (req, res) => {
     }
   }
 
+  if (req.method === "GET" && pathname === "/api/world-stories") {
+    try {
+      const data = existsSync(WORLD_STORIES_FILE) ? JSON.parse(readFileSync(WORLD_STORIES_FILE, "utf8")) : [];
+      sendJson(res, 200, data);
+    } catch { sendJson(res, 200, []); }
+    return;
+  }
+
   sendJson(res, 404, { error: "Not found" });
 }).listen(PORT, HOST, () => {
   console.log(`AI backend running on http://${HOST}:${PORT}`);
@@ -624,7 +664,7 @@ function normalizeCaptureStatus(value) {
 
 function setCorsHeaders(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 }
 
