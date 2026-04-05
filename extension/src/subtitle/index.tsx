@@ -19,6 +19,14 @@ function findPlayer(): HTMLElement | null {
 // Single persistent host + root — never destroyed, just moved between players
 let hostEl: HTMLDivElement | null = null;
 
+function clearOverlay() {
+  window.dispatchEvent(
+    new CustomEvent("lw:subtitle", {
+      detail: { original: "", translation: "" },
+    }),
+  );
+}
+
 function ensureOverlay() {
   const player = findPlayer();
   if (!player) return false;
@@ -51,6 +59,10 @@ function tryMount(retries = 20) {
 }
 
 // On SPA navigation: move the existing overlay to the new player immediately
+window.addEventListener("yt-navigate-start", () => {
+  clearOverlay();
+});
+
 window.addEventListener("yt-navigate-finish", () => {
   if (!ensureOverlay()) setTimeout(() => tryMount(), 300);
 });

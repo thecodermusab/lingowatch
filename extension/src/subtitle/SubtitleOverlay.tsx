@@ -114,10 +114,18 @@ export function SubtitleOverlay() {
       const { original = "", translation: preTranslated = "" } =
         (e as CustomEvent<SubtitlePayload>).detail ?? {};
 
-      if (!original && !preTranslated) return;
-      if (!settingsRef.current.enabled) return;
-
       const id = ++requestId.current;
+
+      if (!original && !preTranslated) {
+        shown.current = false;
+        englishEl.replaceChildren();
+        translationEl.textContent = "";
+        container.style.visibility = "hidden";
+        setYtCaptionsHidden(false);
+        return;
+      }
+
+      if (!settingsRef.current.enabled) return;
 
       // Make container visible on first subtitle — done once, never reset
       if (!shown.current) {

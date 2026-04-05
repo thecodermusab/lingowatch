@@ -24,6 +24,8 @@
     currentSubtitleKey: "",
     currentSubtitleUrl: "",
     subtitleSource: "",
+    subtitleSessionId: 0,
+    ignoreLiveCaptionUntil: 0,
     translationCache: Object.create(null),
     frequencyData: {},
     ignoredWords: new Set(),
@@ -61,6 +63,9 @@
   function setupMessaging() {
     chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       if (message.type === "SUBTITLE_URL_FOUND") {
+        if (isYouTubePage() && getYouTubeVideoId()) {
+          return;
+        }
         handleSubtitleUrl(message.url);
         return;
       }
@@ -135,9 +140,9 @@
     const wrapHistoryMethod = (method) => {
       const original = history[method];
       history[method] = function wrappedHistoryMethod(...args) {
+        resetSubtitleState();
         const result = original.apply(this, args);
         setTimeout(() => {
-          resetSubtitleState();
           attemptAttachVideo(true);
         }, 300);
         return result;
@@ -147,10 +152,37 @@
     wrapHistoryMethod("pushState");
     wrapHistoryMethod("replaceState");
     window.addEventListener("popstate", () => {
+      resetSubtitleState();
       setTimeout(() => {
-        resetSubtitleState();
         attemptAttachVideo(true);
       }, 300);
+    });
+
+    window.addEventListener("yt-navigate-start", () => {
+      resetSubtitleState();
+    });
+
+    window.addEventListener("yt-navigate-finish", () => {
+      clearTimeout(state.attachVideoTimer);
+      state.attachVideoTimer = setTimeout(() => {
+        attemptAttachVideo(true);
+      }, 150);
+    });
+
+    // YouTube fires this after it updates ytInitialPlayerResponse for the new
+    // video.  If the first load attempt ran while the response was stale (old
+    // video data), we would have gotten no subtitles; retry here once the
+    // correct player response is in place.
+    window.addEventListener("yt-page-data-updated", () => {
+      if (!isYouTubePage() || state.subtitles.length) {
+        return;
+      }
+      const sessionId = state.subtitleSessionId;
+      fetchYouTubeCaptionTrack(sessionId).then((loaded) => {
+        if (!loaded && sessionId === state.subtitleSessionId && !state.subtitles.length) {
+          fetchYouTubeTranscript(getYouTubeVideoId(), sessionId);
+        }
+      });
     });
   }
 
@@ -161,6 +193,9 @@
     state.subtitleSource = "";
     state.subtitles = [];
     state.currentIndex = -1;
+    state.subtitleSessionId += 1;
+    state.ignoreLiveCaptionUntil = Date.now() + 1500;
+    clearOverlay();
   }
 
   function attemptAttachVideo(forceReload = false) {
@@ -236,6 +271,7 @@
       if (!container || liveCaptionObserver) return;
       liveCaptionObserver = new MutationObserver(() => {
         if (state.subtitles.length) return; // VTT subtitles loaded — no need
+        if (Date.now() < state.ignoreLiveCaptionUntil) return;
         const segments = container.querySelectorAll(".ytp-caption-segment");
         const text = Array.from(segments).map(s => s.textContent || "").join(" ").replace(/\s+/g, " ").trim();
         if (!text) return; // don't clear — keep last subtitle visible
@@ -480,6 +516,10 @@
         detail: { original: original || "", translation: translation || "" },
       })
     );
+  }
+
+  function clearOverlay() {
+    dispatchSubtitle("", "");
   }
 
   // Word clicked in the subtitle overlay → open popup centered above the word
@@ -822,6 +862,11 @@
     if (action === "ignore") { ignoreWord(word); return; }
     if (action === "lookup-synonym") { lookupSynonym(word); return; }
     if (action === "pronounce-sentence") { pronounceSentence(button.dataset.text || ""); return; }
+    if (action === "play-audio-url") {
+      const url = button.dataset.url || "";
+      if (url) { new Audio(url).play().catch(() => {}); }
+      return;
+    }
   }
 
   function handleDocumentClick(event) {
@@ -899,6 +944,7 @@
   async function loadSubtitlesForCurrentPage(forceReload = false) {
     ensureInterface();
     renderSubtitleStatus("Loading subtitles...");
+    const sessionId = state.subtitleSessionId;
 
     const youTubeVideoId = getYouTubeVideoId();
     const subtitleKey = youTubeVideoId ? `youtube:${youTubeVideoId}` : `page:${window.location.href}`;
@@ -910,21 +956,23 @@
     state.currentSubtitleKey = subtitleKey;
     state.currentSubtitleUrl = "";
     state.subtitleSource = "";
+    state.currentIndex = -1;
+    clearOverlay();
 
     if (youTubeVideoId) {
-      const loadedFromYoutubeTrack = await fetchYouTubeCaptionTrack();
+      const loadedFromYoutubeTrack = await fetchYouTubeCaptionTrack(sessionId);
       if (loadedFromYoutubeTrack) {
         return;
       }
 
-      await fetchYouTubeTranscript(youTubeVideoId);
+      await fetchYouTubeTranscript(youTubeVideoId, sessionId);
       return;
     }
 
-    startSubtitleSearch();
+    startSubtitleSearch(sessionId);
   }
 
-  function startSubtitleSearch() {
+  function startSubtitleSearch(sessionId = state.subtitleSessionId) {
     renderSubtitleStatus("Looking for subtitles...");
     state.noSubtitleTimer = setTimeout(() => {
       if (!state.subtitles.length) {
@@ -933,27 +981,29 @@
     }, 8000);
 
     if (state.currentVideo) {
-      tryTrackElement(state.currentVideo);
+      tryTrackElement(state.currentVideo, sessionId);
     }
 
-    checkAlreadyFoundSubtitles();
-    scanPageForSubtitleUrls();
+    checkAlreadyFoundSubtitles(sessionId);
+    scanPageForSubtitleUrls(sessionId);
   }
 
-  function checkAlreadyFoundSubtitles() {
+  function checkAlreadyFoundSubtitles(sessionId = state.subtitleSessionId) {
+    if (isYouTubePage() && getYouTubeVideoId()) {
+      return;
+    }
+
     chrome.runtime.sendMessage({ type: "GET_SUBTITLE_URLS" }, (response) => {
       if (chrome.runtime.lastError || !response?.urls?.length) {
         return;
       }
-      response.urls.forEach((url) => {
-        if (!state.subtitles.length) {
-          handleSubtitleUrl(url);
-        }
-      });
+      if (!state.subtitles.length) {
+        handleSubtitleUrl(response.urls[response.urls.length - 1], sessionId);
+      }
     });
   }
 
-  function tryTrackElement(video) {
+  function tryTrackElement(video, sessionId = state.subtitleSessionId) {
     if (state.trackedVideo === video && state.trackObserverCleanup) {
       return;
     }
@@ -968,7 +1018,7 @@
       const src = track.src || track.getAttribute("src");
       if (src && !state.subtitles.length) {
         const fullUrl = src.startsWith("http") ? src : `${window.location.origin}${src}`;
-        handleSubtitleUrl(fullUrl);
+        handleSubtitleUrl(fullUrl, sessionId);
       }
     });
 
@@ -978,7 +1028,7 @@
         const src = track.src || track.getAttribute("src");
         if (src && !state.subtitles.length) {
           const fullUrl = src.startsWith("http") ? src : `${window.location.origin}${src}`;
-          handleSubtitleUrl(fullUrl);
+          handleSubtitleUrl(fullUrl, sessionId);
         }
       });
     });
@@ -1041,14 +1091,14 @@
     };
   }
 
-  function scanPageForSubtitleUrls() {
+  function scanPageForSubtitleUrls(sessionId = state.subtitleSessionId) {
     const vttPattern = /["'](https?:\/\/[^"']*\.(?:vtt|srt)[^"']*?)["']/gi;
 
     document.querySelectorAll("script").forEach((script) => {
       const matches = [...(script.textContent?.matchAll(vttPattern) || [])];
       matches.forEach((match) => {
         if (!state.subtitles.length) {
-          handleSubtitleUrl(match[1]);
+          handleSubtitleUrl(match[1], sessionId);
         }
       });
     });
@@ -1057,7 +1107,7 @@
     const pageMatches = [...html.matchAll(vttPattern)];
     pageMatches.slice(0, 10).forEach((match) => {
       if (!state.subtitles.length) {
-        handleSubtitleUrl(match[1]);
+        handleSubtitleUrl(match[1], sessionId);
       }
     });
   }
@@ -1105,14 +1155,27 @@
   }
 
   function getYouTubeCaptionTracks() {
+    // Only accept player responses whose videoId matches the current URL.
+    // During SPA navigation ytInitialPlayerResponse still holds the previous
+    // video's data when yt-navigate-finish fires, causing old subtitles to
+    // load under the new session ID (bypassing the sessionId guard entirely).
+    const currentVideoId = getYouTubeVideoId();
+
     const sources = [];
     if (window.ytInitialPlayerResponse) {
-      sources.push(window.ytInitialPlayerResponse);
+      const responseVideoId = window.ytInitialPlayerResponse?.videoDetails?.videoId;
+      if (!currentVideoId || responseVideoId === currentVideoId) {
+        sources.push(window.ytInitialPlayerResponse);
+      }
     }
 
     if (window.ytplayer?.config?.args?.player_response) {
       try {
-        sources.push(JSON.parse(window.ytplayer.config.args.player_response));
+        const parsed = JSON.parse(window.ytplayer.config.args.player_response);
+        const responseVideoId = parsed?.videoDetails?.videoId;
+        if (!currentVideoId || responseVideoId === currentVideoId) {
+          sources.push(parsed);
+        }
       } catch (_error) {
         // Ignore malformed legacy player response.
       }
@@ -1128,7 +1191,7 @@
     return [];
   }
 
-  async function fetchYouTubeCaptionTrack() {
+  async function fetchYouTubeCaptionTrack(sessionId = state.subtitleSessionId) {
     const tracks = getYouTubeCaptionTracks();
     if (!tracks.length) {
       return false;
@@ -1142,13 +1205,16 @@
     try {
       const response = await fetch(preferredTrack.baseUrl);
       const rawText = await response.text();
+      if (sessionId !== state.subtitleSessionId) {
+        return false;
+      }
       const subtitles = parseYouTubeCaptionPayload(rawText);
       if (!subtitles.length) {
         return false;
       }
 
       state.subtitleSource = "youtube-track";
-      setSubtitles(subtitles);
+      setSubtitles(subtitles, sessionId);
       return true;
     } catch (_error) {
       return false;
@@ -1217,14 +1283,17 @@
     }
   }
 
-  async function fetchYouTubeTranscript(videoId) {
+  async function fetchYouTubeTranscript(videoId, sessionId = state.subtitleSessionId) {
     try {
       const response = await fetch(`${BACKEND_BASE_URL}/transcript/${encodeURIComponent(videoId)}?lang=en`);
       const data = await response.json().catch(() => ({}));
+      if (sessionId !== state.subtitleSessionId) {
+        return;
+      }
       const backendMessage = typeof data.detail === "string" ? data.detail : "";
 
       if (!response.ok || !Array.isArray(data.transcript)) {
-        setSubtitles([]);
+        setSubtitles([], sessionId);
         renderSubtitleStatus(backendMessage || "Could not load YouTube subtitles. Start the FastAPI backend at http://localhost:8000 and try again.");
         return;
       }
@@ -1243,20 +1312,14 @@
 
       clearTimeout(state.noSubtitleTimer);
       state.subtitleSource = "backend";
-      state.subtitles = entries;
-      state.currentIndex = -1;
-      updateLButton();
-      renderSubtitleList();
-      renderWordsTab();
-      renderSavedTab();
-      syncCurrentSubtitle();
+      setSubtitles(entries, sessionId);
     } catch (_error) {
-      setSubtitles([]);
+      setSubtitles([], sessionId);
       renderSubtitleStatus("Could not reach the local transcript backend. Run `uvicorn main:app --host 0.0.0.0 --port 8000` inside backend/.");
     }
   }
 
-  async function handleSubtitleUrl(url) {
+  async function handleSubtitleUrl(url, sessionId = state.subtitleSessionId) {
     if (!url || url === state.currentSubtitleUrl) {
       return;
     }
@@ -1267,9 +1330,12 @@
     try {
       const response = await fetch(url);
       const text = await response.text();
+      if (sessionId !== state.subtitleSessionId) {
+        return;
+      }
       const parsed = /\.srt(\?|$)/i.test(url) ? parseSRT(text) : parseVTT(text);
       state.subtitleSource = "captured-track";
-      setSubtitles(parsed);
+      setSubtitles(parsed, sessionId);
     } catch (_error) {
       renderSubtitleStatus("LingoWatch found a subtitle file but could not read it.");
     }
@@ -1449,7 +1515,11 @@
     return parts[0] || 0;
   }
 
-  function setSubtitles(nextSubtitles) {
+  function setSubtitles(nextSubtitles, sessionId = state.subtitleSessionId) {
+    if (sessionId !== state.subtitleSessionId) {
+      return;
+    }
+
     clearTimeout(state.noSubtitleTimer);
     state.subtitles = normalizeSubtitles(nextSubtitles);
     updateLButton();
@@ -1663,7 +1733,11 @@
   }
 
   function updateOverlay(text) {
-    if (!text) return; // keep last subtitle visible until the next one arrives
+    if (!text) {
+      clearOverlay();
+      return;
+    }
+
     dispatchSubtitle(text, "");
   }
 
@@ -1847,7 +1921,7 @@
     positionPopup(popup, rect);
 
     // Fetch all word data (AI + dict + Datamuse in parallel)
-    const { aiData, dictEntries, synonyms, antonyms } = await getFullWordData(word, currentLine);
+    const { aiData, dictEntries, synonyms, antonyms, tatoebaExamples } = await getFullWordData(word, currentLine);
     if (requestId !== state.popupRequestId) return;
 
     state.lastPopupAiData = aiData;
@@ -1910,7 +1984,7 @@
             </div>
           </div>
         ` : ""}
-        ${examples.length ? `
+        ${examples.length || tatoebaExamples?.length ? `
           <div class="lw-popup-divider"></div>
           <div class="lw-section-label">Example Sentences</div>
           <div class="lw-examples-list">
@@ -1919,6 +1993,16 @@
                 ${ex.type ? `<span class="lw-example-type-tag">${escapeHtml(ex.type.toUpperCase())}</span>` : ""}
                 <span class="lw-example-row-text">${highlightWordInText(escapeHtml(ex.text), word)}</span>
                 ${audioBtn(ex.text, true)}
+              </div>
+            `).join("")}
+            ${(tatoebaExamples || []).map(ex => `
+              <div class="lw-example-row">
+                <span class="lw-example-type-tag" style="background:rgba(14,165,233,0.15);color:#38bdf8">REAL</span>
+                <span class="lw-example-row-text">${highlightWordInText(escapeHtml(ex.text), word)}</span>
+                ${ex.audioUrl
+                  ? `<button type="button" class="lw-example-audio-btn small" data-popup-action="play-audio-url" data-url="${escapeAttribute(ex.audioUrl)}" title="Listen">${audioSvg(12)}</button>`
+                  : audioBtn(ex.text, true)
+                }
               </div>
             `).join("")}
           </div>
@@ -2261,12 +2345,17 @@
         .catch(() => null)
     ]);
 
-    // Fetch Datamuse synonyms/antonyms in parallel
-    const [datamuseSyn, datamuseAnt] = await Promise.all([
+    // Fetch Datamuse synonyms/antonyms + Tatoeba examples in parallel
+    const [datamuseSyn, datamuseAnt, tatoebaExamples] = await Promise.all([
       fetch(`https://api.datamuse.com/words?rel_syn=${encodeURIComponent(word)}&max=15`)
         .then(r => r.json()).then(arr => arr.map(x => x.word)).catch(() => []),
       fetch(`https://api.datamuse.com/words?rel_ant=${encodeURIComponent(word)}&max=8`)
-        .then(r => r.json()).then(arr => arr.map(x => x.word)).catch(() => [])
+        .then(r => r.json()).then(arr => arr.map(x => x.word)).catch(() => []),
+      new Promise(resolve => {
+        chrome.runtime.sendMessage({ type: "FETCH_TATOEBA", word }, response => {
+          resolve(response?.results || []);
+        });
+      })
     ]);
 
     // Extract dict synonyms/antonyms
@@ -2288,7 +2377,7 @@
     const allAnts = [...new Set([...dictAnts, ...datamuseAnt])]
       .filter(s => s && s.toLowerCase() !== word.toLowerCase()).slice(0, 10);
 
-    return { aiData, dictEntries, synonyms: allSyns, antonyms: allAnts };
+    return { aiData, dictEntries, synonyms: allSyns, antonyms: allAnts, tatoebaExamples };
   }
 
   async function getAllExamples(word, dictEntries, currentLine) {

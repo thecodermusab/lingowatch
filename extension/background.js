@@ -43,10 +43,37 @@ chrome.tabs.onRemoved.addListener((tabId) => {
   delete subtitleUrls[tabId];
 });
 
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+  if (changeInfo.status === "loading" || typeof changeInfo.url === "string") {
+    subtitleUrls[tabId] = [];
+  }
+});
+
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === "GET_SUBTITLE_URLS") {
     sendResponse({ urls: subtitleUrls[sender.tab?.id] || [] });
     return true;
+  }
+
+  if (msg.type === "FETCH_TATOEBA") {
+    const word = String(msg.word || "").trim();
+    if (!word) { sendResponse({ results: [] }); return true; }
+    fetch(`https://tatoeba.org/en/api_v0/search?query=${encodeURIComponent(word)}&from=eng&limit=10`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        const results = (data?.results || [])
+          .filter(s => s.text && s.lang === "eng")
+          .slice(0, 4)
+          .map(s => ({
+            text: s.text,
+            audioUrl: (s.audios && s.audios.length > 0)
+              ? `https://audio.tatoeba.org/sentences/${s.lang}/${s.id}.mp3`
+              : null,
+          }));
+        sendResponse({ results });
+      })
+      .catch(() => sendResponse({ results: [] }));
+    return true; // keep channel open for async sendResponse
   }
 
   if (msg.type === "TRANSLATE") {
