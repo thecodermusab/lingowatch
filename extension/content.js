@@ -235,6 +235,8 @@
     state.currentIndex = -1;
 
     ensureInterface();
+    // Auto-open sidebar on every page/video load
+    if (!state.sidebarOpen) toggleSidebar(true);
     attachLButton();
     injectQuickSaveModal();
     loadSubtitlesForCurrentPage(forceReload);
@@ -2140,7 +2142,14 @@
     }
 
     clearTimeout(state.hoverTimer);
-    state.hoverTimer = setTimeout(() => showHoverTooltip(wordEl), 400);
+    const word = (wordEl.dataset.word || "").trim().toLowerCase();
+    state.hoverTimer = setTimeout(() => {
+      if (!wordEl.isConnected) {
+        return;
+      }
+
+      showHoverTooltip(wordEl, word, wordEl.getBoundingClientRect());
+    }, 400);
   }
 
   function handleWordHoverOut(event) {
@@ -2158,41 +2167,67 @@
     }, 300);
   }
 
-  async function showHoverTooltip(wordEl) {
-    const word = (wordEl.dataset.word || wordEl.textContent || "").trim().toLowerCase();
-    if (!word) {
-      return;
-    }
+  function isElementVisible(element) {
+    return !!element && window.getComputedStyle(element).display !== "none";
+  }
 
-    const tooltip = state.elements.tooltip;
-    if (!tooltip) {
-      return;
-    }
-
-    const rect = wordEl.getBoundingClientRect();
-    const sidebarRect = state.elements.sidebar?.getBoundingClientRect();
-    const sidebarLeft = sidebarRect ? sidebarRect.left : window.innerWidth;
-    const tooltipWidth = 260;
-    const maxLeft = sidebarLeft - tooltipWidth - 16;
-    const left = Math.max(Math.min(rect.left, maxLeft), 8);
-
-    // If the word popup is open, position the tooltip below it and align to popup's left
+  function positionHoverTooltip(tooltip, wordRect) {
+    const gutter = 12;
+    const tooltipWidth = tooltip.offsetWidth || 260;
+    const tooltipHeight = tooltip.offsetHeight || 140;
+    const sidebar = state.elements.sidebar;
+    const sidebarRect = sidebar?.isConnected ? sidebar.getBoundingClientRect() : null;
     const popupEl = state.elements.popup;
-    const popupOpen = popupEl && popupEl.style.display !== "none";
-    let tooltipTop, tooltipLeft;
+    const popupOpen = isElementVisible(popupEl);
+
+    let left;
+    let top;
+
     if (popupOpen) {
       const popupRect = popupEl.getBoundingClientRect();
-      tooltipTop = popupRect.bottom + 8;
-      tooltipLeft = popupRect.left;
+      if (sidebarRect && sidebarRect.width > 0) {
+        left = sidebarRect.left - tooltipWidth - 24;
+      } else {
+        left = popupRect.left;
+      }
+      top = popupRect.bottom + gutter;
+
+      if (top + tooltipHeight > window.innerHeight - gutter) {
+        top = Math.max(gutter, popupRect.top - tooltipHeight - gutter);
+      }
     } else {
-      tooltipTop = Math.max(Math.min(rect.bottom + 8, window.innerHeight - 16), 8);
-      tooltipLeft = left;
+      if (sidebarRect && sidebarRect.width > 0) {
+        left = sidebarRect.left - tooltipWidth - 24;
+        top = wordRect.top + wordRect.height / 2 - tooltipHeight / 2;
+      } else {
+        left = wordRect.left + wordRect.width / 2 - tooltipWidth / 2;
+        top = wordRect.bottom + gutter;
+        if (top + tooltipHeight > window.innerHeight - gutter) {
+          top = Math.max(gutter, wordRect.top - tooltipHeight - gutter);
+        }
+      }
     }
 
+    left = Math.max(gutter, Math.min(left, window.innerWidth - tooltipWidth - gutter));
+    top = Math.max(gutter, Math.min(top, window.innerHeight - tooltipHeight - gutter));
+
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${top}px`;
+  }
+
+  async function showHoverTooltip(wordEl, word, rect) {
+    if (!word) word = (wordEl.dataset.word || wordEl.textContent || "").trim().toLowerCase();
+    if (!word) return;
+
+    const tooltip = state.elements.tooltip;
+    if (!tooltip) return;
+
+    if (!rect) rect = wordEl.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0 || rect.bottom < 0 || rect.top > window.innerHeight) return;
+
     tooltip.style.display = "block";
-    tooltip.style.top = `${tooltipTop}px`;
-    tooltip.style.left = `${tooltipLeft}px`;
     tooltip.innerHTML = `<div class="lw-ht-header"><span class="lw-ht-word">${escapeHtml(word)}</span><span class="lw-ht-colon"> : </span><span class="lw-ht-translation">...</span></div>`;
+    positionHoverTooltip(tooltip, rect);
 
     const [wordTranslation, lineTranslation] = await Promise.all([
       translateToSomali(word, ""),
@@ -2214,6 +2249,7 @@
       </div>
       ${lineTranslation ? `<div class="lw-ht-divider"></div><div class="lw-ht-sentence">${escapeHtml(lineTranslation)}</div>` : ""}
     `;
+    positionHoverTooltip(tooltip, rect);
   }
 
   function closeHoverTooltip() {
