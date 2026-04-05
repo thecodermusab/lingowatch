@@ -424,8 +424,11 @@
         while (activeFullscreenMain.firstChild) {
           activeFullscreenHost.insertBefore(activeFullscreenMain.firstChild, activeFullscreenMain);
         }
+        activeFullscreenMain.classList.remove("lw-fullscreen-main");
         activeFullscreenMain.remove();
       }
+
+      activeFullscreenHost.classList.remove("lw-fullscreen-layout");
 
       if (previousFullscreenHostDisplay) {
         activeFullscreenHost.style.setProperty("display", previousFullscreenHostDisplay);
@@ -507,10 +510,15 @@
       }
 
       activeFullscreenMain = main;
+      host.classList.add("lw-fullscreen-layout");
+      main.classList.add("lw-fullscreen-main");
       main.style.setProperty("position", "relative", "important");
       main.style.setProperty("flex", "1 1 auto", "important");
       main.style.setProperty("min-width", "0", "important");
       main.style.setProperty("height", "100%", "important");
+      main.style.setProperty("display", "flex", "important");
+      main.style.setProperty("align-items", "center", "important");
+      main.style.setProperty("justify-content", "center", "important");
       main.style.setProperty("overflow", "hidden", "important");
 
       host.style.setProperty("display", "flex", "important");
