@@ -56,6 +56,7 @@ function AppRoutes() {
         <Route path="/watch" element={<WatchWorkspacePage />} />
         <Route path="/stories" element={<StoriesPage />} />
         <Route path="/stories/:id" element={<StoriesPage />} />
+        <Route path="/stories/world/:worldId" element={<StoriesPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>

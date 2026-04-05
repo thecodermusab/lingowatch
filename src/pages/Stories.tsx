@@ -191,7 +191,8 @@ function WorldReadingView({ story, allStories, onBack, onSelect }: {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (finished) {
-        if (e.key === "Escape" || e.key === "Backspace") onBack();
+        if (e.key === "ArrowLeft" || e.key === "ArrowUp" || e.key === "Backspace") setFinished(false);
+        if (e.key === "Escape") onBack();
         return;
       }
       if (e.key === "ArrowRight" || e.key === "ArrowDown") {
@@ -349,29 +350,30 @@ function WorldReadingView({ story, allStories, onBack, onSelect }: {
 }
 
 export default function StoriesPage() {
-  const { id } = useParams<{ id?: string }>();
+  const { id, worldId } = useParams<{ id?: string; worldId?: string }>();
   const navigate = useNavigate();
   const [stories, setStories] = useState<StoryEntry[]>([]);
   const [storyToDelete, setStoryToDelete] = useState<StoryEntry | null>(null);
   const [worldStories, setWorldStories] = useState<WorldStory[]>([]);
   const [worldLoading, setWorldLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"mine" | "browse">("mine");
-  const [selectedWorld, setSelectedWorld] = useState<WorldStory | null>(null);
 
   useEffect(() => {
     const raw = localStorage.getItem("lingowatch_stories");
     if (raw) setStories(JSON.parse(raw));
   }, []);
 
+  // Load world stories whenever we might need them
   useEffect(() => {
-    if (activeTab !== "browse" || worldStories.length > 0) return;
+    if (worldStories.length > 0) return;
+    if (activeTab !== "browse" && !worldId) return;
     setWorldLoading(true);
     fetch("/api/world-stories")
       .then((r) => r.json())
       .then((data) => setWorldStories(Array.isArray(data) ? data : []))
       .catch(() => setWorldStories([]))
       .finally(() => setWorldLoading(false));
-  }, [activeTab, worldStories.length]);
+  }, [activeTab, worldId, worldStories.length]);
 
   const saveStories = (updated: StoryEntry[]) => {
     setStories(updated);
@@ -383,14 +385,22 @@ export default function StoriesPage() {
     if (id) navigate("/stories");
   };
 
-  // World story reading view
-  if (selectedWorld) {
+  // World story reading view — driven by URL so refresh works
+  if (worldId) {
+    const story = worldStories.find((s) => s.id === worldId);
+    if (worldLoading || !story) {
+      return (
+        <div className="flex min-h-screen items-center justify-center">
+          <p className="text-sm text-muted-foreground">{worldLoading ? "Loading…" : "Story not found"}</p>
+        </div>
+      );
+    }
     return (
       <WorldReadingView
-        story={selectedWorld}
+        story={story}
         allStories={worldStories}
-        onBack={() => setSelectedWorld(null)}
-        onSelect={(s) => setSelectedWorld(s)}
+        onBack={() => navigate("/stories")}
+        onSelect={(s) => navigate(`/stories/world/${s.id}`)}
       />
     );
   }
@@ -518,7 +528,7 @@ export default function StoriesPage() {
                 <WorldBookCard
                   key={story.id}
                   story={story}
-                  onClick={() => setSelectedWorld(story)}
+                  onClick={() => navigate(`/stories/world/${story.id}`)}
                 />
               ))}
             </div>
