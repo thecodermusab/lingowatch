@@ -310,6 +310,28 @@
   pointer-events: none;
 }
 
+.lw-hover-tooltip-compact {
+  width: auto !important;
+  max-width: 180px;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+
+.lw-hover-tooltip-compact .lw-ht-primary {
+  gap: 2px;
+  padding-left: 8px;
+}
+
+.lw-hover-tooltip-compact .lw-ht-word {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+.lw-hover-tooltip-compact .lw-ht-translation {
+  font-size: 14px;
+  line-height: 1.2;
+}
+
 .lw-ht-primary {
   display: flex;
   flex-direction: column;

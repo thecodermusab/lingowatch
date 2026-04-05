@@ -2251,7 +2251,7 @@
     return rect;
   }
 
-  function positionHoverTooltip(tooltip, wordRect) {
+  function positionHoverTooltip(tooltip, wordRect, options = {}) {
     const gutter = 12;
     const tooltipWidth = tooltip.offsetWidth || 260;
     const tooltipHeight = tooltip.offsetHeight || 140;
@@ -2260,11 +2260,20 @@
     const boundsRect = getTooltipBounds();
     const popupEl = state.elements.popup;
     const popupOpen = isElementVisible(popupEl);
+    const overlayAnchored = Boolean(options.overlayAnchored);
 
     let left;
     let top;
 
-    if (popupOpen) {
+    if (overlayAnchored) {
+      left = wordRect.left + wordRect.width / 2 - tooltipWidth / 2;
+      top = wordRect.top - tooltipHeight - gutter;
+
+      const minTop = boundsRect ? Math.max(gutter, boundsRect.top + gutter) : gutter;
+      if (top < minTop) {
+        top = wordRect.bottom + gutter;
+      }
+    } else if (popupOpen) {
       const popupRect = popupEl.getBoundingClientRect();
       if (sidebarRect && sidebarRect.width > 0) {
         left = sidebarRect.left - tooltipWidth - 24;
@@ -2392,13 +2401,15 @@
 
     const tooltip = state.elements.tooltip;
     if (!tooltip) return;
+    const overlayAnchored = wordEl.classList.contains("lw-overlay-word");
+    tooltip.classList.toggle("lw-hover-tooltip-compact", overlayAnchored);
 
     if (!rect) rect = wordEl.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0 || rect.bottom < 0 || rect.top > window.innerHeight) return;
 
     tooltip.style.display = "block";
     tooltip.innerHTML = `<div class="lw-ht-primary"><div class="lw-ht-word">${escapeHtml(word)}</div><div class="lw-ht-translation">...</div></div>`;
-    positionHoverTooltip(tooltip, rect);
+    positionHoverTooltip(tooltip, rect, { overlayAnchored });
 
     const hoveredLine = wordEl.closest(".lw-line");
     const hoveredSubtitle = hoveredLine ? state.subtitles[Number(hoveredLine.dataset.index)] : null;
@@ -2455,14 +2466,15 @@
           `).join("")}
         </div>
       ` : ""}
-      ${lineTranslation ? `<div class="lw-ht-divider"></div><div class="lw-ht-sentence">${escapeHtml(lineTranslation)}</div>` : ""}
+      ${!overlayAnchored && lineTranslation ? `<div class="lw-ht-divider"></div><div class="lw-ht-sentence">${escapeHtml(lineTranslation)}</div>` : ""}
     `;
-    positionHoverTooltip(tooltip, rect);
+    positionHoverTooltip(tooltip, rect, { overlayAnchored });
   }
 
   async function showLineHoverTooltip(lineEl, anchorPoint) {
     const tooltip = state.elements.tooltip;
     if (!tooltip) return;
+    tooltip.classList.remove("lw-hover-tooltip-compact");
 
     const index = Number(lineEl.dataset.index);
     const subtitle = state.subtitles[index];

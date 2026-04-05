@@ -33,6 +33,7 @@ function setEnglishText(div: HTMLDivElement, text: string) {
       const word = cleanWord(token);
       span.textContent = token;
       if (word) {
+        span.className = "lw-word lw-overlay-word";
         span.style.cursor = "pointer";
         span.style.borderRadius = "2px";
         span.style.padding = "0 1px";
