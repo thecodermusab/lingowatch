@@ -69,7 +69,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur lg:hidden">
         <div className="flex h-16 items-center justify-between px-4">
           <Link to="/dashboard" className="flex items-center gap-3">
-            <img src="/Logo.png" alt="Lingowatch logo" className="h-10 w-10 object-contain" />
+            <img src="/Logo.png" alt="Lingowatch logo" className="h-20 w-20 object-contain" />
             <div>
               <p className="text-base font-semibold text-foreground">Lingowatch</p>
               <p className="text-xs text-muted-foreground">Watch, save, learn</p>
@@ -90,17 +90,16 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="h-full p-4">
           <div className="flex h-full flex-col rounded-[1.75rem] border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-[0_18px_42px_rgba(0,0,0,0.22)]">
             <div className="px-5 py-5">
-              <Link to="/dashboard" className="flex items-center gap-4 rounded-2xl">
-                <img src="/Logo.png" alt="Lingowatch logo" className="h-11 w-11 object-contain" />
-                <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
+              <Link to="/dashboard" className="flex items-center gap-1 rounded-2xl">
+                <img src="/Logo.png" alt="Lingowatch logo" className="h-[4.5rem] w-[4.5rem] shrink-0 object-contain" />
+                <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
                   <div className="min-w-0">
-                  <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/35">Workspace</p>
-                    <p className="text-lg font-semibold text-white">Lingowatch</p>
+                    <p className="text-xl text-white" style={{ fontFamily: "Qurova, sans-serif", fontWeight: 600 }}>Lingowatch</p>
                   </div>
                   <button
                     type="button"
                     onClick={toggleTheme}
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
                     aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
                     title={isDark ? "Light mode" : "Dark mode"}
                   >
@@ -130,7 +129,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="flex h-full flex-col rounded-[1.75rem] border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-xl">
               <div className="mb-2 flex items-center justify-between px-5 py-5">
                 <Link to="/dashboard" className="flex items-center gap-3" onClick={() => setMobileOpen(false)}>
-                  <img src="/Logo.png" alt="Lingowatch logo" className="h-10 w-10 object-contain" />
+                  <img src="/Logo.png" alt="Lingowatch logo" className="h-20 w-20 object-contain" />
                   <div className="flex items-center gap-3">
                     <span className="text-base font-semibold text-white">Lingowatch</span>
                     <button

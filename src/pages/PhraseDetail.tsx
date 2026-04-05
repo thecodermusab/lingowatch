@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Star, Trash2, ArrowLeft, RotateCcw, CheckCircle2, Volume2, Globe, BookOpen, Lightbulb, MessageCircle, AlertTriangle, Edit, Loader2, Save, X } from "lucide-react";
+import { Star, Trash2, ArrowLeft, RotateCcw, CheckCircle2, Volume2, Globe, BookOpen, Lightbulb, MessageCircle, AlertTriangle, Edit, Loader2, Save, X, Sparkles } from "lucide-react";
+import { generateAIExplanation } from "@/lib/ai";
 import { useToast } from "@/hooks/use-toast";
 import { categories } from "@/lib/mockData";
 import { DifficultyLevel, PhraseType } from "@/types";
@@ -58,6 +59,7 @@ export default function PhraseDetailPage() {
   const [noteDraft, setNoteDraft] = useState("");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const phrase = phrases.find((p) => p.id === id);
 
@@ -84,6 +86,27 @@ export default function PhraseDetailPage() {
   const ex = phrase.explanation;
   const examples = phrase.examples || [];
   const reviewStage = getReviewStage(phrase.review);
+
+  const handleGenerateExplanation = async () => {
+    setIsGenerating(true);
+    try {
+      const result = await generateAIExplanation(phrase.phraseText);
+      updatePhrase(phrase.id, {
+        explanation: result,
+        examples: result.examples?.map((e: any) => ({
+          id: crypto.randomUUID(),
+          phraseId: phrase.id,
+          exampleType: e.type,
+          exampleText: e.text,
+        })) ?? [],
+      });
+      toast({ title: "Explanation generated!" });
+    } catch (err) {
+      toast({ title: "Failed to generate", description: err instanceof Error ? err.message : "Unknown error", variant: "destructive" });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -288,6 +311,17 @@ export default function PhraseDetailPage() {
             {phrase.review && <span>Next review: {new Date(phrase.review.nextReviewAt).toLocaleDateString()}</span>}
           </div>
         </div>
+
+        {!ex && (
+          <div className="admin-panel admin-panel-body flex flex-col items-center gap-3 py-10 text-center">
+            <Sparkles className="h-8 w-8 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">No explanation yet for this word.</p>
+            <Button onClick={handleGenerateExplanation} disabled={isGenerating} className="gap-2">
+              {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              {isGenerating ? "Generating…" : "Generate Explanation"}
+            </Button>
+          </div>
+        )}
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
           <div className="space-y-6">
