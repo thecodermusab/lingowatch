@@ -524,11 +524,21 @@
     dispatchSubtitle("", "");
   }
 
+  function pauseCurrentVideo() {
+    const video = state.currentVideo;
+    if (!video || video.paused) {
+      return;
+    }
+
+    video.pause();
+  }
+
   // Word clicked in the subtitle overlay → open popup centered above the word
   window.addEventListener("lw:word-click", (e) => {
     const { word, rect, subtitleContext } = e.detail ?? {};
     if (!word || !rect) return;
     closeHoverTooltip();
+    pauseCurrentVideo();
 
     if (subtitleContext) state.subtitleClickContext = subtitleContext;
 
@@ -808,6 +818,7 @@
     if (wordTarget) {
       event.preventDefault();
       event.stopPropagation();
+      pauseCurrentVideo();
       openWordPopupFromTarget(wordTarget);
       return;
     }
@@ -2136,25 +2147,64 @@
   }
 
   function handleWordHover(event) {
-    const wordEl = event.target.closest(".lw-word");
-    if (!wordEl) {
+    const target = event.target instanceof Element ? event.target : null;
+    if (!target) {
+      return;
+    }
+
+    const wordEl = target.closest(".lw-word");
+    const lineEl = target.closest(".lw-line");
+    const lineHoverTarget = lineEl && !wordEl && !target.closest("[data-line-action]") && !target.closest(".lw-timestamp");
+
+    if (!wordEl && !lineHoverTarget) {
       return;
     }
 
     clearTimeout(state.hoverTimer);
-    const word = (wordEl.dataset.word || "").trim().toLowerCase();
+
+    if (wordEl) {
+      const word = (wordEl.dataset.word || "").trim().toLowerCase();
+      state.hoverTimer = setTimeout(() => {
+        if (!wordEl.isConnected) {
+          return;
+        }
+
+        showHoverTooltip(wordEl, word, wordEl.getBoundingClientRect());
+      }, 400);
+      return;
+    }
+
     state.hoverTimer = setTimeout(() => {
-      if (!wordEl.isConnected) {
+      if (!lineEl.isConnected) {
         return;
       }
 
-      showHoverTooltip(wordEl, word, wordEl.getBoundingClientRect());
-    }, 400);
+      showLineHoverTooltip(lineEl, {
+        x: event.clientX,
+        y: event.clientY,
+      });
+    }, 250);
   }
 
   function handleWordHoverOut(event) {
-    const wordEl = event.target.closest(".lw-word");
-    if (!wordEl) {
+    const target = event.target instanceof Element ? event.target : null;
+    if (!target) {
+      return;
+    }
+
+    const relatedTarget = event.relatedTarget instanceof Element ? event.relatedTarget : null;
+
+    const wordEl = target.closest(".lw-word");
+    const lineEl = target.closest(".lw-line");
+    if (!wordEl && !lineEl) {
+      return;
+    }
+
+    if (wordEl && relatedTarget && wordEl.contains(relatedTarget)) {
+      return;
+    }
+
+    if (lineEl && relatedTarget && lineEl.contains(relatedTarget)) {
       return;
     }
 
@@ -2171,12 +2221,35 @@
     return !!element && window.getComputedStyle(element).display !== "none";
   }
 
+  function getTooltipBounds() {
+    const player = document.querySelector("#movie_player, .html5-video-player, .html5-video-container, #lw-subtitle-root");
+    if (player instanceof Element) {
+      const rect = player.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        return rect;
+      }
+    }
+
+    const video = state.currentVideo;
+    if (!video) {
+      return null;
+    }
+
+    const rect = video.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) {
+      return null;
+    }
+
+    return rect;
+  }
+
   function positionHoverTooltip(tooltip, wordRect) {
     const gutter = 12;
     const tooltipWidth = tooltip.offsetWidth || 260;
     const tooltipHeight = tooltip.offsetHeight || 140;
     const sidebar = state.elements.sidebar;
     const sidebarRect = sidebar?.isConnected ? sidebar.getBoundingClientRect() : null;
+    const boundsRect = getTooltipBounds();
     const popupEl = state.elements.popup;
     const popupOpen = isElementVisible(popupEl);
 
@@ -2208,8 +2281,53 @@
       }
     }
 
-    left = Math.max(gutter, Math.min(left, window.innerWidth - tooltipWidth - gutter));
-    top = Math.max(gutter, Math.min(top, window.innerHeight - tooltipHeight - gutter));
+    const minLeft = boundsRect ? Math.max(gutter, boundsRect.left + gutter) : gutter;
+    const maxLeft = boundsRect
+      ? Math.max(minLeft, boundsRect.right - tooltipWidth - gutter)
+      : window.innerWidth - tooltipWidth - gutter;
+    const minTop = boundsRect ? Math.max(gutter, boundsRect.top + gutter) : gutter;
+    const maxTop = boundsRect
+      ? Math.max(minTop, boundsRect.bottom - tooltipHeight - gutter)
+      : window.innerHeight - tooltipHeight - gutter;
+
+    left = Math.max(minLeft, Math.min(left, maxLeft));
+    top = Math.max(minTop, Math.min(top, maxTop));
+
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${top}px`;
+  }
+
+  function positionLineHoverTooltip(tooltip, lineRect, anchorPoint) {
+    const gutter = 10;
+    const tooltipWidth = tooltip.offsetWidth || 320;
+    const tooltipHeight = tooltip.offsetHeight || 120;
+    const sidebar = state.elements.sidebar;
+    const sidebarRect = sidebar?.isConnected ? sidebar.getBoundingClientRect() : null;
+    const boundsRect = getTooltipBounds();
+
+    const anchorY = anchorPoint?.y ?? (lineRect.top + lineRect.height / 2);
+
+    let left;
+    let top = anchorY - tooltipHeight / 2;
+
+    if (sidebarRect && sidebarRect.width > 0) {
+      left = sidebarRect.left - tooltipWidth - 24;
+    } else {
+      const anchorX = anchorPoint?.x ?? (lineRect.left + lineRect.width / 2);
+      left = anchorX - tooltipWidth / 2;
+    }
+
+    const minLeft = boundsRect ? Math.max(gutter, boundsRect.left + gutter) : gutter;
+    const maxLeft = boundsRect
+      ? Math.max(minLeft, boundsRect.right - tooltipWidth - gutter)
+      : window.innerWidth - tooltipWidth - gutter;
+    const minTop = boundsRect ? Math.max(gutter, boundsRect.top + gutter) : gutter;
+    const maxTop = boundsRect
+      ? Math.max(minTop, boundsRect.bottom - tooltipHeight - gutter)
+      : window.innerHeight - tooltipHeight - gutter;
+
+    left = Math.max(minLeft, Math.min(left, maxLeft));
+    top = Math.max(minTop, Math.min(top, maxTop));
 
     tooltip.style.left = `${left}px`;
     tooltip.style.top = `${top}px`;
@@ -2229,11 +2347,13 @@
     tooltip.innerHTML = `<div class="lw-ht-header"><span class="lw-ht-word">${escapeHtml(word)}</span><span class="lw-ht-colon"> : </span><span class="lw-ht-translation">...</span></div>`;
     positionHoverTooltip(tooltip, rect);
 
+    const hoveredLine = wordEl.closest(".lw-line");
+    const hoveredSubtitle = hoveredLine ? state.subtitles[Number(hoveredLine.dataset.index)] : null;
+    const contextText = hoveredSubtitle?.text || state.subtitles[state.currentIndex]?.text || "";
+
     const [wordTranslation, lineTranslation] = await Promise.all([
       translateToSomali(word, ""),
-      (state.subtitles[state.currentIndex]?.text
-        ? translateToSomali(state.subtitles[state.currentIndex].text, "")
-        : Promise.resolve(""))
+      contextText ? translateToSomali(contextText, "") : Promise.resolve("")
     ]);
 
     if (tooltip.style.display === "none") {
@@ -2250,6 +2370,30 @@
       ${lineTranslation ? `<div class="lw-ht-divider"></div><div class="lw-ht-sentence">${escapeHtml(lineTranslation)}</div>` : ""}
     `;
     positionHoverTooltip(tooltip, rect);
+  }
+
+  async function showLineHoverTooltip(lineEl, anchorPoint) {
+    const tooltip = state.elements.tooltip;
+    if (!tooltip) return;
+
+    const index = Number(lineEl.dataset.index);
+    const subtitle = state.subtitles[index];
+    if (!subtitle?.text) return;
+
+    const rect = lineEl.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0 || rect.bottom < 0 || rect.top > window.innerHeight) return;
+
+    tooltip.style.display = "block";
+    tooltip.innerHTML = `<div class="lw-ht-sentence-only">...</div>`;
+    positionLineHoverTooltip(tooltip, rect, anchorPoint);
+
+    const translation = await translateToSomali(subtitle.text, "");
+    if (tooltip.style.display === "none") {
+      return;
+    }
+
+    tooltip.innerHTML = `<div class="lw-ht-sentence-only">${escapeHtml(translation || subtitle.text)}</div>`;
+    positionLineHoverTooltip(tooltip, rect, anchorPoint);
   }
 
   function closeHoverTooltip() {

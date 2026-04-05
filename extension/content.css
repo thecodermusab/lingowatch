@@ -167,7 +167,7 @@
 /* ── Subtitle lines ──────────────────────────────────────────── */
 .lw-line {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
   padding: 8px 12px;
   border-left: 3px solid transparent;
@@ -230,7 +230,6 @@
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   flex-shrink: 0;
-  padding-top: 3px;
   font-family: "SF Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
   min-width: 30px;
   cursor: pointer;
@@ -341,6 +340,14 @@
   text-align: right;
 }
 
+.lw-ht-sentence-only {
+  font-size: 15px;
+  color: #d4d4d8;
+  line-height: 1.55;
+  text-align: right;
+  font-weight: 600;
+}
+
 /* ── Word popup ──────────────────────────────────────────────── */
 #lw-popup-arrow {
   position: fixed;
@@ -375,7 +382,7 @@
 }
 
 .lw-popup-header {
-  background: #1a3a5c;
+  background: #141414;
   padding: 14px 16px;
   display: flex;
   justify-content: space-between;
@@ -1318,6 +1325,7 @@
   cursor: pointer;
   padding: 3px 7px;
   flex-shrink: 0;
+  align-self: center;
   line-height: 1.4;
   transition: background 0.15s, color 0.15s;
 }
@@ -1355,7 +1363,7 @@
 
 .lw-example-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
   padding: 6px 0;
 }
@@ -1370,7 +1378,6 @@
   color: #a78bfa;
   border-radius: 4px;
   padding: 2px 6px;
-  margin-top: 2px;
   line-height: 1.4;
 }
 
