@@ -121,30 +121,24 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
             type="button"
-            className="absolute inset-0 bg-black/30"
+            className="absolute inset-0 bg-black/40"
             onClick={() => setMobileOpen(false)}
             aria-label="Close menu"
           />
-          <div className="absolute left-0 top-0 h-full w-80 bg-background p-4">
-            <div className="flex h-full flex-col rounded-[1.75rem] border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-xl">
-              <div className="mb-2 flex items-center justify-between px-5 py-5">
-                <Link to="/dashboard" className="flex items-center gap-3" onClick={() => setMobileOpen(false)}>
-                  <img src="/Logo.png" alt="Lingowatch logo" className="h-20 w-20 object-contain" />
-                  <div className="flex items-center gap-3">
-                    <span className="text-base font-semibold text-white">Lingowatch</span>
-                    <button
-                      type="button"
-                      onClick={toggleTheme}
-                      className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
-                      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-                      title={isDark ? "Light mode" : "Dark mode"}
-                    >
-                      {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                    </button>
-                  </div>
+          <div className="absolute left-0 top-0 h-full w-[17rem]">
+            <div className="flex h-full flex-col rounded-r-[1.75rem] border-r border-sidebar-border bg-sidebar text-sidebar-foreground shadow-xl">
+              <div className="flex items-center gap-2 px-5 py-5">
+                <Link to="/dashboard" className="flex items-center gap-2" onClick={() => setMobileOpen(false)}>
+                  <img src="/Logo.png" alt="Lingowatch logo" className="h-14 w-14 object-contain" />
+                  <span className="text-lg text-white" style={{ fontFamily: "Qurova, sans-serif", fontWeight: 600 }}>Lingowatch</span>
                 </Link>
-                <button type="button" className="rounded-xl border border-white/10 p-2 text-white/80" onClick={() => setMobileOpen(false)}>
-                  <X className="h-5 w-5" />
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  className="ml-auto flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+                  aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+                >
+                  {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                 </button>
               </div>
 
