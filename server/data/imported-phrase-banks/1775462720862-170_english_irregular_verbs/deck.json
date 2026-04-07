@@ -1,0 +1,3040 @@
+{
+  "deckId": "1775462720862-170_english_irregular_verbs",
+  "sourceName": "170_English_Irregular_verbs.apkg",
+  "sourceLabel": "170_English_Irregular_verbs",
+  "importedAt": "2026-04-06T08:05:21.797Z",
+  "parsedLines": 174,
+  "totalEntries": 174,
+  "mediaCounts": {
+    "audio": 452,
+    "images": 165
+  },
+  "entries": [
+    {
+      "phraseText": "arise",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "arise - arose - arisen",
+      "sourceExample": "When something begins to exist or people start to become aware of it.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/113-arise__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/103-arise_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/265-arise_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/317-arise-93231393f305caaaa69e092a417c1878d4b2acb7.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "awake",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "awake - awoke - awoken",
+      "sourceExample": "(not asleep) If you are not sleeping.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/343-awake__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/431-awake_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/335-awake_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/235-awake-55ab4bc5f5a218e64c2fb2925fad5091c3d3a0a8.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "be",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "be - was/were - been",
+      "sourceExample": "To say something about a person, thing, or state, to show a permanent or temporary quality, state, job, etc.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/487-be__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/174-be_s.mp3"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "bear",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "bear - bore - borne*",
+      "sourceExample": "To accept, tolerate, or endure something, especially something unpleasant.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/226-bear__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/604-bear_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/461-bear_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/290-bear.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "beat",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "beat - beat - beaten",
+      "sourceExample": "To defeat or do better than somebody. To hit repeatedly.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/183-beat__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/249-beat_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/432-beat_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/540-beat-ec59abe26fface7c504723d9832080ca6807c7a1.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "become",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "become - became - become",
+      "sourceExample": "To start to be.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/548-become__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/374-become_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/254-become_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/163-become.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "begin",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "begin - began - begun",
+      "sourceExample": "To start to happen or exist.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/375-begin__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/88-begin_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/379-begin_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/591-begin.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "bend",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "bend - bent - bent",
+      "sourceExample": "(make curved) To curve.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/503-bend__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/26-bend_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/345-bend_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/428-bend-cde9c0e8313b58c0d52e6ca2eccb15810b5dc8cc.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "bet",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "bet - bet - bet",
+      "sourceExample": "To gamble or risk something valuable against an unknown outcome.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/93-bet__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/609-bet_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/89-bet_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/342-bet-f059d2e2fc1c796694b2a6c925582206e3312312.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "bid",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "bid - bid - bid",
+      "sourceExample": "To offer a particular amount of money for something that is for sale and compete against other people to buy it.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/438-bid__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/94-bid_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/238-bid_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/529-bid-5c996883a1dc49f0c6212017daae28a39e0a193d.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "bind",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "bind - bound - bound",
+      "sourceExample": "(tie, fasten securely) To tie something tightly or to fasten something.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/524-bind__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/484-bind_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/302-bind_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/187-bind-568e4a41b4d6142a0d3b94e38a468b3e34f8f4a8.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "bite",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "bite - bit - bitten",
+      "sourceExample": "To cut, wound, grip, hold or tear with the teeth.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/67-bite__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/611-bite_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/568-bite_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/262-bite-736bd2cac29e7a3f23b58c59d4ab85805569718c.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "bleed",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "bleed - bled - bled",
+      "sourceExample": "To lose blood.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/1-bleed__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/520-bleed_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/521-bleed_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/155-bleed-4d0115825ff45f31a131773701be9766ec66df8a.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "blow",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "blow - blew - blown",
+      "sourceExample": "(air: move) To move and make currents of air, or to be moved or make something move on a current of air.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/320-blow__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/553-blow_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/70-blow_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/447-blow-56322ba64aed147ceb66609bb9ed88a45d78e854.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "break",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "break - broke - broken",
+      "sourceExample": "(1) To smash, split, or divide into parts violently; reduce to pieces or fragments. (2) To infringe, ignore, or act contrary to a law, rule, promise, etc.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/322-break__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/470-break_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/13-break_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/506-break.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "breed",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "breed - bred - bred",
+      "sourceExample": "(procreate) To keep animals for the purpose of producing young animals in a controlled way.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/462-breed__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/209-breed_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/377-breed_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/532-breed-0f4fee59ce4be7893b45a209d1c8415b29074a18.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "bring",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "bring - brought - brought",
+      "sourceExample": "To carry, convey, conduct, or cause (someone or something) to come with, to, or toward the speaker.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/463-bring__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/61-bring_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/152-bring_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/8-bring-4143f8b870f1fa851810435fa0abbb66bdeae8ed.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "broadcast",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceExample": "To send out a programme on television or radio. To spread information to a lot of people.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/222-broadcast__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/482-broadcast_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/563-broadcast_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/372-broadcast-0461d13e667ab554772a83e7204960a71f6d6006.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "build",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "build - built - built",
+      "sourceExample": "To make something by putting bricks or other materials together. To create and develop something over a long period of time.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/376-build__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/307-build_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/364-build_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/140-build.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "burn",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "burn - burnt - burnt*",
+      "sourceExample": "To be hurt, damaged, or destroyed by fire or extreme heat, or to cause this to happen.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/16-burn__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/194-burn_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/75-burn_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/198-burn.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "burst",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "(explode, rupture)",
+      "sourceExample": "The driver lost control when a tyre burst.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/299-ankidroid_audioclip_burst4777261302322880983.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/606-burst_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/490-burst_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/468-burst-1a83130ecd4eb88900361efe31fc1b1983c68635.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "buy",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "buy - bought - bought",
+      "sourceExample": "When you buy something, you pay money in order to own or obtain it.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/218-buy__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/132-buy_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/50-buy_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/595-buy-63e8a1e4a8d61aa9d665198fd444c3cac77bbf40.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "cast",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "cast - cast - cast",
+      "sourceExample": "To throw something. To choose actors to play particular parts in a play, film, or show.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/425-cast__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/142-cast_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/578-cast_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/168-cast-7768319b7e1becc8d889e55f864d42c53ae43458.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "catch",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "catch - caught - caught",
+      "sourceExample": "To grasp something or seize it in your hands.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/131-catch__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/446-catch_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/541-catch_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/114-catch.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "choose",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "choose - chose - chosen",
+      "sourceExample": "To decide what you want from two or more things or possibilities.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/284-choose__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/509-choose_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/469-choose_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/217-choose.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "cling",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "cling - clung - clung",
+      "sourceExample": "To tightly grasp something or to stick closely to something.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/2-cling.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/550-cling_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/586-cling_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/500-cling.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "come",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "come - came - come",
+      "sourceExample": "To move or travel towards the speaker or with the speaker.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/572-come__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/566-come_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/21-come_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/300-come.png"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "cost",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "cost - cost - cost",
+      "sourceExample": "If something costs an amount of money, you must pay that amount to buy or do it.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/116-cost__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/517-cost_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/86-cost_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/395-cost-8403260e66e0edba949c2e8e1aba0259b43dc557.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "creep",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "creep - crept - crept",
+      "sourceExample": "To move slowly, quietly, and carefully, usually in order to avoid being noticed.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/212-creep__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/33-creep_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/219-creep_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/451-creep-ecee0eff9122939ac38842c5410ce32ee42ddec1.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "cut",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "cut - cut - cut",
+      "sourceExample": "To break the surface of something, or to divide or make something smaller, using a sharp tool, especially a knife.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/577-cut__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/287-cut_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/350-cut_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/117-cut.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "deal",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "deal - dealt - dealt",
+      "sourceExample": "(handle, manage) To do business with or be involved with someone or something. to give or share out somethin.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/20-deal__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/188-deal_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/34-deal_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/216-deal-c8a07115553c4a585c1cdfb5b337b319c004521a.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "dig",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "dig - dug - dug",
+      "sourceExample": "To break up and move soil using a tool, a machine, or your hands.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/17-dig__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/552-dig_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/495-dig_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/397-dig-df730199ac4d1d2b0c9599e57a24d5cf6e17eeb0.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "do",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "do - did - done",
+      "sourceExample": "To act, perform, or undertake.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/560-do__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/147-do_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/510-do_s.mp3"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "draw",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "draw - drew - drawn",
+      "sourceExample": "To make a picture of something or someone with a pencil or pen.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/98-draw__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/5-draw_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/323-draw_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/389-draw.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "dream",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "dream - dreamt - dreamt*",
+      "sourceExample": "To experience events and images in your mind while you are sleeping.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/40-dream.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/6-dream_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/210-dream_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/396-dream.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "drink",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "drink - drank - drunk",
+      "sourceExample": "To sip, slurp, or gulp a liquid.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/146-drink__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/42-drink_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/276-drink_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/464-drink.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "drive",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "drive - drove - driven",
+      "sourceExample": "To move or travel on land in a motor vehicle, especially as the person controlling the vehicle's movement.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/601-drive__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/83-drive_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/297-drive_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/54-drive.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "eat",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "eat - ate - eaten",
+      "sourceExample": "To put or take food into the mouth, chew it (=crush it with the teeth), and swallow it.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/45-eat__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/440-eat_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/405-eat_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/412-eat.png"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "fall",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "fall - fell - fallen",
+      "sourceExample": "To suddenly go down onto the ground or towards the ground without intending to or by accident.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/571-fall__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/407-fall_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/65-fall_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/62-fall.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "feed",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "feed - fed - fed",
+      "sourceExample": "To give them something to eat.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/504-feed__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/71-feed_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/133-feed_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/59-feed-2bff88ab8488b68d7a6b9ba6e04738d22d1ed2bc.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "feel",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "feel - felt - felt",
+      "sourceExample": "To experience something physical or emotional have a particular opinion about or attitude towards something.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/516-feel__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/27-feel_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/455-feel_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/97-feel.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "fight",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "fight - fought - fought",
+      "sourceExample": "To argue, to use physical force to try to defeat another person or group of people or to use a lot of effort to defeat or achieve something, or to stop something happening.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/551-fight__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/603-fight_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/371-fight_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/424-fight.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "find",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "find - found - found",
+      "sourceExample": "To discover something.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/11-find__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/359-find_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/422-find_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/158-find.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "fit",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "fit - fitted - fitted*",
+      "sourceExample": "To be the right size or shape for someone or something. To be suitable for something.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/150-fit__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/15-fit_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/338-fit-eeca07c964bb2f4680a1b0f5b592750c9c0fe49d.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "flee",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "flee - fled - fled",
+      "sourceExample": "To escape by running away, especially because of danger or fear.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/78-flee__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/118-flee_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/512-flee_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/37-flee-bc6b88d3af3c3bb6a77dd37e2bffbaeb4caf0676.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "fling",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "fling - flung - flung",
+      "sourceExample": "To throw something or someone suddenly and with a lot of force.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/220-fling.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/558-fling_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/184-fling_s.mp3"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "fly",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "fly - flew - flown",
+      "sourceExample": "To move through the air.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/99-fly__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/527-fly_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/301-fly_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/471-fly.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "forbid",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "forbid - forbade - forbidden",
+      "sourceExample": "To refuse to allow something, especially officially, or to prevent a particular plan of action by making it impossible.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/175-forbid__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/483-forbid_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/515-forbid_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/28-forbid-102f5a50033b9a8f88f066bd839424270b0b4e3b.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "forecast",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "forecast - forecast - forecast",
+      "sourceExample": "A statement of what is judged likely to happen in the future, especially in connection with a particular situation, or the expected weather conditions.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/311-forecast__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/332-forecast_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/272-forecast_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/111-forecast-81c784aa0bedf03d495799b7f76c512da7135374.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "forget",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "forget - forgot - forgotten",
+      "sourceExample": "When you can't recall or remember something.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/443-forget__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/228-forget_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/43-forget_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/148-forget.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "forgive",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "forgive - forgave - forgiven",
+      "sourceExample": "To stop blaming or being angry with someone, or not punish them for something.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/400-forgive__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/430-forgive_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/573-forgive_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/246-forgive-e860879233b6c6817ff6f437a85fd64c76e6c381.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "forsake",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "forsake - forsook - forsaken",
+      "sourceExample": "(abandon) To leave someone entirely, usually in a moment of need.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/144-forsake.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/47-forsake_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/478-forsake_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/436-forsake-067f74a913d407d631f32e06fe6b8ace96e9ee03.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "freeze",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "freeze - froze - frozen",
+      "sourceExample": "If you freeze something, you lower its temperature below 0°C.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/367-freeze__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/304-freeze_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/119-freeze-f577d33d6e73d75c317f8b9127e9c2a024fb602d.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "get",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "get - got - got",
+      "sourceExample": "To obtain, buy, or earn something. To receive or be given something. To go somewhere and bring back someone or something. To take someone or something into your possession by force...*",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/29-get__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/408-get_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/575-get_s.mp3"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "give",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "give - gave - given",
+      "sourceExample": "To hand over possession of something to someone else.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/30-give__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/127-give_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/393-give_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/169-give.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "go",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "go - went - gone",
+      "sourceExample": "To proceed or move from one place to another.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/239-go__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/486-go_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/84-go_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/567-go.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "grind",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "grind - ground - ground",
+      "sourceExample": "To make something into small pieces or a powder by pressing between hard surfaces. To rub something against a hard surface, in order to make it sharper or smoother.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/418-grind__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/410-grind_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/498-grind_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/525-grind-b7805703cb23a765b51618a0840160f05977fcae.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "grow",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "grow - grew - grown",
+      "sourceExample": "To increase in size or amount, or to become more advanced or developed.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/543-grow__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/505-grow_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/565-grow_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/561-grow.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "hang",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "hang - hung - hung",
+      "sourceExample": "To fasten or support something at the top leaving the other parts free to move, or to be held in this way.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/593-hang__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/179-hang_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/18-hang_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/312-hang-44741e9ebafbcb762c5d0ed4613da175d45b69db.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "have",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "have/has - had - had",
+      "sourceExample": "To possess something.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/331-have__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/439-have_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/437-have_s.mp3"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "hear",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "hear - heard - heard",
+      "sourceExample": "To perceive a noise made by someone or something.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/475-hear__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/384-heard_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/417-hear_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/137-hear.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "hide",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "hide - hid - hidden",
+      "sourceExample": "To prevent something from being seen.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/616-hide__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/123-hide_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/281-hide_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/64-hide.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "hit",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "hit - hit - hit",
+      "sourceExample": "To smack or strike someone either with an object or with your hand.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/261-hit__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/258-hit_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/542-hit_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/138-hit.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "hold",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "hold - held - held",
+      "sourceExample": "To take and keep something in your hand or arms. To contain or be able to contain something.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/574-hold__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/339-hold_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/579-hold_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/77-hold.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "hurt",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "hurt - hurt - hurt",
+      "sourceExample": "To feel pain in a part of your body, or to injure someone or cause them pain. To cause emotional pain to someone. To cause harm or difficulty.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/230-hurt__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/477-hurt_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/429-hurt-631eb8df8a6db03d6254179687f71f8fe097b660.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "keep",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "keep - kept - kept",
+      "sourceExample": "To have and hold on to something.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/336-keep__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/557-keep_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/369-keep_s.mp3"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "kneel",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "kneel - knelt - knelt*",
+      "sourceExample": "To go down into, or stay in, a position where one or both knees are on the ground.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/538-kneel__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/456-kneel_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/518-kneel-dbc17eae440743e1d341141de5695372fe2732c6.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "know",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "know - knew - known",
+      "sourceExample": "To have a piece of information or a certain understanding of something.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/324-know__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/151-know_.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/57-know.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "lay",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "lay - laid - laid",
+      "sourceExample": "To put something down.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/534-lay__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/112-lay_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/44-lay_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/189-lay-d7c4740f5615244c598515883a45f56e906f577f.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "lead",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "lead - led - led",
+      "sourceExample": "To go in front, or to serve as the leader of a group.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/355-lead__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/441-lead_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/60-lead_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/360-lead.jpeg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "lean",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "lean - leant - leant*",
+      "sourceExample": "To (cause to) slope in one direction, or to move the top part of the body in a particular direction.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/390-lean__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/66-lean_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/104-lean-2a2dbafddff8c586e196a4b10084df605bb8092c.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "leap",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "leap - leapt - leapt*",
+      "sourceExample": "(jump) To make a large jump or sudden movement, usually from one place to another.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/41-leap__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/378-leap_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/256-leap_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/308-leap-b68dad38368122ca036317326cc1340a3351e687.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "learn",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "learn - learnt - learnt*",
+      "sourceExample": "To gain new knowledge or skills through study, practice or experience.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/157-learn.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/454-learn_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/341-learn.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "leave",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "leave - left - left",
+      "sourceExample": "To go away or exit.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/203-leave__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/559-leave_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/283-leave-282cd5f0de9c70a2c67483d52734de3dd1639e74.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "lend",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "lend - lent - lent",
+      "sourceExample": "To give something to someone for a short period of time, expecting it to be given back.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/585-lend__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/411-lend_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/346-lend-276439172b97cd32f227f618a08295c13332788c.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "let",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "let - let - let",
+      "sourceExample": "To allow something to happen or someone to do something by not doing anything to stop an action or by giving your permission.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/177-let.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/569-let_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/442-let_s.mp3"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "lie",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "lie - lay - lain",
+      "sourceExample": "He lay on the bed.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/79-lie__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/156-lie_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/288-lie-89df57d340adf27ab5e738e405dfc95043de8181.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "light",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "light - lit - lit*",
+      "sourceExample": "To produce light that makes an object or area bright or easy to see. To start to burn or to make something start to burn.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/582-light__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/91-light_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/107-light.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "lose",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "lose - lost - lost",
+      "sourceExample": "To no longer have something because you do not know where it is. To have something or someone taken away from you. To stop feeling something. To fail to succeed in a game, competition etc.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/279-lose__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/306-lose_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/423-lose.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "make",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "make - made - made",
+      "sourceExample": "To produce something, often using a particular substance or material. To cause something.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/502-make__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/257-make_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/268-make_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/105-make.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "mean",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "mean - meant - meant",
+      "sourceExample": "To intend, express or represent something such as an idea, thought, or fact.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/292-mean__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/171-mean_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/245-mean-7308c90cde4d3c16e91e5290ecbeb3721c6c7d7c.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "meet",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "meet - met - met",
+      "sourceExample": "To interact in some way.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/153-meet__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/511-meet_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/309-meet_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/368-meet.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "mislay",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "mislay - mislaid - mislaid",
+      "sourceExample": "To lose something temporarily by forgetting where you have put it.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/381-mislay.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/419-mislay_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/488-mislay.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "mistake",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "mistake - mistook - mistaken",
+      "sourceExample": "To do something incorrectly.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/294-mistake__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/273-mistake_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/485-mistake-9d89e23ac5b4bf3fcdbb8693c5dde9213018cee1.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "pay",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "pay - paid - paid",
+      "sourceExample": "To give money in return for something.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/602-pay__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/458-pay_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/76-pay.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "prove",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "prove - proved - proven*",
+      "sourceExample": "To show that something is true, to show a particular result after a period of time.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/31-prove__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/526-prove_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/596-prove-a62afc336e5aecf4e0a8107feffbf1ba555ade36.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "put",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "put - put - put",
+      "sourceExample": "To move something or someone into the stated place, position, or direction.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/310-put__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/370-put_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/448-put.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "quit",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "quit - quit - quit",
+      "sourceExample": "To stop doing something or leave a job or a place.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/205-quit__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/562-quit_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/240-quit_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/576-quit-e236c0ac8c1cfd60b4f90c644ac8245d4159c8f7.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "read",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceExample": "To scan and understand letters and words, making sense of language.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/489-read.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/554-read_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/413-read.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "rid",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "rid - rid - rid",
+      "sourceExample": "When you clear out or eliminate something you don't want.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/85-rid__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/236-rid_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/449-rid_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/404-rid-cd772aa728eea5fef8b673a72a0fc5426a238672.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "ride",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "ride - rode - ridden",
+      "sourceExample": "He was riding on his horse looking for the castle.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/136-ride__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/55-ride_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/250-ride-52311c8cffee5b3af2faf61bd30a513494d063e4.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "ring",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "ring - rang - rung",
+      "sourceExample": "To make a phone call to someone:to make a phone call to someone.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/414-ring__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/394-ring_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/496-ring.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "rise",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "rise - rose - risen",
+      "sourceExample": "To move upwards. To stand, especially after sitting. To increase. To become important, successful, or powerful.*",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/221-rise__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/237-rise_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/63-rise.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "run",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "run - ran - run",
+      "sourceExample": "To move along quickly, and for a long time.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/467-run__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/108-run_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/214-run_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/340-run.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "say",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "say - said - said",
+      "sourceExample": "To get an opportunity to deliver your opinion on something.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/120-say__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/570-say_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/608-say.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "see",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "see - saw - seen",
+      "sourceExample": "Is what your eyes do.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/39-see__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/278-see_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/555-see.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "seek",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "seek - sought - sought",
+      "sourceExample": "To try to find or get something, especially something that is not a physical object. To ask for advice, help, approval, permission, etc. To try or attempt.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/386-seek__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/514-seek_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/141-seek-8bd7a78c6c7fd6bbcf62e7ac2a8f7821020dc383.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "sell",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "sell - sold - sold",
+      "sourceExample": "To exchange a thing or a service for money.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/280-sell__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/289-sell_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/459-sell_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/124-sell.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "send",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "send - sent - sent",
+      "sourceExample": "To cause something to go from one place to another, especially by post or email.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/474-send__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/121-send_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/599-send.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "set",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "set - set - set",
+      "sourceExample": "To set something is to put it somewhere.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/159-set__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/100-set_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/252-set-148bd6b98827e1a78e171437ab598b97244d6531.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "shake",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "shake - shook - shaken",
+      "sourceExample": "To move backwards and forwards or up and down in quick, short movements, or to make something or someone do this.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/190-shake__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/128-shake_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/200-shake-a7cfc1fe8e0895d4de76b1e97c19a56125650160.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "shed",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "shed - shed - shed",
+      "sourceExample": "To lose a covering, such as leaves, hair, or skin, because it falls off naturally, or to drop something in a natural way or by accident. To get rid of something you do not need or want.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/160-shed__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/352-shed_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/223-shed-651e6eb54b0604d3eb9949547033b1ea28f1b986.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "shine",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "shine - shone - shone*",
+      "sourceExample": "(direct light) To give off a bright, glowing light.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/110-shine__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/303-shine_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/539-shine-56d7d74fc4030ca0e2af7b95be66590a777fa64b.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "shoot",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "shoot - shot - shot",
+      "sourceExample": "To fire a bullet or an arrow, or to hit, injure, or kill a person or animal by firing a bullet or arrow at him, her, or it.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/193-shoot__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/508-shoot_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/479-shoot-970d22b5e805c9980bb15505512951740b17848e.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "show",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "show - showed - shown*",
+      "sourceExample": "To display something, to share it.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/357-show__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/211-show_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/12-show_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/433-show.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "shrink",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "shrink - shrank - shrunk",
+      "sourceExample": "To become smaller, or to make something smaller.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/270-shrink__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/535-shrink_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/600-shrink_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/325-shrink-2ab8f552573ecc9b0b3751f02e7539a7020aa0b6.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "shut",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "shut - shut - shut",
+      "sourceExample": "To close something or stop operating or being in service, either temporarily or permanently.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/434-shut__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/334-shut_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/316-shut-a44b8a92ab55808512d37b5b080b29c11f33e8cc.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "sing",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "sing - sang - sung",
+      "sourceExample": "To make music with your voice.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/472-sing__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/255-sing_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/271-sing_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/0-sing.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "sink",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "sink - sank - sunk",
+      "sourceExample": "When something settle or drop to a lower level.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/207-sink__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/295-sink_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/380-sink-a4cf18bd7f66178d1ceb103a335e908fbfa3d150.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "sit",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "sit - sat - sat",
+      "sourceExample": "To be in a position in which the lower part of the body is resting on a seat or other type of support, with the upper part of the body vertical.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/314-sit__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/291-sit_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/465-sit.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "sleep",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "sleep - slept - slept",
+      "sourceExample": "The period of sleeping, resting state in which the body is not active and the mind is unconscious.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/285-sleep__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/313-sleep_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/501-sleep_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/35-sleep.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "slide",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "slide - slid - slid",
+      "sourceExample": "The canoe seemed to slide painfully on a mirror (of a lake).",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/266-slide.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/387-slide_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/344-slide.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "slit",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "slit - slit - slit",
+      "sourceExample": "To make a long, straight, narrow cut in something.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/259-slit.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/337-slit_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/353-slit_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/74-slit-e8b91df8271622bd025cc437bc9f1ca4e1eb2213.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "smell",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "smell - smelt - smelt*",
+      "sourceExample": "To have the ability to notice or discover a substance in the air by using your nose.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/476-smell__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/398-smell_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/305-smell-fb8cc45c8772bb4bd20e45012544f2916d55fc2a.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "sneak",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "sneak - sneaked - sneaked*",
+      "sourceExample": "(move silently) To go somewhere secretly, or to take someone or something somewhere secretly.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/244-sneak__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/536-sneak_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/326-sneak-cdf1df2b846e0f8f8636d3b6e7e0a6b2a81e3bf4.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "speak",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "speak - spoke - spoken",
+      "sourceExample": "Do you speak English?",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/594-speak.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/195-speak_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/182-speak_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/277-speak.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "speed",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "speed - sped - sped*",
+      "sourceExample": "To move, go, or happen fast.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/19-speed.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/427-speed_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/178-speed.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "spell",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "spell - spelt - spelt*",
+      "sourceExample": "To form a word by writing or naming the letters in order.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/126-spell.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/185-spell_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/22-spell.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "spend",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "spend - spent - spent",
+      "sourceExample": "To give money as a payment for something, to use time, energy, effort, force etc., doing something or being somewhere especially until there is no more left.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/167-spend__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/24-spend_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/544-spend_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/32-spend-ff61b491a2a5a53257c8d0a5ed3c7e1a0c977d15.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "spill",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "spill - spilt - spilt*",
+      "sourceExample": "To cause something to flow, move, fall, or spread over the edge or outside the limits of something.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/202-spill__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/7-spill_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/319-spill_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/420-spill-1fc3c8ec266fdfc6034bcf921fca74cc1dd47e80.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "spin",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "spin - spun - spun*",
+      "sourceExample": "To cause something to turn around and around, especially fast.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/293-spin__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/232-spin_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/580-spin-95897ba133142ba944448ccc999a9a847f8600b4.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "spit",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "spit - spit - spit*",
+      "sourceExample": "To force out the contents of the mouth, especially saliva.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/348-spit__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/282-spit_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/598-spit-1063e290fc5e911901166c920c4ecdadac1e6264.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "split",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "split - split - split",
+      "sourceExample": "To divide into two or more parts, especially along a particular line.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/46-split.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/143-split_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/231-split.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "spoil",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "spoil - spoilt - spoilt*",
+      "sourceExample": "To destroy something or ruin its quality.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/51-spoil__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/96-spoil_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/444-spoil_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/58-spoil-0e432b8655d80b46a6ad9a8d283da10bb40c8e0c.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "spread",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "spread - spread - spread",
+      "sourceExample": "(expand) To cover, reach, or have an effect on a wider or increasing area.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/531-spread__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/421-spread_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/406-spread-d1b9e8a39c781feb53e156e3c7ea4d9f6d3682eb.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "sting",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "sting - stung - stung",
+      "sourceExample": "To be wound inflicted by a bee or hornet, or to a kind of burning pain.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/286-sting__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/382-sting_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/165-sting-6fa0305fcb39b8e7582405e89c467b4b3889a9ca.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "sweep",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "sweep - swept - swept",
+      "sourceExample": "To clean especially a floor by using a brush to collect the dirt into one place from which it can be removed.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/435-sweep__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/361-sweep_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/274-sweep-8b9d666895a8fd58a27b93ed8b6ffa742a0cedb3.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "throw",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "throw - threw - thrown",
+      "sourceExample": "(propel through the air) To send something through the air with force, especially by a sudden movement of the arm.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/330-throw__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/229-throw_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/491-throw-49f7ded6e9f53e9d1ada9d034ef93e93600b8306.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "weep",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "weep - wept - wept",
+      "sourceExample": "(cry) To express sadness that is more profound.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/4-weep__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/426-weep_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/260-weep-65f8f7ee133de52415ea0060e5b961d34fa52f29.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "write",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "write - wrote - written",
+      "sourceExample": "To put pen to paper or fingers to keyboard.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/14-write__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/204-write_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/612-write.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "abide",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "abide - abode - abode",
+      "sourceExample": "(not tolerate) To abide by something, like a rule, means to obey it.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/349-abide__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/480-abide_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/473-abide_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/180-abide-b6f5537ea7deed1e4a3be6e3a86696d69cf38d80.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "befall",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "befall - befell - befallen",
+      "sourceExample": "If something bad or dangerous befalls you, it happens to you.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/607-befall__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/327-befall_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/523-befall.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "behold",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "behold - beheld - beheld",
+      "sourceExample": "(see, observe) To see or look at someone or something.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/581-behold.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/610-behold_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/329-behold.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "dwell",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "dwell - dwelt - dwelt*",
+      "sourceExample": "To live in a place or in a particular way.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/403-dwell.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/241-dwell_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/507-dwell_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/296-dwell.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "can",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "can - could ",
+      "sourceExample": "To be able to.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/385-can.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/587-can_s.mp3"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "interweave",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceExample": "To twist together or combine two or more things so that they cannot be separated easily.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/402-interweave.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/492-interweave_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/549-interweave_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/392-interweave.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "foretell",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "foretell - foretold - foretold",
+      "sourceExample": "(predict) To say what is going to happen in the future.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/72-foretell.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/52-foretell_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/358-foretell.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "oversleep",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceExample": "To sleep for longer than you intended to and so wake up late.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/154-oversleep.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/208-oversleep_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/530-oversleep_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/162-oversleep.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "overhear",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceExample": "To hear what other people are saying without intending to and without their knowledge.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/3-overhear.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/613-overhead_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/354-overhear_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/365-overhear.png"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "rend",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "rend - rent - rent",
+      "sourceExample": "(tear, rip) To tear or break something violently.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/149-rend.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/415-rend_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/362-rend_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/363-rend-fcf1e5115c3e8125bbb879ca346c8134949c995c.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "sling",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "sling - slung - slung",
+      "sourceExample": "(informal) To throw, give or drop something carelessly.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/391-sling.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/450-sling_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/315-sling_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/356-sling.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "slink",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "slink - slunk - slunk",
+      "sourceExample": "(move furtively) To walk away from somewhere quietly so that you are not noticed.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/135-slink.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/106-slink_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/125-slink_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/201-slink-238b0b3e751adf692340004532353232b3906c3f.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "spring",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "spring - sprang - sprung",
+      "sourceExample": "To leap or bounce up suddenly.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/196-spring.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/139-spring_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/186-spring.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "stand",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "stand - stood - stood",
+      "sourceExample": "To be in a vertical state or to put into a vertical state, by making the legs straight.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/263-stand.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/605-stand_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/614-stand.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "steal",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "steal - stole - stolen",
+      "sourceExample": "To take something without the permission or knowledge of the owner and keep it.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/597-steal__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/206-steal_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/460-steal-5ea8d23201269f1f414a5b6165844de630b23c51.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "stick",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "stick - stuck - stuck",
+      "sourceExample": "To cause something to become fixed, for example with glue or another similar substance or tool.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/318-stick.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/264-stick_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/321-stick.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "stink",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "stink - stank - stunk",
+      "sourceExample": "To smell very unpleasant.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/9-stink.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/109-stink_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/233-stink_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/191-stink.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "stride",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "stride - strode - stridden",
+      "sourceExample": "To walk somewhere quickly with long steps.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/399-stride.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/347-stride_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/102-stride_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/466-stride.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "strike",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "strike - struck - struck",
+      "sourceExample": "He struck the ball straight into the hospitality tents.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/213-strike__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/556-strike_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/95-strike-885c2a0c09e5bf771bf7bbd40d105290c52ef7be.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "string",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "string - strung - strung",
+      "sourceExample": "To put strings on a musical instrument.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/513-string__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/589-string_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/87-string-33815aae9d4960ae57a3ed4eca58346eb67f0b88.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "strive",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "strive - strove - striven",
+      "sourceExample": "To endeavor, reach, or strain for something above or beyond.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/247-strive__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/401-strive_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/251-strive-63ec6d6c7fe13ce1bf9cf18ef4e73ff5ce016468.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "swear",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "swear - swore - sworn",
+      "sourceExample": "To promise or say firmly that you are telling the truth or that you will do something or behave in a particular way.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/481-swear__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/56-swear_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/388-swear-46ab642554b94accaabdde4aedc34a759f4cb2f8.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "swim",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "swim - swam - swum",
+      "sourceExample": "When you move yourself through the water using your arms and legs.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/101-swim__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/267-swim_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/145-swim-16e3f32a85b97198cc32dfd295f30b2c8ddf05a8.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "swing",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "swing - swung - swung",
+      "sourceExample": "To sway back and forth, or to move in a sweeping, curving motion.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/225-swing__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/269-swing_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/170-swing_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/242-swing-70dfdf0162e13dcb10d7fdf3972a4dce5784896c.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "take",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "take - took - taken",
+      "sourceExample": "To gain possession of or lay hold of something.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/197-take__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/366-take_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/583-take_s.mp3"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "teach",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "teach - taught - taught",
+      "sourceExample": "To transfer ideas or skills to another person.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/199-teach.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/545-teach_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/82-teach_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/590-teach.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "tear",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "tear - tore - torn",
+      "sourceExample": "To pull or be pulled apart, or to pull pieces off.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/493-tear__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/275-tore_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/130-tear_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/373-tear-960201e5deb7ca555cadb5a70973da11c6ab7337.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "tell",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "tell - told - told",
+      "sourceExample": "To describe or announce something, either by speaking or writing.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/172-tell__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/38-tell_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/383-tell.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "think",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "think - thought - thought",
+      "sourceExample": "To have an idea, belief, or thought about something.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/224-think__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/173-think_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/615-think_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/584-think.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "tread",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "tread - trod - trodden",
+      "sourceExample": "To put your foot on something or to press something down with your foot.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/546-tread.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/73-tread_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/409-tread.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "thrust",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "thrust - thrust - thrust",
+      "sourceExample": "To push forward quickly and forcibly.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/192-thrust__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/588-thrust_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/457-thrust-dbac90732eb5fc91322da49a09f226cd27f59c35.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "understand",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceExample": "To comprehend or get it.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/48-understand__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/333-understand_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/53-understand_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/68-understand.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "undertake",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceExample": "(project: commit to) To promise, do or begin to do something, especially something that will take a long time or be difficult.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/519-undertake.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/69-undertake_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/445-undertake_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/494-undertake.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "undo",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "undo - undid - undone",
+      "sourceExample": "To unfasten something that is fastened or tied. To remove the good or bad effects of an action or several actions.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/181-undo.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/25-undo_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/115-undo.png"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "upset",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "upset - upset - upset",
+      "sourceExample": "To be disturbed or very unhappy.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/497-upset__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/248-upset_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/533-upset_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/499-upset-714763b1b5177d79e2d1308b465561deed6d1383.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "wake",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "wake - woke - woken",
+      "sourceExample": "To cause someone to become awake and conscious after sleeping.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/537-wake__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/227-wake_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/528-wake-efb8c9c6133c225560bbf953281e66aa02b9d614.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "wear",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "wear - wore - worn",
+      "sourceExample": "To clothe, or be covered by them.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/215-wear__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/351-wear_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/49-wear_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/164-wear.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "win",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "win - won - won",
+      "sourceExample": "To achieve first position and/or get a prize in a competition, election, fight, etc.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/161-win__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/452-win_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/36-win_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/122-win.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "withdraw",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceExample": "To take or move out or back, or to remove. To take money out of an account.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/10-withdraw__1_.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/80-withdraw_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/564-withdraw_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/90-withdraw-2ac77af3db7470e497e2700432b09d2a78a890fd.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "withstand",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceExample": "(resist) To be strong enough, or not be changed by something, or to oppose a person or thing successfully.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/253-withstand.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/92-withstand_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/522-withstand_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/298-withstand.png"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "wring",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "wring - wrung - wrung",
+      "sourceExample": "To twist or squeeze it, usually out of its original shape.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/234-wring.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/416-wring_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/166-wring.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "dive",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "dive - dove - dived*",
+      "sourceExample": "To jump head first into the water.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/129-dive-990315500c395eca85ddaa40cc1949097c2a9342.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/453-dive_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/328-dive-66769d49067d45ac6d6f144a0c686c4b3fedecbe.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "weave",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "weave - wove - woven",
+      "sourceExample": "To make cloth by repeatedly crossing a single thread through two sets of long threads on a loom.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/547-weave-344d6cbd5bdb37dd428731be177839b528a3667f.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/176-weave_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/23-weave-fd341180f65a32630c9ad9d26387db7626c2a6e8.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    },
+    {
+      "phraseText": "beget",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false,
+      "sourceMeaning": "beget - begot - begotten",
+      "sourceExample": "To cause it to happen or be created. To ber the father of someone.",
+      "sourceAudio": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/134-beget-96356275d2de9a7ace8e09a832352d910c670c82.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/592-beget_p.mp3",
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/243-beget_s.mp3"
+      ],
+      "sourceImages": [
+        "/api/imported-phrase-banks/1775462720862-170_english_irregular_verbs/media/81-paste-868c216a763e86fb67e2081b29fb58db35f0a3ef.jpg"
+      ],
+      "source": "170_English_Irregular_verbs"
+    }
+  ]
+}

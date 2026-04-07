@@ -1,0 +1,629 @@
+{
+  "sourceLabel": "4000 Essential English Words",
+  "totalEntries": 89,
+  "entries": [
+    {
+      "phraseText": "2_3^_^_belt^_[belt]^_^_[belt]^_[belt]^_[belt]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "2_5^_^_boots^_[buːts]^_^_[buːts]^_[buːts]^_[buːts]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "2_7^_^_cap^_['kæp]^_^_[kæp]^_[kæp]^_[kæp]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "2_11^_^_cube^_[kjuːb]^_^_[kjuːb]^_[kjuːb]^_[kjuːb]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "2_13^_^_dress^_[dres]^_^_[dres]^_[dres]^_[dres]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "2_15^_^_gloves^_[glʌvs]^_^_[glʌvz]^_[glʌvz]^_[glʌvz]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "2_16^_^_hat^_[hæt]^_^_[hæt]^_[hæt]^_[hæt]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "2_17^_^_jacket^_['ʤækɪt]^_^_[ˈdʒækɪt]^_[ˈdʒækɪt]^_[ˈdʒækɪt]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "2_18^_^_jeans^_[ʤiːnz]^_^_[dʒiːnz]^_[dʒiːnz]^_[dʒiːnz]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "2_19^_^_mittens^_['mɪt(ə)ns]^_^_[ˈmɪtnz]^_[ˈmɪtnz]^_[ˈmɪtnz]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "2_24^_^_pants^_[pænts]^_^_[pænts]^_[pænts]^_[pænts]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "2_32^_^_shoes^_[ʃuːs]^_^_[ʃuːz]^_[ʃuːz]^_[ʃuːz]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "2_45^_^_tie^_[taɪ]^_^_[taɪ]^_[taɪ]^_[taɪ]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "2_52^_^_vest^_[vest]^_^_[vest]^_[vest]^_[vest]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_8^_^_tennis^_['tenɪs]^_^_[ˈtenɪs]^_[ˈtenɪs]^_[ˈtenɪs]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_10^_^_skiing^_['skiːɪŋ]^_^_[ˈskiːɪŋ]^_[ˈskiːɪŋ]^_[ˈskiːɪŋ]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_12^_^_camel^_['kæm(ə)l]^_^_[ˈkæml]^_[ˈkæml]^_[ˈkæml]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_20^_^_parrot^_['pærət]^_^_[ˈpærət]^_[ˈpærət]^_[ˈpærət]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_30^_^_seal^_[siːl]^_^_[siːl]^_[siːl]^_[siːl]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_31^_^_wolf^_[wulf]^_^_[wʊlf]^_[wʊlf]^_[wʊlf]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_37^_^_squid^_[skwɪd]^_^_[skwɪd]^_[skwɪd]^_[skwɪd]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_39^_^_whale^_[(h)weɪl]^_^_[weɪl]^_[weɪl]^_[weɪl]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_46^_^_skunk^_[skʌŋk]^_^_[skʌŋk]^_[skʌŋk]^_[skʌŋk]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_57^_^_moth^_[mɔθ]^_^_[mɒθ]^_[mɔːθ]^_BrE [mɒθ] NAmE [mɔːθ]",
+      "phraseType": "phrase",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_61^_^_salad^_['sæləd]^_^_[ˈsæləd]^_[ˈsæləd]^_[ˈsæləd]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_65^_^_cherry^_['ʧerɪ]^_^_[ˈtʃeri]^_[ˈtʃeri]^_[ˈtʃeri]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_67^_^_fig^_[fɪg]^_^_[fɪɡ]^_[fɪɡ]^_[fɪɡ]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_69^_^_peach^_[piːʧ]^_^_[piːtʃ]^_[piːtʃ]^_[piːtʃ]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_73^_^_almond^_['ɑːmənd]^_^_[ˈɑːmənd]^_[ˈɑːmənd]^_[ˈɑːmənd]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_75^_^_peanut^_['piːnʌt]^_^_[ˈpiːnʌt]^_[ˈpiːnʌt]^_[ˈpiːnʌt]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_80^_^_beef^_[biːf]^_^_[biːf]^_[biːf]^_[biːf]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_81^_^_chicken^_['ʧɪkɪn]^_^_[ˈtʃɪkɪn]^_[ˈtʃɪkɪn]^_[ˈtʃɪkɪn]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_82^_^_crab^_[kræb]^_^_[kræb]^_[kræb]^_[kræb]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_86^_^_salmon^_['sæmən]^_^_[ˈsæmən]^_[ˈsæmən]^_[ˈsæmən]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_88^_^_shrimp^_[ʃrɪmp]^_^_[ʃrɪmp]^_[ʃrɪmp]^_[ʃrɪmp]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_90^_^_cabbage^_['kæbɪʤ]^_^_[ˈkæbɪdʒ]^_[ˈkæbɪdʒ]^_[ˈkæbɪdʒ]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_91^_^_carrot^_['kærət]^_^_[ˈkærət]^_[ˈkærət]^_[ˈkærət]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_95^_^_onion^_['ʌnjən]^_^_[ˈʌnjən]^_[ˈʌnjən]^_[ˈʌnjən]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_100^_^_daisy^_['deɪzɪ]^_^_[ˈdeɪzi]^_[ˈdeɪzi]^_[ˈdeɪzi]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_101^_^_lily^_['lɪlɪ]^_^_[ˈlɪli]^_[ˈlɪli]^_[ˈlɪli]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_104^_^_pansy^_['pænzɪ]^_^_[ˈpænzi]^_[ˈpænzi]^_[ˈpænzi]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_111^_^_pine tree^_['paɪnˌtriː]^_^_[paɪn]^_[paɪn]^_[paɪn]",
+      "phraseType": "phrase",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "3_124^_^_beetle^_['biːtl]^_^_[ˈbiːtl]^_[ˈbiːtl]^_[ˈbiːtl]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_2^_^_temple^_['templ]^_^_[ˈtempl]^_[ˈtempl]^_[ˈtempl]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_3^_^_ear^_[ɪə]^_^_[ɪə(r)]^_[ɪr]^_BrE [ɪə(r)] NAmE [ɪr]",
+      "phraseType": "phrase",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_5^_^_lip^_[lɪp]^_^_[lɪp]^_[lɪp]^_[lɪp]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_7^_^_chin^_[ʧɪn]^_^_[tʃɪn]^_[tʃɪn]^_[tʃɪn]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_8^_^_tongue^_[tʌŋ]^_^_[tʌŋ]^_[tʌŋ]^_[tʌŋ]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_9^_^_tooth^_[tuːθ]^_^_[tuːθ]^_[tuːθ]^_[tuːθ]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_10^_^_jaw^_[ʤɔː]^_^_[dʒɔː]^_[dʒɔː]^_[dʒɔː]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_12^_^_cheek^_[ʧiːk]^_^_[tʃiːk]^_[tʃiːk]^_[tʃiːk]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_13^_^_eyelash^_['aɪlæʃ]^_^_[ˈaɪlæʃ]^_[ˈaɪlæʃ]^_[ˈaɪlæʃ]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_14^_^_eyelid^_['aɪlɪd]^_^_[ˈaɪlɪd]^_[ˈaɪlɪd]^_[ˈaɪlɪd]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_17^_^_head^_[hed]^_^_[hed]^_[hed]^_[hed]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_18^_^_brain^_[breɪn]^_^_[breɪn]^_[breɪn]^_[breɪn]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_20^_^_lung^_[lʌŋ]^_^_[lʌŋ]^_[lʌŋ]^_[lʌŋ]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_23^_^_kidney^_['kɪdnɪ]^_^_[ˈkɪdni]^_[ˈkɪdni]^_[ˈkɪdni]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_24^_^_neck^_[nek]^_^_[nek]^_[nek]^_[nek]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_25^_^_chest^_[ʧest]^_^_[tʃest]^_[tʃest]^_[tʃest]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_26^_^_hand^_[hænd]^_^_[hænd]^_[hænd]^_[hænd]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_27^_^_thigh^_[θaɪ]^_^_[θaɪ]^_[θaɪ]^_[θaɪ]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_28^_^_knee^_[niː]^_^_[niː]^_[niː]^_[niː]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_29^_^_shin^_[ʃɪn]^_^_[ʃɪn]^_[ʃɪn]^_[ʃɪn]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_30^_^_foot^_[fut]^_^_[fʊt]^_[fʊt]^_[fʊt]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_33^_^_leg^_[leg]^_^_[leɡ]^_[leɡ]^_[leɡ]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_34^_^_palm^_[pɑːm]^_^_[pɑːm]^_[pɑːm]^_[pɑːm]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_35^_^_thumb^_[θʌm]^_^_[θʌm]^_[θʌm]^_[θʌm]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_36^_^_wrist^_[rɪst]^_^_[rɪst]^_[rɪst]^_[rɪst]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_37^_^_arm^_[ɑːm]^_^_[ɑːm]^_[ɑːrm]^_BrE [ɑːm] NAmE [ɑːrm]",
+      "phraseType": "phrase",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_40^_^_back^_[bæk]^_^_[bæk]^_[bæk]^_[bæk]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_41^_^_hip^_[hɪp]^_^_[hɪp]^_[hɪp]^_[hɪp]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_43^_^_heel^_[hiːl]^_^_[hiːl]^_[hiːl]^_[hiːl]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_44^_^_ankle^_['æŋkl]^_^_[ˈæŋkl]^_[ˈæŋkl]^_[ˈæŋkl]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_47^_^_knuckle^_['nʌkl]^_^_[ˈnʌkl]^_[ˈnʌkl]^_[ˈnʌkl]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_48^_^_waist^_[weɪst]^_^_[weɪst]^_[weɪst]^_[weɪst]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_63^_^_uncle^_[ˈʌŋk(ə)l]^_^_[ˈʌŋkl]^_[ˈʌŋkl]^_[ˈʌŋkl]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_65^_^_cousin^_[ˈkʌz(ə)n]^_^_[ˈkʌzn]^_[ˈkʌzn]^_[ˈkʌzn]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_67^_^_cousin^_[ˈkʌz(ə)n]^_^_[ˈkʌzn]^_[ˈkʌzn]^_[ˈkʌzn]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_69^_^_red^_[rɛd]^_^_[red]^_[red]^_[red]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_70^_^_pink^_[pɪŋk]^_^_[pɪŋk]^_[pɪŋk]^_[pɪŋk]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_71^_^_green^_[ɡriːn]^_^_[ɡriːn]^_[ɡriːn]^_[ɡriːn]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_73^_^_teal^_[tiːl]^_^_[tiːl]^_[tiːl]^_[tiːl]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_74^_^_blue^_[bluː]^_^_[bluː]^_[bluː]^_[bluː]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_75^_^_navy^_[ˈneɪvɪ]^_^_[ˈneɪvi]^_[ˈneɪvi]^_[ˈneɪvi]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_78^_^_brown^_[braʊn] ^_^_[braʊn]^_[braʊn]^_[braʊn]",
+      "phraseType": "phrase",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_79^_^_beige^_[beɪʒ]^_^_[beɪʒ]^_[beɪʒ]^_[beɪʒ]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_81^_^_white^_[waɪt]^_^_[waɪt]^_[waɪt]^_[waɪt]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_82^_^_black^_[blæk]^_^_[blæk]^_[blæk]^_[blæk]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    },
+    {
+      "phraseText": "1_1_83^_^_gray^_[ɡreɪ]^_^_[ɡreɪ]^_[ɡreɪ]^_[ɡreɪ]",
+      "phraseType": "word",
+      "category": "Vocabulary",
+      "difficultyLevel": "intermediate",
+      "isCommon": false
+    }
+  ]
+}

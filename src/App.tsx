@@ -19,6 +19,8 @@ const ProgressPage = lazy(() => import("./pages/Progress"));
 const SettingsPage = lazy(() => import("./pages/Settings"));
 const WatchWorkspacePage = lazy(() => import("./pages/WatchWorkspace"));
 const StoriesPage = lazy(() => import("./pages/Stories"));
+const MediaPage = lazy(() => import("./pages/media/MediaPage"));
+const BookReaderPage = lazy(() => import("./pages/reader/BookReaderPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -35,7 +37,7 @@ function PageLoader() {
 
 function AppRoutes() {
   const location = useLocation();
-  const fullBleedRoutes = ["/watch"];
+  const fullBleedRoutes = ["/watch", "/read"];
   const isFullBleedRoute = fullBleedRoutes.some((route) => location.pathname.startsWith(route));
 
   const routes = (
@@ -57,6 +59,8 @@ function AppRoutes() {
         <Route path="/stories" element={<StoriesPage />} />
         <Route path="/stories/:id" element={<StoriesPage />} />
         <Route path="/stories/world/:worldId" element={<StoriesPage />} />
+        <Route path="/media" element={<MediaPage />} />
+        <Route path="/read/:id" element={<BookReaderPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>

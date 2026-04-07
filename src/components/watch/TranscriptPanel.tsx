@@ -1,8 +1,7 @@
-import { Bookmark, Settings, Star, X } from "lucide-react";
+import { Search, Settings } from "lucide-react";
 import { SavedPhrase, TranscriptCue, TranscriptTab, WordInsight } from "@/components/watch/types";
 import { TranscriptTabs } from "@/components/watch/TranscriptTabs";
 import { TranscriptList } from "@/components/watch/TranscriptList";
-import { cn } from "@/lib/utils";
 
 interface TranscriptPanelProps {
   activeTab: TranscriptTab;
@@ -12,6 +11,7 @@ interface TranscriptPanelProps {
   onSelectCue: (cue: TranscriptCue) => void;
   wordInsights: WordInsight[];
   savedPhrases: SavedPhrase[];
+  autoScrollEnabled?: boolean;
 }
 
 export function TranscriptPanel({
@@ -22,63 +22,64 @@ export function TranscriptPanel({
   onSelectCue,
   wordInsights,
   savedPhrases,
+  autoScrollEnabled = true,
 }: TranscriptPanelProps) {
   return (
-    <aside className="flex min-h-[420px] flex-col border-l border-white/8 bg-[#101214] xl:min-h-0">
-      <div className="flex h-9 items-center justify-between border-b border-white/8 bg-[#121315] px-3">
+    <aside className="flex min-h-[420px] min-w-0 flex-col border-l border-white/[0.06] bg-[#171b20] xl:min-h-0">
+      <div className="flex h-12 items-end justify-between border-b border-white/[0.06] bg-[#15191e] px-4">
         <TranscriptTabs activeTab={activeTab} onChange={onTabChange} />
-        <div className="flex items-center gap-1 text-white/55">
-          <button type="button" className="inline-flex h-6 w-6 items-center justify-center rounded-sm hover:bg-white/6 hover:text-white">
-            <Settings className="h-3.5 w-3.5" />
+        <div className="flex items-center gap-1 pb-2 text-white/50">
+          <button
+            type="button"
+            className="inline-flex h-7 w-7 items-center justify-center rounded-md transition hover:bg-white/[0.05] hover:text-white"
+            aria-label="Search"
+          >
+            <Search className="h-4 w-4" />
           </button>
-          <button type="button" className="inline-flex h-6 w-6 items-center justify-center rounded-sm hover:bg-white/6 hover:text-white">
-            <Bookmark className="h-3.5 w-3.5" />
-          </button>
-          <button type="button" className="inline-flex h-6 w-6 items-center justify-center rounded-sm hover:bg-white/6 hover:text-white">
-            <X className="h-3.5 w-3.5" />
+          <button
+            type="button"
+            className="inline-flex h-7 w-7 items-center justify-center rounded-md transition hover:bg-white/[0.05] hover:text-white"
+            aria-label="Settings"
+          >
+            <Settings className="h-4 w-4" />
           </button>
         </div>
       </div>
 
       {activeTab === "subtitles" ? (
-        <TranscriptList cues={cues} activeCueId={activeCueId} onSelect={onSelectCue} />
+        <TranscriptList
+          cues={cues}
+          activeCueId={activeCueId}
+          onSelect={onSelectCue}
+          autoScrollEnabled={autoScrollEnabled}
+        />
       ) : null}
 
       {activeTab === "words" ? (
-        <div className="min-h-0 flex-1 overflow-y-auto bg-[#111315] p-2">
+        <div className="min-h-0 flex-1 overflow-y-auto bg-[#171b20] p-2">
           {wordInsights.map((item) => (
-            <div
-              key={item.term}
-              className="flex items-start justify-between gap-3 border-b border-white/5 bg-[#14161a] px-3 py-2.5 last:border-b-0"
-            >
-              <div>
-                <p className="text-[12.5px] font-semibold text-white">{item.term}</p>
-                <p className="mt-1 text-[11px] leading-[1.45] text-white/52">{item.meaning}</p>
+            <div key={item.term} className="border-b border-white/[0.05] px-3 py-3 last:border-b-0">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[13px] font-semibold text-white">{item.term}</p>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-white/34">
+                  {item.level} · {item.count}x
+                </span>
               </div>
-              <div className="flex shrink-0 items-center gap-2 text-[10px] font-semibold text-white/46">
-                <span>{item.level}</span>
-                <span>{item.count}x</span>
-              </div>
+              <p className="mt-1 text-[12px] leading-6 text-white/58">{item.meaning}</p>
             </div>
           ))}
         </div>
       ) : null}
 
       {activeTab === "saved" ? (
-        <div className="min-h-0 flex-1 overflow-y-auto bg-[#111315] p-2">
+        <div className="min-h-0 flex-1 overflow-y-auto bg-[#171b20] p-2">
           {savedPhrases.map((item) => (
-            <div
-              key={item.term}
-              className="flex items-start justify-between gap-3 border-b border-white/5 bg-[#14161a] px-3 py-2.5 last:border-b-0"
-            >
-              <div>
-                <div className="flex items-center gap-2">
-                  <p className="text-[12.5px] font-semibold text-white">{item.term}</p>
-                  <Star className="h-3 w-3 text-[#8f93ff]" fill="currentColor" strokeWidth={1.4} />
-                </div>
-                <p className="mt-1 text-[11px] leading-[1.45] text-white/52">{item.note}</p>
+            <div key={item.term} className="border-b border-white/[0.05] px-3 py-3 last:border-b-0">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[13px] font-semibold text-white">{item.term}</p>
+                <span className="text-[10px] font-medium text-white/34">{item.timestamp}</span>
               </div>
-              <span className={cn("shrink-0 font-mono text-[10px] text-white/34")}>{item.timestamp}</span>
+              <p className="mt-1 text-[12px] leading-6 text-white/58">{item.note}</p>
             </div>
           ))}
         </div>

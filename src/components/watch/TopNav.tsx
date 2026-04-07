@@ -1,71 +1,66 @@
-import { Bell, Captions, Menu, Mic, Plus, Search, SquareMousePointer, X } from "lucide-react";
+import { ArrowLeft, Captions, Grid2X2, ListVideo, Search, Share2, Volume2 } from "lucide-react";
+import { Link } from "react-router-dom";
 
-const utilityIcons = [Captions, SquareMousePointer, Search, Mic];
+interface TopNavProps {
+  title: string;
+}
 
-export function TopNav() {
+function decodeHtml(input: string): string {
+  if (typeof window === "undefined") return input;
+  const parser = new DOMParser();
+  return parser.parseFromString(input, "text/html").documentElement.textContent || input;
+}
+
+const utilityIcons = [Captions, Share2, Grid2X2, ListVideo, Volume2];
+
+export function TopNav({ title }: TopNavProps) {
   return (
-    <header className="border-b border-white/8 bg-[#0a0a0c]">
-      <div className="mx-auto flex h-12 w-full items-center gap-3 px-4 text-[13px] text-white/78 xl:px-5">
+    <header className="border-b border-white/[0.06] bg-[#1b1f24]">
+      <div className="flex h-12 items-center gap-2 px-3 text-[13px] text-white/76 lg:px-4">
+        <Link
+          to="/media"
+          className="inline-flex h-8 items-center gap-2 rounded-md border border-white/[0.08] bg-[#2a2f35] px-3 text-[12px] font-medium text-white/84 transition hover:bg-[#343a42]"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          CATALOGUE
+        </Link>
+
         <button
           type="button"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-sm text-white/72 transition hover:bg-white/6 hover:text-white"
-          aria-label="Open navigation"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-white/56 transition hover:bg-white/[0.05] hover:text-white"
+          aria-label="Previous"
         >
-          <Menu className="h-4 w-4" strokeWidth={2.2} />
+          <span className="text-[15px] leading-none">|◀</span>
         </button>
-        <span className="min-w-7 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/48">TR</span>
+        <button
+          type="button"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-white/56 transition hover:bg-white/[0.05] hover:text-white"
+          aria-label="Play"
+        >
+          <span className="text-[15px] leading-none">▶</span>
+        </button>
 
-        <div className="mx-auto flex h-9 w-full max-w-[600px] items-center rounded-full border border-white/10 bg-[#121316] pl-4 pr-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
-          <input
-            type="text"
-            value="tec"
-            readOnly
-            aria-label="Search"
-            className="h-full flex-1 bg-transparent text-sm font-medium text-white/84 outline-none placeholder:text-white/28"
-          />
-          <button
-            type="button"
-            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-white/54 transition hover:bg-white/6 hover:text-white/84"
-            aria-label="Clear search"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-          <div className="mx-2 h-4 w-px bg-white/8" />
-          <div className="flex items-center gap-1">
-            {utilityIcons.map((Icon, index) => (
-              <button
-                key={index}
-                type="button"
-                className="inline-flex h-7 w-7 items-center justify-center rounded-md text-white/54 transition hover:bg-white/6 hover:text-white"
-                aria-label="Toolbar action"
-              >
-                <Icon className="h-3.5 w-3.5" strokeWidth={2} />
-              </button>
-            ))}
-          </div>
+        <div className="min-w-0 flex-1 px-2">
+          <p className="truncate text-[13px] font-medium text-white/84">{decodeHtml(title)}</p>
         </div>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-0.5">
+          {utilityIcons.map((Icon, index) => (
+            <button
+              key={index}
+              type="button"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-white/56 transition hover:bg-white/[0.05] hover:text-white"
+              aria-label="Toolbar action"
+            >
+              <Icon className="h-4 w-4" />
+            </button>
+          ))}
           <button
             type="button"
-            className="hidden h-8 items-center gap-1.5 rounded-sm px-2 text-sm font-semibold text-white/86 transition hover:bg-white/6 lg:inline-flex"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-white/56 transition hover:bg-white/[0.05] hover:text-white"
+            aria-label="Search"
           >
-            <Plus className="h-3.5 w-3.5" strokeWidth={2.3} />
-            Create
-          </button>
-          <button
-            type="button"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full text-white/60 transition hover:bg-white/6 hover:text-white"
-            aria-label="Notifications"
-          >
-            <Bell className="h-4 w-4" strokeWidth={2.1} />
-          </button>
-          <button
-            type="button"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#c43b75] text-xs font-semibold text-white"
-            aria-label="Profile"
-          >
-            S
+            <Search className="h-4 w-4" />
           </button>
         </div>
       </div>

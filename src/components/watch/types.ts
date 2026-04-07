@@ -20,3 +20,10 @@ export interface SavedPhrase {
   note: string;
   timestamp: string;
 }
+
+export interface WatchVideoMeta {
+  id: string;
+  title: string;
+  channelTitle: string;
+  thumbnail: string;
+}

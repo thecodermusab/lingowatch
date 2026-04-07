@@ -1,6 +1,6 @@
 import { ReactNode, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, PlusCircle, Library, RotateCcw, Settings, Menu, X, Shuffle, BarChart3, BookText, Sun, Moon } from "lucide-react";
+import { LayoutDashboard, PlusCircle, Library, RotateCcw, Settings, Menu, X, Shuffle, BarChart3, BookText, Film, Sun, Moon } from "lucide-react";
 import { SelectionLearningOverlay } from "@/components/learning/SelectionLearningOverlay";
 import { useTheme } from "@/contexts/ThemeContext";
 
@@ -13,6 +13,7 @@ const navGroups = [
   [
     { to: "/library", label: "Library", icon: Library },
     { to: "/stories", label: "Stories", icon: BookText },
+    { to: "/media", label: "Media", icon: Film },
     { to: "/review", label: "Review", icon: RotateCcw },
     { to: "/progress", label: "Progress", icon: BarChart3 },
   ],
@@ -60,6 +61,7 @@ function SidebarLinks({ onNavigate }: { onNavigate?: () => void }) {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
+  const isMediaRoute = location.pathname.startsWith("/media");
   const [mobileOpen, setMobileOpen] = useState(false);
   const mainRef = useRef<HTMLElement | null>(null);
   const { isDark, toggleTheme } = useTheme();
@@ -87,8 +89,12 @@ export function AppShell({ children }: { children: ReactNode }) {
       </header>
 
       <aside className="fixed inset-y-0 left-0 hidden w-80 bg-background lg:block">
-        <div className="h-full p-4">
-          <div className="flex h-full flex-col rounded-[1.75rem] border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-[0_18px_42px_rgba(0,0,0,0.22)]">
+        <div className={`h-full py-0 pl-0 ${isMediaRoute ? "pr-0" : "pr-4"}`}>
+          <div
+            className={`flex h-full flex-col border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-[0_18px_42px_rgba(0,0,0,0.22)] ${
+              isMediaRoute ? "rounded-r-none rounded-l-none" : "rounded-r-[1.75rem] rounded-l-none"
+            }`}
+          >
             <div className="px-5 py-5">
               <Link to="/dashboard" className="flex items-center gap-1 rounded-2xl">
                 <img src="/Logo.png" alt="Lingowatch logo" className="h-[4.5rem] w-[4.5rem] shrink-0 object-contain" />

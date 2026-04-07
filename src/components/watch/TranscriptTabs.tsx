@@ -6,29 +6,33 @@ interface TranscriptTabsProps {
   onChange: (tab: TranscriptTab) => void;
 }
 
-const tabs: TranscriptTab[] = ["subtitles", "words", "saved"];
+const tabs: Array<{ id: TranscriptTab; label: string }> = [
+  { id: "subtitles", label: "TEXT" },
+  { id: "words", label: "WORDS" },
+  { id: "saved", label: "SAVED" },
+];
 
 export function TranscriptTabs({ activeTab, onChange }: TranscriptTabsProps) {
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-5">
       {tabs.map((tab) => {
-        const active = activeTab === tab;
+        const active = activeTab === tab.id;
 
         return (
           <button
-            key={tab}
+            key={tab.id}
             type="button"
-            onClick={() => onChange(tab)}
+            onClick={() => onChange(tab.id)}
             className={cn(
-              "relative pb-1 text-[12.5px] font-semibold capitalize tracking-[0.01em] text-white/52 transition hover:text-white/84",
-              active && "text-white"
+              "relative pb-2 text-[12px] font-semibold tracking-[0.08em] text-white/42 transition hover:text-white/78",
+              active && "text-white",
             )}
           >
-            {tab}
+            {tab.label}
             <span
               className={cn(
-                "absolute inset-x-0 -bottom-[9px] h-[2px] rounded-full bg-transparent transition",
-                active && "bg-white/90"
+                "absolute inset-x-0 -bottom-px h-[2px] rounded-full bg-transparent transition",
+                active && "bg-white",
               )}
             />
           </button>

@@ -1,0 +1,452 @@
+[
+  {
+    "id": "6ff54e29-1048-4478-a94f-d375396e8f74",
+    "phraseText": "obnoxious",
+    "phraseType": "word",
+    "category": "YouTube",
+    "notes": "",
+    "isFavorite": false,
+    "isLearned": false,
+    "tags": [
+      "youtube"
+    ],
+    "difficultyLevel": "intermediate",
+    "createdAt": "2026-04-05T19:28:10.172Z",
+    "updatedAt": "2026-04-05T19:28:10.172Z",
+    "explanation": {
+      "id": "89c6bc5b-25d6-4058-a0dc-892f642cfac1",
+      "phraseId": "6ff54e29-1048-4478-a94f-d375396e8f74",
+      "standardMeaning": "Extremely unpleasant, annoying, or offensive.",
+      "easyMeaning": "Very annoying, rude, or unpleasant in a way that others find offensive.",
+      "aiExplanation": "When something or someone is 'obnoxious', it means their behavior or presence is very irritating, loud, or offensive to other people. It's often used for actions that are intentionally annoying or show a lack of respect for others' feelings, like being overly loud, boastful, or rude.",
+      "usageContext": "Used to describe a person's behavior, attitude, or even a thing that causes extreme annoyance or offense to others. It implies a strong negative reaction from those experiencing it.",
+      "somaliMeaning": "Wax laga nacay, dhib badan, xun ama aan fiicnayn.",
+      "somaliExplanation": "Erayga 'obnoxious' wuxuu tilmaamaa qof ama wax dabeecad xun ama aan la jeclaysan. Waa qof ama wax dadka kale ka dhibsadaan, laga yaabee inuu yahay mid qaylo badan, kibir badan, ama aan ixtiraam lahayn, taasoo keenta in dadku ka xumaadaan ama ka caroodaan.",
+      "somaliSentence": "Ninkaas wuxuu ahaa qof aad u nacas ah oo dhib badan xafladdii.",
+      "commonMistake": "People sometimes confuse 'obnoxious' with 'nervous'. 'Obnoxious' refers to behavior that annoys or offends others, not a feeling of anxiety.",
+      "pronunciationText": "/əbˈnɒkʃəs/",
+      "relatedPhrases": [
+        "rude",
+        "annoying",
+        "offensive"
+      ]
+    },
+    "examples": [
+      {
+        "id": "5de070f7-01de-4bd2-a552-ae16e541d302",
+        "phraseId": "6ff54e29-1048-4478-a94f-d375396e8f74",
+        "exampleText": "His obnoxious laughter filled the quiet room.",
+        "exampleType": "simple"
+      },
+      {
+        "id": "aaaf9eef-3572-41e9-9fd2-edaa95bbc6a6",
+        "phraseId": "6ff54e29-1048-4478-a94f-d375396e8f74",
+        "exampleText": "The child's obnoxious habit of screaming in public made everyone stare.",
+        "exampleType": "daily"
+      },
+      {
+        "id": "5f591344-07c2-4efc-9a64-8582beced662",
+        "phraseId": "6ff54e29-1048-4478-a94f-d375396e8f74",
+        "exampleText": "Don't be obnoxious during the meeting; listen to others.",
+        "exampleType": "work"
+      },
+      {
+        "id": "10ca17c1-7baa-4b36-84c6-a7c43201766a",
+        "phraseId": "6ff54e29-1048-4478-a94f-d375396e8f74",
+        "exampleText": "She left the party because of the obnoxious music.",
+        "exampleType": "extra"
+      },
+      {
+        "id": "01ea7df3-d352-46f9-ae3e-0d49970c5664",
+        "phraseId": "6ff54e29-1048-4478-a94f-d375396e8f74",
+        "exampleText": "Qofkaas dabeecadiisa foosha xun awgeed, dadku way ka fogaadeen.",
+        "exampleType": "somali"
+      }
+    ],
+    "review": {
+      "id": "38ca1b02-6b00-42f0-82c2-9be53520528f",
+      "phraseId": "6ff54e29-1048-4478-a94f-d375396e8f74",
+      "reviewCount": 0,
+      "nextReviewAt": "2026-04-05T19:28:10.172Z",
+      "confidenceScore": 0
+    }
+  },
+  {
+    "id": "c4ab49d8-a839-4649-b765-4e7d5393ef69",
+    "phraseText": "building",
+    "phraseType": "word",
+    "category": "YouTube",
+    "notes": "",
+    "isFavorite": false,
+    "isLearned": false,
+    "tags": [
+      "youtube"
+    ],
+    "difficultyLevel": "intermediate",
+    "createdAt": "2026-04-05T19:09:43.944Z",
+    "updatedAt": "2026-04-05T19:09:43.944Z",
+    "explanation": {
+      "id": "cc20f6f7-9fee-4c71-8b19-944a0adccd91",
+      "phraseId": "c4ab49d8-a839-4649-b765-4e7d5393ef69",
+      "standardMeaning": "A structure with a roof and walls, such as a house or factory, built for a specific purpose.",
+      "easyMeaning": "A structure like a house, office, or school, made with walls and a roof.",
+      "aiExplanation": "A building is a permanent structure designed to protect people, animals, or objects from the weather and to provide a space for various activities like living, working, or storing things. It can range from small homes to very large skyscrapers, and its design depends on its purpose.",
+      "usageContext": "This word is used when referring to any structure with walls and a roof, from residential houses to commercial offices, schools, or factories. It's a general term for any constructed place.",
+      "somaliMeaning": "Dhismaha / Guri",
+      "somaliExplanation": "Erayga 'building' (dhismaha) waxaa loola jeedaa wax kasta oo la dhisay oo leh saqaf iyo darbi, sida guri, xafiis, ama iskuul. Waa meel dadku ku noolaadaan, ku shaqeeyaan, ama wax ku keydiyaan. Waa eray guud oo loo isticmaalo dhammaan meelaha la dhisay.",
+      "somaliSentence": "Dhismaha cusub ee magaalada waa mid aad u qurux badan.",
+      "commonMistake": "Sometimes people incorrectly use 'house' when they mean any general structure. 'Building' is a broader term; a 'house' is a type of building, usually specifically for living in.",
+      "pronunciationText": "BILD-ing",
+      "relatedPhrases": [
+        "structure",
+        "construction",
+        "architecture"
+      ]
+    },
+    "examples": [
+      {
+        "id": "d2d3f655-e3e8-4557-955a-4d83ce4bbafb",
+        "phraseId": "c4ab49d8-a839-4649-b765-4e7d5393ef69",
+        "exampleText": "The new building has many windows.",
+        "exampleType": "simple"
+      },
+      {
+        "id": "cf3ebe9e-ff1b-4266-a602-48d71e7fcfb4",
+        "phraseId": "c4ab49d8-a839-4649-b765-4e7d5393ef69",
+        "exampleText": "We met at the tall building downtown.",
+        "exampleType": "daily"
+      },
+      {
+        "id": "0dfc7ae0-0e90-41b7-9162-5020a33b76ef",
+        "phraseId": "c4ab49d8-a839-4649-b765-4e7d5393ef69",
+        "exampleText": "The company is moving to a bigger office building next month.",
+        "exampleType": "work"
+      },
+      {
+        "id": "4481df85-c4d5-4c48-a8fb-e3197540d3e4",
+        "phraseId": "c4ab49d8-a839-4649-b765-4e7d5393ef69",
+        "exampleText": "They are planning to construct a new school building for the children.",
+        "exampleType": "extra"
+      },
+      {
+        "id": "23e16881-deb7-43a0-8139-40dc0adb1e19",
+        "phraseId": "c4ab49d8-a839-4649-b765-4e7d5393ef69",
+        "exampleText": "Wiilku wuxuu arkay dhismaha dhaadheer.",
+        "exampleType": "somali"
+      }
+    ],
+    "review": {
+      "id": "cbe7f127-f22b-4991-aeed-540c93aa0bc5",
+      "phraseId": "c4ab49d8-a839-4649-b765-4e7d5393ef69",
+      "reviewCount": 0,
+      "nextReviewAt": "2026-04-05T19:09:43.944Z",
+      "confidenceScore": 0
+    }
+  },
+  {
+    "id": "250e513d-6b71-46a3-b401-36e1a13184f0",
+    "phraseText": "going",
+    "phraseType": "word",
+    "category": "YouTube",
+    "notes": "",
+    "isFavorite": false,
+    "isLearned": false,
+    "tags": [
+      "youtube"
+    ],
+    "difficultyLevel": "intermediate",
+    "createdAt": "2026-04-05T18:33:12.342Z",
+    "updatedAt": "2026-04-05T18:33:12.342Z",
+    "explanation": null,
+    "examples": [],
+    "review": {
+      "id": "4331baf9-91c1-4292-9455-6c058e29ad01",
+      "phraseId": "250e513d-6b71-46a3-b401-36e1a13184f0",
+      "reviewCount": 0,
+      "nextReviewAt": "2026-04-05T18:33:12.342Z",
+      "confidenceScore": 0
+    }
+  },
+  {
+    "id": "b73d0cae-2b4e-4415-98b1-5a2206dc260d",
+    "phraseText": "configuration",
+    "phraseType": "word",
+    "category": "YouTube",
+    "notes": "",
+    "isFavorite": false,
+    "isLearned": false,
+    "tags": [
+      "youtube"
+    ],
+    "difficultyLevel": "intermediate",
+    "createdAt": "2026-04-05T18:20:53.148Z",
+    "updatedAt": "2026-04-05T18:20:53.148Z",
+    "explanation": {
+      "id": "82924d3a-683e-47f9-8002-471046e1d974",
+      "phraseId": "b73d0cae-2b4e-4415-98b1-5a2206dc260d",
+      "standardMeaning": "An arrangement of parts or elements in a particular form, figure, or combination.",
+      "easyMeaning": "How things are set up or arranged; the way parts fit together to make a whole.",
+      "aiExplanation": "Configuration refers to the specific setup or arrangement of components, whether they are physical objects, software settings, or even abstract ideas. For example, a computer's configuration includes its hardware and software settings. A car's configuration refers to its engine type, interior features, and other options. It defines the state or characteristics of a system at a given time.",
+      "usageContext": "This word is often used in technology, engineering, manufacturing, and design to describe the specific setup or arrangement of systems, devices, or products. It can also be used in a more general sense for how things are put together.",
+      "somaliMeaning": "Habka wax loo dhigo ama loo habeeyo; qaabka ay qaybuhu isugu xiran yihiin.",
+      "somaliExplanation": "Configuration micnaheedu waa sida wax loo habeeyo ama loo dhigo. Tusaale ahaan, kombiyuutarkaaga sida uu u shaqeynayo waxaa la yiraahdaa 'configuration', taas oo ku xiran qaybihiisa iyo barnaamijyadiisa. Waxay tilmaamaysaa qaabka iyo sifooyinka gaarka ah ee shay ama nidaam leeyahay.",
+      "somaliSentence": "Waan bedelnay 'configuration'-kii shabakadda internet-ka si ay si fiican u shaqeyso.",
+      "commonMistake": "Sometimes people confuse 'configuration' with 'setup' or 'arrangement' and use them interchangeably without considering the technical or specific nature implied by 'configuration', especially in computing contexts where it refers to specific settings.",
+      "pronunciationText": "kon-fig-yoo-RAY-shun",
+      "relatedPhrases": [
+        "setup",
+        "arrangement",
+        "structure"
+      ]
+    },
+    "examples": [
+      {
+        "id": "5f2cd509-4c3b-41d1-b400-0704ef1c1616",
+        "phraseId": "b73d0cae-2b4e-4415-98b1-5a2206dc260d",
+        "exampleText": "The new phone has a different button configuration.",
+        "exampleType": "simple"
+      },
+      {
+        "id": "25489edc-6d8e-40fe-86d2-97e9bd1388ab",
+        "phraseId": "b73d0cae-2b4e-4415-98b1-5a2206dc260d",
+        "exampleText": "We need to check the network configuration to fix the internet.",
+        "exampleType": "daily"
+      },
+      {
+        "id": "6787204c-96dc-455e-b378-2f472b0b3f05",
+        "phraseId": "b73d0cae-2b4e-4415-98b1-5a2206dc260d",
+        "exampleText": "The IT team updated the server configuration overnight.",
+        "exampleType": "work"
+      },
+      {
+        "id": "cb01256c-9eae-4327-8565-07c87425e028",
+        "phraseId": "b73d0cae-2b4e-4415-98b1-5a2206dc260d",
+        "exampleText": "The room's furniture configuration made it feel more spacious.",
+        "exampleType": "extra"
+      }
+    ],
+    "review": {
+      "id": "bca49805-1862-42d3-be56-9c51947c9691",
+      "phraseId": "b73d0cae-2b4e-4415-98b1-5a2206dc260d",
+      "reviewCount": 0,
+      "nextReviewAt": "2026-04-05T18:20:53.148Z",
+      "confidenceScore": 0
+    }
+  },
+  {
+    "id": "6c2e1002-a496-423f-ad6e-d5234c80c56f",
+    "phraseText": "snorts",
+    "phraseType": "word",
+    "category": "YouTube",
+    "notes": "",
+    "isFavorite": false,
+    "isLearned": false,
+    "tags": [
+      "youtube"
+    ],
+    "difficultyLevel": "intermediate",
+    "createdAt": "2026-04-05T09:52:39.442Z",
+    "updatedAt": "2026-04-05T09:52:39.442Z",
+    "explanation": {
+      "id": "5cc9d7f8-2544-4975-b44c-e8cd5364ca93",
+      "phraseId": "6c2e1002-a496-423f-ad6e-d5234c80c56f",
+      "standardMeaning": "To make a sudden, forceful sound through your nose, often to show disapproval, contempt, or amusement, or (of an animal) as a natural sound.",
+      "easyMeaning": "To make a quick, loud sound with your nose, often when you're annoyed, amused, or an animal makes its sound.",
+      "aiExplanation": "The word 'snorts' usually refers to a short, sharp sound made by pushing air quickly out through the nose. Humans might snort to show they're angry, dismissive, or sometimes in surprise or laughter. Animals like horses or pigs also snort as part of their natural communication or breathing.",
+      "usageContext": "Used when describing a sharp, often disapproving or dismissive sound made through the nose by a person, or a similar sound made by an animal.",
+      "somaliMeaning": "Sanqadh sanka ka soo bixiya, badanaa shakhsi aan jeclaysan ama qosol la yaab leh, ama xayawaan codkiisa gaarka ah.",
+      "somaliExplanation": "Erayga 'snorts' wuxuu tilmaamayaa cod gaaban oo xooggan oo qof ama xayawaan sanka ka soo saaro. Dadku waxay sanka ka soo saari karaan sanqadh si ay u muujiyaan carada, qosolka, ama inaysan waxba qiimaynayn. Xayawaanka sida fardaha iyo doofaarrada ayaa sidoo kale sanqadh sanka ka soo saara sidii qayb ka mid ah isgaadhsiintooda dabiiciga ah.",
+      "somaliSentence": "Markii uu maqlo war aan fiicnayn, wuu snortaa isagoo cadhaysan.",
+      "commonMistake": "Sometimes people confuse 'snort' with 'sneeze'. A sneeze is an involuntary expulsion of air, usually due to irritation in the nose, while a snort is often deliberate or a reaction to something.",
+      "pronunciationText": "snorts (sounds like 'snorts')",
+      "relatedPhrases": [
+        "guffaw",
+        "chuckle",
+        "scoff"
+      ]
+    },
+    "examples": [
+      {
+        "id": "ed8a29fb-8adc-45f7-ac0f-876b1940fdfb",
+        "phraseId": "6c2e1002-a496-423f-ad6e-d5234c80c56f",
+        "exampleText": "He snorts when he finds something really funny.",
+        "exampleType": "simple"
+      },
+      {
+        "id": "195f6a34-32ec-46aa-97ab-0e643a7544b6",
+        "phraseId": "6c2e1002-a496-423f-ad6e-d5234c80c56f",
+        "exampleText": "The student snorts at the teacher's silly joke.",
+        "exampleType": "daily"
+      },
+      {
+        "id": "ab14a0da-1a14-44d2-9a15-5b48b2b728d9",
+        "phraseId": "6c2e1002-a496-423f-ad6e-d5234c80c56f",
+        "exampleText": "The manager snorts in disbelief at the excuse given for the delay.",
+        "exampleType": "work"
+      },
+      {
+        "id": "5fe95c9e-0ccb-4441-b681-0bd7e79b3ff4",
+        "phraseId": "6c2e1002-a496-423f-ad6e-d5234c80c56f",
+        "exampleText": "The horse snorts nervously as the car approaches.",
+        "exampleType": "extra"
+      },
+      {
+        "id": "e5c5ce8c-d1f9-4456-8eda-fb9ea3d3f8ad",
+        "phraseId": "6c2e1002-a496-423f-ad6e-d5234c80c56f",
+        "exampleText": "Markii uu maqlo sheeko aan run ahayn, wuu ku snortaa.",
+        "exampleType": "somali"
+      }
+    ],
+    "review": {
+      "id": "ba2170af-e94c-45ed-91fa-5a2dbd689a59",
+      "phraseId": "6c2e1002-a496-423f-ad6e-d5234c80c56f",
+      "reviewCount": 0,
+      "nextReviewAt": "2026-04-05T09:52:39.442Z",
+      "confidenceScore": 0
+    }
+  },
+  {
+    "id": "faeade4f-253f-4167-b491-e6ad7e2136ab",
+    "phraseText": "sight",
+    "phraseType": "word",
+    "category": "YouTube",
+    "notes": "",
+    "isFavorite": false,
+    "isLearned": false,
+    "tags": [
+      "youtube"
+    ],
+    "difficultyLevel": "intermediate",
+    "createdAt": "2026-04-04T19:56:09.085Z",
+    "updatedAt": "2026-04-04T19:56:09.085Z",
+    "explanation": {
+      "id": "b4e060e7-6a7f-47a4-8b9f-328eaa564f7c",
+      "phraseId": "faeade4f-253f-4167-b491-e6ad7e2136ab",
+      "standardMeaning": "The faculty or power of seeing; the ability to see. Also, a thing that is seen.",
+      "easyMeaning": "The ability to see with your eyes, or something you look at.",
+      "aiExplanation": "Sight refers to our ability to perceive objects and light using our eyes. It's one of the five senses. It can also refer to something that is seen, like a beautiful view (a 'sight to behold') or a landmark (tourist 'sights').",
+      "usageContext": "Used when talking about vision, things that are visible, or remarkable views and observations.",
+      "somaliMeaning": "Aragti, muuqaal, indho-qabad",
+      "somaliExplanation": "Erayga 'sight' wuxuu tilmaamayaa awoodda aad wax ku aragto (indhahaaga), ama waxa aad aragto. Tusaale ahaan, haddii aad buur saarto oo aad aragto magaalo qurux badan, waxaad dhihi kartaa 'it was a beautiful sight'.",
+      "somaliSentence": "Aragtida geela ee bannaanka ayaa ah mid aad u qurux badan.",
+      "commonMistake": "Confusing 'sight' with 'site' (a location or website). For example, saying 'I went to the beautiful site' instead of 'I went to the beautiful sight' when talking about a view.",
+      "pronunciationText": "sahyt",
+      "relatedPhrases": [
+        "out of sight",
+        "at first sight",
+        "catch sight of"
+      ]
+    },
+    "examples": [
+      {
+        "id": "c909b1d9-f42c-4f0f-b50e-4a425d4ef258",
+        "phraseId": "faeade4f-253f-4167-b491-e6ad7e2136ab",
+        "exampleText": "Her sight is perfect, she doesn't need glasses.",
+        "exampleType": "simple"
+      },
+      {
+        "id": "df576e56-4211-4022-aba9-afaa7d8d8358",
+        "phraseId": "faeade4f-253f-4167-b491-e6ad7e2136ab",
+        "exampleText": "The beautiful sunset was an amazing sight.",
+        "exampleType": "daily"
+      },
+      {
+        "id": "9286d47a-5436-45f4-9d1d-6a0fa75e2568",
+        "phraseId": "faeade4f-253f-4167-b491-e6ad7e2136ab",
+        "exampleText": "The technician confirmed the new camera had a wide field of sight.",
+        "exampleType": "work"
+      },
+      {
+        "id": "c2eefaba-0c10-450d-a3df-52098940c0f7",
+        "phraseId": "faeade4f-253f-4167-b491-e6ad7e2136ab",
+        "exampleText": "We lost sight of the ship in the fog.",
+        "exampleType": "extra"
+      },
+      {
+        "id": "6edddce2-fbc1-4ebe-8b89-d8e346d18233",
+        "phraseId": "faeade4f-253f-4167-b491-e6ad7e2136ab",
+        "exampleText": "The child laughed at the funny sight of the cat chasing its tail.",
+        "exampleType": "somali"
+      }
+    ],
+    "review": {
+      "id": "0db50024-869c-42ea-a263-3a05d928009d",
+      "phraseId": "faeade4f-253f-4167-b491-e6ad7e2136ab",
+      "reviewCount": 0,
+      "nextReviewAt": "2026-04-04T19:56:09.085Z",
+      "confidenceScore": 0
+    }
+  },
+  {
+    "id": "b34a3bbb-bd76-46de-b166-0c95e1c98773",
+    "phraseText": "exposing",
+    "phraseType": "word",
+    "category": "YouTube",
+    "notes": "",
+    "isFavorite": false,
+    "isLearned": false,
+    "tags": [
+      "youtube"
+    ],
+    "difficultyLevel": "intermediate",
+    "createdAt": "2026-04-04T19:48:47.602Z",
+    "updatedAt": "2026-04-04T19:48:47.602Z",
+    "explanation": {
+      "id": "7f5882d1-62c0-4c54-a54d-7038870c9cf1",
+      "phraseId": "b34a3bbb-bd76-46de-b166-0c95e1c98773",
+      "standardMeaning": "Making something visible or known, often something that was previously hidden or secret. It can also mean putting someone or something in a vulnerable position or at risk.",
+      "easyMeaning": "Showing something that was hidden, or putting something in a dangerous situation.",
+      "aiExplanation": "The word 'exposing' comes from the verb 'to expose'. It is often used to describe the act of revealing information, secrets, or truths that were meant to be kept hidden. For example, 'exposing a scandal' means making a scandal public. It can also refer to making something physically visible, like 'exposing a wire'. Additionally, it can mean putting someone or something in a situation where they are vulnerable or subject to harm, such as 'exposing children to danger'.",
+      "usageContext": "Used in various contexts from literal uncovering (exposing skin to sun) to metaphorical revelation (exposing corruption). It can carry a neutral, negative, or positive connotation depending on what is being exposed and why. Often used in journalism, legal contexts, or scientific descriptions.",
+      "somaliMeaning": "Bandhigid, soo bandhigid, muujin, banaanka soo dhigid, khatar u gelis.",
+      "somaliExplanation": "Erayga 'exposing' macnihiisu waa in wax la muujiyo ama la banaanka soo dhigo oo markii hore qarsoonaa. Waxaa kale oo uu macnaheedu noqon karaa in qof ama shay loo geliyo xaalad khatar ah. Tusaale ahaan, 'exposing a secret' waa sir la shaaciyo. 'Exposing to the sun' waa qorrax la isku dhigo.",
+      "somaliSentence": "Wariyuhu wuxuu ku guuleystay inuu banaanka soo dhigo musuqmaasuqii ka jiray shirkadda.",
+      "commonMistake": "A common mistake is confusing 'exposing' with 'exposing oneself' which specifically refers to indecent exposure. While 'exposing' can mean revealing something about oneself, it doesn't automatically imply the specific legal term 'exposing oneself'.",
+      "pronunciationText": "ik-SPOH-zing",
+      "relatedPhrases": [
+        "revealing",
+        "uncovering",
+        "making visible"
+      ]
+    },
+    "examples": [
+      {
+        "id": "847cf138-95ec-47af-b206-5d0dfb947139",
+        "phraseId": "b34a3bbb-bd76-46de-b166-0c95e1c98773",
+        "exampleText": "The sun was exposing her face to direct light.",
+        "exampleType": "simple"
+      },
+      {
+        "id": "2cace4eb-3b8a-48f2-ab8a-88cbe53a8e8e",
+        "phraseId": "b34a3bbb-bd76-46de-b166-0c95e1c98773",
+        "exampleText": "He was afraid of exposing his true feelings.",
+        "exampleType": "daily"
+      },
+      {
+        "id": "063429d5-09d8-4399-ba35-93f9c7aefbad",
+        "phraseId": "b34a3bbb-bd76-46de-b166-0c95e1c98773",
+        "exampleText": "The investigation led to exposing financial fraud within the company.",
+        "exampleType": "work"
+      },
+      {
+        "id": "5ad801e7-5d42-4dfe-b33c-5a9400e6f8e0",
+        "phraseId": "b34a3bbb-bd76-46de-b166-0c95e1c98773",
+        "exampleText": "Exposing the wires could cause a short circuit.",
+        "exampleType": "extra"
+      },
+      {
+        "id": "2ce6645a-9d6d-4a82-9a55-4071a31f15d5",
+        "phraseId": "b34a3bbb-bd76-46de-b166-0c95e1c98773",
+        "exampleText": "Waa muhiim inaan ka fogaanno inaan ilmaha u bandhigno waxyaabo khatar ah.",
+        "exampleType": "somali"
+      }
+    ],
+    "review": {
+      "id": "53fcda6e-af87-4cda-bc38-95af4a6ac649",
+      "phraseId": "b34a3bbb-bd76-46de-b166-0c95e1c98773",
+      "reviewCount": 0,
+      "nextReviewAt": "2026-04-04T19:48:47.602Z",
+      "confidenceScore": 0
+    }
+  }
+]

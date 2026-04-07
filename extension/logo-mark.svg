@@ -1,0 +1,36 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(128 128)">
+    <g transform="rotate(0)">
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M8 -12C18 -40 40 -62 70 -74L98 -85L86 -44C79 -19 86 8 104 27L123 48L82 48C52 48 25 62 8 86L-11 113L-15 73C-19 41 -9 11 8 -12Z M56 -44L78 -29L56 -14V-44Z"
+        fill="#309284"
+      />
+    </g>
+    <g transform="rotate(90)">
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M8 -12C18 -40 40 -62 70 -74L98 -85L86 -44C79 -19 86 8 104 27L123 48L82 48C52 48 25 62 8 86L-11 113L-15 73C-19 41 -9 11 8 -12Z M56 -44L78 -29L56 -14V-44Z"
+        fill="#309284"
+      />
+    </g>
+    <g transform="rotate(180)">
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M8 -12C18 -40 40 -62 70 -74L98 -85L86 -44C79 -19 86 8 104 27L123 48L82 48C52 48 25 62 8 86L-11 113L-15 73C-19 41 -9 11 8 -12Z M56 -44L78 -29L56 -14V-44Z"
+        fill="#309284"
+      />
+    </g>
+    <g transform="rotate(270)">
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M8 -12C18 -40 40 -62 70 -74L98 -85L86 -44C79 -19 86 8 104 27L123 48L82 48C52 48 25 62 8 86L-11 113L-15 73C-19 41 -9 11 8 -12Z M56 -44L78 -29L56 -14V-44Z"
+        fill="#309284"
+      />
+    </g>
+  </g>
+</svg>

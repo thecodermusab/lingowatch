@@ -1,0 +1,26 @@
+[
+  {
+    "deckId": "1775462720862-170_english_irregular_verbs",
+    "sourceName": "170_English_Irregular_verbs.apkg",
+    "sourceLabel": "170_English_Irregular_verbs",
+    "importedAt": "2026-04-06T08:05:21.797Z",
+    "totalEntries": 174,
+    "parsedLines": 174,
+    "mediaCounts": {
+      "audio": 452,
+      "images": 165
+    }
+  },
+  {
+    "deckId": "legacy-uploaded-deck",
+    "sourceName": "4000_Essential_English_Words_all_books_en-en (1).apkg",
+    "sourceLabel": "4000_Essential_English_Words_all_books_en-en (1)",
+    "importedAt": "2026-04-05T21:34:08.460Z",
+    "totalEntries": 3831,
+    "parsedLines": 3871,
+    "mediaCounts": {
+      "audio": 10955,
+      "images": 3805
+    }
+  }
+]

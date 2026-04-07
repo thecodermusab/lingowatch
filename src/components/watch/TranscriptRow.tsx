@@ -1,4 +1,3 @@
-import { Play, Star } from "lucide-react";
 import { TranscriptCue } from "@/components/watch/types";
 import { cn } from "@/lib/utils";
 
@@ -23,34 +22,17 @@ export function TranscriptRow({ cue, active, onSelect }: TranscriptRowProps) {
       type="button"
       onClick={() => onSelect(cue)}
       className={cn(
-        "group grid w-full grid-cols-[18px_42px_1fr_18px] items-start gap-2 border-b border-white/5 bg-[#14161a] px-2.5 py-2 text-left transition",
-        active ? "bg-[#1f2126]" : "hover:bg-[#191b20]"
+        "group grid w-full grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] items-start gap-0 border-b border-white/[0.05] text-left transition-colors",
+        active ? "bg-[#2b3038]" : "hover:bg-white/[0.03]",
       )}
     >
-      <span className="pt-1.5">
-        <span className={cn("block h-2 w-2 rounded-full bg-transparent transition", active && "bg-[#8f93ff]")} />
-      </span>
-      <span
-        className={cn(
-          "pt-0.5 font-mono text-[10px] tracking-tight text-white/34 transition",
-          active && "text-white/72"
-        )}
-      >
-        {formatTime(cue.start)}
-      </span>
-      <div className="min-w-0">
-        <p
-          className={cn(
-            "line-clamp-2 text-[12.5px] leading-[1.45] text-white/86 transition",
-            active && "text-white"
-          )}
-        >
-          {cue.text}
-        </p>
+      <div className="border-r border-white/[0.05] px-4 py-3">
+        <p className={cn("text-[13px] leading-[1.55] text-white/84", active && "text-white")}>{cue.text}</p>
+        <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.12em] text-white/26">{formatTime(cue.start)}</p>
       </div>
-      <div className="flex flex-col items-center gap-1 pt-0.5 text-white/0 transition group-hover:text-white/36">
-        <Play className="h-3 w-3" fill="currentColor" strokeWidth={1.8} />
-        <Star className="h-3 w-3" strokeWidth={1.8} />
+
+      <div className="px-4 py-3">
+        <p className="text-[13px] leading-[1.55] text-white/54">{cue.translation || ""}</p>
       </div>
     </button>
   );
