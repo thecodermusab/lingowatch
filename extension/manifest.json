@@ -3,12 +3,20 @@
   "name": "LingoWatch PhrasePal",
   "version": "1.0.1",
   "description": "Learn English from any video with Somali translations",
-  "permissions": ["storage", "activeTab", "webRequest"],
+  "permissions": ["storage", "activeTab", "webRequest", "contextMenus", "scripting", "tabs"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background.js"
   },
   "content_scripts": [
+    {
+      "matches": [
+        "http://127.0.0.1/*",
+        "http://localhost/*"
+      ],
+      "js": ["app-bridge.js"],
+      "run_at": "document_start"
+    },
     {
       "matches": ["*://*.youtube.com/watch*"],
       "js": ["content.js"],

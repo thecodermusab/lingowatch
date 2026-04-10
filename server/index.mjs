@@ -4,6 +4,8 @@ import { join } from "node:path";
 import { cwd, env } from "node:process";
 import * as YoutubeTranscriptModule from "youtube-transcript/dist/youtube-transcript.esm.js";
 import { neon } from "@neondatabase/serverless";
+import { handlePodcastRoutes } from "./podcasts.mjs";
+import { handleImportedTextRoutes } from "./importedTexts.mjs";
 
 const PORT = Number(env.PORT || 3001);
 const HOST = env.HOST || "127.0.0.1";
@@ -14,6 +16,8 @@ const INBOX_FILE = join(DATA_DIR, "inbox-captures.json");
 const EXT_PHRASES_FILE = join(DATA_DIR, "ext-saved-phrases.json");
 const WORLD_STORIES_FILE = join(DATA_DIR, "world-stories.json");
 const YOUTUBE_CHANNEL_SEEDS_FILE = join(DATA_DIR, "youtube-channel-seeds.txt");
+const CHANNEL_THUMBNAILS_FILE = join(DATA_DIR, "channel-thumbnails.json");
+const CHANNEL_THUMBNAIL_TTL_MS = 20 * 24 * 60 * 60 * 1000; // 20 days
 
 loadEnvFile();
 
@@ -604,7 +608,17 @@ createServer(async (req, res) => {
 
   if (req.method === "GET" && pathname === "/api/media/youtube/channels") {
     try {
-      sendJson(res, 200, CURATED_CHANNEL_SEEDS);
+      const enriched = CURATED_CHANNEL_SEEDS.map((ch) => {
+        const cached = channelThumbnailCache.get(ch.id);
+        if (!cached?.thumbnail) return ch;
+        return {
+          ...ch,
+          thumbnail: cached.thumbnail,
+          name: cached.name || ch.name,
+          channelId: cached.channelId || "",
+        };
+      });
+      sendJson(res, 200, enriched);
     } catch (err) {
       sendJson(res, 500, { error: String(err.message || err) });
     }
@@ -623,6 +637,21 @@ createServer(async (req, res) => {
       if (!result) {
         sendJson(res, 404, { error: "Channel metadata not found" });
         return;
+      }
+
+      // Persist thumbnail to disk cache so it survives server restarts
+      const seedEntry = CURATED_CHANNEL_SEEDS.find(
+        (ch) => (ch.handle || ch.name).toLowerCase() === seed.toLowerCase()
+      );
+      if (seedEntry && result.thumbnail) {
+        const thumb = result.thumbnail.startsWith("//") ? `https:${result.thumbnail}` : result.thumbnail;
+        channelThumbnailCache.set(seedEntry.id, {
+          thumbnail: thumb,
+          name: result.name || seedEntry.name,
+          channelId: result.channelId || "",
+          cachedAt: new Date().toISOString(),
+        });
+        saveChannelThumbnailCache();
       }
 
       sendJson(res, 200, result);
@@ -654,10 +683,80 @@ createServer(async (req, res) => {
     return;
   }
 
+  if (await handlePodcastRoutes(req, res, pathname, url, sql, sendJson, readJsonBody)) {
+    return;
+  }
+
+  if (await handleImportedTextRoutes(req, res, pathname, url, sendJson, readJsonBody)) {
+    return;
+  }
+
   sendJson(res, 404, { error: "Not found" });
 }).listen(PORT, HOST, () => {
   console.log(`AI backend running on http://${HOST}:${PORT}`);
+  // Kick off background thumbnail refresh after server is ready
+  setTimeout(() => backgroundRefreshChannelThumbnails().catch(() => {}), 3000);
 });
+
+// ─── Channel thumbnail persistent cache ──────────────────────────────────────
+
+function loadChannelThumbnailCache() {
+  try {
+    if (!existsSync(CHANNEL_THUMBNAILS_FILE)) return new Map();
+    const data = JSON.parse(readFileSync(CHANNEL_THUMBNAILS_FILE, "utf8"));
+    return new Map(Object.entries(data));
+  } catch {
+    return new Map();
+  }
+}
+
+function saveChannelThumbnailCache() {
+  try {
+    const obj = Object.fromEntries(channelThumbnailCache);
+    writeFileSync(CHANNEL_THUMBNAILS_FILE, JSON.stringify(obj, null, 2), "utf8");
+  } catch (err) {
+    console.warn("[ChannelCache] Failed to save:", err.message);
+  }
+}
+
+const channelThumbnailCache = loadChannelThumbnailCache();
+
+async function backgroundRefreshChannelThumbnails() {
+  // Only refresh missing or stale entries; limit to first 60 channels
+  const candidates = (CURATED_CHANNEL_SEEDS || []).slice(0, 60).filter((ch) => {
+    const cached = channelThumbnailCache.get(ch.id);
+    if (!cached?.thumbnail) return true;
+    const age = Date.now() - new Date(cached.cachedAt).getTime();
+    return age > CHANNEL_THUMBNAIL_TTL_MS;
+  });
+
+  if (!candidates.length) return;
+  console.log(`[ChannelCache] Refreshing ${candidates.length} channel thumbnails in background…`);
+
+  const BATCH = 4;
+  for (let i = 0; i < candidates.length; i += BATCH) {
+    const batch = candidates.slice(i, i + BATCH);
+    await Promise.all(batch.map(async (seed) => {
+      try {
+        const result = await resolveChannelSeedPublic(seed.handle || seed.name);
+        if (result?.thumbnail) {
+          channelThumbnailCache.set(seed.id, {
+            thumbnail: result.thumbnail.startsWith("//") ? `https:${result.thumbnail}` : result.thumbnail,
+            name: result.name || seed.name,
+            channelId: result.channelId || "",
+            cachedAt: new Date().toISOString(),
+          });
+        }
+      } catch { /* ignore per-channel failures */ }
+    }));
+    if (i + BATCH < candidates.length) {
+      await new Promise((resolve) => setTimeout(resolve, 800));
+    }
+  }
+
+  saveChannelThumbnailCache();
+  console.log("[ChannelCache] Background refresh complete.");
+}
 
 // ─── YouTube helpers ──────────────────────────────────────────────────────────
 
@@ -1615,8 +1714,8 @@ function normalizeCaptureStatus(value) {
 
 function setCorsHeaders(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 }
 
 function sendJson(res, statusCode, data) {

@@ -1,17 +1,28 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   AlertCircle,
   Loader2,
   SlidersHorizontal,
   X,
 } from "lucide-react";
-import { YTChannel, YTVideo, SortMode, MediaTabId } from "./mediaTypes";
+import { YTChannel, YTVideo, SortMode, MediaTabId, ALL_MEDIA_TABS } from "./mediaTypes";
 import { MediaTabs } from "./MediaTabs";
 import { VocabSlider, SortToggle, ChannelList } from "./MediaSidebar";
 import { MediaCard, MediaCardSkeleton } from "./MediaCard";
-import { BooksSidebar } from "./BooksSidebar";
 import { BooksFeed } from "./BooksFeed";
+import { PodcastsSidebar } from "./PodcastsSidebar";
+import { PodcastsFeed } from "./PodcastsFeed";
+import { MyTextsView } from "./MyTextsView";
+
+const VALID_MEDIA_TABS: MediaTabId[] = ALL_MEDIA_TABS.map((tab) => tab.id);
+
+function getTabFromSearchParams(searchParams: URLSearchParams): MediaTabId | null {
+  const requestedTab = searchParams.get("tab");
+  return requestedTab && VALID_MEDIA_TABS.includes(requestedTab as MediaTabId)
+    ? (requestedTab as MediaTabId)
+    : null;
+}
 
 async function apiGet<T>(path: string): Promise<T> {
   const response = await fetch(path);
@@ -104,34 +115,75 @@ function MobileSidebarSheet({
   );
 }
 
-function ChannelBanner({ channel }: { channel: YTChannel }) {
+function ChannelBanner({ channel, loadedVideoCount }: { channel: YTChannel; loadedVideoCount: number }) {
+  const youtubeUrl = channel.channelId
+    ? `https://youtube.com/channel/${channel.channelId}`
+    : `https://youtube.com/results?search_query=${encodeURIComponent(channel.name)}`;
+
   return (
-    <div className="border-b border-[#3e3e3e] px-8 py-8 flex items-start gap-8 bg-[#1e1e1e]">
-       <div className="h-40 w-40 shrink-0 rounded-2xl overflow-hidden bg-[#2d2d2d]">
-         {channel.thumbnail ? <img src={channel.thumbnail} alt={channel.name} className="h-full w-full object-cover" /> : null}
-       </div>
-       <div className="flex-1 min-w-0">
-          <h1 className="text-[28px] font-bold text-white tracking-tight">{channel.name}</h1>
-          <div className="flex items-center gap-3 mt-3">
-             <span className="rounded bg-white/10 px-2 py-1 text-[13px] font-medium text-white/80">{channel.videoCount} videos</span>
-             <a href={`https://youtube.com/${channel.handle || "channel/" + channel.id}`} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 rounded border border-white/20 bg-white/5 px-2 py-1 text-[13px] font-medium text-white/80 hover:bg-white/10 transition-colors">
-               <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-red-500"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg> YouTube
-             </a>
-          </div>
-          <p className="mt-5 text-[14px] leading-relaxed text-[#a0a0a0] max-w-4xl line-clamp-3">
-            Welcome to our YouTube channel, the perfect place to naturally improve your English listening and comprehension! We provide a wide range of engaging videos, from everyday conversations to in-depth topics, designed to help you level up your skills. Join us for consistent practice and watch your confidence in speaking and understanding English grow.
-          </p>
-          <button className="mt-4 text-[13px] text-[#a855f7] hover:underline">
-             Are you the owner of this Youtube channel?
-          </button>
-       </div>
+    <div className="px-8 pb-4 pt-8 flex flex-col md:flex-row items-start md:items-center gap-6">
+      <div className="h-20 w-20 shrink-0 rounded-full overflow-hidden bg-[#2d2d2d] border border-white/5 shadow-sm">
+        {channel.thumbnail ? (
+          <img src={channel.thumbnail} alt={channel.name} className="h-full w-full object-cover" />
+        ) : null}
+      </div>
+      <div className="flex-1 min-w-0">
+        <h1 className="text-[26px] font-bold text-white/95 tracking-tight">{channel.name}</h1>
+        <div className="flex items-center gap-2 mt-1.5 text-[13px] font-medium text-white/40">
+          {loadedVideoCount > 0 && (
+            <>
+              <span>{loadedVideoCount} videos loaded</span>
+              <span>•</span>
+            </>
+          )}
+          <a
+            href={youtubeUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1 hover:text-white/80 transition-colors"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" className="w-[14px] h-[14px]">
+              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+            </svg>
+            View on YouTube
+          </a>
+        </div>
+        {channel.label && channel.label !== "Seeded channel" && (
+          <p className="mt-2 text-[13px] text-white/40">{channel.label}</p>
+        )}
+      </div>
     </div>
   );
 }
 
 export default function MediaPage() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<MediaTabId>("youtube");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState<MediaTabId>(() => {
+    const requestedTab = getTabFromSearchParams(searchParams);
+    if (requestedTab) return requestedTab;
+    return (localStorage.getItem("lingowatch_media_tab") as MediaTabId) || "youtube";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("lingowatch_media_tab", activeTab);
+  }, [activeTab]);
+
+  useEffect(() => {
+    const requestedTab = getTabFromSearchParams(searchParams);
+    if (requestedTab && requestedTab !== activeTab) {
+      setActiveTab(requestedTab);
+    }
+  }, [searchParams]);
+
+  const handleTabChange = useCallback((nextTab: MediaTabId) => {
+    setActiveTab(nextTab);
+
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set("tab", nextTab);
+    setSearchParams(nextParams, { replace: true });
+  }, [searchParams, setSearchParams]);
+
   const [channels, setChannels] = useState<YTChannel[]>([]);
   const channelsRef = useRef<YTChannel[]>([]);
   useEffect(() => { channelsRef.current = channels; }, [channels]);
@@ -142,8 +194,10 @@ export default function MediaPage() {
   const [videosLoading, setVideosLoading] = useState(false);
   const [videosError, setVideosError] = useState<string | null>(null);
   const [nextPageToken, setNextPageToken] = useState<string | null>(null);
+  const nextPageTokenRef = useRef<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
   const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
+  const [selectedPodcast, setSelectedPodcast] = useState<string | null>(null);
   const [sort, setSort] = useState<SortMode>("date");
   const [vocabRange, setVocabRange] = useState<[number, number]>([0, 100000]);
   const [pinned, setPinned] = useState<Set<string>>(new Set());
@@ -182,7 +236,7 @@ export default function MediaPage() {
         params.set("channelId", selectedChannelRecord.id);
       }
     }
-    if (!replace && nextPageToken) params.set("pageToken", nextPageToken);
+    if (!replace && nextPageTokenRef.current) params.set("pageToken", nextPageTokenRef.current);
 
     try {
       const data = await apiGet<{ videos: YTVideo[]; nextPageToken: string | null }>(
@@ -190,7 +244,19 @@ export default function MediaPage() {
       );
 
       setVideos((previous) => (replace ? data.videos : [...previous, ...data.videos]));
+      nextPageTokenRef.current = data.nextPageToken;
       setNextPageToken(data.nextPageToken);
+
+      // Update the selected channel's videoCount so the sidebar badge reflects reality
+      if (selectedChannel) {
+        setChannels((previous) =>
+          previous.map((ch) =>
+            ch.id === selectedChannel
+              ? { ...ch, videoCount: replace ? data.videos.length : ch.videoCount + data.videos.length }
+              : ch
+          )
+        );
+      }
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       if (replace) setVideosError(message);
@@ -198,11 +264,11 @@ export default function MediaPage() {
       setVideosLoading(false);
       setLoadingMore(false);
     }
-  }, [nextPageToken, selectedChannel, sort]);
+  }, [selectedChannel, sort]);
 
   useEffect(() => {
     if (activeTab === "youtube") fetchVideos(true);
-  }, [activeTab, fetchVideos, selectedChannel, sort]);
+  }, [activeTab, selectedChannel, sort]);
 
   useEffect(() => {
     const node = sentinelRef.current;
@@ -210,7 +276,7 @@ export default function MediaPage() {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && nextPageToken && !loadingMore && !videosLoading) {
+        if (entry.isIntersecting && nextPageTokenRef.current && !loadingMore && !videosLoading) {
           fetchVideos(false);
         }
       },
@@ -219,7 +285,7 @@ export default function MediaPage() {
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [fetchVideos, loadingMore, nextPageToken, videosLoading]);
+  }, [fetchVideos, loadingMore, videosLoading]);
 
   const filteredVideos = videos.filter(
     (video) => video.vocabScore >= vocabRange[0] && video.vocabScore <= vocabRange[1],
@@ -311,15 +377,21 @@ export default function MediaPage() {
         </div>
 
         <div className="shrink-0 bg-[#26272b]">
-          <MediaTabs active={activeTab} onChange={setActiveTab} />
+          <MediaTabs active={activeTab} onChange={handleTabChange} />
         </div>
 
         {activeTab === "books" ? (
           <div className="flex min-h-0 flex-1 overflow-hidden relative">
-            <aside className="hidden w-[280px] shrink-0 flex-col overflow-hidden border-r border-[#3e3e3e] bg-[#222222] md:flex">
-              <BooksSidebar />
-            </aside>
             <BooksFeed />
+          </div>
+        ) : activeTab === "podcasts" ? (
+          <div className="flex min-h-0 flex-1 overflow-hidden relative">
+            <PodcastsSidebar selectedPodcast={selectedPodcast} onSelect={setSelectedPodcast} />
+            <PodcastsFeed selectedPodcast={selectedPodcast} />
+          </div>
+        ) : activeTab === "my_texts" ? (
+          <div className="flex min-h-0 flex-1 overflow-y-auto">
+            <MyTextsView />
           </div>
         ) : activeTab !== "youtube" ? (
           <ComingSoon label={activeTab.replace("_", " ")} />
@@ -329,56 +401,51 @@ export default function MediaPage() {
               {sidebarContent}
             </aside>
 
-            <section className="flex min-w-0 flex-1 flex-col bg-[#1e1e1e]">
-              {selectedChannelRecord ? (
-                <ChannelBanner channel={selectedChannelRecord} />
-              ) : (
-                <div className="flex shrink-0 items-center justify-between border-b border-[#3e3e3e] px-8 py-6 bg-[#1e1e1e]">
-                  <div>
-                    <h1 className="text-[20px] font-bold text-white tracking-tight">Curated mix</h1>
-                    <p className="mt-1 text-[14px] text-[#a0a0a0]">
-                      Showing a broad mixture of content from our seeded channels
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setMobileSidebarOpen(true)}
-                    className="flex items-center gap-2 rounded-md border border-[#3e3e3e] bg-[#2d2d2d] px-3 py-2 text-[12px] font-medium text-white/80 md:hidden"
-                  >
-                    <SlidersHorizontal className="h-3.5 w-3.5" />
-                    Filter
-                  </button>
-                </div>
-              )}
-
+            <section className="flex min-w-0 flex-1 flex-col bg-[#1a1a1a]">
               <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-[#a855f7] scrollbar-track-transparent">
+                {selectedChannelRecord ? (
+                  <ChannelBanner channel={selectedChannelRecord} loadedVideoCount={videos.length} />
+                ) : (
+                  <div className="md:hidden flex justify-end px-6 py-4 border-b border-[#3e3e3e]/30">
+                    <button
+                      type="button"
+                      onClick={() => setMobileSidebarOpen(true)}
+                      className="flex items-center gap-2 rounded-md bg-[#2d2d2d] px-3 py-2 text-[12px] font-medium text-white/80"
+                    >
+                      <SlidersHorizontal className="h-3.5 w-3.5" />
+                      Filters
+                    </button>
+                  </div>
+                )}
                 {videosError ? (
                   <ErrorState message={videosError} />
                 ) : videosLoading ? (
-                  <>
-                    {Array.from({ length: 10 }).map((_, index) => (
+                  <div className="p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-x-6 gap-y-10">
+                    {Array.from({ length: 12 }).map((_, index) => (
                       <MediaCardSkeleton key={index} />
                     ))}
-                  </>
+                  </div>
                 ) : filteredVideos.length === 0 ? (
                   <EmptyState channelName={selectedChannelName} />
                 ) : (
                   <>
-                    {filteredVideos.map((video) => (
-                      <MediaCard
-                        key={video.id}
-                        video={video}
-                        onClick={() => {
-                          const params = new URLSearchParams({
-                            v: video.id,
-                            title: video.title,
-                            channel: video.channelTitle,
-                            thumb: video.thumbnail,
-                          });
-                          navigate(`/watch?${params.toString()}`);
-                        }}
-                      />
-                    ))}
+                    <div className="p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-x-6 gap-y-10">
+                      {filteredVideos.map((video) => (
+                        <MediaCard
+                          key={video.id}
+                          video={video}
+                          onClick={() => {
+                            const params = new URLSearchParams({
+                              v: video.id,
+                              title: video.title,
+                              channel: video.channelTitle,
+                              thumb: video.thumbnail,
+                            });
+                            navigate(`/watch?${params.toString()}`);
+                          }}
+                        />
+                      ))}
+                    </div>
 
                     <div ref={sentinelRef} className="h-5" />
 

@@ -1,5 +1,29 @@
 [
   {
+    "id": "d7b70f3e-8c7b-40b2-bafb-96094c60039e",
+    "phraseText": "indicator",
+    "phraseType": "word",
+    "category": "YouTube",
+    "notes": "",
+    "isFavorite": false,
+    "isLearned": false,
+    "tags": [
+      "youtube"
+    ],
+    "difficultyLevel": "intermediate",
+    "createdAt": "2026-04-09T16:44:13.659Z",
+    "updatedAt": "2026-04-09T16:44:13.659Z",
+    "explanation": null,
+    "examples": [],
+    "review": {
+      "id": "7a76b619-adac-441f-aba7-f1d40a35e68a",
+      "phraseId": "d7b70f3e-8c7b-40b2-bafb-96094c60039e",
+      "reviewCount": 0,
+      "nextReviewAt": "2026-04-09T16:44:13.659Z",
+      "confidenceScore": 0
+    }
+  },
+  {
     "id": "6ff54e29-1048-4478-a94f-d375396e8f74",
     "phraseText": "obnoxious",
     "phraseType": "word",

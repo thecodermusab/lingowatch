@@ -1,0 +1,122 @@
+{
+  "texts": [
+    {
+      "id": "371d993f-493c-41aa-9918-f5095e8e3a71",
+      "userId": "local-user",
+      "title": "What to Know About the U.S.-Iran Cease-Fire",
+      "sourceName": "Nytimes",
+      "sourceUrl": "https://www.nytimes.com/2026/04/08/world/middleeast/iran-ceasefire-us-explainer.html",
+      "canonicalUrl": "https://www.nytimes.com/2026/04/08/world/middleeast/iran-ceasefire-us-explainer.html",
+      "author": "https://www.nytimes.com/by/amelia-nierenberg",
+      "publishedAt": "2026-04-08T11:24:46.160Z",
+      "importedAt": "2026-04-08T12:20:51.799Z",
+      "updatedAt": "2026-04-08T12:20:51.799Z",
+      "content": {
+        "sections": [
+          {
+            "id": "section-1",
+            "title": "What to Know About the U.S.-Iran Cease-Fire",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "text": "The cease-fire agreement between Iran and the United States has been greeted with relief around the world. But what comes next is far from certain. Both sides claimed victory after the announcement of the deal, which was brokered by Pakistan. Iran says it will allow ships safe passage through the Strait of Hormuz, a crucial corridor for the world’s oil and gas, if they coordinate with its military. President Trump had threatened to destroy Iran’s “whole civilization” unless it reopened the strait. But shipping companies seem hesitant to return to the waterway, at least immediately. Scattered attacks in the Gulf continued early on Wednesday, hours after the agreement was reached. Israel made clear that it would continue its military campaign against Hezbollah in Lebanon. Subscribe to The Times to read as many articles as you like. is a Times reporter covering international news from London."
+              }
+            ],
+            "plainText": "The cease-fire agreement between Iran and the United States has been greeted with relief around the world. But what comes next is far from certain. Both sides claimed victory after the announcement of the deal, which was brokered by Pakistan. Iran says it will allow ships safe passage through the Strait of Hormuz, a crucial corridor for the world’s oil and gas, if they coordinate with its military. President Trump had threatened to destroy Iran’s “whole civilization” unless it reopened the strait. But shipping companies seem hesitant to return to the waterway, at least immediately. Scattered attacks in the Gulf continued early on Wednesday, hours after the agreement was reached. Israel made clear that it would continue its military campaign against Hezbollah in Lebanon. Subscribe to The Times to read as many articles as you like. is a Times reporter covering international news from London.",
+            "wordCount": 145,
+            "estimatedReadingTime": 1
+          }
+        ]
+      },
+      "plainText": "The cease-fire agreement between Iran and the United States has been greeted with relief around the world. But what comes next is far from certain. Both sides claimed victory after the announcement of the deal, which was brokered by Pakistan. Iran says it will allow ships safe passage through the Strait of Hormuz, a crucial corridor for the world’s oil and gas, if they coordinate with its military. President Trump had threatened to destroy Iran’s “whole civilization” unless it reopened the strait. But shipping companies seem hesitant to return to the waterway, at least immediately. Scattered attacks in the Gulf continued early on Wednesday, hours after the agreement was reached. Israel made clear that it would continue its military campaign against Hezbollah in Lebanon. Subscribe to The Times to read as many articles as you like. is a Times reporter covering international news from London.",
+      "wordCount": 145,
+      "estimatedReadingTime": 1,
+      "sectionCount": 1,
+      "pageCount": 1,
+      "progress": {
+        "percent": 0,
+        "completedSectionIds": [],
+        "currentSectionId": "",
+        "lastOpenedAt": ""
+      },
+      "favIconUrl": "https://www.nytimes.com/vi-assets/static-assets/favicon-dark-c0de2ee21c5d303cad570e8565f03f1d.ico",
+      "thumbnailUrl": "https://static01.nyt.com/images/2026/04/08/multimedia/08int-iran-ceasefire-wtk-qmbk/08int-iran-ceasefire-wtk-qmbk-facebookJumbo.jpg",
+      "status": "ready",
+      "previewText": "The cease-fire agreement between Iran and the United States has been greeted with relief around the world. But what comes next is far from certain. Both sides claimed victory after the announcement of the deal, which was brokered by Pakista",
+      "language": "en",
+      "origin": "extension",
+      "contentHash": "3621f487ceb1df7c999e21972313d37e29d57f776aed3a220aa3b269c15e7d02",
+      "failureReason": ""
+    },
+    {
+      "id": "e4967398-4ba4-4bb6-b7db-bc3004f30439",
+      "userId": "local-user",
+      "title": "Video File Player Upgrades - News from the Team - Language Learning with Netflix Forum",
+      "sourceName": "Languagelearningwithnetflix",
+      "sourceUrl": "https://forum.languagelearningwithnetflix.com/t/video-file-player-upgrades/33150",
+      "canonicalUrl": "https://forum.languagelearningwithnetflix.com/t/video-file-player-upgrades/33150",
+      "author": "",
+      "publishedAt": "2025-08-17T02:55:44.000Z",
+      "importedAt": "2026-04-08T12:17:14.620Z",
+      "updatedAt": "2026-04-08T12:17:34.525Z",
+      "content": {
+        "sections": [
+          {
+            "id": "section-1",
+            "title": "Video File Player Upgrades - News from the Team - Language Learning with Netflix Forum",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "text": "You have selected 0 posts. Hello users. I made some upgrades to the video file player. You can try it here: Language Reactor"
+              },
+              {
+                "type": "list",
+                "items": [
+                  "Video files with AC3/EAC3 audio can be played now (the audio is transcoded).",
+                  "You can now select non-default audio tracks.",
+                  "You can make use of subtitles that are embedded in the video file (SRT and ASS formats).",
+                  "You can run ASR on the audio track to get subtitles."
+                ]
+              },
+              {
+                "type": "paragraph",
+                "text": "Regarding formats, most.mkv and.mp4 video files should work now, I’d guess 95%. AVI videos will not work, but they are more rare. If it’s not working for you on a video, you can PM me with the torrent magnet link, I can try get it working."
+              },
+              {
+                "type": "heading",
+                "text": "Hello! Looks like you’re enjoying the discussion, but you haven’t signed up for an account yet.",
+                "level": 3
+              },
+              {
+                "type": "paragraph",
+                "text": "Tired of scrolling through the same posts? When you create an account you’ll always come back to where you left off. With an account you can also be notified of new replies, save bookmarks, and use likes to thank others. We can all work together to make this community great."
+              }
+            ],
+            "plainText": "You have selected 0 posts. Hello users. I made some upgrades to the video file player. You can try it here: Language Reactor\n\nVideo files with AC3/EAC3 audio can be played now (the audio is transcoded).\nYou can now select non-default audio tracks.\nYou can make use of subtitles that are embedded in the video file (SRT and ASS formats).\nYou can run ASR on the audio track to get subtitles.\n\nRegarding formats, most.mkv and.mp4 video files should work now, I’d guess 95%. AVI videos will not work, but they are more rare. If it’s not working for you on a video, you can PM me with the torrent magnet link, I can try get it working.\n\nHello! Looks like you’re enjoying the discussion, but you haven’t signed up for an account yet.\n\nTired of scrolling through the same posts? When you create an account you’ll always come back to where you left off. With an account you can also be notified of new replies, save bookmarks, and use likes to thank others. We can all work together to make this community great.",
+            "wordCount": 186,
+            "estimatedReadingTime": 1
+          }
+        ]
+      },
+      "plainText": "You have selected 0 posts. Hello users. I made some upgrades to the video file player. You can try it here: Language Reactor\n\nVideo files with AC3/EAC3 audio can be played now (the audio is transcoded).\nYou can now select non-default audio tracks.\nYou can make use of subtitles that are embedded in the video file (SRT and ASS formats).\nYou can run ASR on the audio track to get subtitles.\n\nRegarding formats, most.mkv and.mp4 video files should work now, I’d guess 95%. AVI videos will not work, but they are more rare. If it’s not working for you on a video, you can PM me with the torrent magnet link, I can try get it working.\n\nHello! Looks like you’re enjoying the discussion, but you haven’t signed up for an account yet.\n\nTired of scrolling through the same posts? When you create an account you’ll always come back to where you left off. With an account you can also be notified of new replies, save bookmarks, and use likes to thank others. We can all work together to make this community great.",
+      "wordCount": 186,
+      "estimatedReadingTime": 1,
+      "sectionCount": 1,
+      "pageCount": 1,
+      "progress": {
+        "percent": 100,
+        "completedSectionIds": [],
+        "currentSectionId": "section-1",
+        "lastOpenedAt": "2026-04-08T12:17:34.525Z"
+      },
+      "favIconUrl": "https://forum.languagelearningwithnetflix.com/uploads/default/optimized/2X/0/0a329684dc61336d27f6c2adb2c322b2d395c8c2_2_32x32.png",
+      "thumbnailUrl": "https://forum.languagelearningwithnetflix.com/uploads/default/optimized/3X/6/a/6a8ce8ca1254929e220a1dab118278c54fb72a7c_2_959x1024.png",
+      "status": "ready",
+      "previewText": "You have selected 0 posts. Hello users. I made some upgrades to the video file player. You can try it here: Language Reactor Video files with AC3/EAC3 audio can be played now (the audio is transcoded). You can now select non-default audio",
+      "language": "en",
+      "origin": "extension",
+      "contentHash": "69713e44826d6bcd9c31f69b69e6cab142b9b33687c80ef5627e1b54cfba75c4",
+      "failureReason": ""
+    }
+  ]
+}

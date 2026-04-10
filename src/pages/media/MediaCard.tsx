@@ -23,9 +23,7 @@ function timeAgo(iso: string): string {
   return `${Math.round(seconds / 31536000)} years ago`;
 }
 
-function vocabBarFill(score: number): number {
-  return Math.min(100, Math.round((score / 50000) * 100));
-}
+
 
 function formatDuration(video: YTVideo): string | null {
   if (video.durationSeconds) {
@@ -46,30 +44,13 @@ function formatDuration(video: YTVideo): string | null {
   return `${minutes}m`;
 }
 
-function VocabBar({ score }: { score: number }) {
-  const fill = vocabBarFill(score);
-
-  return (
-    <div className="flex items-center gap-2.5">
-      <div className="h-[3px] w-24 overflow-hidden rounded-full bg-secondary">
-        <div
-          className="h-full rounded-full bg-gradient-to-r from-primary via-primary/80 to-accent"
-          style={{ width: `${fill}%` }}
-        />
-      </div>
-      <span className="text-[10px] text-muted-foreground">#{score.toLocaleString()}</span>
-    </div>
-  );
-}
-
 export function MediaCardSkeleton() {
   return (
-    <div className="flex gap-4 border-b border-[#3e3e3e] px-6 py-4 bg-[#26272b]">
-      <div className="h-[101px] w-[180px] shrink-0 animate-pulse rounded-lg bg-[#3e3e3e]" />
-      <div className="flex-1 space-y-3 py-1">
-        <div className="h-4 w-3/4 animate-pulse rounded bg-[#3e3e3e]" />
-        <div className="h-3 w-1/2 animate-pulse rounded bg-[#3e3e3e]/70" />
-        <div className="h-3 w-24 animate-pulse rounded bg-[#3e3e3e]/70" />
+    <div className="flex flex-col gap-3">
+      <div className="aspect-video w-full animate-pulse rounded-xl bg-[#2d2d2d]" />
+      <div className="space-y-2.5">
+        <div className="h-4 w-[90%] animate-pulse rounded bg-[#2d2d2d]" />
+        <div className="h-3 w-[60%] animate-pulse rounded bg-[#2d2d2d]" />
       </div>
     </div>
   );
@@ -89,34 +70,33 @@ export function MediaCard({ video, onClick }: MediaCardProps) {
   return (
     <article
       onClick={onClick}
-      className="group flex cursor-pointer gap-4 border-b border-[#3e3e3e] px-6 py-4 transition-colors hover:bg-white/[0.04] bg-[#26272b]"
+      className="group flex flex-col cursor-pointer transition-all hover:-translate-y-1"
     >
-      <div className="relative h-[101px] w-[180px] shrink-0 overflow-hidden rounded-lg bg-[#3e3e3e]">
+      <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-[#2d2d2d] shadow-sm">
         <img
           src={thumbnailUrl}
           alt={title}
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
         />
         {duration ? (
-          <span className="absolute bottom-1.5 right-1.5 rounded bg-black/80 px-1.5 py-0.5 text-[11px] font-semibold text-white">
+          <span className="absolute bottom-2 right-2 rounded bg-black/80 px-1.5 py-0.5 text-[11px] font-semibold text-white backdrop-blur-sm">
             {duration}
           </span>
         ) : null}
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-col justify-between py-1">
-        <div>
-          <h3 className="line-clamp-2 text-[15px] font-medium leading-snug text-white/90">
-            {title}
-          </h3>
-          <p className="mt-1.5 line-clamp-1 text-[13px] text-white/60">
-            {formatViews(video.viewCount)}
-            {video.publishedAt ? ` • ${timeAgo(video.publishedAt)} • ` : " • "}
-            {channelTitle}
-          </p>
-        </div>
-        <VocabBar score={video.vocabScore} />
+      <div className="flex flex-col mt-3">
+        <h3 className="line-clamp-2 text-[15px] font-semibold leading-tight text-white/95 group-hover:text-white transition-colors">
+          {title}
+        </h3>
+        <p className="mt-1 text-[13px] text-white/50 line-clamp-1">
+          {channelTitle}
+        </p>
+        <p className="text-[12px] text-white/40 mt-0.5">
+          {formatViews(video.viewCount)}
+          {video.publishedAt ? ` • ${timeAgo(video.publishedAt)}` : ""}
+        </p>
       </div>
     </article>
   );

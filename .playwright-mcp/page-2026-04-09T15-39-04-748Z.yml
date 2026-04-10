@@ -1,0 +1,3815 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e4]:
+    - banner [ref=e5]:
+      - generic [ref=e6]:
+        - link "CATALOGUE" [ref=e7] [cursor=pointer]:
+          - /url: /media
+          - img [ref=e8]
+          - text: CATALOGUE
+        - button "Previous" [ref=e10] [cursor=pointer]:
+          - generic [ref=e11]: "|◀"
+        - button "Play" [ref=e12] [cursor=pointer]:
+          - generic [ref=e13]: ▶
+        - paragraph [ref=e15]: Learn English with DISNEY's SOUL — Living in a Cat's Body
+        - generic [ref=e16]:
+          - button "Toolbar action" [ref=e17] [cursor=pointer]:
+            - img [ref=e18]
+          - button "Toolbar action" [ref=e21] [cursor=pointer]:
+            - img [ref=e22]
+          - button "Toolbar action" [ref=e28] [cursor=pointer]:
+            - img [ref=e29]
+          - button "Toolbar action" [ref=e31] [cursor=pointer]:
+            - img [ref=e32]
+          - button "Toolbar action" [ref=e34] [cursor=pointer]:
+            - img [ref=e35]
+          - button "Search" [ref=e39] [cursor=pointer]:
+            - img [ref=e40]
+    - main [ref=e43]:
+      - generic [ref=e46]:
+        - paragraph [ref=e51]: May the ancestors continue to guide us.
+        - paragraph [ref=e53]: Translating to Somali. First load can take a few seconds.
+        - generic [ref=e54]:
+          - generic [ref=e55]:
+            - generic [ref=e56]:
+              - heading "Learn English with DISNEY's SOUL — Living in a Cat's Body" [level=1] [ref=e57]
+              - paragraph [ref=e58]: Learn English With TV Series
+            - generic [ref=e59]:
+              - button "Pause" [ref=e60] [cursor=pointer]:
+                - img [ref=e61]
+                - text: Pause
+              - button "Volume" [ref=e64] [cursor=pointer]:
+                - img [ref=e65]
+              - button "Settings" [ref=e69] [cursor=pointer]:
+                - img [ref=e70]
+          - generic [ref=e73]:
+            - generic [ref=e74]:
+              - generic [ref=e75]: 0:00
+              - generic [ref=e76]: 0:00
+            - button "Seek" [ref=e78] [cursor=pointer]
+          - generic [ref=e79]:
+            - button "0:00" [ref=e80] [cursor=pointer]
+            - button "0:01" [ref=e81] [cursor=pointer]
+            - button "0:02" [ref=e82] [cursor=pointer]
+            - button "0:03" [ref=e83] [cursor=pointer]
+            - button "0:04" [ref=e84] [cursor=pointer]
+            - button "0:06" [ref=e85] [cursor=pointer]
+            - button "0:07" [ref=e86] [cursor=pointer]
+            - button "0:09" [ref=e87] [cursor=pointer]
+            - button "0:11" [ref=e88] [cursor=pointer]
+            - button "0:15" [ref=e89] [cursor=pointer]
+            - button "0:23" [ref=e90] [cursor=pointer]
+            - button "0:26" [ref=e91] [cursor=pointer]
+            - generic [ref=e92]: Connecting player...
+      - complementary [ref=e93]:
+        - generic [ref=e94]:
+          - generic [ref=e95]:
+            - button "TEXT" [ref=e96] [cursor=pointer]: TEXT
+            - button "WORDS" [ref=e98] [cursor=pointer]: WORDS
+            - button "SAVED" [ref=e100] [cursor=pointer]: SAVED
+          - generic [ref=e102]:
+            - button "Search" [ref=e103] [cursor=pointer]:
+              - img [ref=e104]
+            - button "Settings" [ref=e107] [cursor=pointer]:
+              - img [ref=e108]
+        - generic [ref=e111]:
+          - button "We got to get out of here before they 0:00" [ref=e113] [cursor=pointer]:
+            - generic [ref=e114]:
+              - paragraph [ref=e115]: We got to get out of here before they
+              - paragraph [ref=e116]: 0:00
+            - generic [ref=e117]:
+              - paragraph
+          - button "take me away. 0:01" [ref=e119] [cursor=pointer]:
+            - generic [ref=e120]:
+              - paragraph [ref=e121]: take me away.
+              - paragraph [ref=e122]: 0:01
+            - generic [ref=e123]:
+              - paragraph
+          - button ">> Take you away? You You're going to leave 0:02" [ref=e125] [cursor=pointer]:
+            - generic [ref=e126]:
+              - paragraph [ref=e127]: ">> Take you away? You You're going to leave"
+              - paragraph [ref=e128]: 0:02
+            - generic [ref=e129]:
+              - paragraph
+          - button "me? 0:03" [ref=e131] [cursor=pointer]:
+            - generic [ref=e132]:
+              - paragraph [ref=e133]: me?
+              - paragraph [ref=e134]: 0:03
+            - generic [ref=e135]:
+              - paragraph
+          - button ">> NO WAY. THAT'S MY BODY you're in. Okay. 0:04" [ref=e137] [cursor=pointer]:
+            - generic [ref=e138]:
+              - paragraph [ref=e139]: ">> NO WAY. THAT'S MY BODY you're in. Okay."
+              - paragraph [ref=e140]: 0:04
+            - generic [ref=e141]:
+              - paragraph
+          - button "Do you think you can walk? 0:06" [ref=e143] [cursor=pointer]:
+            - generic [ref=e144]:
+              - paragraph [ref=e145]: Do you think you can walk?
+              - paragraph [ref=e146]: 0:06
+            - generic [ref=e147]:
+              - paragraph
+          - button ">> I don't know. I failed body test drive 0:07" [ref=e149] [cursor=pointer]:
+            - generic [ref=e150]:
+              - paragraph [ref=e151]: ">> I don't know. I failed body test drive"
+              - paragraph [ref=e152]: 0:07
+            - generic [ref=e153]:
+              - paragraph
+          - button "like 436 times. 0:09" [ref=e155] [cursor=pointer]:
+            - generic [ref=e156]:
+              - paragraph [ref=e157]: like 436 times.
+              - paragraph [ref=e158]: 0:09
+            - generic [ref=e159]:
+              - paragraph
+          - button ">> But will you try? 0:11" [ref=e161] [cursor=pointer]:
+            - generic [ref=e162]:
+              - paragraph [ref=e163]: ">> But will you try?"
+              - paragraph [ref=e164]: 0:11
+            - generic [ref=e165]:
+              - paragraph
+          - button ">> Okay. I'm a cat. I can make this. 0:15" [ref=e167] [cursor=pointer]:
+            - generic [ref=e168]:
+              - paragraph [ref=e169]: ">> Okay. I'm a cat. I can make this."
+              - paragraph [ref=e170]: 0:15
+            - generic [ref=e171]:
+              - paragraph
+          - button ">> Okay. Come on. You're doing great. Keep 0:23" [ref=e173] [cursor=pointer]:
+            - generic [ref=e174]:
+              - paragraph [ref=e175]: ">> Okay. Come on. You're doing great. Keep"
+              - paragraph [ref=e176]: 0:23
+            - generic [ref=e177]:
+              - paragraph
+          - button "going. Keep going. 0:26" [ref=e179] [cursor=pointer]:
+            - generic [ref=e180]:
+              - paragraph [ref=e181]: going. Keep going.
+              - paragraph [ref=e182]: 0:26
+            - generic [ref=e183]:
+              - paragraph
+          - button "I'm just going to rest here for [music] 0:28" [ref=e185] [cursor=pointer]:
+            - generic [ref=e186]:
+              - paragraph [ref=e187]: I'm just going to rest here for [music]
+              - paragraph [ref=e188]: 0:28
+            - generic [ref=e189]:
+              - paragraph
+          - button "a minute. 0:29" [ref=e191] [cursor=pointer]:
+            - generic [ref=e192]:
+              - paragraph [ref=e193]: a minute.
+              - paragraph [ref=e194]: 0:29
+            - generic [ref=e195]:
+              - paragraph
+          - button ">> No, no, no, no. They'll be back any 0:30" [ref=e197] [cursor=pointer]:
+            - generic [ref=e198]:
+              - paragraph [ref=e199]: ">> No, no, no, no. They'll be back any"
+              - paragraph [ref=e200]: 0:30
+            - generic [ref=e201]:
+              - paragraph
+          - button "minute. Come on. 0:31" [ref=e203] [cursor=pointer]:
+            - generic [ref=e204]:
+              - paragraph [ref=e205]: minute. Come on.
+              - paragraph [ref=e206]: 0:31
+            - generic [ref=e207]:
+              - paragraph
+          - button ">> Hey. 0:33" [ref=e209] [cursor=pointer]:
+            - generic [ref=e210]:
+              - paragraph [ref=e211]: ">> Hey."
+              - paragraph [ref=e212]: 0:33
+            - generic [ref=e213]:
+              - paragraph
+          - button ">> Now push the down button. 0:41" [ref=e215] [cursor=pointer]:
+            - generic [ref=e216]:
+              - paragraph [ref=e217]: ">> Now push the down button."
+              - paragraph [ref=e218]: 0:41
+            - generic [ref=e219]:
+              - paragraph
+          - button ">> Move your No. Careful. Those fingers are 0:45" [ref=e221] [cursor=pointer]:
+            - generic [ref=e222]:
+              - paragraph [ref=e223]: ">> Move your No. Careful. Those fingers are"
+              - paragraph [ref=e224]: 0:45
+            - generic [ref=e225]:
+              - paragraph
+          - button "my livelihood. 0:47" [ref=e227] [cursor=pointer]:
+            - generic [ref=e228]:
+              - paragraph [ref=e229]: my livelihood.
+              - paragraph [ref=e230]: 0:47
+            - generic [ref=e231]:
+              - paragraph
+          - button ">> Get in. 0:53" [ref=e233] [cursor=pointer]:
+            - generic [ref=e234]:
+              - paragraph [ref=e235]: ">> Get in."
+              - paragraph [ref=e236]: 0:53
+            - generic [ref=e237]:
+              - paragraph
+          - button ">> [music] 0:59" [ref=e239] [cursor=pointer]:
+            - generic [ref=e240]:
+              - paragraph [ref=e241]: ">> [music]"
+              - paragraph [ref=e242]: 0:59
+            - generic [ref=e243]:
+              - paragraph
+          - button ">> What is the purpose of life? All of us 1:02" [ref=e245] [cursor=pointer]:
+            - generic [ref=e246]:
+              - paragraph [ref=e247]: ">> What is the purpose of life? All of us"
+              - paragraph [ref=e248]: 1:02
+            - generic [ref=e249]:
+              - paragraph
+          - button "have asked ourselves this [music] 1:05" [ref=e251] [cursor=pointer]:
+            - generic [ref=e252]:
+              - paragraph [ref=e253]: have asked ourselves this [music]
+              - paragraph [ref=e254]: 1:05
+            - generic [ref=e255]:
+              - paragraph
+          - button "question at some point, right? Well, in 1:06" [ref=e257] [cursor=pointer]:
+            - generic [ref=e258]:
+              - paragraph [ref=e259]: question at some point, right? Well, in
+              - paragraph [ref=e260]: 1:06
+            - generic [ref=e261]:
+              - paragraph
+          - button "today's lesson, we will not only learn 1:09" [ref=e263] [cursor=pointer]:
+            - generic [ref=e264]:
+              - paragraph [ref=e265]: today's lesson, we will not only learn
+              - paragraph [ref=e266]: 1:09
+            - generic [ref=e267]:
+              - paragraph
+          - button "advanced English expressions and 1:12" [ref=e269] [cursor=pointer]:
+            - generic [ref=e270]:
+              - paragraph [ref=e271]: advanced English expressions and
+              - paragraph [ref=e272]: 1:12
+            - generic [ref=e273]:
+              - paragraph
+          - button "pronunciation, 1:14" [ref=e275] [cursor=pointer]:
+            - generic [ref=e276]:
+              - paragraph [ref=e277]: pronunciation,
+              - paragraph [ref=e278]: 1:14
+            - generic [ref=e279]:
+              - paragraph
+          - button "but we will also try to answer this 1:16" [ref=e281] [cursor=pointer]:
+            - generic [ref=e282]:
+              - paragraph [ref=e283]: but we will also try to answer this
+              - paragraph [ref=e284]: 1:16
+            - generic [ref=e285]:
+              - paragraph
+          - button "profound question with Pixar's soul. In 1:18" [ref=e287] [cursor=pointer]:
+            - generic [ref=e288]:
+              - paragraph [ref=e289]: profound question with Pixar's soul. In
+              - paragraph [ref=e290]: 1:18
+            - generic [ref=e291]:
+              - paragraph
+          - button "this animation, a music teacher, Joe 1:22" [ref=e293] [cursor=pointer]:
+            - generic [ref=e294]:
+              - paragraph [ref=e295]: this animation, a music teacher, Joe
+              - paragraph [ref=e296]: 1:22
+            - generic [ref=e297]:
+              - paragraph
+          - button "Gardner, dies right as he is about to 1:24" [ref=e299] [cursor=pointer]:
+            - generic [ref=e300]:
+              - paragraph [ref=e301]: Gardner, dies right as he is about to
+              - paragraph [ref=e302]: 1:24
+            - generic [ref=e303]:
+              - paragraph
+          - button "fulfill his lifelong dream of playing in 1:27" [ref=e305] [cursor=pointer]:
+            - generic [ref=e306]:
+              - paragraph [ref=e307]: fulfill his lifelong dream of playing in
+              - paragraph [ref=e308]: 1:27
+            - generic [ref=e309]:
+              - paragraph
+          - button "a [music] jazz band. He is so devastated 1:30" [ref=e311] [cursor=pointer]:
+            - generic [ref=e312]:
+              - paragraph [ref=e313]: a [music] jazz band. He is so devastated
+              - paragraph [ref=e314]: 1:30
+            - generic [ref=e315]:
+              - paragraph
+          - button "that he tries to escape the afterlife. 1:33" [ref=e317] [cursor=pointer]:
+            - generic [ref=e318]:
+              - paragraph [ref=e319]: that he tries to escape the afterlife.
+              - paragraph [ref=e320]: 1:33
+            - generic [ref=e321]:
+              - paragraph
+          - button "He connects with a new soul, 22, that 1:35" [ref=e323] [cursor=pointer]:
+            - generic [ref=e324]:
+              - paragraph [ref=e325]: He connects with a new soul, 22, that
+              - paragraph [ref=e326]: 1:35
+            - generic [ref=e327]:
+              - paragraph
+          - button "truly does not want to become human. But 1:38" [ref=e329] [cursor=pointer]:
+            - generic [ref=e330]:
+              - paragraph [ref=e331]: truly does not want to become human. But
+              - paragraph [ref=e332]: 1:38
+            - generic [ref=e333]:
+              - paragraph
+          - button "in a turn of events, they're both 1:41" [ref=e335] [cursor=pointer]:
+            - generic [ref=e336]:
+              - paragraph [ref=e337]: in a turn of events, they're both
+              - paragraph [ref=e338]: 1:41
+            - generic [ref=e339]:
+              - paragraph
+          - button "accidentally sent to Earth, and 1:42" [ref=e341] [cursor=pointer]:
+            - generic [ref=e342]:
+              - paragraph [ref=e343]: accidentally sent to Earth, and
+              - paragraph [ref=e344]: 1:42
+            - generic [ref=e345]:
+              - paragraph
+          - button "hilariously, 22 ends up in Joe's body 1:44" [ref=e347] [cursor=pointer]:
+            - generic [ref=e348]:
+              - paragraph [ref=e349]: hilariously, 22 ends up in Joe's body
+              - paragraph [ref=e350]: 1:44
+            - generic [ref=e351]:
+              - paragraph
+          - button "and Joe's soul in a cat. By the way, we 1:47" [ref=e353] [cursor=pointer]:
+            - generic [ref=e354]:
+              - paragraph [ref=e355]: and Joe's soul in a cat. By the way, we
+              - paragraph [ref=e356]: 1:47
+            - generic [ref=e357]:
+              - paragraph
+          - button "are going to learn a lot of advanced 1:50" [ref=e359] [cursor=pointer]:
+            - generic [ref=e360]:
+              - paragraph [ref=e361]: are going to learn a lot of advanced
+              - paragraph [ref=e362]: 1:50
+            - generic [ref=e363]:
+              - paragraph
+          - button "vocabulary in today's lesson. So, if you 1:53" [ref=e365] [cursor=pointer]:
+            - generic [ref=e366]:
+              - paragraph [ref=e367]: vocabulary in today's lesson. So, if you
+              - paragraph [ref=e368]: 1:53
+            - generic [ref=e369]:
+              - paragraph
+          - button "want to be able to use all these 1:56" [ref=e371] [cursor=pointer]:
+            - generic [ref=e372]:
+              - paragraph [ref=e373]: want to be able to use all these
+              - paragraph [ref=e374]: 1:56
+            - generic [ref=e375]:
+              - paragraph
+          - button "expressions confidently the next time 1:57" [ref=e377] [cursor=pointer]:
+            - generic [ref=e378]:
+              - paragraph [ref=e379]: expressions confidently the next time
+              - paragraph [ref=e380]: 1:57
+            - generic [ref=e381]:
+              - paragraph
+          - button "you have a conversation in English, try 2:00" [ref=e383] [cursor=pointer]:
+            - generic [ref=e384]:
+              - paragraph [ref=e385]: you have a conversation in English, try
+              - paragraph [ref=e386]: 2:00
+            - generic [ref=e387]:
+              - paragraph
+          - button "the magic flashcards on a real life app. 2:02" [ref=e389] [cursor=pointer]:
+            - generic [ref=e390]:
+              - paragraph [ref=e391]: the magic flashcards on a real life app.
+              - paragraph [ref=e392]: 2:02
+            - generic [ref=e393]:
+              - paragraph
+          - button "They use a scientific method that brings 2:05" [ref=e395] [cursor=pointer]:
+            - generic [ref=e396]:
+              - paragraph [ref=e397]: They use a scientific method that brings
+              - paragraph [ref=e398]: 2:05
+            - generic [ref=e399]:
+              - paragraph
+          - button "back words for review right when you're 2:07" [ref=e401] [cursor=pointer]:
+            - generic [ref=e402]:
+              - paragraph [ref=e403]: back words for review right when you're
+              - paragraph [ref=e404]: 2:07
+            - generic [ref=e405]:
+              - paragraph
+          - button "about to forget them, so you will 2:10" [ref=e407] [cursor=pointer]:
+            - generic [ref=e408]:
+              - paragraph [ref=e409]: about to forget them, so you will
+              - paragraph [ref=e410]: 2:10
+            - generic [ref=e411]:
+              - paragraph
+          - button "remember them forever. Super easy. Get 2:12" [ref=e413] [cursor=pointer]:
+            - generic [ref=e414]:
+              - paragraph [ref=e415]: remember them forever. Super easy. Get
+              - paragraph [ref=e416]: 2:12
+            - generic [ref=e417]:
+              - paragraph
+          - button "the premium lesson with Soul with all 2:15" [ref=e419] [cursor=pointer]:
+            - generic [ref=e420]:
+              - paragraph [ref=e421]: the premium lesson with Soul with all
+              - paragraph [ref=e422]: 2:15
+            - generic [ref=e423]:
+              - paragraph
+          - button "the flashcards for free now using the 2:17" [ref=e425] [cursor=pointer]:
+            - generic [ref=e426]:
+              - paragraph [ref=e427]: the flashcards for free now using the
+              - paragraph [ref=e428]: 2:17
+            - generic [ref=e429]:
+              - paragraph
+          - button "link down in the description below. 2:20" [ref=e431] [cursor=pointer]:
+            - generic [ref=e432]:
+              - paragraph [ref=e433]: link down in the description below.
+              - paragraph [ref=e434]: 2:20
+            - generic [ref=e435]:
+              - paragraph
+          - button "All right, let's return to the hospital 2:25" [ref=e437] [cursor=pointer]:
+            - generic [ref=e438]:
+              - paragraph [ref=e439]: All right, let's return to the hospital
+              - paragraph [ref=e440]: 2:25
+            - generic [ref=e441]:
+              - paragraph
+          - button "and understand all of this advanced 2:27" [ref=e443] [cursor=pointer]:
+            - generic [ref=e444]:
+              - paragraph [ref=e445]: and understand all of this advanced
+              - paragraph [ref=e446]: 2:27
+            - generic [ref=e447]:
+              - paragraph
+          - button "vocabulary during this body mixup. Let's 2:29" [ref=e449] [cursor=pointer]:
+            - generic [ref=e450]:
+              - paragraph [ref=e451]: vocabulary during this body mixup. Let's
+              - paragraph [ref=e452]: 2:29
+            - generic [ref=e453]:
+              - paragraph
+          - button "start with a common phrasal verb. 2:32" [ref=e455] [cursor=pointer]:
+            - generic [ref=e456]:
+              - paragraph [ref=e457]: start with a common phrasal verb.
+              - paragraph [ref=e458]: 2:32
+            - generic [ref=e459]:
+              - paragraph
+          - button ">> We got to get out of here before they 2:34" [ref=e461] [cursor=pointer]:
+            - generic [ref=e462]:
+              - paragraph [ref=e463]: ">> We got to get out of here before they"
+              - paragraph [ref=e464]: 2:34
+            - generic [ref=e465]:
+              - paragraph
+          - button "take me away. 2:36" [ref=e467] [cursor=pointer]:
+            - generic [ref=e468]:
+              - paragraph [ref=e469]: take me away.
+              - paragraph [ref=e470]: 2:36
+            - generic [ref=e471]:
+              - paragraph
+          - button ">> Take you away? You You're going to leave 2:36" [ref=e473] [cursor=pointer]:
+            - generic [ref=e474]:
+              - paragraph [ref=e475]: ">> Take you away? You You're going to leave"
+              - paragraph [ref=e476]: 2:36
+            - generic [ref=e477]:
+              - paragraph
+          - button "me? 2:38" [ref=e479] [cursor=pointer]:
+            - generic [ref=e480]:
+              - paragraph [ref=e481]: me?
+              - paragraph [ref=e482]: 2:38
+            - generic [ref=e483]:
+              - paragraph
+          - button ">> NO WAY. THAT'S MY BODY you're in. To 2:38" [ref=e485] [cursor=pointer]:
+            - generic [ref=e486]:
+              - paragraph [ref=e487]: ">> NO WAY. THAT'S MY BODY you're in. To"
+              - paragraph [ref=e488]: 2:38
+            - generic [ref=e489]:
+              - paragraph
+          - button "take someone away means to force that 2:40" [ref=e491] [cursor=pointer]:
+            - generic [ref=e492]:
+              - paragraph [ref=e493]: take someone away means to force that
+              - paragraph [ref=e494]: 2:40
+            - generic [ref=e495]:
+              - paragraph
+          - button "person to leave a place. In [music] this 2:43" [ref=e497] [cursor=pointer]:
+            - generic [ref=e498]:
+              - paragraph [ref=e499]: person to leave a place. In [music] this
+              - paragraph [ref=e500]: 2:43
+            - generic [ref=e501]:
+              - paragraph
+          - button "case, Joe is in a cat's body and he is 2:46" [ref=e503] [cursor=pointer]:
+            - generic [ref=e504]:
+              - paragraph [ref=e505]: case, Joe is in a cat's body and he is
+              - paragraph [ref=e506]: 2:46
+            - generic [ref=e507]:
+              - paragraph
+          - button "where the hospital staff will remove him 2:48" [ref=e509] [cursor=pointer]:
+            - generic [ref=e510]:
+              - paragraph [ref=e511]: where the hospital staff will remove him
+              - paragraph [ref=e512]: 2:48
+            - generic [ref=e513]:
+              - paragraph
+          - button "from the room. You might also often hear 2:49" [ref=e515] [cursor=pointer]:
+            - generic [ref=e516]:
+              - paragraph [ref=e517]: from the room. You might also often hear
+              - paragraph [ref=e518]: 2:49
+            - generic [ref=e519]:
+              - paragraph
+          - button "it used like the police took him away in 2:52" [ref=e521] [cursor=pointer]:
+            - generic [ref=e522]:
+              - paragraph [ref=e523]: it used like the police took him away in
+              - paragraph [ref=e524]: 2:52
+            - generic [ref=e525]:
+              - paragraph
+          - button "handcuffs or [music] my parents are 2:54" [ref=e527] [cursor=pointer]:
+            - generic [ref=e528]:
+              - paragraph [ref=e529]: handcuffs or [music] my parents are
+              - paragraph [ref=e530]: 2:54
+            - generic [ref=e531]:
+              - paragraph
+          - button "taking away my phone as punishment. 2:55" [ref=e533] [cursor=pointer]:
+            - generic [ref=e534]:
+              - paragraph [ref=e535]: taking away my phone as punishment.
+              - paragraph [ref=e536]: 2:55
+            - generic [ref=e537]:
+              - paragraph
+          - button "Here's another example. 2:57" [ref=e539] [cursor=pointer]:
+            - generic [ref=e540]:
+              - paragraph [ref=e541]: Here's another example.
+              - paragraph [ref=e542]: 2:57
+            - generic [ref=e543]:
+              - paragraph
+          - button ">> You're ruining my life. What? Music's 2:59" [ref=e545] [cursor=pointer]:
+            - generic [ref=e546]:
+              - paragraph [ref=e547]: ">> You're ruining my life. What? Music's"
+              - paragraph [ref=e548]: 2:59
+            - generic [ref=e549]:
+              - paragraph
+          - button "the only thing that makes me happy. And 3:01" [ref=e551] [cursor=pointer]:
+            - generic [ref=e552]:
+              - paragraph [ref=e553]: the only thing that makes me happy. And
+              - paragraph [ref=e554]: 3:01
+            - generic [ref=e555]:
+              - paragraph
+          - button "you you want to take that away? You'll 3:04" [ref=e557] [cursor=pointer]:
+            - generic [ref=e558]:
+              - paragraph [ref=e559]: you you want to take that away? You'll
+              - paragraph [ref=e560]: 3:04
+            - generic [ref=e561]:
+              - paragraph
+          - button "never understand. 3:07" [ref=e563] [cursor=pointer]:
+            - generic [ref=e564]:
+              - paragraph [ref=e565]: never understand.
+              - paragraph [ref=e566]: 3:07
+            - generic [ref=e567]:
+              - paragraph
+          - button "Joe spoke really fast here and without 3:09" [ref=e569] [cursor=pointer]:
+            - generic [ref=e570]:
+              - paragraph [ref=e571]: Joe spoke really fast here and without
+              - paragraph [ref=e572]: 3:09
+            - generic [ref=e573]:
+              - paragraph
+          - button "subtitles, I bet it'd be pretty 3:12" [ref=e575] [cursor=pointer]:
+            - generic [ref=e576]:
+              - paragraph [ref=e577]: subtitles, I bet it'd be pretty
+              - paragraph [ref=e578]: 3:12
+            - generic [ref=e579]:
+              - paragraph
+          - button "difficult for you to understand. Now, 3:14" [ref=e581] [cursor=pointer]:
+            - generic [ref=e582]:
+              - paragraph [ref=e583]: difficult for you to understand. Now,
+              - paragraph [ref=e584]: 3:14
+            - generic [ref=e585]:
+              - paragraph
+          - button "this is largely because of something 3:16" [ref=e587] [cursor=pointer]:
+            - generic [ref=e588]:
+              - paragraph [ref=e589]: this is largely because of something
+              - paragraph [ref=e590]: 3:16
+            - generic [ref=e591]:
+              - paragraph
+          - button "called connected speech. That's how we 3:18" [ref=e593] [cursor=pointer]:
+            - generic [ref=e594]:
+              - paragraph [ref=e595]: called connected speech. That's how we
+              - paragraph [ref=e596]: 3:18
+            - generic [ref=e597]:
+              - paragraph
+          - button "natives cut, reduce, and link our words 3:20" [ref=e599] [cursor=pointer]:
+            - generic [ref=e600]:
+              - paragraph [ref=e601]: natives cut, reduce, and link our words
+              - paragraph [ref=e602]: 3:20
+            - generic [ref=e603]:
+              - paragraph
+          - button "together in fluent speech. If you're 3:24" [ref=e605] [cursor=pointer]:
+            - generic [ref=e606]:
+              - paragraph [ref=e607]: together in fluent speech. If you're
+              - paragraph [ref=e608]: 3:24
+            - generic [ref=e609]:
+              - paragraph
+          - button "like most learners, you weren't [music] 3:26" [ref=e611] [cursor=pointer]:
+            - generic [ref=e612]:
+              - paragraph [ref=e613]: like most learners, you weren't [music]
+              - paragraph [ref=e614]: 3:26
+            - generic [ref=e615]:
+              - paragraph
+          - button "taught this in school. Listen again. 3:27" [ref=e617] [cursor=pointer]:
+            - generic [ref=e618]:
+              - paragraph [ref=e619]: taught this in school. Listen again.
+              - paragraph [ref=e620]: 3:27
+            - generic [ref=e621]:
+              - paragraph
+          - button ">> We got to get out of here before they 3:30" [ref=e623] [cursor=pointer]:
+            - generic [ref=e624]:
+              - paragraph [ref=e625]: ">> We got to get out of here before they"
+              - paragraph [ref=e626]: 3:30
+            - generic [ref=e627]:
+              - paragraph
+          - button "take me away. We got to get out of here 3:31" [ref=e629] [cursor=pointer]:
+            - generic [ref=e630]:
+              - paragraph [ref=e631]: take me away. We got to get out of here
+              - paragraph [ref=e632]: 3:31
+            - generic [ref=e633]:
+              - paragraph
+          - button "before they take me away. First, have 3:33" [ref=e635] [cursor=pointer]:
+            - generic [ref=e636]:
+              - paragraph [ref=e637]: before they take me away. First, have
+              - paragraph [ref=e638]: 3:33
+            - generic [ref=e639]:
+              - paragraph
+          - button "got to often reduces to just gota. 3:36" [ref=e641] [cursor=pointer]:
+            - generic [ref=e642]:
+              - paragraph [ref=e643]: got to often reduces to just gota.
+              - paragraph [ref=e644]: 3:36
+            - generic [ref=e645]:
+              - paragraph
+          - button "You've noticed this before, right? When 3:39" [ref=e647] [cursor=pointer]:
+            - generic [ref=e648]:
+              - paragraph [ref=e649]: You've noticed this before, right? When
+              - paragraph [ref=e650]: 3:39
+            - generic [ref=e651]:
+              - paragraph
+          - button "a t is between two vowel sounds, it 3:41" [ref=e653] [cursor=pointer]:
+            - generic [ref=e654]:
+              - paragraph [ref=e655]: a t is between two vowel sounds, it
+              - paragraph [ref=e656]: 3:41
+            - generic [ref=e657]:
+              - paragraph
+          - button "usually morphs into a tap t, which 3:43" [ref=e659] [cursor=pointer]:
+            - generic [ref=e660]:
+              - paragraph [ref=e661]: usually morphs into a tap t, which
+              - paragraph [ref=e662]: 3:43
+            - generic [ref=e663]:
+              - paragraph
+          - button "sounds like duh. Duh. And we hear that 3:45" [ref=e665] [cursor=pointer]:
+            - generic [ref=e666]:
+              - paragraph [ref=e667]: sounds like duh. Duh. And we hear that
+              - paragraph [ref=e668]: 3:45
+            - generic [ref=e669]:
+              - paragraph
+          - button "in gota gota. But we also hear it twice 3:49" [ref=e671] [cursor=pointer]:
+            - generic [ref=e672]:
+              - paragraph [ref=e673]: in gota gota. But we also hear it twice
+              - paragraph [ref=e674]: 3:49
+            - generic [ref=e675]:
+              - paragraph
+          - button "in get out of get out of. Finally, often 3:53" [ref=e677] [cursor=pointer]:
+            - generic [ref=e678]:
+              - paragraph [ref=e679]: in get out of get out of. Finally, often
+              - paragraph [ref=e680]: 3:53
+            - generic [ref=e681]:
+              - paragraph
+          - button "reduces to just awah sound. Uh uh. Let's 3:58" [ref=e683] [cursor=pointer]:
+            - generic [ref=e684]:
+              - paragraph [ref=e685]: reduces to just awah sound. Uh uh. Let's
+              - paragraph [ref=e686]: 3:58
+            - generic [ref=e687]:
+              - paragraph
+          - button "put that all together. We got to get out 4:01" [ref=e689] [cursor=pointer]:
+            - generic [ref=e690]:
+              - paragraph [ref=e691]: put that all together. We got to get out
+              - paragraph [ref=e692]: 4:01
+            - generic [ref=e693]:
+              - paragraph
+          - button "of here. We got to get out of here. Your 4:05" [ref=e695] [cursor=pointer]:
+            - generic [ref=e696]:
+              - paragraph [ref=e697]: of here. We got to get out of here. Your
+              - paragraph [ref=e698]: 4:05
+            - generic [ref=e699]:
+              - paragraph
+          - button "speaking will only improve with lots of 4:08" [ref=e701] [cursor=pointer]:
+            - generic [ref=e702]:
+              - paragraph [ref=e703]: speaking will only improve with lots of
+              - paragraph [ref=e704]: 4:08
+            - generic [ref=e705]:
+              - paragraph
+          - button "practice. So listen to Joe again and try 4:10" [ref=e707] [cursor=pointer]:
+            - generic [ref=e708]:
+              - paragraph [ref=e709]: practice. So listen to Joe again and try
+              - paragraph [ref=e710]: 4:10
+            - generic [ref=e711]:
+              - paragraph
+          - button "to say that just like he did. 4:12" [ref=e713] [cursor=pointer]:
+            - generic [ref=e714]:
+              - paragraph [ref=e715]: to say that just like he did.
+              - paragraph [ref=e716]: 4:12
+            - generic [ref=e717]:
+              - paragraph
+          - button ">> We got to get out of here before they 4:14" [ref=e719] [cursor=pointer]:
+            - generic [ref=e720]:
+              - paragraph [ref=e721]: ">> We got to get out of here before they"
+              - paragraph [ref=e722]: 4:14
+            - generic [ref=e723]:
+              - paragraph
+          - button "take me away. We got to get out of here. 4:15" [ref=e725] [cursor=pointer]:
+            - generic [ref=e726]:
+              - paragraph [ref=e727]: take me away. We got to get out of here.
+              - paragraph [ref=e728]: 4:15
+            - generic [ref=e729]:
+              - paragraph
+          - button ">> Oh, okay. Do you think you can walk? 4:23" [ref=e731] [cursor=pointer]:
+            - generic [ref=e732]:
+              - paragraph [ref=e733]: ">> Oh, okay. Do you think you can walk?"
+              - paragraph [ref=e734]: 4:23
+            - generic [ref=e735]:
+              - paragraph
+          - button ">> I don't know. I failed body test drive 4:25" [ref=e737] [cursor=pointer]:
+            - generic [ref=e738]:
+              - paragraph [ref=e739]: ">> I don't know. I failed body test drive"
+              - paragraph [ref=e740]: 4:25
+            - generic [ref=e741]:
+              - paragraph
+          - button "like 436 times. A test drive is when you 4:27" [ref=e743] [cursor=pointer]:
+            - generic [ref=e744]:
+              - paragraph [ref=e745]: like 436 times. A test drive is when you
+              - paragraph [ref=e746]: 4:27
+            - generic [ref=e747]:
+              - paragraph
+          - button "try out a car before buying it to see 4:30" [ref=e749] [cursor=pointer]:
+            - generic [ref=e750]:
+              - paragraph [ref=e751]: try out a car before buying it to see
+              - paragraph [ref=e752]: 4:30
+            - generic [ref=e753]:
+              - paragraph
+          - button "how it performs. But the humor is that 4:32" [ref=e755] [cursor=pointer]:
+            - generic [ref=e756]:
+              - paragraph [ref=e757]: how it performs. But the humor is that
+              - paragraph [ref=e758]: 4:32
+            - generic [ref=e759]:
+              - paragraph
+          - button "here 22 is talking about literally test 4:35" [ref=e761] [cursor=pointer]:
+            - generic [ref=e762]:
+              - paragraph [ref=e763]: here 22 is talking about literally test
+              - paragraph [ref=e764]: 4:35
+            - generic [ref=e765]:
+              - paragraph
+          - button "driving a human body. Trying it out to 4:38" [ref=e767] [cursor=pointer]:
+            - generic [ref=e768]:
+              - paragraph [ref=e769]: driving a human body. Trying it out to
+              - paragraph [ref=e770]: 4:38
+            - generic [ref=e771]:
+              - paragraph
+          - button "see if she likes being alive. By the 4:40" [ref=e773] [cursor=pointer]:
+            - generic [ref=e774]:
+              - paragraph [ref=e775]: see if she likes being alive. By the
+              - paragraph [ref=e776]: 4:40
+            - generic [ref=e777]:
+              - paragraph
+          - button "way, in everyday conversation, you might 4:42" [ref=e779] [cursor=pointer]:
+            - generic [ref=e780]:
+              - paragraph [ref=e781]: way, in everyday conversation, you might
+              - paragraph [ref=e782]: 4:42
+            - generic [ref=e783]:
+              - paragraph
+          - button "test drive anything before committing to 4:44" [ref=e785] [cursor=pointer]:
+            - generic [ref=e786]:
+              - paragraph [ref=e787]: test drive anything before committing to
+              - paragraph [ref=e788]: 4:44
+            - generic [ref=e789]:
+              - paragraph
+          - button "it. Like, I'm test driving this 4:46" [ref=e791] [cursor=pointer]:
+            - generic [ref=e792]:
+              - paragraph [ref=e793]: it. Like, I'm test driving this
+              - paragraph [ref=e794]: 4:46
+            - generic [ref=e795]:
+              - paragraph
+          - button "productivity app for a week. Joe also 4:48" [ref=e797] [cursor=pointer]:
+            - generic [ref=e798]:
+              - paragraph [ref=e799]: productivity app for a week. Joe also
+              - paragraph [ref=e800]: 4:48
+            - generic [ref=e801]:
+              - paragraph
+          - button "needs to get used to his cat body. So, 4:50" [ref=e803] [cursor=pointer]:
+            - generic [ref=e804]:
+              - paragraph [ref=e805]: needs to get used to his cat body. So,
+              - paragraph [ref=e806]: 4:50
+            - generic [ref=e807]:
+              - paragraph
+          - button "he says, 4:52" [ref=e809] [cursor=pointer]:
+            - generic [ref=e810]:
+              - paragraph [ref=e811]: he says,
+              - paragraph [ref=e812]: 4:52
+            - generic [ref=e813]:
+              - paragraph
+          - button ">> I'm a cat. I can make this. 4:53" [ref=e815] [cursor=pointer]:
+            - generic [ref=e816]:
+              - paragraph [ref=e817]: ">> I'm a cat. I can make this."
+              - paragraph [ref=e818]: 4:53
+            - generic [ref=e819]:
+              - paragraph
+          - button "When you say, \"I can make this,\" you're 4:56" [ref=e821] [cursor=pointer]:
+            - generic [ref=e822]:
+              - paragraph [ref=e823]: When you say, "I can make this," you're
+              - paragraph [ref=e824]: 4:56
+            - generic [ref=e825]:
+              - paragraph
+          - button "saying that you can successfully do 4:59" [ref=e827] [cursor=pointer]:
+            - generic [ref=e828]:
+              - paragraph [ref=e829]: saying that you can successfully do
+              - paragraph [ref=e830]: 4:59
+            - generic [ref=e831]:
+              - paragraph
+          - button "something difficult, especially 5:00" [ref=e833] [cursor=pointer]:
+            - generic [ref=e834]:
+              - paragraph [ref=e835]: something difficult, especially
+              - paragraph [ref=e836]: 5:00
+            - generic [ref=e837]:
+              - paragraph
+          - button "something physical like a jump or 5:02" [ref=e839] [cursor=pointer]:
+            - generic [ref=e840]:
+              - paragraph [ref=e841]: something physical like a jump or
+              - paragraph [ref=e842]: 5:02
+            - generic [ref=e843]:
+              - paragraph
+          - button "challenging move. Joe in the cat's body 5:04" [ref=e845] [cursor=pointer]:
+            - generic [ref=e846]:
+              - paragraph [ref=e847]: challenging move. Joe in the cat's body
+              - paragraph [ref=e848]: 5:04
+            - generic [ref=e849]:
+              - paragraph
+          - button "is confident he can make the jump, but 5:07" [ref=e851] [cursor=pointer]:
+            - generic [ref=e852]:
+              - paragraph [ref=e853]: is confident he can make the jump, but
+              - paragraph [ref=e854]: 5:07
+            - generic [ref=e855]:
+              - paragraph
+          - button "it doesn't really work out. 5:09" [ref=e857] [cursor=pointer]:
+            - generic [ref=e858]:
+              - paragraph [ref=e859]: it doesn't really work out.
+              - paragraph [ref=e860]: 5:09
+            - generic [ref=e861]:
+              - paragraph
+          - button ">> I'm just [music] going to rest here for 5:12" [ref=e863] [cursor=pointer]:
+            - generic [ref=e864]:
+              - paragraph [ref=e865]: ">> I'm just [music] going to rest here for"
+              - paragraph [ref=e866]: 5:12
+            - generic [ref=e867]:
+              - paragraph
+          - button "a minute. 5:13" [ref=e869] [cursor=pointer]:
+            - generic [ref=e870]:
+              - paragraph [ref=e871]: a minute.
+              - paragraph [ref=e872]: 5:13
+            - generic [ref=e873]:
+              - paragraph
+          - button ">> No, no, no, no. They'll be back any 5:14" [ref=e875] [cursor=pointer]:
+            - generic [ref=e876]:
+              - paragraph [ref=e877]: ">> No, no, no, no. They'll be back any"
+              - paragraph [ref=e878]: 5:14
+            - generic [ref=e879]:
+              - paragraph
+          - button "minute. 5:15" [ref=e881] [cursor=pointer]:
+            - generic [ref=e882]:
+              - paragraph [ref=e883]: minute.
+              - paragraph [ref=e884]: 5:15
+            - generic [ref=e885]:
+              - paragraph
+          - button ">> Now, this common expression means very 5:16" [ref=e887] [cursor=pointer]:
+            - generic [ref=e888]:
+              - paragraph [ref=e889]: ">> Now, this common expression means very"
+              - paragraph [ref=e890]: 5:16
+            - generic [ref=e891]:
+              - paragraph
+          - button "soon or at any moment now. We can see 22 5:18" [ref=e893] [cursor=pointer]:
+            - generic [ref=e894]:
+              - paragraph [ref=e895]: soon or at any moment now. We can see 22
+              - paragraph [ref=e896]: 5:18
+            - generic [ref=e897]:
+              - paragraph
+          - button "is really having trouble managing a 5:21" [ref=e899] [cursor=pointer]:
+            - generic [ref=e900]:
+              - paragraph [ref=e901]: is really having trouble managing a
+              - paragraph [ref=e902]: 5:21
+            - generic [ref=e903]:
+              - paragraph
+          - button "human body and Joe is worried she will 5:23" [ref=e905] [cursor=pointer]:
+            - generic [ref=e906]:
+              - paragraph [ref=e907]: human body and Joe is worried she will
+              - paragraph [ref=e908]: 5:23
+            - generic [ref=e909]:
+              - paragraph
+          - button "damage his hands. So he says, \"Move your 5:25" [ref=e911] [cursor=pointer]:
+            - generic [ref=e912]:
+              - paragraph [ref=e913]: damage his hands. So he says, "Move your
+              - paragraph [ref=e914]: 5:25
+            - generic [ref=e915]:
+              - paragraph
+          - button "N. Careful. Those fingers are my 5:28" [ref=e917] [cursor=pointer]:
+            - generic [ref=e918]:
+              - paragraph [ref=e919]: N. Careful. Those fingers are my
+              - paragraph [ref=e920]: 5:28
+            - generic [ref=e921]:
+              - paragraph
+          - button "livelihood.\" 5:30" [ref=e923] [cursor=pointer]:
+            - generic [ref=e924]:
+              - paragraph [ref=e925]: livelihood."
+              - paragraph [ref=e926]: 5:30
+            - generic [ref=e927]:
+              - paragraph
+          - button ">> Your livelihood is the job or source of 5:32" [ref=e929] [cursor=pointer]:
+            - generic [ref=e930]:
+              - paragraph [ref=e931]: ">> Your livelihood is the job or source of"
+              - paragraph [ref=e932]: 5:32
+            - generic [ref=e933]:
+              - paragraph
+          - button "income you need to pay for your life. 5:33" [ref=e935] [cursor=pointer]:
+            - generic [ref=e936]:
+              - paragraph [ref=e937]: income you need to pay for your life.
+              - paragraph [ref=e938]: 5:33
+            - generic [ref=e939]:
+              - paragraph
+          - button "For Joe, his fingers are essential 5:35" [ref=e941] [cursor=pointer]:
+            - generic [ref=e942]:
+              - paragraph [ref=e943]: For Joe, his fingers are essential
+              - paragraph [ref=e944]: 5:35
+            - generic [ref=e945]:
+              - paragraph
+          - button "[music] 5:37" [ref=e947] [cursor=pointer]:
+            - generic [ref=e948]:
+              - paragraph [ref=e949]: "[music]"
+              - paragraph [ref=e950]: 5:37
+            - generic [ref=e951]:
+              - paragraph
+          - button "because he's a jazz piano player and 5:38" [ref=e953] [cursor=pointer]:
+            - generic [ref=e954]:
+              - paragraph [ref=e955]: because he's a jazz piano player and
+              - paragraph [ref=e956]: 5:38
+            - generic [ref=e957]:
+              - paragraph
+          - button "music teacher. Without his fingers, he 5:39" [ref=e959] [cursor=pointer]:
+            - generic [ref=e960]:
+              - paragraph [ref=e961]: music teacher. Without his fingers, he
+              - paragraph [ref=e962]: 5:39
+            - generic [ref=e963]:
+              - paragraph
+          - button "can't do his job. Or, for example, for a 5:42" [ref=e965] [cursor=pointer]:
+            - generic [ref=e966]:
+              - paragraph [ref=e967]: can't do his job. Or, for example, for a
+              - paragraph [ref=e968]: 5:42
+            - generic [ref=e969]:
+              - paragraph
+          - button "singer, their voice is their livelihood. 5:44" [ref=e971] [cursor=pointer]:
+            - generic [ref=e972]:
+              - paragraph [ref=e973]: singer, their voice is their livelihood.
+              - paragraph [ref=e974]: 5:44
+            - generic [ref=e975]:
+              - paragraph
+          - button "Listen to this example. It's the last 5:46" [ref=e977] [cursor=pointer]:
+            - generic [ref=e978]:
+              - paragraph [ref=e979]: Listen to this example. It's the last
+              - paragraph [ref=e980]: 5:46
+            - generic [ref=e981]:
+              - paragraph
+          - button "thing I need. Some animal chewing its 5:49" [ref=e983] [cursor=pointer]:
+            - generic [ref=e984]:
+              - paragraph [ref=e985]: thing I need. Some animal chewing its
+              - paragraph [ref=e986]: 5:49
+            - generic [ref=e987]:
+              - paragraph
+          - button "way in here. 5:51" [ref=e989] [cursor=pointer]:
+            - generic [ref=e990]:
+              - paragraph [ref=e991]: way in here.
+              - paragraph [ref=e992]: 5:51
+            - generic [ref=e993]:
+              - paragraph
+          - button ">> What are you going to do if you catch 5:53" [ref=e995] [cursor=pointer]:
+            - generic [ref=e996]:
+              - paragraph [ref=e997]: ">> What are you going to do if you catch"
+              - paragraph [ref=e998]: 5:53
+            - generic [ref=e999]:
+              - paragraph
+          - button "it? 5:54" [ref=e1001] [cursor=pointer]:
+            - generic [ref=e1002]:
+              - paragraph [ref=e1003]: it?
+              - paragraph [ref=e1004]: 5:54
+            - generic [ref=e1005]:
+              - paragraph
+          - button ">> Well, these vegetables are part of our 5:56" [ref=e1007] [cursor=pointer]:
+            - generic [ref=e1008]:
+              - paragraph [ref=e1009]: ">> Well, these vegetables are part of our"
+              - paragraph [ref=e1010]: 5:56
+            - generic [ref=e1011]:
+              - paragraph
+          - button "livelihood. We can't afford to share 5:57" [ref=e1013] [cursor=pointer]:
+            - generic [ref=e1014]:
+              - paragraph [ref=e1015]: livelihood. We can't afford to share
+              - paragraph [ref=e1016]: 5:57
+            - generic [ref=e1017]:
+              - paragraph
+          - button "them with any animal we get in here. 5:58" [ref=e1019] [cursor=pointer]:
+            - generic [ref=e1020]:
+              - paragraph [ref=e1021]: them with any animal we get in here.
+              - paragraph [ref=e1022]: 5:58
+            - generic [ref=e1023]:
+              - paragraph
+          - button ">> Jumping forward as Joe notices 22 6:00" [ref=e1025] [cursor=pointer]:
+            - generic [ref=e1026]:
+              - paragraph [ref=e1027]: ">> Jumping forward as Joe notices 22"
+              - paragraph [ref=e1028]: 6:00
+            - generic [ref=e1029]:
+              - paragraph
+          - button "enjoying life. From eating pizza to 6:03" [ref=e1031] [cursor=pointer]:
+            - generic [ref=e1032]:
+              - paragraph [ref=e1033]: enjoying life. From eating pizza to
+              - paragraph [ref=e1034]: 6:03
+            - generic [ref=e1035]:
+              - paragraph
+          - button "listening to music to meeting new people 6:06" [ref=e1037] [cursor=pointer]:
+            - generic [ref=e1038]:
+              - paragraph [ref=e1039]: listening to music to meeting new people
+              - paragraph [ref=e1040]: 6:06
+            - generic [ref=e1041]:
+              - paragraph
+          - button "to watching children play and leaves 6:09" [ref=e1043] [cursor=pointer]:
+            - generic [ref=e1044]:
+              - paragraph [ref=e1045]: to watching children play and leaves
+              - paragraph [ref=e1046]: 6:09
+            - generic [ref=e1047]:
+              - paragraph
+          - button "falling from a tree, [music] something 6:12" [ref=e1049] [cursor=pointer]:
+            - generic [ref=e1050]:
+              - paragraph [ref=e1051]: falling from a tree, [music] something
+              - paragraph [ref=e1052]: 6:12
+            - generic [ref=e1053]:
+              - paragraph
+          - button "beautiful happens. He starts to realize 6:14" [ref=e1055] [cursor=pointer]:
+            - generic [ref=e1056]:
+              - paragraph [ref=e1057]: beautiful happens. He starts to realize
+              - paragraph [ref=e1058]: 6:14
+            - generic [ref=e1059]:
+              - paragraph
+          - button "life is not about fulfilling some 6:16" [ref=e1061] [cursor=pointer]:
+            - generic [ref=e1062]:
+              - paragraph [ref=e1063]: life is not about fulfilling some
+              - paragraph [ref=e1064]: 6:16
+            - generic [ref=e1065]:
+              - paragraph
+          - button "predetermined [music] purpose. Rather, 6:17" [ref=e1067] [cursor=pointer]:
+            - generic [ref=e1068]:
+              - paragraph [ref=e1069]: predetermined [music] purpose. Rather,
+              - paragraph [ref=e1070]: 6:17
+            - generic [ref=e1071]:
+              - paragraph
+          - button "it's about living presently and enjoying 6:19" [ref=e1073] [cursor=pointer]:
+            - generic [ref=e1074]:
+              - paragraph [ref=e1075]: it's about living presently and enjoying
+              - paragraph [ref=e1076]: 6:19
+            - generic [ref=e1077]:
+              - paragraph
+          - button "every moment. We'll see one of these 6:21" [ref=e1079] [cursor=pointer]:
+            - generic [ref=e1080]:
+              - paragraph [ref=e1081]: every moment. We'll see one of these
+              - paragraph [ref=e1082]: 6:21
+            - generic [ref=e1083]:
+              - paragraph
+          - button "moments that is illumining for Joe when 6:23" [ref=e1085] [cursor=pointer]:
+            - generic [ref=e1086]:
+              - paragraph [ref=e1087]: moments that is illumining for Joe when
+              - paragraph [ref=e1088]: 6:23
+            - generic [ref=e1089]:
+              - paragraph
+          - button "22 gets a haircut in his body. 6:25" [ref=e1091] [cursor=pointer]:
+            - generic [ref=e1092]:
+              - paragraph [ref=e1093]: 22 gets a haircut in his body.
+              - paragraph [ref=e1094]: 6:25
+            - generic [ref=e1095]:
+              - paragraph
+          - button "They say you're born to do something, 6:31" [ref=e1097] [cursor=pointer]:
+            - generic [ref=e1098]:
+              - paragraph [ref=e1099]: They say you're born to do something,
+              - paragraph [ref=e1100]: 6:31
+            - generic [ref=e1101]:
+              - paragraph
+          - button "but how do you figure out what that 6:33" [ref=e1103] [cursor=pointer]:
+            - generic [ref=e1104]:
+              - paragraph [ref=e1105]: but how do you figure out what that
+              - paragraph [ref=e1106]: 6:33
+            - generic [ref=e1107]:
+              - paragraph
+          - button "thing is? I mean, what if you pick off 6:34" [ref=e1109] [cursor=pointer]:
+            - generic [ref=e1110]:
+              - paragraph [ref=e1111]: thing is? I mean, what if you pick off
+              - paragraph [ref=e1112]: 6:34
+            - generic [ref=e1113]:
+              - paragraph
+          - button "the wrong thing or somebody else's 6:36" [ref=e1115] [cursor=pointer]:
+            - generic [ref=e1116]:
+              - paragraph [ref=e1117]: the wrong thing or somebody else's
+              - paragraph [ref=e1118]: 6:36
+            - generic [ref=e1119]:
+              - paragraph
+          - button "thing? You know, then you're stuck. 6:38" [ref=e1121] [cursor=pointer]:
+            - generic [ref=e1122]:
+              - paragraph [ref=e1123]: thing? You know, then you're stuck.
+              - paragraph [ref=e1124]: 6:38
+            - generic [ref=e1125]:
+              - paragraph
+          - button ">> I wouldn't call myself stuck, but I 6:40" [ref=e1127] [cursor=pointer]:
+            - generic [ref=e1128]:
+              - paragraph [ref=e1129]: ">> I wouldn't call myself stuck, but I"
+              - paragraph [ref=e1130]: 6:40
+            - generic [ref=e1131]:
+              - paragraph
+          - button "never planned on cutting heads for a 6:42" [ref=e1133] [cursor=pointer]:
+            - generic [ref=e1134]:
+              - paragraph [ref=e1135]: never planned on cutting heads for a
+              - paragraph [ref=e1136]: 6:42
+            - generic [ref=e1137]:
+              - paragraph
+          - button "living. Wait, but you were born to be a 6:43" [ref=e1139] [cursor=pointer]:
+            - generic [ref=e1140]:
+              - paragraph [ref=e1141]: living. Wait, but you were born to be a
+              - paragraph [ref=e1142]: 6:43
+            - generic [ref=e1143]:
+              - paragraph
+          - button "barber, weren't you? 6:45" [ref=e1145] [cursor=pointer]:
+            - generic [ref=e1146]:
+              - paragraph [ref=e1147]: barber, weren't you?
+              - paragraph [ref=e1148]: 6:45
+            - generic [ref=e1149]:
+              - paragraph
+          - button ">> I wanted to be a veterinarian. 6:46" [ref=e1151] [cursor=pointer]:
+            - generic [ref=e1152]:
+              - paragraph [ref=e1153]: ">> I wanted to be a veterinarian."
+              - paragraph [ref=e1154]: 6:46
+            - generic [ref=e1155]:
+              - paragraph
+          - button ">> So, why didn't you do that? 6:49" [ref=e1157] [cursor=pointer]:
+            - generic [ref=e1158]:
+              - paragraph [ref=e1159]: ">> So, why didn't you do that?"
+              - paragraph [ref=e1160]: 6:49
+            - generic [ref=e1161]:
+              - paragraph
+          - button ">> I was planning to. When I got out of the 6:51" [ref=e1163] [cursor=pointer]:
+            - generic [ref=e1164]:
+              - paragraph [ref=e1165]: ">> I was planning to. When I got out of the"
+              - paragraph [ref=e1166]: 6:51
+            - generic [ref=e1167]:
+              - paragraph
+          - button "Navy, then my daughter got sick and 6:52" [ref=e1169] [cursor=pointer]:
+            - generic [ref=e1170]:
+              - paragraph [ref=e1171]: Navy, then my daughter got sick and
+              - paragraph [ref=e1172]: 6:52
+            - generic [ref=e1173]:
+              - paragraph
+          - button "barber school is a lot cheaper than 6:55" [ref=e1175] [cursor=pointer]:
+            - generic [ref=e1176]:
+              - paragraph [ref=e1177]: barber school is a lot cheaper than
+              - paragraph [ref=e1178]: 6:55
+            - generic [ref=e1179]:
+              - paragraph
+          - button "veterinarian school. 6:57" [ref=e1181] [cursor=pointer]:
+            - generic [ref=e1182]:
+              - paragraph [ref=e1183]: veterinarian school.
+              - paragraph [ref=e1184]: 6:57
+            - generic [ref=e1185]:
+              - paragraph
+          - button ">> Well, that's too bad. You're stuck as a 6:57" [ref=e1187] [cursor=pointer]:
+            - generic [ref=e1188]:
+              - paragraph [ref=e1189]: ">> Well, that's too bad. You're stuck as a"
+              - paragraph [ref=e1190]: 6:57
+            - generic [ref=e1191]:
+              - paragraph
+          - button "barber and now you're unhappy. 6:59" [ref=e1193] [cursor=pointer]:
+            - generic [ref=e1194]:
+              - paragraph [ref=e1195]: barber and now you're unhappy.
+              - paragraph [ref=e1196]: 6:59
+            - generic [ref=e1197]:
+              - paragraph
+          - button ">> Whoa, whoa, slow your roll there, Joe. 7:00" [ref=e1199] [cursor=pointer]:
+            - generic [ref=e1200]:
+              - paragraph [ref=e1201]: ">> Whoa, whoa, slow your roll there, Joe."
+              - paragraph [ref=e1202]: 7:00
+            - generic [ref=e1203]:
+              - paragraph
+          - button "I'm happy as a clam, my man. Not 7:02" [ref=e1205] [cursor=pointer]:
+            - generic [ref=e1206]:
+              - paragraph [ref=e1207]: I'm happy as a clam, my man. Not
+              - paragraph [ref=e1208]: 7:02
+            - generic [ref=e1209]:
+              - paragraph
+          - button "everyone can be Charles Drew inventing 7:04" [ref=e1211] [cursor=pointer]:
+            - generic [ref=e1212]:
+              - paragraph [ref=e1213]: everyone can be Charles Drew inventing
+              - paragraph [ref=e1214]: 7:04
+            - generic [ref=e1215]:
+              - paragraph
+          - button "blood transfusions 7:06" [ref=e1217] [cursor=pointer]:
+            - generic [ref=e1218]:
+              - paragraph [ref=e1219]: blood transfusions
+              - paragraph [ref=e1220]: 7:06
+            - generic [ref=e1221]:
+              - paragraph
+          - button ">> or me playing piano with Dorothia 7:07" [ref=e1223] [cursor=pointer]:
+            - generic [ref=e1224]:
+              - paragraph [ref=e1225]: ">> or me playing piano with Dorothia"
+              - paragraph [ref=e1226]: 7:07
+            - generic [ref=e1227]:
+              - paragraph
+          - button "Williams. I know [laughter] 7:09" [ref=e1229] [cursor=pointer]:
+            - generic [ref=e1230]:
+              - paragraph [ref=e1231]: Williams. I know [laughter]
+              - paragraph [ref=e1232]: 7:09
+            - generic [ref=e1233]:
+              - paragraph
+          - button ">> you are not all that. Anyone could play 7:10" [ref=e1235] [cursor=pointer]:
+            - generic [ref=e1236]:
+              - paragraph [ref=e1237]: ">> you are not all that. Anyone could play"
+              - paragraph [ref=e1238]: 7:10
+            - generic [ref=e1239]:
+              - paragraph
+          - button "in a band if they wanted to. 7:12" [ref=e1241] [cursor=pointer]:
+            - generic [ref=e1242]:
+              - paragraph [ref=e1243]: in a band if they wanted to.
+              - paragraph [ref=e1244]: 7:12
+            - generic [ref=e1245]:
+              - paragraph
+          - button ">> Don't pay Paul any mind. People like him 7:14" [ref=e1247] [cursor=pointer]:
+            - generic [ref=e1248]:
+              - paragraph [ref=e1249]: ">> Don't pay Paul any mind. People like him"
+              - paragraph [ref=e1250]: 7:14
+            - generic [ref=e1251]:
+              - paragraph
+          - button "just bring other people down so they can 7:16" [ref=e1253] [cursor=pointer]:
+            - generic [ref=e1254]:
+              - paragraph [ref=e1255]: just bring other people down so they can
+              - paragraph [ref=e1256]: 7:16
+            - generic [ref=e1257]:
+              - paragraph
+          - button "make themselves feel better. 7:17" [ref=e1259] [cursor=pointer]:
+            - generic [ref=e1260]:
+              - paragraph [ref=e1261]: make themselves feel better.
+              - paragraph [ref=e1262]: 7:17
+            - generic [ref=e1263]:
+              - paragraph
+          - button ">> Oh, I get it. He's just criticizing 7:19" [ref=e1265] [cursor=pointer]:
+            - generic [ref=e1266]:
+              - paragraph [ref=e1267]: ">> Oh, I get it. He's just criticizing"
+              - paragraph [ref=e1268]: 7:19
+            - generic [ref=e1269]:
+              - paragraph
+          - button "[music] me to cover up the pain of his 7:21" [ref=e1271] [cursor=pointer]:
+            - generic [ref=e1272]:
+              - paragraph [ref=e1273]: "[music] me to cover up the pain of his"
+              - paragraph [ref=e1274]: 7:21
+            - generic [ref=e1275]:
+              - paragraph
+          - button "own failed dreams. 7:23" [ref=e1277] [cursor=pointer]:
+            - generic [ref=e1278]:
+              - paragraph [ref=e1279]: own failed dreams.
+              - paragraph [ref=e1280]: 7:23
+            - generic [ref=e1281]:
+              - paragraph
+          - button ">> You cut deep, Joe. 7:26" [ref=e1283] [cursor=pointer]:
+            - generic [ref=e1284]:
+              - paragraph [ref=e1285]: ">> You cut deep, Joe."
+              - paragraph [ref=e1286]: 7:26
+            - generic [ref=e1287]:
+              - paragraph
+          - button "[music] 7:29" [ref=e1289] [cursor=pointer]:
+            - generic [ref=e1290]:
+              - paragraph [ref=e1291]: "[music]"
+              - paragraph [ref=e1292]: 7:29
+            - generic [ref=e1293]:
+              - paragraph
+          - button ">> They say you're born to do something, 7:31" [ref=e1295] [cursor=pointer]:
+            - generic [ref=e1296]:
+              - paragraph [ref=e1297]: ">> They say you're born to do something,"
+              - paragraph [ref=e1298]: 7:31
+            - generic [ref=e1299]:
+              - paragraph
+          - button "but how do you figure out what that 7:32" [ref=e1301] [cursor=pointer]:
+            - generic [ref=e1302]:
+              - paragraph [ref=e1303]: but how do you figure out what that
+              - paragraph [ref=e1304]: 7:32
+            - generic [ref=e1305]:
+              - paragraph
+          - button "thing is? I mean, what if you pick up 7:34" [ref=e1307] [cursor=pointer]:
+            - generic [ref=e1308]:
+              - paragraph [ref=e1309]: thing is? I mean, what if you pick up
+              - paragraph [ref=e1310]: 7:34
+            - generic [ref=e1311]:
+              - paragraph
+          - button "the wrong thing? 7:36" [ref=e1313] [cursor=pointer]:
+            - generic [ref=e1314]:
+              - paragraph [ref=e1315]: the wrong thing?
+              - paragraph [ref=e1316]: 7:36
+            - generic [ref=e1317]:
+              - paragraph
+          - button "What do you think 22 meant when they 7:37" [ref=e1319] [cursor=pointer]:
+            - generic [ref=e1320]:
+              - paragraph [ref=e1321]: What do you think 22 meant when they
+              - paragraph [ref=e1322]: 7:37
+            - generic [ref=e1323]:
+              - paragraph
+          - button "said if you pick up the wrong thing, you 7:39" [ref=e1325] [cursor=pointer]:
+            - generic [ref=e1326]:
+              - paragraph [ref=e1327]: said if you pick up the wrong thing, you
+              - paragraph [ref=e1328]: 7:39
+            - generic [ref=e1329]:
+              - paragraph
+          - button "grab the wrong tool, you choose the 7:42" [ref=e1331] [cursor=pointer]:
+            - generic [ref=e1332]:
+              - paragraph [ref=e1333]: grab the wrong tool, you choose the
+              - paragraph [ref=e1334]: 7:42
+            - generic [ref=e1335]:
+              - paragraph
+          - button "wrong career path, you lift something 7:44" [ref=e1337] [cursor=pointer]:
+            - generic [ref=e1338]:
+              - paragraph [ref=e1339]: wrong career path, you lift something
+              - paragraph [ref=e1340]: 7:44
+            - generic [ref=e1341]:
+              - paragraph
+          - button "incorrectly. 7:46" [ref=e1343] [cursor=pointer]:
+            - generic [ref=e1344]:
+              - paragraph [ref=e1345]: incorrectly.
+              - paragraph [ref=e1346]: 7:46
+            - generic [ref=e1347]:
+              - paragraph
+          - button "[music] 7:53" [ref=e1349] [cursor=pointer]:
+            - generic [ref=e1350]:
+              - paragraph [ref=e1351]: "[music]"
+              - paragraph [ref=e1352]: 7:53
+            - generic [ref=e1353]:
+              - paragraph
+          - button "Exactly. While this phrasal verb has 7:54" [ref=e1355] [cursor=pointer]:
+            - generic [ref=e1356]:
+              - paragraph [ref=e1357]: Exactly. While this phrasal verb has
+              - paragraph [ref=e1358]: 7:54
+            - generic [ref=e1359]:
+              - paragraph
+          - button "many meanings, in this context, it means 7:56" [ref=e1361] [cursor=pointer]:
+            - generic [ref=e1362]:
+              - paragraph [ref=e1363]: many meanings, in this context, it means
+              - paragraph [ref=e1364]: 7:56
+            - generic [ref=e1365]:
+              - paragraph
+          - button "to choose or start doing something. We 7:58" [ref=e1367] [cursor=pointer]:
+            - generic [ref=e1368]:
+              - paragraph [ref=e1369]: to choose or start doing something. We
+              - paragraph [ref=e1370]: 7:58
+            - generic [ref=e1371]:
+              - paragraph
+          - button "often use this for hobbies you learn, 8:01" [ref=e1373] [cursor=pointer]:
+            - generic [ref=e1374]:
+              - paragraph [ref=e1375]: often use this for hobbies you learn,
+              - paragraph [ref=e1376]: 8:01
+            - generic [ref=e1377]:
+              - paragraph
+          - button "like when I decided to pick up German in 8:03" [ref=e1379] [cursor=pointer]:
+            - generic [ref=e1380]:
+              - paragraph [ref=e1381]: like when I decided to pick up German in
+              - paragraph [ref=e1382]: 8:03
+            - generic [ref=e1383]:
+              - paragraph
+          - button "high school or how I'd like to pick up 8:05" [ref=e1385] [cursor=pointer]:
+            - generic [ref=e1386]:
+              - paragraph [ref=e1387]: high school or how I'd like to pick up
+              - paragraph [ref=e1388]: 8:05
+            - generic [ref=e1389]:
+              - paragraph
+          - button "guitar this year. Listen to this 8:07" [ref=e1391] [cursor=pointer]:
+            - generic [ref=e1392]:
+              - paragraph [ref=e1393]: guitar this year. Listen to this
+              - paragraph [ref=e1394]: 8:07
+            - generic [ref=e1395]:
+              - paragraph
+          - button "example. 8:08" [ref=e1397] [cursor=pointer]:
+            - generic [ref=e1398]:
+              - paragraph [ref=e1399]: example.
+              - paragraph [ref=e1400]: 8:08
+            - generic [ref=e1401]:
+              - paragraph
+          - button ">> Here, let me show you how it's done. I 8:09" [ref=e1403] [cursor=pointer]:
+            - generic [ref=e1404]:
+              - paragraph [ref=e1405]: ">> Here, let me show you how it's done. I"
+              - paragraph [ref=e1406]: 8:09
+            - generic [ref=e1407]:
+              - paragraph
+          - button "didn't spend all that time around in 8:12" [ref=e1409] [cursor=pointer]:
+            - generic [ref=e1410]:
+              - paragraph [ref=e1411]: didn't spend all that time around in
+              - paragraph [ref=e1412]: 8:12
+            - generic [ref=e1413]:
+              - paragraph
+          - button "witches without picking up a few tricks. 8:13" [ref=e1415] [cursor=pointer]:
+            - generic [ref=e1416]:
+              - paragraph [ref=e1417]: witches without picking up a few tricks.
+              - paragraph [ref=e1418]: 8:13
+            - generic [ref=e1419]:
+              - paragraph
+          - button ">> I wouldn't call myself stuck, but I 8:15" [ref=e1421] [cursor=pointer]:
+            - generic [ref=e1422]:
+              - paragraph [ref=e1423]: ">> I wouldn't call myself stuck, but I"
+              - paragraph [ref=e1424]: 8:15
+            - generic [ref=e1425]:
+              - paragraph
+          - button "never planned on cutting heads for a 8:17" [ref=e1427] [cursor=pointer]:
+            - generic [ref=e1428]:
+              - paragraph [ref=e1429]: never planned on cutting heads for a
+              - paragraph [ref=e1430]: 8:17
+            - generic [ref=e1431]:
+              - paragraph
+          - button "living. 8:18" [ref=e1433] [cursor=pointer]:
+            - generic [ref=e1434]:
+              - paragraph [ref=e1435]: living.
+              - paragraph [ref=e1436]: 8:18
+            - generic [ref=e1437]:
+              - paragraph
+          - button ">> Cutting heads is slaying for cutting 8:19" [ref=e1439] [cursor=pointer]:
+            - generic [ref=e1440]:
+              - paragraph [ref=e1441]: ">> Cutting heads is slaying for cutting"
+              - paragraph [ref=e1442]: 8:19
+            - generic [ref=e1443]:
+              - paragraph
+          - button "hair or being [music] a barber. When you 8:21" [ref=e1445] [cursor=pointer]:
+            - generic [ref=e1446]:
+              - paragraph [ref=e1447]: hair or being [music] a barber. When you
+              - paragraph [ref=e1448]: 8:21
+            - generic [ref=e1449]:
+              - paragraph
+          - button "do something for a living, that's your 8:23" [ref=e1451] [cursor=pointer]:
+            - generic [ref=e1452]:
+              - paragraph [ref=e1453]: do something for a living, that's your
+              - paragraph [ref=e1454]: 8:23
+            - generic [ref=e1455]:
+              - paragraph
+          - button "job, your livelihood. [music] As we saw 8:25" [ref=e1457] [cursor=pointer]:
+            - generic [ref=e1458]:
+              - paragraph [ref=e1459]: job, your livelihood. [music] As we saw
+              - paragraph [ref=e1460]: 8:25
+            - generic [ref=e1461]:
+              - paragraph
+          - button "earlier, a barber cuts hair for a 8:27" [ref=e1463] [cursor=pointer]:
+            - generic [ref=e1464]:
+              - paragraph [ref=e1465]: earlier, a barber cuts hair for a
+              - paragraph [ref=e1466]: 8:27
+            - generic [ref=e1467]:
+              - paragraph
+          - button "living. A pilot flies planes for a 8:29" [ref=e1469] [cursor=pointer]:
+            - generic [ref=e1470]:
+              - paragraph [ref=e1471]: living. A pilot flies planes for a
+              - paragraph [ref=e1472]: 8:29
+            - generic [ref=e1473]:
+              - paragraph
+          - button "living or an author writes novels for a 8:31" [ref=e1475] [cursor=pointer]:
+            - generic [ref=e1476]:
+              - paragraph [ref=e1477]: living or an author writes novels for a
+              - paragraph [ref=e1478]: 8:31
+            - generic [ref=e1479]:
+              - paragraph
+          - button "living. And I loved the two casual 8:33" [ref=e1481] [cursor=pointer]:
+            - generic [ref=e1482]:
+              - paragraph [ref=e1483]: living. And I loved the two casual
+              - paragraph [ref=e1484]: 8:33
+            - generic [ref=e1485]:
+              - paragraph
+          - button "expressions that Dez used next. 8:35" [ref=e1487] [cursor=pointer]:
+            - generic [ref=e1488]:
+              - paragraph [ref=e1489]: expressions that Dez used next.
+              - paragraph [ref=e1490]: 8:35
+            - generic [ref=e1491]:
+              - paragraph
+          - button ">> Well, that's too bad. You're stuck as a 8:37" [ref=e1493] [cursor=pointer]:
+            - generic [ref=e1494]:
+              - paragraph [ref=e1495]: ">> Well, that's too bad. You're stuck as a"
+              - paragraph [ref=e1496]: 8:37
+            - generic [ref=e1497]:
+              - paragraph
+          - button "barber and now you're unhappy. 8:39" [ref=e1499] [cursor=pointer]:
+            - generic [ref=e1500]:
+              - paragraph [ref=e1501]: barber and now you're unhappy.
+              - paragraph [ref=e1502]: 8:39
+            - generic [ref=e1503]:
+              - paragraph
+          - button ">> Wo wo. Slow your roll there, Joe. I'm 8:40" [ref=e1505] [cursor=pointer]:
+            - generic [ref=e1506]:
+              - paragraph [ref=e1507]: ">> Wo wo. Slow your roll there, Joe. I'm"
+              - paragraph [ref=e1508]: 8:40
+            - generic [ref=e1509]:
+              - paragraph
+          - button "happy as a clammer, man. 8:42" [ref=e1511] [cursor=pointer]:
+            - generic [ref=e1512]:
+              - paragraph [ref=e1513]: happy as a clammer, man.
+              - paragraph [ref=e1514]: 8:42
+            - generic [ref=e1515]:
+              - paragraph
+          - button ">> First, slow your role is a way to tell 8:43" [ref=e1517] [cursor=pointer]:
+            - generic [ref=e1518]:
+              - paragraph [ref=e1519]: ">> First, slow your role is a way to tell"
+              - paragraph [ref=e1520]: 8:43
+            - generic [ref=e1521]:
+              - paragraph
+          - button "someone to calm down or not rush to 8:45" [ref=e1523] [cursor=pointer]:
+            - generic [ref=e1524]:
+              - paragraph [ref=e1525]: someone to calm down or not rush to
+              - paragraph [ref=e1526]: 8:45
+            - generic [ref=e1527]:
+              - paragraph
+          - button "conclusions. In other words, Dez is 8:48" [ref=e1529] [cursor=pointer]:
+            - generic [ref=e1530]:
+              - paragraph [ref=e1531]: conclusions. In other words, Dez is
+              - paragraph [ref=e1532]: 8:48
+            - generic [ref=e1533]:
+              - paragraph
+          - button "saying that just because he did not 8:50" [ref=e1535] [cursor=pointer]:
+            - generic [ref=e1536]:
+              - paragraph [ref=e1537]: saying that just because he did not
+              - paragraph [ref=e1538]: 8:50
+            - generic [ref=e1539]:
+              - paragraph
+          - button "expect to become a barber, it does not 8:51" [ref=e1541] [cursor=pointer]:
+            - generic [ref=e1542]:
+              - paragraph [ref=e1543]: expect to become a barber, it does not
+              - paragraph [ref=e1544]: 8:51
+            - generic [ref=e1545]:
+              - paragraph
+          - button "mean he is unhappy. For example, if you 8:54" [ref=e1547] [cursor=pointer]:
+            - generic [ref=e1548]:
+              - paragraph [ref=e1549]: mean he is unhappy. For example, if you
+              - paragraph [ref=e1550]: 8:54
+            - generic [ref=e1551]:
+              - paragraph
+          - button "arrive late for a date with your husband 8:56" [ref=e1553] [cursor=pointer]:
+            - generic [ref=e1554]:
+              - paragraph [ref=e1555]: arrive late for a date with your husband
+              - paragraph [ref=e1556]: 8:56
+            - generic [ref=e1557]:
+              - paragraph
+          - button "and you can see he is annoyed, you might 8:58" [ref=e1559] [cursor=pointer]:
+            - generic [ref=e1560]:
+              - paragraph [ref=e1561]: and you can see he is annoyed, you might
+              - paragraph [ref=e1562]: 8:58
+            - generic [ref=e1563]:
+              - paragraph
+          - button "[music] say, \"Slow your roll. Let me 9:01" [ref=e1565] [cursor=pointer]:
+            - generic [ref=e1566]:
+              - paragraph [ref=e1567]: "[music] say, \"Slow your roll. Let me"
+              - paragraph [ref=e1568]: 9:01
+            - generic [ref=e1569]:
+              - paragraph
+          - button "explain before you get angry.\" And a 9:02" [ref=e1571] [cursor=pointer]:
+            - generic [ref=e1572]:
+              - paragraph [ref=e1573]: explain before you get angry." And a
+              - paragraph [ref=e1574]: 9:02
+            - generic [ref=e1575]:
+              - paragraph
+          - button "happy as a clam just means extremely 9:04" [ref=e1577] [cursor=pointer]:
+            - generic [ref=e1578]:
+              - paragraph [ref=e1579]: happy as a clam just means extremely
+              - paragraph [ref=e1580]: 9:04
+            - generic [ref=e1581]:
+              - paragraph
+          - button "happy and content. Why clams? The full 9:06" [ref=e1583] [cursor=pointer]:
+            - generic [ref=e1584]:
+              - paragraph [ref=e1585]: happy and content. Why clams? The full
+              - paragraph [ref=e1586]: 9:06
+            - generic [ref=e1587]:
+              - paragraph
+          - button "expression is actually happy as a clam 9:09" [ref=e1589] [cursor=pointer]:
+            - generic [ref=e1590]:
+              - paragraph [ref=e1591]: expression is actually happy as a clam
+              - paragraph [ref=e1592]: 9:09
+            - generic [ref=e1593]:
+              - paragraph
+          - button "at high tide because at high tide, clams 9:11" [ref=e1595] [cursor=pointer]:
+            - generic [ref=e1596]:
+              - paragraph [ref=e1597]: at high tide because at high tide, clams
+              - paragraph [ref=e1598]: 9:11
+            - generic [ref=e1599]:
+              - paragraph
+          - button "are safe from people digging them up. 9:14" [ref=e1601] [cursor=pointer]:
+            - generic [ref=e1602]:
+              - paragraph [ref=e1603]: are safe from people digging them up.
+              - paragraph [ref=e1604]: 9:14
+            - generic [ref=e1605]:
+              - paragraph
+          - button "And I bet that you would be happy as a 9:16" [ref=e1607] [cursor=pointer]:
+            - generic [ref=e1608]:
+              - paragraph [ref=e1609]: And I bet that you would be happy as a
+              - paragraph [ref=e1610]: 9:16
+            - generic [ref=e1611]:
+              - paragraph
+          - button "clam if you could use all the 9:18" [ref=e1613] [cursor=pointer]:
+            - generic [ref=e1614]:
+              - paragraph [ref=e1615]: clam if you could use all the
+              - paragraph [ref=e1616]: 9:18
+            - generic [ref=e1617]:
+              - paragraph
+          - button "expressions you're learning today at 9:19" [ref=e1619] [cursor=pointer]:
+            - generic [ref=e1620]:
+              - paragraph [ref=e1621]: expressions you're learning today at
+              - paragraph [ref=e1622]: 9:19
+            - generic [ref=e1623]:
+              - paragraph
+          - button "work, with friends, or while traveling. 9:21" [ref=e1625] [cursor=pointer]:
+            - generic [ref=e1626]:
+              - paragraph [ref=e1627]: work, with friends, or while traveling.
+              - paragraph [ref=e1628]: 9:21
+            - generic [ref=e1629]:
+              - paragraph
+          - button "But slow your roll. If you don't review 9:24" [ref=e1631] [cursor=pointer]:
+            - generic [ref=e1632]:
+              - paragraph [ref=e1633]: But slow your roll. If you don't review
+              - paragraph [ref=e1634]: 9:24
+            - generic [ref=e1635]:
+              - paragraph
+          - button "these expressions you're learning, 9:26" [ref=e1637] [cursor=pointer]:
+            - generic [ref=e1638]:
+              - paragraph [ref=e1639]: these expressions you're learning,
+              - paragraph [ref=e1640]: 9:26
+            - generic [ref=e1641]:
+              - paragraph
+          - button "you're sure to forget them in hours or 9:27" [ref=e1643] [cursor=pointer]:
+            - generic [ref=e1644]:
+              - paragraph [ref=e1645]: you're sure to forget them in hours or
+              - paragraph [ref=e1646]: 9:27
+            - generic [ref=e1647]:
+              - paragraph
+          - button "even minutes. I've been there in 9:30" [ref=e1649] [cursor=pointer]:
+            - generic [ref=e1650]:
+              - paragraph [ref=e1651]: even minutes. I've been there in
+              - paragraph [ref=e1652]: 9:30
+            - generic [ref=e1653]:
+              - paragraph
+          - button "learning six languages myself. That's 9:32" [ref=e1655] [cursor=pointer]:
+            - generic [ref=e1656]:
+              - paragraph [ref=e1657]: learning six languages myself. That's
+              - paragraph [ref=e1658]: 9:32
+            - generic [ref=e1659]:
+              - paragraph
+          - button "exactly why we created the magic flash 9:34" [ref=e1661] [cursor=pointer]:
+            - generic [ref=e1662]:
+              - paragraph [ref=e1663]: exactly why we created the magic flash
+              - paragraph [ref=e1664]: 9:34
+            - generic [ref=e1665]:
+              - paragraph
+          - button "cards that I told you about earlier. And 9:36" [ref=e1667] [cursor=pointer]:
+            - generic [ref=e1668]:
+              - paragraph [ref=e1669]: cards that I told you about earlier. And
+              - paragraph [ref=e1670]: 9:36
+            - generic [ref=e1671]:
+              - paragraph
+          - button "that's not all. If you're the type of 9:38" [ref=e1673] [cursor=pointer]:
+            - generic [ref=e1674]:
+              - paragraph [ref=e1675]: that's not all. If you're the type of
+              - paragraph [ref=e1676]: 9:38
+            - generic [ref=e1677]:
+              - paragraph
+          - button "person who can read, write, and 9:40" [ref=e1679] [cursor=pointer]:
+            - generic [ref=e1680]:
+              - paragraph [ref=e1681]: person who can read, write, and
+              - paragraph [ref=e1682]: 9:40
+            - generic [ref=e1683]:
+              - paragraph
+          - button "understand well, but speaking is still a 9:43" [ref=e1685] [cursor=pointer]:
+            - generic [ref=e1686]:
+              - paragraph [ref=e1687]: understand well, but speaking is still a
+              - paragraph [ref=e1688]: 9:43
+            - generic [ref=e1689]:
+              - paragraph
+          - button "challenge, we have the new Real Life AI 9:46" [ref=e1691] [cursor=pointer]:
+            - generic [ref=e1692]:
+              - paragraph [ref=e1693]: challenge, we have the new Real Life AI
+              - paragraph [ref=e1694]: 9:46
+            - generic [ref=e1695]:
+              - paragraph
+          - button "coach. You can watch short five-minute 9:48" [ref=e1697] [cursor=pointer]:
+            - generic [ref=e1698]:
+              - paragraph [ref=e1699]: coach. You can watch short five-minute
+              - paragraph [ref=e1700]: 9:48
+            - generic [ref=e1701]:
+              - paragraph
+          - button "lessons with your favorite series and 9:51" [ref=e1703] [cursor=pointer]:
+            - generic [ref=e1704]:
+              - paragraph [ref=e1705]: lessons with your favorite series and
+              - paragraph [ref=e1706]: 9:51
+            - generic [ref=e1707]:
+              - paragraph
+          - button "movies. Learn new everyday expressions 9:53" [ref=e1709] [cursor=pointer]:
+            - generic [ref=e1710]:
+              - paragraph [ref=e1711]: movies. Learn new everyday expressions
+              - paragraph [ref=e1712]: 9:53
+            - generic [ref=e1713]:
+              - paragraph
+          - button "and then use them in a real conversation 9:56" [ref=e1715] [cursor=pointer]:
+            - generic [ref=e1716]:
+              - paragraph [ref=e1717]: and then use them in a real conversation
+              - paragraph [ref=e1718]: 9:56
+            - generic [ref=e1719]:
+              - paragraph
+          - button "in a safe environment with your AI 9:58" [ref=e1721] [cursor=pointer]:
+            - generic [ref=e1722]:
+              - paragraph [ref=e1723]: in a safe environment with your AI
+              - paragraph [ref=e1724]: 9:58
+            - generic [ref=e1725]:
+              - paragraph
+          - button "coach. Give it a try and get more 10:01" [ref=e1727] [cursor=pointer]:
+            - generic [ref=e1728]:
+              - paragraph [ref=e1729]: coach. Give it a try and get more
+              - paragraph [ref=e1730]: 10:01
+            - generic [ref=e1731]:
+              - paragraph
+          - button "confident natural English speaking in 10:03" [ref=e1733] [cursor=pointer]:
+            - generic [ref=e1734]:
+              - paragraph [ref=e1735]: confident natural English speaking in
+              - paragraph [ref=e1736]: 10:03
+            - generic [ref=e1737]:
+              - paragraph
+          - button "just minutes. Click the link in the 10:05" [ref=e1739] [cursor=pointer]:
+            - generic [ref=e1740]:
+              - paragraph [ref=e1741]: just minutes. Click the link in the
+              - paragraph [ref=e1742]: 10:05
+            - generic [ref=e1743]:
+              - paragraph
+          - button "description to get started. Moving on. 10:07" [ref=e1745] [cursor=pointer]:
+            - generic [ref=e1746]:
+              - paragraph [ref=e1747]: description to get started. Moving on.
+              - paragraph [ref=e1748]: 10:07
+            - generic [ref=e1749]:
+              - paragraph
+          - button "Have you heard of the person that Dez 10:09" [ref=e1751] [cursor=pointer]:
+            - generic [ref=e1752]:
+              - paragraph [ref=e1753]: Have you heard of the person that Dez
+              - paragraph [ref=e1754]: 10:09
+            - generic [ref=e1755]:
+              - paragraph
+          - button "mentions? 10:11" [ref=e1757] [cursor=pointer]:
+            - generic [ref=e1758]:
+              - paragraph [ref=e1759]: mentions?
+              - paragraph [ref=e1760]: 10:11
+            - generic [ref=e1761]:
+              - paragraph
+          - button ">> Not everyone can be Charles Drew 10:12" [ref=e1763] [cursor=pointer]:
+            - generic [ref=e1764]:
+              - paragraph [ref=e1765]: ">> Not everyone can be Charles Drew"
+              - paragraph [ref=e1766]: 10:12
+            - generic [ref=e1767]:
+              - paragraph
+          - button "inventing blood transfusion. Charles 10:13" [ref=e1769] [cursor=pointer]:
+            - generic [ref=e1770]:
+              - paragraph [ref=e1771]: inventing blood transfusion. Charles
+              - paragraph [ref=e1772]: 10:13
+            - generic [ref=e1773]:
+              - paragraph
+          - button "Drew was a brilliant surgeon and medical 10:15" [ref=e1775] [cursor=pointer]:
+            - generic [ref=e1776]:
+              - paragraph [ref=e1777]: Drew was a brilliant surgeon and medical
+              - paragraph [ref=e1778]: 10:15
+            - generic [ref=e1779]:
+              - paragraph
+          - button "researcher who developed improved 10:18" [ref=e1781] [cursor=pointer]:
+            - generic [ref=e1782]:
+              - paragraph [ref=e1783]: researcher who developed improved
+              - paragraph [ref=e1784]: 10:18
+            - generic [ref=e1785]:
+              - paragraph
+          - button "techniques for blood storage and created 10:20" [ref=e1787] [cursor=pointer]:
+            - generic [ref=e1788]:
+              - paragraph [ref=e1789]: techniques for blood storage and created
+              - paragraph [ref=e1790]: 10:20
+            - generic [ref=e1791]:
+              - paragraph
+          - button "the first large-scale blood banks. He 10:22" [ref=e1793] [cursor=pointer]:
+            - generic [ref=e1794]:
+              - paragraph [ref=e1795]: the first large-scale blood banks. He
+              - paragraph [ref=e1796]: 10:22
+            - generic [ref=e1797]:
+              - paragraph
+          - button "made groundbreaking contributions to 10:24" [ref=e1799] [cursor=pointer]:
+            - generic [ref=e1800]:
+              - paragraph [ref=e1801]: made groundbreaking contributions to
+              - paragraph [ref=e1802]: 10:24
+            - generic [ref=e1803]:
+              - paragraph
+          - button "medicine that have saved countless 10:26" [ref=e1805] [cursor=pointer]:
+            - generic [ref=e1806]:
+              - paragraph [ref=e1807]: medicine that have saved countless
+              - paragraph [ref=e1808]: 10:26
+            - generic [ref=e1809]:
+              - paragraph
+          - button "[music] lives. Dez is pointing out that 10:27" [ref=e1811] [cursor=pointer]:
+            - generic [ref=e1812]:
+              - paragraph [ref=e1813]: "[music] lives. Dez is pointing out that"
+              - paragraph [ref=e1814]: 10:27
+            - generic [ref=e1815]:
+              - paragraph
+          - button "not everyone can make such huge 10:29" [ref=e1817] [cursor=pointer]:
+            - generic [ref=e1818]:
+              - paragraph [ref=e1819]: not everyone can make such huge
+              - paragraph [ref=e1820]: 10:29
+            - generic [ref=e1821]:
+              - paragraph
+          - button "world-changing contributions. And that's 10:31" [ref=e1823] [cursor=pointer]:
+            - generic [ref=e1824]:
+              - paragraph [ref=e1825]: world-changing contributions. And that's
+              - paragraph [ref=e1826]: 10:31
+            - generic [ref=e1827]:
+              - paragraph
+          - button "okay. And at the beginning of the movie, 10:33" [ref=e1829] [cursor=pointer]:
+            - generic [ref=e1830]:
+              - paragraph [ref=e1831]: okay. And at the beginning of the movie,
+              - paragraph [ref=e1832]: 10:33
+            - generic [ref=e1833]:
+              - paragraph
+          - button "Joe got the opportunity to achieve his 10:35" [ref=e1835] [cursor=pointer]:
+            - generic [ref=e1836]:
+              - paragraph [ref=e1837]: Joe got the opportunity to achieve his
+              - paragraph [ref=e1838]: 10:35
+            - generic [ref=e1839]:
+              - paragraph
+          - button "dream by playing in Dura Williams band, 10:37" [ref=e1841] [cursor=pointer]:
+            - generic [ref=e1842]:
+              - paragraph [ref=e1843]: dream by playing in Dura Williams band,
+              - paragraph [ref=e1844]: 10:37
+            - generic [ref=e1845]:
+              - paragraph
+          - button "a fictional jazz musician based on the 10:40" [ref=e1847] [cursor=pointer]:
+            - generic [ref=e1848]:
+              - paragraph [ref=e1849]: a fictional jazz musician based on the
+              - paragraph [ref=e1850]: 10:40
+            - generic [ref=e1851]:
+              - paragraph
+          - button "real jazz saxoponist Tia Fuller. So 10:42" [ref=e1853] [cursor=pointer]:
+            - generic [ref=e1854]:
+              - paragraph [ref=e1855]: real jazz saxoponist Tia Fuller. So
+              - paragraph [ref=e1856]: 10:42
+            - generic [ref=e1857]:
+              - paragraph
+          - button "Joe's childhood rival Paul overhears 22 10:45" [ref=e1859] [cursor=pointer]:
+            - generic [ref=e1860]:
+              - paragraph [ref=e1861]: Joe's childhood rival Paul overhears 22
+              - paragraph [ref=e1862]: 10:45
+            - generic [ref=e1863]:
+              - paragraph
+          - button "mention this and says 10:48" [ref=e1865] [cursor=pointer]:
+            - generic [ref=e1866]:
+              - paragraph [ref=e1867]: mention this and says
+              - paragraph [ref=e1868]: 10:48
+            - generic [ref=e1869]:
+              - paragraph
+          - button ">> for me playing piano with Dorothia 10:50" [ref=e1871] [cursor=pointer]:
+            - generic [ref=e1872]:
+              - paragraph [ref=e1873]: ">> for me playing piano with Dorothia"
+              - paragraph [ref=e1874]: 10:50
+            - generic [ref=e1875]:
+              - paragraph
+          - button "Williams. I know 10:52" [ref=e1877] [cursor=pointer]:
+            - generic [ref=e1878]:
+              - paragraph [ref=e1879]: Williams. I know
+              - paragraph [ref=e1880]: 10:52
+            - generic [ref=e1881]:
+              - paragraph
+          - button ">> you are not all that. 10:53" [ref=e1883] [cursor=pointer]:
+            - generic [ref=e1884]:
+              - paragraph [ref=e1885]: ">> you are not all that."
+              - paragraph [ref=e1886]: 10:53
+            - generic [ref=e1887]:
+              - paragraph
+          - button ">> Now this is a soft insult meaning that 10:55" [ref=e1889] [cursor=pointer]:
+            - generic [ref=e1890]:
+              - paragraph [ref=e1891]: ">> Now this is a soft insult meaning that"
+              - paragraph [ref=e1892]: 10:55
+            - generic [ref=e1893]:
+              - paragraph
+          - button "someone is not as special or impressive 10:57" [ref=e1895] [cursor=pointer]:
+            - generic [ref=e1896]:
+              - paragraph [ref=e1897]: someone is not as special or impressive
+              - paragraph [ref=e1898]: 10:57
+            - generic [ref=e1899]:
+              - paragraph
+          - button "as they think they are. It comes from 10:59" [ref=e1901] [cursor=pointer]:
+            - generic [ref=e1902]:
+              - paragraph [ref=e1903]: as they think they are. It comes from
+              - paragraph [ref=e1904]: 10:59
+            - generic [ref=e1905]:
+              - paragraph
+          - button "the expression all that and a bag of 11:01" [ref=e1907] [cursor=pointer]:
+            - generic [ref=e1908]:
+              - paragraph [ref=e1909]: the expression all that and a bag of
+              - paragraph [ref=e1910]: 11:01
+            - generic [ref=e1911]:
+              - paragraph
+          - button "chips, which means someone who is really 11:03" [ref=e1913] [cursor=pointer]:
+            - generic [ref=e1914]:
+              - paragraph [ref=e1915]: chips, which means someone who is really
+              - paragraph [ref=e1916]: 11:03
+            - generic [ref=e1917]:
+              - paragraph
+          - button "great. And it's not just used for 11:05" [ref=e1919] [cursor=pointer]:
+            - generic [ref=e1920]:
+              - paragraph [ref=e1921]: great. And it's not just used for
+              - paragraph [ref=e1922]: 11:05
+            - generic [ref=e1923]:
+              - paragraph
+          - button "people. You could say something like, 11:07" [ref=e1925] [cursor=pointer]:
+            - generic [ref=e1926]:
+              - paragraph [ref=e1927]: people. You could say something like,
+              - paragraph [ref=e1928]: 11:07
+            - generic [ref=e1929]:
+              - paragraph
+          - button "\"The movie was okay, but it wasn't all 11:08" [ref=e1931] [cursor=pointer]:
+            - generic [ref=e1932]:
+              - paragraph [ref=e1933]: "\"The movie was okay, but it wasn't all"
+              - paragraph [ref=e1934]: 11:08
+            - generic [ref=e1935]:
+              - paragraph
+          - button "that.\" Check out these examples. 11:10" [ref=e1937] [cursor=pointer]:
+            - generic [ref=e1938]:
+              - paragraph [ref=e1939]: that." Check out these examples.
+              - paragraph [ref=e1940]: 11:10
+            - generic [ref=e1941]:
+              - paragraph
+          - button "You're all alone, so you have to pick 11:13" [ref=e1943] [cursor=pointer]:
+            - generic [ref=e1944]:
+              - paragraph [ref=e1945]: You're all alone, so you have to pick
+              - paragraph [ref=e1946]: 11:13
+            - generic [ref=e1947]:
+              - paragraph
+          - button "away at other people's happiness. 11:15" [ref=e1949] [cursor=pointer]:
+            - generic [ref=e1950]:
+              - paragraph [ref=e1951]: away at other people's happiness.
+              - paragraph [ref=e1952]: 11:15
+            - generic [ref=e1953]:
+              - paragraph
+          - button "You're not all that. 11:18" [ref=e1955] [cursor=pointer]:
+            - generic [ref=e1956]:
+              - paragraph [ref=e1957]: You're not all that.
+              - paragraph [ref=e1958]: 11:18
+            - generic [ref=e1959]:
+              - paragraph
+          - button ">> Bill, when you get back to the booth, 11:22" [ref=e1961] [cursor=pointer]:
+            - generic [ref=e1962]:
+              - paragraph [ref=e1963]: ">> Bill, when you get back to the booth,"
+              - paragraph [ref=e1964]: 11:22
+            - generic [ref=e1965]:
+              - paragraph
+          - button "could you tell Joe that Cindy from the 11:24" [ref=e1967] [cursor=pointer]:
+            - generic [ref=e1968]:
+              - paragraph [ref=e1969]: could you tell Joe that Cindy from the
+              - paragraph [ref=e1970]: 11:24
+            - generic [ref=e1971]:
+              - paragraph
+          - button "Bronx thinks he is all that and a bag of 11:25" [ref=e1973] [cursor=pointer]:
+            - generic [ref=e1974]:
+              - paragraph [ref=e1975]: Bronx thinks he is all that and a bag of
+              - paragraph [ref=e1976]: 11:25
+            - generic [ref=e1977]:
+              - paragraph
+          - button "chips? [laughter] 11:28" [ref=e1979] [cursor=pointer]:
+            - generic [ref=e1980]:
+              - paragraph [ref=e1981]: chips? [laughter]
+              - paragraph [ref=e1982]: 11:28
+            - generic [ref=e1983]:
+              - paragraph
+          - button "Now pass that along. 11:29" [ref=e1985] [cursor=pointer]:
+            - generic [ref=e1986]:
+              - paragraph [ref=e1987]: Now pass that along.
+              - paragraph [ref=e1988]: 11:29
+            - generic [ref=e1989]:
+              - paragraph
+          - button ">> Now let's hear Joe's comeback. 11:31" [ref=e1991] [cursor=pointer]:
+            - generic [ref=e1992]:
+              - paragraph [ref=e1993]: ">> Now let's hear Joe's comeback."
+              - paragraph [ref=e1994]: 11:31
+            - generic [ref=e1995]:
+              - paragraph
+          - button ">> Anyone could play in a band if they 11:33" [ref=e1997] [cursor=pointer]:
+            - generic [ref=e1998]:
+              - paragraph [ref=e1999]: ">> Anyone could play in a band if they"
+              - paragraph [ref=e2000]: 11:33
+            - generic [ref=e2001]:
+              - paragraph
+          - button "wanted to. 11:34" [ref=e2003] [cursor=pointer]:
+            - generic [ref=e2004]:
+              - paragraph [ref=e2005]: wanted to.
+              - paragraph [ref=e2006]: 11:34
+            - generic [ref=e2007]:
+              - paragraph
+          - button ">> Don't pay Paul any mind. People like him 11:35" [ref=e2009] [cursor=pointer]:
+            - generic [ref=e2010]:
+              - paragraph [ref=e2011]: ">> Don't pay Paul any mind. People like him"
+              - paragraph [ref=e2012]: 11:35
+            - generic [ref=e2013]:
+              - paragraph
+          - button "just bring other people down so they can 11:36" [ref=e2015] [cursor=pointer]:
+            - generic [ref=e2016]:
+              - paragraph [ref=e2017]: just bring other people down so they can
+              - paragraph [ref=e2018]: 11:36
+            - generic [ref=e2019]:
+              - paragraph
+          - button "make themselves feel better. 11:38" [ref=e2021] [cursor=pointer]:
+            - generic [ref=e2022]:
+              - paragraph [ref=e2023]: make themselves feel better.
+              - paragraph [ref=e2024]: 11:38
+            - generic [ref=e2025]:
+              - paragraph
+          - button ">> Oh, I get it. He's just [music] 11:40" [ref=e2027] [cursor=pointer]:
+            - generic [ref=e2028]:
+              - paragraph [ref=e2029]: ">> Oh, I get it. He's just [music]"
+              - paragraph [ref=e2030]: 11:40
+            - generic [ref=e2031]:
+              - paragraph
+          - button "criticizing me to cover up the pain of 11:42" [ref=e2033] [cursor=pointer]:
+            - generic [ref=e2034]:
+              - paragraph [ref=e2035]: criticizing me to cover up the pain of
+              - paragraph [ref=e2036]: 11:42
+            - generic [ref=e2037]:
+              - paragraph
+          - button "his own failed dreams. 11:44" [ref=e2039] [cursor=pointer]:
+            - generic [ref=e2040]:
+              - paragraph [ref=e2041]: his own failed dreams.
+              - paragraph [ref=e2042]: 11:44
+            - generic [ref=e2043]:
+              - paragraph
+          - button ">> Pay someone mind means to listen to them 11:45" [ref=e2045] [cursor=pointer]:
+            - generic [ref=e2046]:
+              - paragraph [ref=e2047]: ">> Pay someone mind means to listen to them"
+              - paragraph [ref=e2048]: 11:45
+            - generic [ref=e2049]:
+              - paragraph
+          - button "or care about their opinion. If you 11:48" [ref=e2051] [cursor=pointer]:
+            - generic [ref=e2052]:
+              - paragraph [ref=e2053]: or care about their opinion. If you
+              - paragraph [ref=e2054]: 11:48
+            - generic [ref=e2055]:
+              - paragraph
+          - button "don't pay them mind, you just ignore 11:50" [ref=e2057] [cursor=pointer]:
+            - generic [ref=e2058]:
+              - paragraph [ref=e2059]: don't pay them mind, you just ignore
+              - paragraph [ref=e2060]: 11:50
+            - generic [ref=e2061]:
+              - paragraph
+          - button "them. A friend might tell you, \"Don't 11:52" [ref=e2063] [cursor=pointer]:
+            - generic [ref=e2064]:
+              - paragraph [ref=e2065]: them. A friend might tell you, "Don't
+              - paragraph [ref=e2066]: 11:52
+            - generic [ref=e2067]:
+              - paragraph
+          - button "pay the news any mind. It just makes you 11:53" [ref=e2069] [cursor=pointer]:
+            - generic [ref=e2070]:
+              - paragraph [ref=e2071]: pay the news any mind. It just makes you
+              - paragraph [ref=e2072]: 11:53
+            - generic [ref=e2073]:
+              - paragraph
+          - button "anxious.\" Here's another example. 11:55" [ref=e2075] [cursor=pointer]:
+            - generic [ref=e2076]:
+              - paragraph [ref=e2077]: anxious." Here's another example.
+              - paragraph [ref=e2078]: 11:55
+            - generic [ref=e2079]:
+              - paragraph
+          - button ">> Me? Do you understand me? 11:57" [ref=e2081] [cursor=pointer]:
+            - generic [ref=e2082]:
+              - paragraph [ref=e2083]: ">> Me? Do you understand me?"
+              - paragraph [ref=e2084]: 11:57
+            - generic [ref=e2085]:
+              - paragraph
+          - button ">> He can't help it, Mrs. Dods. Percy's 11:59" [ref=e2087] [cursor=pointer]:
+            - generic [ref=e2088]:
+              - paragraph [ref=e2089]: ">> He can't help it, Mrs. Dods. Percy's"
+              - paragraph [ref=e2090]: 11:59
+            - generic [ref=e2091]:
+              - paragraph
+          - button "special. 12:03" [ref=e2093] [cursor=pointer]:
+            - generic [ref=e2094]:
+              - paragraph [ref=e2095]: special.
+              - paragraph [ref=e2096]: 12:03
+            - generic [ref=e2097]:
+              - paragraph
+          - button ">> That's enough. Pay them no mind. 12:04" [ref=e2099] [cursor=pointer]:
+            - generic [ref=e2100]:
+              - paragraph [ref=e2101]: ">> That's enough. Pay them no mind."
+              - paragraph [ref=e2102]: 12:04
+            - generic [ref=e2103]:
+              - paragraph
+          - button "When you're ready to hear what the gods 12:10" [ref=e2105] [cursor=pointer]:
+            - generic [ref=e2106]:
+              - paragraph [ref=e2107]: When you're ready to hear what the gods
+              - paragraph [ref=e2108]: 12:10
+            - generic [ref=e2109]:
+              - paragraph
+          - button "have in store for you, they'll tell you. 12:12" [ref=e2111] [cursor=pointer]:
+            - generic [ref=e2112]:
+              - paragraph [ref=e2113]: have in store for you, they'll tell you.
+              - paragraph [ref=e2114]: 12:12
+            - generic [ref=e2115]:
+              - paragraph
+          - button ">> Now, if you bring someone down, you make 12:16" [ref=e2117] [cursor=pointer]:
+            - generic [ref=e2118]:
+              - paragraph [ref=e2119]: ">> Now, if you bring someone down, you make"
+              - paragraph [ref=e2120]: 12:16
+            - generic [ref=e2121]:
+              - paragraph
+          - button "them feel bad, sad, or discouraged. You 12:18" [ref=e2123] [cursor=pointer]:
+            - generic [ref=e2124]:
+              - paragraph [ref=e2125]: them feel bad, sad, or discouraged. You
+              - paragraph [ref=e2126]: 12:18
+            - generic [ref=e2127]:
+              - paragraph
+          - button "could do this by criticizing or 12:21" [ref=e2129] [cursor=pointer]:
+            - generic [ref=e2130]:
+              - paragraph [ref=e2131]: could do this by criticizing or
+              - paragraph [ref=e2132]: 12:21
+            - generic [ref=e2133]:
+              - paragraph
+          - button "insulting someone or being negative. 12:23" [ref=e2135] [cursor=pointer]:
+            - generic [ref=e2136]:
+              - paragraph [ref=e2137]: insulting someone or being negative.
+              - paragraph [ref=e2138]: 12:23
+            - generic [ref=e2139]:
+              - paragraph
+          - button "Miss Sylvester, I want to thank you 12:28" [ref=e2141] [cursor=pointer]:
+            - generic [ref=e2142]:
+              - paragraph [ref=e2143]: Miss Sylvester, I want to thank you
+              - paragraph [ref=e2144]: 12:28
+            - generic [ref=e2145]:
+              - paragraph
+          - button ">> for what? 12:31" [ref=e2147] [cursor=pointer]:
+            - generic [ref=e2148]:
+              - paragraph [ref=e2149]: ">> for what?"
+              - paragraph [ref=e2150]: 12:31
+            - generic [ref=e2151]:
+              - paragraph
+          - button ">> For teaching me a valuable life lesson. 12:32" [ref=e2153] [cursor=pointer]:
+            - generic [ref=e2154]:
+              - paragraph [ref=e2155]: ">> For teaching me a valuable life lesson."
+              - paragraph [ref=e2156]: 12:32
+            - generic [ref=e2157]:
+              - paragraph
+          - button "And you really believe in yourself. You 12:36" [ref=e2159] [cursor=pointer]:
+            - generic [ref=e2160]:
+              - paragraph [ref=e2161]: And you really believe in yourself. You
+              - paragraph [ref=e2162]: 12:36
+            - generic [ref=e2163]:
+              - paragraph
+          - button "don't have to bring other people down. 12:38" [ref=e2165] [cursor=pointer]:
+            - generic [ref=e2166]:
+              - paragraph [ref=e2167]: don't have to bring other people down.
+              - paragraph [ref=e2168]: 12:38
+            - generic [ref=e2169]:
+              - paragraph
+          - button ">> He's just criticizing me [music] to 12:43" [ref=e2171] [cursor=pointer]:
+            - generic [ref=e2172]:
+              - paragraph [ref=e2173]: ">> He's just criticizing me [music] to"
+              - paragraph [ref=e2174]: 12:43
+            - generic [ref=e2175]:
+              - paragraph
+          - button "cover up the pain of his own failed 12:45" [ref=e2177] [cursor=pointer]:
+            - generic [ref=e2178]:
+              - paragraph [ref=e2179]: cover up the pain of his own failed
+              - paragraph [ref=e2180]: 12:45
+            - generic [ref=e2181]:
+              - paragraph
+          - button "dreams. 12:46" [ref=e2183] [cursor=pointer]:
+            - generic [ref=e2184]:
+              - paragraph [ref=e2185]: dreams.
+              - paragraph [ref=e2186]: 12:46
+            - generic [ref=e2187]:
+              - paragraph
+          - button ">> And if you cover something up, you hide 12:47" [ref=e2189] [cursor=pointer]:
+            - generic [ref=e2190]:
+              - paragraph [ref=e2191]: ">> And if you cover something up, you hide"
+              - paragraph [ref=e2192]: 12:47
+            - generic [ref=e2193]:
+              - paragraph
+          - button "it. Like you might cover up something on 12:48" [ref=e2195] [cursor=pointer]:
+            - generic [ref=e2196]:
+              - paragraph [ref=e2197]: it. Like you might cover up something on
+              - paragraph [ref=e2198]: 12:48
+            - generic [ref=e2199]:
+              - paragraph
+          - button "your desk that you don't want your boss 12:50" [ref=e2201] [cursor=pointer]:
+            - generic [ref=e2202]:
+              - paragraph [ref=e2203]: your desk that you don't want your boss
+              - paragraph [ref=e2204]: 12:50
+            - generic [ref=e2205]:
+              - paragraph
+          - button "to see. In this case, it's used 12:52" [ref=e2207] [cursor=pointer]:
+            - generic [ref=e2208]:
+              - paragraph [ref=e2209]: to see. In this case, it's used
+              - paragraph [ref=e2210]: 12:52
+            - generic [ref=e2211]:
+              - paragraph
+          - button "figuratively. Paul is hiding his own 12:53" [ref=e2213] [cursor=pointer]:
+            - generic [ref=e2214]:
+              - paragraph [ref=e2215]: figuratively. Paul is hiding his own
+              - paragraph [ref=e2216]: 12:53
+            - generic [ref=e2217]:
+              - paragraph
+          - button "disappointment by criticizing others. 12:55" [ref=e2219] [cursor=pointer]:
+            - generic [ref=e2220]:
+              - paragraph [ref=e2221]: disappointment by criticizing others.
+              - paragraph [ref=e2222]: 12:55
+            - generic [ref=e2223]:
+              - paragraph
+          - button "Cover up is also used for hiding the 12:57" [ref=e2225] [cursor=pointer]:
+            - generic [ref=e2226]:
+              - paragraph [ref=e2227]: Cover up is also used for hiding the
+              - paragraph [ref=e2228]: 12:57
+            - generic [ref=e2229]:
+              - paragraph
+          - button "truth, like how politicians attempt to 12:59" [ref=e2231] [cursor=pointer]:
+            - generic [ref=e2232]:
+              - paragraph [ref=e2233]: truth, like how politicians attempt to
+              - paragraph [ref=e2234]: 12:59
+            - generic [ref=e2235]:
+              - paragraph
+          - button "cover up scandals they are involved in. 13:01" [ref=e2237] [cursor=pointer]:
+            - generic [ref=e2238]:
+              - paragraph [ref=e2239]: cover up scandals they are involved in.
+              - paragraph [ref=e2240]: 13:01
+            - generic [ref=e2241]:
+              - paragraph
+          - button "And let's hear Paul's response to this 13:03" [ref=e2243] [cursor=pointer]:
+            - generic [ref=e2244]:
+              - paragraph [ref=e2245]: And let's hear Paul's response to this
+              - paragraph [ref=e2246]: 13:03
+            - generic [ref=e2247]:
+              - paragraph
+          - button "insight. 13:05" [ref=e2249] [cursor=pointer]:
+            - generic [ref=e2250]:
+              - paragraph [ref=e2251]: insight.
+              - paragraph [ref=e2252]: 13:05
+            - generic [ref=e2253]:
+              - paragraph
+          - button ">> You cut deep, Joe. 13:07" [ref=e2255] [cursor=pointer]:
+            - generic [ref=e2256]:
+              - paragraph [ref=e2257]: ">> You cut deep, Joe."
+              - paragraph [ref=e2258]: 13:07
+            - generic [ref=e2259]:
+              - paragraph
+          - button ">> When something cuts deep, it hurts 13:09" [ref=e2261] [cursor=pointer]:
+            - generic [ref=e2262]:
+              - paragraph [ref=e2263]: ">> When something cuts deep, it hurts"
+              - paragraph [ref=e2264]: 13:09
+            - generic [ref=e2265]:
+              - paragraph
+          - button "emotionally in a profound way. Just like 13:11" [ref=e2267] [cursor=pointer]:
+            - generic [ref=e2268]:
+              - paragraph [ref=e2269]: emotionally in a profound way. Just like
+              - paragraph [ref=e2270]: 13:11
+            - generic [ref=e2271]:
+              - paragraph
+          - button "a physical wound, but emotional instead. 13:14" [ref=e2273] [cursor=pointer]:
+            - generic [ref=e2274]:
+              - paragraph [ref=e2275]: a physical wound, but emotional instead.
+              - paragraph [ref=e2276]: 13:14
+            - generic [ref=e2277]:
+              - paragraph
+          - button "If you break up with your partner after 13:16" [ref=e2279] [cursor=pointer]:
+            - generic [ref=e2280]:
+              - paragraph [ref=e2281]: If you break up with your partner after
+              - paragraph [ref=e2282]: 13:16
+            - generic [ref=e2283]:
+              - paragraph
+          - button "several years, that cuts deep. Now, 13:18" [ref=e2285] [cursor=pointer]:
+            - generic [ref=e2286]:
+              - paragraph [ref=e2287]: several years, that cuts deep. Now,
+              - paragraph [ref=e2288]: 13:18
+            - generic [ref=e2289]:
+              - paragraph
+          - button "we'll watch a final impactful scene 13:20" [ref=e2291] [cursor=pointer]:
+            - generic [ref=e2292]:
+              - paragraph [ref=e2293]: we'll watch a final impactful scene
+              - paragraph [ref=e2294]: 13:20
+            - generic [ref=e2295]:
+              - paragraph
+          - button "where 22 reflects about their time on 13:22" [ref=e2297] [cursor=pointer]:
+            - generic [ref=e2298]:
+              - paragraph [ref=e2299]: where 22 reflects about their time on
+              - paragraph [ref=e2300]: 13:22
+            - generic [ref=e2301]:
+              - paragraph
+          - button "Earth when it's time for them to go back 13:24" [ref=e2303] [cursor=pointer]:
+            - generic [ref=e2304]:
+              - paragraph [ref=e2305]: Earth when it's time for them to go back
+              - paragraph [ref=e2306]: 13:24
+            - generic [ref=e2307]:
+              - paragraph
+          - button "to the great [music] before. 13:26" [ref=e2309] [cursor=pointer]:
+            - generic [ref=e2310]:
+              - paragraph [ref=e2311]: to the great [music] before.
+              - paragraph [ref=e2312]: 13:26
+            - generic [ref=e2313]:
+              - paragraph
+          - button ">> So, you ready? 13:31" [ref=e2315] [cursor=pointer]:
+            - generic [ref=e2316]:
+              - paragraph [ref=e2317]: ">> So, you ready?"
+              - paragraph [ref=e2318]: 13:31
+            - generic [ref=e2319]:
+              - paragraph
+          - button ">> Huh? 13:33" [ref=e2321] [cursor=pointer]:
+            - generic [ref=e2322]:
+              - paragraph [ref=e2323]: ">> Huh?"
+              - paragraph [ref=e2324]: 13:33
+            - generic [ref=e2325]:
+              - paragraph
+          - button ">> To go home. What'd you think of Earth 13:33" [ref=e2327] [cursor=pointer]:
+            - generic [ref=e2328]:
+              - paragraph [ref=e2329]: ">> To go home. What'd you think of Earth"
+              - paragraph [ref=e2330]: 13:33
+            - generic [ref=e2331]:
+              - paragraph
+          - button "anyway? 13:35" [ref=e2333] [cursor=pointer]:
+            - generic [ref=e2334]:
+              - paragraph [ref=e2335]: anyway?
+              - paragraph [ref=e2336]: 13:35
+            - generic [ref=e2337]:
+              - paragraph
+          - button ">> I always said it was dumb, but 13:37" [ref=e2339] [cursor=pointer]:
+            - generic [ref=e2340]:
+              - paragraph [ref=e2341]: ">> I always said it was dumb, but"
+              - paragraph [ref=e2342]: 13:37
+            - generic [ref=e2343]:
+              - paragraph
+          - button "I mean, just look at what I found. Your 13:41" [ref=e2345] [cursor=pointer]:
+            - generic [ref=e2346]:
+              - paragraph [ref=e2347]: I mean, just look at what I found. Your
+              - paragraph [ref=e2348]: 13:41
+            - generic [ref=e2349]:
+              - paragraph
+          - button "mom sewed your suit from this cute 13:46" [ref=e2351] [cursor=pointer]:
+            - generic [ref=e2352]:
+              - paragraph [ref=e2353]: mom sewed your suit from this cute
+              - paragraph [ref=e2354]: 13:46
+            - generic [ref=e2355]:
+              - paragraph
+          - button "spool. When I was nervous, Dez gave me 13:48" [ref=e2357] [cursor=pointer]:
+            - generic [ref=e2358]:
+              - paragraph [ref=e2359]: spool. When I was nervous, Dez gave me
+              - paragraph [ref=e2360]: 13:48
+            - generic [ref=e2361]:
+              - paragraph
+          - button "this. A guy on the subway yelled at me. 13:51" [ref=e2363] [cursor=pointer]:
+            - generic [ref=e2364]:
+              - paragraph [ref=e2365]: this. A guy on the subway yelled at me.
+              - paragraph [ref=e2366]: 13:51
+            - generic [ref=e2367]:
+              - paragraph
+          - button "It was scary. 13:54" [ref=e2369] [cursor=pointer]:
+            - generic [ref=e2370]:
+              - paragraph [ref=e2371]: It was scary.
+              - paragraph [ref=e2372]: 13:54
+            - generic [ref=e2373]:
+              - paragraph
+          - button "But I kind of liked that, too. 13:56" [ref=e2375] [cursor=pointer]:
+            - generic [ref=e2376]:
+              - paragraph [ref=e2377]: But I kind of liked that, too.
+              - paragraph [ref=e2378]: 13:56
+            - generic [ref=e2379]:
+              - paragraph
+          - button "Truth is, I've always worried that maybe 14:00" [ref=e2381] [cursor=pointer]:
+            - generic [ref=e2382]:
+              - paragraph [ref=e2383]: Truth is, I've always worried that maybe
+              - paragraph [ref=e2384]: 14:00
+            - generic [ref=e2385]:
+              - paragraph
+          - button "there's something wrong with me. You 14:01" [ref=e2387] [cursor=pointer]:
+            - generic [ref=e2388]:
+              - paragraph [ref=e2389]: there's something wrong with me. You
+              - paragraph [ref=e2390]: 14:01
+            - generic [ref=e2391]:
+              - paragraph
+          - button "know, maybe I'm not good enough for a 14:03" [ref=e2393] [cursor=pointer]:
+            - generic [ref=e2394]:
+              - paragraph [ref=e2395]: know, maybe I'm not good enough for a
+              - paragraph [ref=e2396]: 14:03
+            - generic [ref=e2397]:
+              - paragraph
+          - button "living. 14:06" [ref=e2399] [cursor=pointer]:
+            - generic [ref=e2400]:
+              - paragraph [ref=e2401]: living.
+              - paragraph [ref=e2402]: 14:06
+            - generic [ref=e2403]:
+              - paragraph
+          - button "But then you showed me about [music] 14:08" [ref=e2405] [cursor=pointer]:
+            - generic [ref=e2406]:
+              - paragraph [ref=e2407]: But then you showed me about [music]
+              - paragraph [ref=e2408]: 14:08
+            - generic [ref=e2409]:
+              - paragraph
+          - button "purpose and passion. And maybe 14:11" [ref=e2411] [cursor=pointer]:
+            - generic [ref=e2412]:
+              - paragraph [ref=e2413]: purpose and passion. And maybe
+              - paragraph [ref=e2414]: 14:11
+            - generic [ref=e2415]:
+              - paragraph
+          - button "skywatching can be my spark. Or walking. 14:15" [ref=e2417] [cursor=pointer]:
+            - generic [ref=e2418]:
+              - paragraph [ref=e2419]: skywatching can be my spark. Or walking.
+              - paragraph [ref=e2420]: 14:15
+            - generic [ref=e2421]:
+              - paragraph
+          - button "I'm really good at walking. 14:17" [ref=e2423] [cursor=pointer]:
+            - generic [ref=e2424]:
+              - paragraph [ref=e2425]: I'm really good at walking.
+              - paragraph [ref=e2426]: 14:17
+            - generic [ref=e2427]:
+              - paragraph
+          - button ">> Those really aren't purposes. 22. That's 14:19" [ref=e2429] [cursor=pointer]:
+            - generic [ref=e2430]:
+              - paragraph [ref=e2431]: ">> Those really aren't purposes. 22. That's"
+              - paragraph [ref=e2432]: 14:19
+            - generic [ref=e2433]:
+              - paragraph
+          - button "just regular old living. 14:21" [ref=e2435] [cursor=pointer]:
+            - generic [ref=e2436]:
+              - paragraph [ref=e2437]: just regular old living.
+              - paragraph [ref=e2438]: 14:21
+            - generic [ref=e2439]:
+              - paragraph
+          - button ">> Man, this scene is absolutely beautiful. 14:25" [ref=e2441] [cursor=pointer]:
+            - generic [ref=e2442]:
+              - paragraph [ref=e2443]: ">> Man, this scene is absolutely beautiful."
+              - paragraph [ref=e2444]: 14:25
+            - generic [ref=e2445]:
+              - paragraph
+          - button "After experiencing simple joys, eating 14:27" [ref=e2447] [cursor=pointer]:
+            - generic [ref=e2448]:
+              - paragraph [ref=e2449]: After experiencing simple joys, eating
+              - paragraph [ref=e2450]: 14:27
+            - generic [ref=e2451]:
+              - paragraph
+          - button "pizza, listening to music, getting a 14:30" [ref=e2453] [cursor=pointer]:
+            - generic [ref=e2454]:
+              - paragraph [ref=e2455]: pizza, listening to music, getting a
+              - paragraph [ref=e2456]: 14:30
+            - generic [ref=e2457]:
+              - paragraph
+          - button "haircut, 22 starts to appreciate many of 14:32" [ref=e2459] [cursor=pointer]:
+            - generic [ref=e2460]:
+              - paragraph [ref=e2461]: haircut, 22 starts to appreciate many of
+              - paragraph [ref=e2462]: 14:32
+            - generic [ref=e2463]:
+              - paragraph
+          - button "the everyday human experiences that we 14:35" [ref=e2465] [cursor=pointer]:
+            - generic [ref=e2466]:
+              - paragraph [ref=e2467]: the everyday human experiences that we
+              - paragraph [ref=e2468]: 14:35
+            - generic [ref=e2469]:
+              - paragraph
+          - button "take for granted. 22 thought being a 14:37" [ref=e2471] [cursor=pointer]:
+            - generic [ref=e2472]:
+              - paragraph [ref=e2473]: take for granted. 22 thought being a
+              - paragraph [ref=e2474]: 14:37
+            - generic [ref=e2475]:
+              - paragraph
+          - button "human was dumb, but they changed their 14:39" [ref=e2477] [cursor=pointer]:
+            - generic [ref=e2478]:
+              - paragraph [ref=e2479]: human was dumb, but they changed their
+              - paragraph [ref=e2480]: 14:39
+            - generic [ref=e2481]:
+              - paragraph
+          - button "mind. 14:41" [ref=e2483] [cursor=pointer]:
+            - generic [ref=e2484]:
+              - paragraph [ref=e2485]: mind.
+              - paragraph [ref=e2486]: 14:41
+            - generic [ref=e2487]:
+              - paragraph
+          - button ">> What' you think of Earth anyway? 14:42" [ref=e2489] [cursor=pointer]:
+            - generic [ref=e2490]:
+              - paragraph [ref=e2491]: ">> What' you think of Earth anyway?"
+              - paragraph [ref=e2492]: 14:42
+            - generic [ref=e2493]:
+              - paragraph
+          - button ">> I always said it was dumb. When you call 14:45" [ref=e2495] [cursor=pointer]:
+            - generic [ref=e2496]:
+              - paragraph [ref=e2497]: ">> I always said it was dumb. When you call"
+              - paragraph [ref=e2498]: 14:45
+            - generic [ref=e2499]:
+              - paragraph
+          - button "something dumb, you're saying that it's 14:47" [ref=e2501] [cursor=pointer]:
+            - generic [ref=e2502]:
+              - paragraph [ref=e2503]: something dumb, you're saying that it's
+              - paragraph [ref=e2504]: 14:47
+            - generic [ref=e2505]:
+              - paragraph
+          - button "stupid or not intelligent. But here, 22 14:49" [ref=e2507] [cursor=pointer]:
+            - generic [ref=e2508]:
+              - paragraph [ref=e2509]: stupid or not intelligent. But here, 22
+              - paragraph [ref=e2510]: 14:49
+            - generic [ref=e2511]:
+              - paragraph
+          - button "is using it more casually to say that 14:53" [ref=e2513] [cursor=pointer]:
+            - generic [ref=e2514]:
+              - paragraph [ref=e2515]: is using it more casually to say that
+              - paragraph [ref=e2516]: 14:53
+            - generic [ref=e2517]:
+              - paragraph
+          - button "it's pointless. You might hear, \"That's 14:55" [ref=e2519] [cursor=pointer]:
+            - generic [ref=e2520]:
+              - paragraph [ref=e2521]: it's pointless. You might hear, "That's
+              - paragraph [ref=e2522]: 14:55
+            - generic [ref=e2523]:
+              - paragraph
+          - button "a dumb idea.\" Or, \"I thought the movie 14:57" [ref=e2525] [cursor=pointer]:
+            - generic [ref=e2526]:
+              - paragraph [ref=e2527]: a dumb idea." Or, "I thought the movie
+              - paragraph [ref=e2528]: 14:57
+            - generic [ref=e2529]:
+              - paragraph
+          - button "was pretty dumb.\" Keep in mind, this 14:59" [ref=e2531] [cursor=pointer]:
+            - generic [ref=e2532]:
+              - paragraph [ref=e2533]: was pretty dumb." Keep in mind, this
+              - paragraph [ref=e2534]: 14:59
+            - generic [ref=e2535]:
+              - paragraph
+          - button "word can be considered rude. We also 15:01" [ref=e2537] [cursor=pointer]:
+            - generic [ref=e2538]:
+              - paragraph [ref=e2539]: word can be considered rude. We also
+              - paragraph [ref=e2540]: 15:01
+            - generic [ref=e2541]:
+              - paragraph
+          - button "hear a nice instance of connected speech 15:03" [ref=e2543] [cursor=pointer]:
+            - generic [ref=e2544]:
+              - paragraph [ref=e2545]: hear a nice instance of connected speech
+              - paragraph [ref=e2546]: 15:03
+            - generic [ref=e2547]:
+              - paragraph
+          - button "in Joe's question. 15:05" [ref=e2549] [cursor=pointer]:
+            - generic [ref=e2550]:
+              - paragraph [ref=e2551]: in Joe's question.
+              - paragraph [ref=e2552]: 15:05
+            - generic [ref=e2553]:
+              - paragraph
+          - button ">> What' you think of Earth anyway? 15:06" [ref=e2555] [cursor=pointer]:
+            - generic [ref=e2556]:
+              - paragraph [ref=e2557]: ">> What' you think of Earth anyway?"
+              - paragraph [ref=e2558]: 15:06
+            - generic [ref=e2559]:
+              - paragraph
+          - button ">> He actually dropped the word do 15:08" [ref=e2561] [cursor=pointer]:
+            - generic [ref=e2562]:
+              - paragraph [ref=e2563]: ">> He actually dropped the word do"
+              - paragraph [ref=e2564]: 15:08
+            - generic [ref=e2565]:
+              - paragraph
+          - button "altogether. When u is preceded by a word 15:09" [ref=e2567] [cursor=pointer]:
+            - generic [ref=e2568]:
+              - paragraph [ref=e2569]: altogether. When u is preceded by a word
+              - paragraph [ref=e2570]: 15:09
+            - generic [ref=e2571]:
+              - paragraph
+          - button "ending in t, it usually morphs into a ch 15:12" [ref=e2573] [cursor=pointer]:
+            - generic [ref=e2574]:
+              - paragraph [ref=e2575]: ending in t, it usually morphs into a ch
+              - paragraph [ref=e2576]: 15:12
+            - generic [ref=e2577]:
+              - paragraph
+          - button "sound. So what do you becomes what you? 15:15" [ref=e2579] [cursor=pointer]:
+            - generic [ref=e2580]:
+              - paragraph [ref=e2581]: sound. So what do you becomes what you?
+              - paragraph [ref=e2582]: 15:15
+            - generic [ref=e2583]:
+              - paragraph
+          - button "What you think? What you think? Practice 15:20" [ref=e2585] [cursor=pointer]:
+            - generic [ref=e2586]:
+              - paragraph [ref=e2587]: What you think? What you think? Practice
+              - paragraph [ref=e2588]: 15:20
+            - generic [ref=e2589]:
+              - paragraph
+          - button "it with Joe. 15:22" [ref=e2591] [cursor=pointer]:
+            - generic [ref=e2592]:
+              - paragraph [ref=e2593]: it with Joe.
+              - paragraph [ref=e2594]: 15:22
+            - generic [ref=e2595]:
+              - paragraph
+          - button ">> What you think of earth anyway? What you 15:23" [ref=e2597] [cursor=pointer]:
+            - generic [ref=e2598]:
+              - paragraph [ref=e2599]: ">> What you think of earth anyway? What you"
+              - paragraph [ref=e2600]: 15:23
+            - generic [ref=e2601]:
+              - paragraph
+          - button "think of earth anyway? 15:26" [ref=e2603] [cursor=pointer]:
+            - generic [ref=e2604]:
+              - paragraph [ref=e2605]: think of earth anyway?
+              - paragraph [ref=e2606]: 15:26
+            - generic [ref=e2607]:
+              - paragraph
+          - button ">> Just look at what I found. Your mom 15:34" [ref=e2609] [cursor=pointer]:
+            - generic [ref=e2610]:
+              - paragraph [ref=e2611]: ">> Just look at what I found. Your mom"
+              - paragraph [ref=e2612]: 15:34
+            - generic [ref=e2613]:
+              - paragraph
+          - button "sewed your suit from this cute spool. 15:37" [ref=e2615] [cursor=pointer]:
+            - generic [ref=e2616]:
+              - paragraph [ref=e2617]: sewed your suit from this cute spool.
+              - paragraph [ref=e2618]: 15:37
+            - generic [ref=e2619]:
+              - paragraph
+          - button "These are spools, a common item in a 15:40" [ref=e2621] [cursor=pointer]:
+            - generic [ref=e2622]:
+              - paragraph [ref=e2623]: These are spools, a common item in a
+              - paragraph [ref=e2624]: 15:40
+            - generic [ref=e2625]:
+              - paragraph
+          - button "sewing kit. Joe's mom is a seamstress, 15:43" [ref=e2627] [cursor=pointer]:
+            - generic [ref=e2628]:
+              - paragraph [ref=e2629]: sewing kit. Joe's mom is a seamstress,
+              - paragraph [ref=e2630]: 15:43
+            - generic [ref=e2631]:
+              - paragraph
+          - button "so she has plenty of these. 22 found one 15:46" [ref=e2633] [cursor=pointer]:
+            - generic [ref=e2634]:
+              - paragraph [ref=e2635]: so she has plenty of these. 22 found one
+              - paragraph [ref=e2636]: 15:46
+            - generic [ref=e2637]:
+              - paragraph
+          - button "and kept it as a treasure, showing how 15:48" [ref=e2639] [cursor=pointer]:
+            - generic [ref=e2640]:
+              - paragraph [ref=e2641]: and kept it as a treasure, showing how
+              - paragraph [ref=e2642]: 15:48
+            - generic [ref=e2643]:
+              - paragraph
+          - button "we can find meaning in small, ordinary 15:50" [ref=e2645] [cursor=pointer]:
+            - generic [ref=e2646]:
+              - paragraph [ref=e2647]: we can find meaning in small, ordinary
+              - paragraph [ref=e2648]: 15:50
+            - generic [ref=e2649]:
+              - paragraph
+          - button "objects. 22 was never interested in 15:53" [ref=e2651] [cursor=pointer]:
+            - generic [ref=e2652]:
+              - paragraph [ref=e2653]: objects. 22 was never interested in
+              - paragraph [ref=e2654]: 15:53
+            - generic [ref=e2655]:
+              - paragraph
+          - button "becoming human. And throughout the 15:55" [ref=e2657] [cursor=pointer]:
+            - generic [ref=e2658]:
+              - paragraph [ref=e2659]: becoming human. And throughout the
+              - paragraph [ref=e2660]: 15:55
+            - generic [ref=e2661]:
+              - paragraph
+          - button "beginning of the movie, we see that in 15:56" [ref=e2663] [cursor=pointer]:
+            - generic [ref=e2664]:
+              - paragraph [ref=e2665]: beginning of the movie, we see that in
+              - paragraph [ref=e2666]: 15:56
+            - generic [ref=e2667]:
+              - paragraph
+          - button "the great before, they find it 15:58" [ref=e2669] [cursor=pointer]:
+            - generic [ref=e2670]:
+              - paragraph [ref=e2671]: the great before, they find it
+              - paragraph [ref=e2672]: 15:58
+            - generic [ref=e2673]:
+              - paragraph
+          - button "impossible to find their spark. 15:59" [ref=e2675] [cursor=pointer]:
+            - generic [ref=e2676]:
+              - paragraph [ref=e2677]: impossible to find their spark.
+              - paragraph [ref=e2678]: 15:59
+            - generic [ref=e2679]:
+              - paragraph
+          - button ">> Truth is, I've always worried that maybe 16:01" [ref=e2681] [cursor=pointer]:
+            - generic [ref=e2682]:
+              - paragraph [ref=e2683]: ">> Truth is, I've always worried that maybe"
+              - paragraph [ref=e2684]: 16:01
+            - generic [ref=e2685]:
+              - paragraph
+          - button "there's something wrong with me. You 16:03" [ref=e2687] [cursor=pointer]:
+            - generic [ref=e2688]:
+              - paragraph [ref=e2689]: there's something wrong with me. You
+              - paragraph [ref=e2690]: 16:03
+            - generic [ref=e2691]:
+              - paragraph
+          - button "know, maybe I'm not good enough for a 16:05" [ref=e2693] [cursor=pointer]:
+            - generic [ref=e2694]:
+              - paragraph [ref=e2695]: know, maybe I'm not good enough for a
+              - paragraph [ref=e2696]: 16:05
+            - generic [ref=e2697]:
+              - paragraph
+          - button "living. 16:08" [ref=e2699] [cursor=pointer]:
+            - generic [ref=e2700]:
+              - paragraph [ref=e2701]: living.
+              - paragraph [ref=e2702]: 16:08
+            - generic [ref=e2703]:
+              - paragraph
+          - button "But then you showed me about purpose and 16:10" [ref=e2705] [cursor=pointer]:
+            - generic [ref=e2706]:
+              - paragraph [ref=e2707]: But then you showed me about purpose and
+              - paragraph [ref=e2708]: 16:10
+            - generic [ref=e2709]:
+              - paragraph
+          - button "passion. And maybe skywatching can be my 16:14" [ref=e2711] [cursor=pointer]:
+            - generic [ref=e2712]:
+              - paragraph [ref=e2713]: passion. And maybe skywatching can be my
+              - paragraph [ref=e2714]: 16:14
+            - generic [ref=e2715]:
+              - paragraph
+          - button "spark. 16:18" [ref=e2717] [cursor=pointer]:
+            - generic [ref=e2718]:
+              - paragraph [ref=e2719]: spark.
+              - paragraph [ref=e2720]: 16:18
+            - generic [ref=e2721]:
+              - paragraph
+          - button ">> In Soul's world, a spark is what 16:18" [ref=e2723] [cursor=pointer]:
+            - generic [ref=e2724]:
+              - paragraph [ref=e2725]: ">> In Soul's world, a spark is what"
+              - paragraph [ref=e2726]: 16:18
+            - generic [ref=e2727]:
+              - paragraph
+          - button "everyone thinks to be your purpose. The 16:20" [ref=e2729] [cursor=pointer]:
+            - generic [ref=e2730]:
+              - paragraph [ref=e2731]: everyone thinks to be your purpose. The
+              - paragraph [ref=e2732]: 16:20
+            - generic [ref=e2733]:
+              - paragraph
+          - button "thing that you were born to do. But 16:22" [ref=e2735] [cursor=pointer]:
+            - generic [ref=e2736]:
+              - paragraph [ref=e2737]: thing that you were born to do. But
+              - paragraph [ref=e2738]: 16:22
+            - generic [ref=e2739]:
+              - paragraph
+          - button "watch what Joe says next. 16:25" [ref=e2741] [cursor=pointer]:
+            - generic [ref=e2742]:
+              - paragraph [ref=e2743]: watch what Joe says next.
+              - paragraph [ref=e2744]: 16:25
+            - generic [ref=e2745]:
+              - paragraph
+          - button ">> We're walking. I'm really good at 16:26" [ref=e2747] [cursor=pointer]:
+            - generic [ref=e2748]:
+              - paragraph [ref=e2749]: ">> We're walking. I'm really good at"
+              - paragraph [ref=e2750]: 16:26
+            - generic [ref=e2751]:
+              - paragraph
+          - button "walking. 16:28" [ref=e2753] [cursor=pointer]:
+            - generic [ref=e2754]:
+              - paragraph [ref=e2755]: walking.
+              - paragraph [ref=e2756]: 16:28
+            - generic [ref=e2757]:
+              - paragraph
+          - button ">> Those really aren't purposes. 22. That's 16:28" [ref=e2759] [cursor=pointer]:
+            - generic [ref=e2760]:
+              - paragraph [ref=e2761]: ">> Those really aren't purposes. 22. That's"
+              - paragraph [ref=e2762]: 16:28
+            - generic [ref=e2763]:
+              - paragraph
+          - button "just regular old living. 16:30" [ref=e2765] [cursor=pointer]:
+            - generic [ref=e2766]:
+              - paragraph [ref=e2767]: just regular old living.
+              - paragraph [ref=e2768]: 16:30
+            - generic [ref=e2769]:
+              - paragraph
+          - button ">> Regular old living just means normal 16:32" [ref=e2771] [cursor=pointer]:
+            - generic [ref=e2772]:
+              - paragraph [ref=e2773]: ">> Regular old living just means normal"
+              - paragraph [ref=e2774]: 16:32
+            - generic [ref=e2775]:
+              - paragraph
+          - button "everyday life. Nothing special or 16:34" [ref=e2777] [cursor=pointer]:
+            - generic [ref=e2778]:
+              - paragraph [ref=e2779]: everyday life. Nothing special or
+              - paragraph [ref=e2780]: 16:34
+            - generic [ref=e2781]:
+              - paragraph
+          - button "extraordinary. just ordinary existence. 16:36" [ref=e2783] [cursor=pointer]:
+            - generic [ref=e2784]:
+              - paragraph [ref=e2785]: extraordinary. just ordinary existence.
+              - paragraph [ref=e2786]: 16:36
+            - generic [ref=e2787]:
+              - paragraph
+          - button "You can use this expression in all sorts 16:39" [ref=e2789] [cursor=pointer]:
+            - generic [ref=e2790]:
+              - paragraph [ref=e2791]: You can use this expression in all sorts
+              - paragraph [ref=e2792]: 16:39
+            - generic [ref=e2793]:
+              - paragraph
+          - button "of contexts, like it's not a fancy 16:41" [ref=e2795] [cursor=pointer]:
+            - generic [ref=e2796]:
+              - paragraph [ref=e2797]: of contexts, like it's not a fancy
+              - paragraph [ref=e2798]: 16:41
+            - generic [ref=e2799]:
+              - paragraph
+          - button "sports car, just a regular old sedan. 16:42" [ref=e2801] [cursor=pointer]:
+            - generic [ref=e2802]:
+              - paragraph [ref=e2803]: sports car, just a regular old sedan.
+              - paragraph [ref=e2804]: 16:42
+            - generic [ref=e2805]:
+              - paragraph
+          - button "Or, we're not going anywhere exotic, 16:45" [ref=e2807] [cursor=pointer]:
+            - generic [ref=e2808]:
+              - paragraph [ref=e2809]: Or, we're not going anywhere exotic,
+              - paragraph [ref=e2810]: 16:45
+            - generic [ref=e2811]:
+              - paragraph
+          - button "just a regular old camping trip. Or this 16:47" [ref=e2813] [cursor=pointer]:
+            - generic [ref=e2814]:
+              - paragraph [ref=e2815]: just a regular old camping trip. Or this
+              - paragraph [ref=e2816]: 16:47
+            - generic [ref=e2817]:
+              - paragraph
+          - button "example, you're a pigeon. You can walk 16:49" [ref=e2819] [cursor=pointer]:
+            - generic [ref=e2820]:
+              - paragraph [ref=e2821]: example, you're a pigeon. You can walk
+              - paragraph [ref=e2822]: 16:49
+            - generic [ref=e2823]:
+              - paragraph
+          - button "right past them. 16:52" [ref=e2825] [cursor=pointer]:
+            - generic [ref=e2826]:
+              - paragraph [ref=e2827]: right past them.
+              - paragraph [ref=e2828]: 16:52
+            - generic [ref=e2829]:
+              - paragraph
+          - button ">> Huh, 16:55" [ref=e2831] [cursor=pointer]:
+            - generic [ref=e2832]:
+              - paragraph [ref=e2833]: ">> Huh,"
+              - paragraph [ref=e2834]: 16:55
+            - generic [ref=e2835]:
+              - paragraph
+          - button "this regular old bird. 16:59" [ref=e2837] [cursor=pointer]:
+            - generic [ref=e2838]:
+              - paragraph [ref=e2839]: this regular old bird.
+              - paragraph [ref=e2840]: 16:59
+            - generic [ref=e2841]:
+              - paragraph
+          - button "Joe dismisses 22's joy as unimportant. 17:01" [ref=e2843] [cursor=pointer]:
+            - generic [ref=e2844]:
+              - paragraph [ref=e2845]: Joe dismisses 22's joy as unimportant.
+              - paragraph [ref=e2846]: 17:01
+            - generic [ref=e2847]:
+              - paragraph
+          - button "But the beautiful irony is that 22 was 17:04" [ref=e2849] [cursor=pointer]:
+            - generic [ref=e2850]:
+              - paragraph [ref=e2851]: But the beautiful irony is that 22 was
+              - paragraph [ref=e2852]: 17:04
+            - generic [ref=e2853]:
+              - paragraph
+          - button "on to something. The profound message of 17:06" [ref=e2855] [cursor=pointer]:
+            - generic [ref=e2856]:
+              - paragraph [ref=e2857]: on to something. The profound message of
+              - paragraph [ref=e2858]: 17:06
+            - generic [ref=e2859]:
+              - paragraph
+          - button "soul is revealed later when Jerry, a 17:08" [ref=e2861] [cursor=pointer]:
+            - generic [ref=e2862]:
+              - paragraph [ref=e2863]: soul is revealed later when Jerry, a
+              - paragraph [ref=e2864]: 17:08
+            - generic [ref=e2865]:
+              - paragraph
+          - button "manifestation of universal 17:11" [ref=e2867] [cursor=pointer]:
+            - generic [ref=e2868]:
+              - paragraph [ref=e2869]: manifestation of universal
+              - paragraph [ref=e2870]: 17:11
+            - generic [ref=e2871]:
+              - paragraph
+          - button "consciousness, explains that a spark 17:12" [ref=e2873] [cursor=pointer]:
+            - generic [ref=e2874]:
+              - paragraph [ref=e2875]: consciousness, explains that a spark
+              - paragraph [ref=e2876]: 17:12
+            - generic [ref=e2877]:
+              - paragraph
+          - button "isn't your purpose after all. 17:14" [ref=e2879] [cursor=pointer]:
+            - generic [ref=e2880]:
+              - paragraph [ref=e2881]: isn't your purpose after all.
+              - paragraph [ref=e2882]: 17:14
+            - generic [ref=e2883]:
+              - paragraph
+          - button ">> Hey, um, we never found out what 22's 17:16" [ref=e2885] [cursor=pointer]:
+            - generic [ref=e2886]:
+              - paragraph [ref=e2887]: ">> Hey, um, we never found out what 22's"
+              - paragraph [ref=e2888]: 17:16
+            - generic [ref=e2889]:
+              - paragraph
+          - button "purpose was. 17:18" [ref=e2891] [cursor=pointer]:
+            - generic [ref=e2892]:
+              - paragraph [ref=e2893]: purpose was.
+              - paragraph [ref=e2894]: 17:18
+            - generic [ref=e2895]:
+              - paragraph
+          - button ">> Excuse me? 17:19" [ref=e2897] [cursor=pointer]:
+            - generic [ref=e2898]:
+              - paragraph [ref=e2899]: ">> Excuse me?"
+              - paragraph [ref=e2900]: 17:19
+            - generic [ref=e2901]:
+              - paragraph
+          - button ">> You know her, uh, spark her purpose? Was 17:20" [ref=e2903] [cursor=pointer]:
+            - generic [ref=e2904]:
+              - paragraph [ref=e2905]: ">> You know her, uh, spark her purpose? Was"
+              - paragraph [ref=e2906]: 17:20
+            - generic [ref=e2907]:
+              - paragraph
+          - button "it music, biology, walking? 17:22" [ref=e2909] [cursor=pointer]:
+            - generic [ref=e2910]:
+              - paragraph [ref=e2911]: it music, biology, walking?
+              - paragraph [ref=e2912]: 17:22
+            - generic [ref=e2913]:
+              - paragraph
+          - button ">> We don't assign purposes. Where did you 17:25" [ref=e2915] [cursor=pointer]:
+            - generic [ref=e2916]:
+              - paragraph [ref=e2917]: ">> We don't assign purposes. Where did you"
+              - paragraph [ref=e2918]: 17:25
+            - generic [ref=e2919]:
+              - paragraph
+          - button "get that idea? 17:27" [ref=e2921] [cursor=pointer]:
+            - generic [ref=e2922]:
+              - paragraph [ref=e2923]: get that idea?
+              - paragraph [ref=e2924]: 17:27
+            - generic [ref=e2925]:
+              - paragraph
+          - button ">> Because I have piano. It's what [music] 17:28" [ref=e2927] [cursor=pointer]:
+            - generic [ref=e2928]:
+              - paragraph [ref=e2929]: ">> Because I have piano. It's what [music]"
+              - paragraph [ref=e2930]: 17:28
+            - generic [ref=e2931]:
+              - paragraph
+          - button "I was born to do. That's my spark. 17:30" [ref=e2933] [cursor=pointer]:
+            - generic [ref=e2934]:
+              - paragraph [ref=e2935]: I was born to do. That's my spark.
+              - paragraph [ref=e2936]: 17:30
+            - generic [ref=e2937]:
+              - paragraph
+          - button ">> A spark isn't a soul's purpose. Oh, you 17:32" [ref=e2939] [cursor=pointer]:
+            - generic [ref=e2940]:
+              - paragraph [ref=e2941]: ">> A spark isn't a soul's purpose. Oh, you"
+              - paragraph [ref=e2942]: 17:32
+            - generic [ref=e2943]:
+              - paragraph
+          - button "mentors and your passions. Your purpose 17:35" [ref=e2945] [cursor=pointer]:
+            - generic [ref=e2946]:
+              - paragraph [ref=e2947]: mentors and your passions. Your purpose
+              - paragraph [ref=e2948]: 17:35
+            - generic [ref=e2949]:
+              - paragraph
+          - button "is [music] your meanings of life. So 17:38" [ref=e2951] [cursor=pointer]:
+            - generic [ref=e2952]:
+              - paragraph [ref=e2953]: is [music] your meanings of life. So
+              - paragraph [ref=e2954]: 17:38
+            - generic [ref=e2955]:
+              - paragraph
+          - button "basic. 17:41" [ref=e2957] [cursor=pointer]:
+            - generic [ref=e2958]:
+              - paragraph [ref=e2959]: basic.
+              - paragraph [ref=e2960]: 17:41
+            - generic [ref=e2961]:
+              - paragraph
+          - button "So spark is just a desire to be alive. 17:42" [ref=e2963] [cursor=pointer]:
+            - generic [ref=e2964]:
+              - paragraph [ref=e2965]: So spark is just a desire to be alive.
+              - paragraph [ref=e2966]: 17:42
+            - generic [ref=e2967]:
+              - paragraph
+          - button "This challenges Joe's views on life's 17:45" [ref=e2969] [cursor=pointer]:
+            - generic [ref=e2970]:
+              - paragraph [ref=e2971]: This challenges Joe's views on life's
+              - paragraph [ref=e2972]: 17:45
+            - generic [ref=e2973]:
+              - paragraph
+          - button "meaning. It isn't about finding some 17:47" [ref=e2975] [cursor=pointer]:
+            - generic [ref=e2976]:
+              - paragraph [ref=e2977]: meaning. It isn't about finding some
+              - paragraph [ref=e2978]: 17:47
+            - generic [ref=e2979]:
+              - paragraph
+          - button "grand purpose. It's about enjoying 17:49" [ref=e2981] [cursor=pointer]:
+            - generic [ref=e2982]:
+              - paragraph [ref=e2983]: grand purpose. It's about enjoying
+              - paragraph [ref=e2984]: 17:49
+            - generic [ref=e2985]:
+              - paragraph
+          - button "regular old living. The small moments, 17:51" [ref=e2987] [cursor=pointer]:
+            - generic [ref=e2988]:
+              - paragraph [ref=e2989]: regular old living. The small moments,
+              - paragraph [ref=e2990]: 17:51
+            - generic [ref=e2991]:
+              - paragraph
+          - button "the simple pleasures, the everyday 17:53" [ref=e2993] [cursor=pointer]:
+            - generic [ref=e2994]:
+              - paragraph [ref=e2995]: the simple pleasures, the everyday
+              - paragraph [ref=e2996]: 17:53
+            - generic [ref=e2997]:
+              - paragraph
+          - button "experiences that make life worth living. 17:55" [ref=e2999] [cursor=pointer]:
+            - generic [ref=e3000]:
+              - paragraph [ref=e3001]: experiences that make life worth living.
+              - paragraph [ref=e3002]: 17:55
+            - generic [ref=e3003]:
+              - paragraph
+          - button "Now you're prepared to go watch the full 17:58" [ref=e3005] [cursor=pointer]:
+            - generic [ref=e3006]:
+              - paragraph [ref=e3007]: Now you're prepared to go watch the full
+              - paragraph [ref=e3008]: 17:58
+            - generic [ref=e3009]:
+              - paragraph
+          - button "movie. Watching it again myself, I found 17:59" [ref=e3011] [cursor=pointer]:
+            - generic [ref=e3012]:
+              - paragraph [ref=e3013]: movie. Watching it again myself, I found
+              - paragraph [ref=e3014]: 17:59
+            - generic [ref=e3015]:
+              - paragraph
+          - button "it profound and beautiful, and the 18:02" [ref=e3017] [cursor=pointer]:
+            - generic [ref=e3018]:
+              - paragraph [ref=e3019]: it profound and beautiful, and the
+              - paragraph [ref=e3020]: 18:02
+            - generic [ref=e3021]:
+              - paragraph
+          - button "ending even made me cry. But we're not 18:04" [ref=e3023] [cursor=pointer]:
+            - generic [ref=e3024]:
+              - paragraph [ref=e3025]: ending even made me cry. But we're not
+              - paragraph [ref=e3026]: 18:04
+            - generic [ref=e3027]:
+              - paragraph
+          - button "done yet. Now it's time to test 18:06" [ref=e3029] [cursor=pointer]:
+            - generic [ref=e3030]:
+              - paragraph [ref=e3031]: done yet. Now it's time to test
+              - paragraph [ref=e3032]: 18:06
+            - generic [ref=e3033]:
+              - paragraph
+          - button "everything you learned by watching all 18:08" [ref=e3035] [cursor=pointer]:
+            - generic [ref=e3036]:
+              - paragraph [ref=e3037]: everything you learned by watching all
+              - paragraph [ref=e3038]: 18:08
+            - generic [ref=e3039]:
+              - paragraph
+          - button "the scenes again without subtitles. And 18:10" [ref=e3041] [cursor=pointer]:
+            - generic [ref=e3042]:
+              - paragraph [ref=e3043]: the scenes again without subtitles. And
+              - paragraph [ref=e3044]: 18:10
+            - generic [ref=e3045]:
+              - paragraph
+          - button "I'm going to make it a bit more 18:13" [ref=e3047] [cursor=pointer]:
+            - generic [ref=e3048]:
+              - paragraph [ref=e3049]: I'm going to make it a bit more
+              - paragraph [ref=e3050]: 18:13
+            - generic [ref=e3051]:
+              - paragraph
+          - button "challenging by asking you some quiz 18:14" [ref=e3053] [cursor=pointer]:
+            - generic [ref=e3054]:
+              - paragraph [ref=e3055]: challenging by asking you some quiz
+              - paragraph [ref=e3056]: 18:14
+            - generic [ref=e3057]:
+              - paragraph
+          - button "questions. Let's see what you got. 18:15" [ref=e3059] [cursor=pointer]:
+            - generic [ref=e3060]:
+              - paragraph [ref=e3061]: questions. Let's see what you got.
+              - paragraph [ref=e3062]: 18:15
+            - generic [ref=e3063]:
+              - paragraph
+          - button ">> We got to get out of here before they 18:21" [ref=e3065] [cursor=pointer]:
+            - generic [ref=e3066]:
+              - paragraph [ref=e3067]: ">> We got to get out of here before they"
+              - paragraph [ref=e3068]: 18:21
+            - generic [ref=e3069]:
+              - paragraph
+          - button "take me away. 18:22" [ref=e3071] [cursor=pointer]:
+            - generic [ref=e3072]:
+              - paragraph [ref=e3073]: take me away.
+              - paragraph [ref=e3074]: 18:22
+            - generic [ref=e3075]:
+              - paragraph
+          - button ">> Take you away? You You're going to leave 18:23" [ref=e3077] [cursor=pointer]:
+            - generic [ref=e3078]:
+              - paragraph [ref=e3079]: ">> Take you away? You You're going to leave"
+              - paragraph [ref=e3080]: 18:23
+            - generic [ref=e3081]:
+              - paragraph
+          - button "me? 18:24" [ref=e3083] [cursor=pointer]:
+            - generic [ref=e3084]:
+              - paragraph [ref=e3085]: me?
+              - paragraph [ref=e3086]: 18:24
+            - generic [ref=e3087]:
+              - paragraph
+          - button ">> NO WAY. THAT'S MY BODY you're in. Oh, 18:25" [ref=e3089] [cursor=pointer]:
+            - generic [ref=e3090]:
+              - paragraph [ref=e3091]: ">> NO WAY. THAT'S MY BODY you're in. Oh,"
+              - paragraph [ref=e3092]: 18:25
+            - generic [ref=e3093]:
+              - paragraph
+          - button "okay. Do you think YOU CAN WALK? 18:27" [ref=e3095] [cursor=pointer]:
+            - generic [ref=e3096]:
+              - paragraph [ref=e3097]: okay. Do you think YOU CAN WALK?
+              - paragraph [ref=e3098]: 18:27
+            - generic [ref=e3099]:
+              - paragraph
+          - button ">> I DON'T KNOW. I failed body test drive 18:28" [ref=e3101] [cursor=pointer]:
+            - generic [ref=e3102]:
+              - paragraph [ref=e3103]: ">> I DON'T KNOW. I failed body test drive"
+              - paragraph [ref=e3104]: 18:28
+            - generic [ref=e3105]:
+              - paragraph
+          - button "like 436 times. 18:30" [ref=e3107] [cursor=pointer]:
+            - generic [ref=e3108]:
+              - paragraph [ref=e3109]: like 436 times.
+              - paragraph [ref=e3110]: 18:30
+            - generic [ref=e3111]:
+              - paragraph
+          - button ">> But will you try? 18:32" [ref=e3113] [cursor=pointer]:
+            - generic [ref=e3114]:
+              - paragraph [ref=e3115]: ">> But will you try?"
+              - paragraph [ref=e3116]: 18:32
+            - generic [ref=e3117]:
+              - paragraph
+          - button ">> Okay. I'm a cat. I can make this. 18:36" [ref=e3119] [cursor=pointer]:
+            - generic [ref=e3120]:
+              - paragraph [ref=e3121]: ">> Okay. I'm a cat. I can make this."
+              - paragraph [ref=e3122]: 18:36
+            - generic [ref=e3123]:
+              - paragraph
+          - button "Okay. Come on. You're doing great. Keep 18:44" [ref=e3125] [cursor=pointer]:
+            - generic [ref=e3126]:
+              - paragraph [ref=e3127]: Okay. Come on. You're doing great. Keep
+              - paragraph [ref=e3128]: 18:44
+            - generic [ref=e3129]:
+              - paragraph
+          - button "going. Keep going. 18:47" [ref=e3131] [cursor=pointer]:
+            - generic [ref=e3132]:
+              - paragraph [ref=e3133]: going. Keep going.
+              - paragraph [ref=e3134]: 18:47
+            - generic [ref=e3135]:
+              - paragraph
+          - button ">> I'm just going to rest here for a 18:49" [ref=e3137] [cursor=pointer]:
+            - generic [ref=e3138]:
+              - paragraph [ref=e3139]: ">> I'm just going to rest here for a"
+              - paragraph [ref=e3140]: 18:49
+            - generic [ref=e3141]:
+              - paragraph
+          - button "minute. 18:50" [ref=e3143] [cursor=pointer]:
+            - generic [ref=e3144]:
+              - paragraph [ref=e3145]: minute.
+              - paragraph [ref=e3146]: 18:50
+            - generic [ref=e3147]:
+              - paragraph
+          - button ">> No. [music] No. No. No. They'll be back 18:51" [ref=e3149] [cursor=pointer]:
+            - generic [ref=e3150]:
+              - paragraph [ref=e3151]: ">> No. [music] No. No. No. They'll be back"
+              - paragraph [ref=e3152]: 18:51
+            - generic [ref=e3153]:
+              - paragraph
+          - button "any minute. Come on. 18:52" [ref=e3155] [cursor=pointer]:
+            - generic [ref=e3156]:
+              - paragraph [ref=e3157]: any minute. Come on.
+              - paragraph [ref=e3158]: 18:52
+            - generic [ref=e3159]:
+              - paragraph
+          - button ">> Hey. 18:54" [ref=e3161] [cursor=pointer]:
+            - generic [ref=e3162]:
+              - paragraph [ref=e3163]: ">> Hey."
+              - paragraph [ref=e3164]: 18:54
+            - generic [ref=e3165]:
+              - paragraph
+          - button "Now push the down button. 19:02" [ref=e3167] [cursor=pointer]:
+            - generic [ref=e3168]:
+              - paragraph [ref=e3169]: Now push the down button.
+              - paragraph [ref=e3170]: 19:02
+            - generic [ref=e3171]:
+              - paragraph
+          - button ">> Move your No. Careful. Those figures are 19:06" [ref=e3173] [cursor=pointer]:
+            - generic [ref=e3174]:
+              - paragraph [ref=e3175]: ">> Move your No. Careful. Those figures are"
+              - paragraph [ref=e3176]: 19:06
+            - generic [ref=e3177]:
+              - paragraph
+          - button "my livelihood. 19:08" [ref=e3179] [cursor=pointer]:
+            - generic [ref=e3180]:
+              - paragraph [ref=e3181]: my livelihood.
+              - paragraph [ref=e3182]: 19:08
+            - generic [ref=e3183]:
+              - paragraph
+          - button ">> True or false? Your livelihood is your 19:10" [ref=e3185] [cursor=pointer]:
+            - generic [ref=e3186]:
+              - paragraph [ref=e3187]: ">> True or false? Your livelihood is your"
+              - paragraph [ref=e3188]: 19:10
+            - generic [ref=e3189]:
+              - paragraph
+          - button "hobby or something you do for fun. 19:13" [ref=e3191] [cursor=pointer]:
+            - generic [ref=e3192]:
+              - paragraph [ref=e3193]: hobby or something you do for fun.
+              - paragraph [ref=e3194]: 19:13
+            - generic [ref=e3195]:
+              - paragraph
+          - button "False. Your livelihood is how you make 19:21" [ref=e3197] [cursor=pointer]:
+            - generic [ref=e3198]:
+              - paragraph [ref=e3199]: False. Your livelihood is how you make
+              - paragraph [ref=e3200]: 19:21
+            - generic [ref=e3201]:
+              - paragraph
+          - button "money to support yourself. 19:23" [ref=e3203] [cursor=pointer]:
+            - generic [ref=e3204]:
+              - paragraph [ref=e3205]: money to support yourself.
+              - paragraph [ref=e3206]: 19:23
+            - generic [ref=e3207]:
+              - paragraph
+          - button "Now get in. 19:29" [ref=e3209] [cursor=pointer]:
+            - generic [ref=e3210]:
+              - paragraph [ref=e3211]: Now get in.
+              - paragraph [ref=e3212]: 19:29
+            - generic [ref=e3213]:
+              - paragraph
+          - button ">> They say you're born to do something, 19:34" [ref=e3215] [cursor=pointer]:
+            - generic [ref=e3216]:
+              - paragraph [ref=e3217]: ">> They say you're born to do something,"
+              - paragraph [ref=e3218]: 19:34
+            - generic [ref=e3219]:
+              - paragraph
+          - button "but how do you figure out what that 19:36" [ref=e3221] [cursor=pointer]:
+            - generic [ref=e3222]:
+              - paragraph [ref=e3223]: but how do you figure out what that
+              - paragraph [ref=e3224]: 19:36
+            - generic [ref=e3225]:
+              - paragraph
+          - button "thing is? I mean, what if you pick off 19:38" [ref=e3227] [cursor=pointer]:
+            - generic [ref=e3228]:
+              - paragraph [ref=e3229]: thing is? I mean, what if you pick off
+              - paragraph [ref=e3230]: 19:38
+            - generic [ref=e3231]:
+              - paragraph
+          - button "the wrong thing or somebody else's 19:40" [ref=e3233] [cursor=pointer]:
+            - generic [ref=e3234]:
+              - paragraph [ref=e3235]: the wrong thing or somebody else's
+              - paragraph [ref=e3236]: 19:40
+            - generic [ref=e3237]:
+              - paragraph
+          - button "thing, you know? Then you're stuck. 19:41" [ref=e3239] [cursor=pointer]:
+            - generic [ref=e3240]:
+              - paragraph [ref=e3241]: thing, you know? Then you're stuck.
+              - paragraph [ref=e3242]: 19:41
+            - generic [ref=e3243]:
+              - paragraph
+          - button ">> I wouldn't call myself stuck, but 19:43" [ref=e3245] [cursor=pointer]:
+            - generic [ref=e3246]:
+              - paragraph [ref=e3247]: ">> I wouldn't call myself stuck, but"
+              - paragraph [ref=e3248]: 19:43
+            - generic [ref=e3249]:
+              - paragraph
+          - button ">> I want to be a photographer, so I'm 19:45" [ref=e3251] [cursor=pointer]:
+            - generic [ref=e3252]:
+              - paragraph [ref=e3253]: ">> I want to be a photographer, so I'm"
+              - paragraph [ref=e3254]: 19:45
+            - generic [ref=e3255]:
+              - paragraph
+          - button "going to study photography. 19:47" [ref=e3257] [cursor=pointer]:
+            - generic [ref=e3258]:
+              - paragraph [ref=e3259]: going to study photography.
+              - paragraph [ref=e3260]: 19:47
+            - generic [ref=e3261]:
+              - paragraph
+          - button "I want to be a photographer, [music] 19:55" [ref=e3263] [cursor=pointer]:
+            - generic [ref=e3264]:
+              - paragraph [ref=e3265]: I want to be a photographer, [music]
+              - paragraph [ref=e3266]: 19:55
+            - generic [ref=e3267]:
+              - paragraph
+          - button "so I'm going to study photography for a 19:57" [ref=e3269] [cursor=pointer]:
+            - generic [ref=e3270]:
+              - paragraph [ref=e3271]: so I'm going to study photography for a
+              - paragraph [ref=e3272]: 19:57
+            - generic [ref=e3273]:
+              - paragraph
+          - button "living. 19:59" [ref=e3275] [cursor=pointer]:
+            - generic [ref=e3276]:
+              - paragraph [ref=e3277]: living.
+              - paragraph [ref=e3278]: 19:59
+            - generic [ref=e3279]:
+              - paragraph
+          - button ">> I never planned on cutting heads for a 20:00" [ref=e3281] [cursor=pointer]:
+            - generic [ref=e3282]:
+              - paragraph [ref=e3283]: ">> I never planned on cutting heads for a"
+              - paragraph [ref=e3284]: 20:00
+            - generic [ref=e3285]:
+              - paragraph
+          - button "living. 20:02" [ref=e3287] [cursor=pointer]:
+            - generic [ref=e3288]:
+              - paragraph [ref=e3289]: living.
+              - paragraph [ref=e3290]: 20:02
+            - generic [ref=e3291]:
+              - paragraph
+          - button ">> Wait, but you were born to be a barber, 20:02" [ref=e3293] [cursor=pointer]:
+            - generic [ref=e3294]:
+              - paragraph [ref=e3295]: ">> Wait, but you were born to be a barber,"
+              - paragraph [ref=e3296]: 20:02
+            - generic [ref=e3297]:
+              - paragraph
+          - button "weren't you? 20:04" [ref=e3299] [cursor=pointer]:
+            - generic [ref=e3300]:
+              - paragraph [ref=e3301]: weren't you?
+              - paragraph [ref=e3302]: 20:04
+            - generic [ref=e3303]:
+              - paragraph
+          - button ">> I wanted to be a veterinarian. 20:05" [ref=e3305] [cursor=pointer]:
+            - generic [ref=e3306]:
+              - paragraph [ref=e3307]: ">> I wanted to be a veterinarian."
+              - paragraph [ref=e3308]: 20:05
+            - generic [ref=e3309]:
+              - paragraph
+          - button ">> So, why didn't you do that? 20:07" [ref=e3311] [cursor=pointer]:
+            - generic [ref=e3312]:
+              - paragraph [ref=e3313]: ">> So, why didn't you do that?"
+              - paragraph [ref=e3314]: 20:07
+            - generic [ref=e3315]:
+              - paragraph
+          - button ">> I was planning to when I got out of the 20:09" [ref=e3317] [cursor=pointer]:
+            - generic [ref=e3318]:
+              - paragraph [ref=e3319]: ">> I was planning to when I got out of the"
+              - paragraph [ref=e3320]: 20:09
+            - generic [ref=e3321]:
+              - paragraph
+          - button "Navy, then my daughter got sick. And 20:11" [ref=e3323] [cursor=pointer]:
+            - generic [ref=e3324]:
+              - paragraph [ref=e3325]: Navy, then my daughter got sick. And
+              - paragraph [ref=e3326]: 20:11
+            - generic [ref=e3327]:
+              - paragraph
+          - button "barber school is a lot cheaper than 20:13" [ref=e3329] [cursor=pointer]:
+            - generic [ref=e3330]:
+              - paragraph [ref=e3331]: barber school is a lot cheaper than
+              - paragraph [ref=e3332]: 20:13
+            - generic [ref=e3333]:
+              - paragraph
+          - button "veterinarian school. 20:15" [ref=e3335] [cursor=pointer]:
+            - generic [ref=e3336]:
+              - paragraph [ref=e3337]: veterinarian school.
+              - paragraph [ref=e3338]: 20:15
+            - generic [ref=e3339]:
+              - paragraph
+          - button ">> Well, that's too bad. You're stuck as a 20:16" [ref=e3341] [cursor=pointer]:
+            - generic [ref=e3342]:
+              - paragraph [ref=e3343]: ">> Well, that's too bad. You're stuck as a"
+              - paragraph [ref=e3344]: 20:16
+            - generic [ref=e3345]:
+              - paragraph
+          - button "barber and now you're unhappy. 20:17" [ref=e3347] [cursor=pointer]:
+            - generic [ref=e3348]:
+              - paragraph [ref=e3349]: barber and now you're unhappy.
+              - paragraph [ref=e3350]: 20:17
+            - generic [ref=e3351]:
+              - paragraph
+          - button ">> Whoa, whoa. Slow your road there, Joe. 20:19" [ref=e3353] [cursor=pointer]:
+            - generic [ref=e3354]:
+              - paragraph [ref=e3355]: ">> Whoa, whoa. Slow your road there, Joe."
+              - paragraph [ref=e3356]: 20:19
+            - generic [ref=e3357]:
+              - paragraph
+          - button "If someone tells you to slow your roll, 20:21" [ref=e3359] [cursor=pointer]:
+            - generic [ref=e3360]:
+              - paragraph [ref=e3361]: If someone tells you to slow your roll,
+              - paragraph [ref=e3362]: 20:21
+            - generic [ref=e3363]:
+              - paragraph
+          - button "they want you to drive more slowly, calm 20:23" [ref=e3365] [cursor=pointer]:
+            - generic [ref=e3366]:
+              - paragraph [ref=e3367]: they want you to drive more slowly, calm
+              - paragraph [ref=e3368]: 20:23
+            - generic [ref=e3369]:
+              - paragraph
+          - button "down, and not rush to conclusions. Turn 20:26" [ref=e3371] [cursor=pointer]:
+            - generic [ref=e3372]:
+              - paragraph [ref=e3373]: down, and not rush to conclusions. Turn
+              - paragraph [ref=e3374]: 20:26
+            - generic [ref=e3375]:
+              - paragraph
+          - button "your head slightly. 20:29" [ref=e3377] [cursor=pointer]:
+            - generic [ref=e3378]:
+              - paragraph [ref=e3379]: your head slightly.
+              - paragraph [ref=e3380]: 20:29
+            - generic [ref=e3381]:
+              - paragraph
+          - button ">> I'm happy as a clam, my man. Not 20:37" [ref=e3383] [cursor=pointer]:
+            - generic [ref=e3384]:
+              - paragraph [ref=e3385]: ">> I'm happy as a clam, my man. Not"
+              - paragraph [ref=e3386]: 20:37
+            - generic [ref=e3387]:
+              - paragraph
+          - button "everyone can be Charles Drew inventing 20:38" [ref=e3389] [cursor=pointer]:
+            - generic [ref=e3390]:
+              - paragraph [ref=e3391]: everyone can be Charles Drew inventing
+              - paragraph [ref=e3392]: 20:38
+            - generic [ref=e3393]:
+              - paragraph
+          - button "blood transfusions 20:40" [ref=e3395] [cursor=pointer]:
+            - generic [ref=e3396]:
+              - paragraph [ref=e3397]: blood transfusions
+              - paragraph [ref=e3398]: 20:40
+            - generic [ref=e3399]:
+              - paragraph
+          - button ">> or me playing piano with Dorothia 20:41" [ref=e3401] [cursor=pointer]:
+            - generic [ref=e3402]:
+              - paragraph [ref=e3403]: ">> or me playing piano with Dorothia"
+              - paragraph [ref=e3404]: 20:41
+            - generic [ref=e3405]:
+              - paragraph
+          - button "Williams. I know 20:43" [ref=e3407] [cursor=pointer]:
+            - generic [ref=e3408]:
+              - paragraph [ref=e3409]: Williams. I know
+              - paragraph [ref=e3410]: 20:43
+            - generic [ref=e3411]:
+              - paragraph
+          - button ">> you are not all that. Anyone could play 20:45" [ref=e3413] [cursor=pointer]:
+            - generic [ref=e3414]:
+              - paragraph [ref=e3415]: ">> you are not all that. Anyone could play"
+              - paragraph [ref=e3416]: 20:45
+            - generic [ref=e3417]:
+              - paragraph
+          - button "in a band if they wanted to. 20:47" [ref=e3419] [cursor=pointer]:
+            - generic [ref=e3420]:
+              - paragraph [ref=e3421]: in a band if they wanted to.
+              - paragraph [ref=e3422]: 20:47
+            - generic [ref=e3423]:
+              - paragraph
+          - button ">> Don't pay Paul any mind. People like him 20:48" [ref=e3425] [cursor=pointer]:
+            - generic [ref=e3426]:
+              - paragraph [ref=e3427]: ">> Don't pay Paul any mind. People like him"
+              - paragraph [ref=e3428]: 20:48
+            - generic [ref=e3429]:
+              - paragraph
+          - button "just bring other people down so they can 20:50" [ref=e3431] [cursor=pointer]:
+            - generic [ref=e3432]:
+              - paragraph [ref=e3433]: just bring other people down so they can
+              - paragraph [ref=e3434]: 20:50
+            - generic [ref=e3435]:
+              - paragraph
+          - button "make themselves feel better. 20:52" [ref=e3437] [cursor=pointer]:
+            - generic [ref=e3438]:
+              - paragraph [ref=e3439]: make themselves feel better.
+              - paragraph [ref=e3440]: 20:52
+            - generic [ref=e3441]:
+              - paragraph
+          - button ">> Oh, I get it. He's just criticizing me 20:54" [ref=e3443] [cursor=pointer]:
+            - generic [ref=e3444]:
+              - paragraph [ref=e3445]: ">> Oh, I get it. He's just criticizing me"
+              - paragraph [ref=e3446]: 20:54
+            - generic [ref=e3447]:
+              - paragraph
+          - button "to cover up the pain of his own failed 20:56" [ref=e3449] [cursor=pointer]:
+            - generic [ref=e3450]:
+              - paragraph [ref=e3451]: to cover up the pain of his own failed
+              - paragraph [ref=e3452]: 20:56
+            - generic [ref=e3453]:
+              - paragraph
+          - button "dreams. 20:58" [ref=e3455] [cursor=pointer]:
+            - generic [ref=e3456]:
+              - paragraph [ref=e3457]: dreams.
+              - paragraph [ref=e3458]: 20:58
+            - generic [ref=e3459]:
+              - paragraph
+          - button ">> You cut deep. 21:00" [ref=e3461] [cursor=pointer]:
+            - generic [ref=e3462]:
+              - paragraph [ref=e3463]: ">> You cut deep."
+              - paragraph [ref=e3464]: 21:00
+            - generic [ref=e3465]:
+              - paragraph
+          - button ">> So, you ready? 21:02" [ref=e3467] [cursor=pointer]:
+            - generic [ref=e3468]:
+              - paragraph [ref=e3469]: ">> So, you ready?"
+              - paragraph [ref=e3470]: 21:02
+            - generic [ref=e3471]:
+              - paragraph
+          - button ">> Huh? 21:04" [ref=e3473] [cursor=pointer]:
+            - generic [ref=e3474]:
+              - paragraph [ref=e3475]: ">> Huh?"
+              - paragraph [ref=e3476]: 21:04
+            - generic [ref=e3477]:
+              - paragraph
+          - button ">> To go home. What' you think of Earth 21:04" [ref=e3479] [cursor=pointer]:
+            - generic [ref=e3480]:
+              - paragraph [ref=e3481]: ">> To go home. What' you think of Earth"
+              - paragraph [ref=e3482]: 21:04
+            - generic [ref=e3483]:
+              - paragraph
+          - button "anyway? 21:06" [ref=e3485] [cursor=pointer]:
+            - generic [ref=e3486]:
+              - paragraph [ref=e3487]: anyway?
+              - paragraph [ref=e3488]: 21:06
+            - generic [ref=e3489]:
+              - paragraph
+          - button ">> I always said it was dumb, but 21:08" [ref=e3491] [cursor=pointer]:
+            - generic [ref=e3492]:
+              - paragraph [ref=e3493]: ">> I always said it was dumb, but"
+              - paragraph [ref=e3494]: 21:08
+            - generic [ref=e3495]:
+              - paragraph
+          - button "I mean, just look at what I found. 21:12" [ref=e3497] [cursor=pointer]:
+            - generic [ref=e3498]:
+              - paragraph [ref=e3499]: I mean, just look at what I found.
+              - paragraph [ref=e3500]: 21:12
+            - generic [ref=e3501]:
+              - paragraph
+          - button "Your mom sewed [music] your suit from 21:17" [ref=e3503] [cursor=pointer]:
+            - generic [ref=e3504]:
+              - paragraph [ref=e3505]: Your mom sewed [music] your suit from
+              - paragraph [ref=e3506]: 21:17
+            - generic [ref=e3507]:
+              - paragraph
+          - button "this cute spool. When I was nervous, Dez 21:19" [ref=e3509] [cursor=pointer]:
+            - generic [ref=e3510]:
+              - paragraph [ref=e3511]: this cute spool. When I was nervous, Dez
+              - paragraph [ref=e3512]: 21:19
+            - generic [ref=e3513]:
+              - paragraph
+          - button "gave me this. A guy on the subway yelled 21:22" [ref=e3515] [cursor=pointer]:
+            - generic [ref=e3516]:
+              - paragraph [ref=e3517]: gave me this. A guy on the subway yelled
+              - paragraph [ref=e3518]: 21:22
+            - generic [ref=e3519]:
+              - paragraph
+          - button "at me. It was scary, but I kind of liked 21:24" [ref=e3521] [cursor=pointer]:
+            - generic [ref=e3522]:
+              - paragraph [ref=e3523]: at me. It was scary, but I kind of liked
+              - paragraph [ref=e3524]: 21:24
+            - generic [ref=e3525]:
+              - paragraph
+          - button "that, too. 21:28" [ref=e3527] [cursor=pointer]:
+            - generic [ref=e3528]:
+              - paragraph [ref=e3529]: that, too.
+              - paragraph [ref=e3530]: 21:28
+            - generic [ref=e3531]:
+              - paragraph
+          - button "Truth is, I've always worried that maybe 21:31" [ref=e3533] [cursor=pointer]:
+            - generic [ref=e3534]:
+              - paragraph [ref=e3535]: Truth is, I've always worried that maybe
+              - paragraph [ref=e3536]: 21:31
+            - generic [ref=e3537]:
+              - paragraph
+          - button "there's something wrong with me. You 21:32" [ref=e3539] [cursor=pointer]:
+            - generic [ref=e3540]:
+              - paragraph [ref=e3541]: there's something wrong with me. You
+              - paragraph [ref=e3542]: 21:32
+            - generic [ref=e3543]:
+              - paragraph
+          - button "know, maybe I'm not good enough for a 21:35" [ref=e3545] [cursor=pointer]:
+            - generic [ref=e3546]:
+              - paragraph [ref=e3547]: know, maybe I'm not good enough for a
+              - paragraph [ref=e3548]: 21:35
+            - generic [ref=e3549]:
+              - paragraph
+          - button "living. 21:38" [ref=e3551] [cursor=pointer]:
+            - generic [ref=e3552]:
+              - paragraph [ref=e3553]: living.
+              - paragraph [ref=e3554]: 21:38
+            - generic [ref=e3555]:
+              - paragraph
+          - button "But then you showed me about purpose and 21:39" [ref=e3557] [cursor=pointer]:
+            - generic [ref=e3558]:
+              - paragraph [ref=e3559]: But then you showed me about purpose and
+              - paragraph [ref=e3560]: 21:39
+            - generic [ref=e3561]:
+              - paragraph
+          - button "passion. And maybe skywatching can be my 21:44" [ref=e3563] [cursor=pointer]:
+            - generic [ref=e3564]:
+              - paragraph [ref=e3565]: passion. And maybe skywatching can be my
+              - paragraph [ref=e3566]: 21:44
+            - generic [ref=e3567]:
+              - paragraph
+          - button "spark. 21:47" [ref=e3569] [cursor=pointer]:
+            - generic [ref=e3570]:
+              - paragraph [ref=e3571]: spark.
+              - paragraph [ref=e3572]: 21:47
+            - generic [ref=e3573]:
+              - paragraph
+          - button ">> In soul, what does a spark actually turn 21:48" [ref=e3575] [cursor=pointer]:
+            - generic [ref=e3576]:
+              - paragraph [ref=e3577]: ">> In soul, what does a spark actually turn"
+              - paragraph [ref=e3578]: 21:48
+            - generic [ref=e3579]:
+              - paragraph
+          - button "out to be? Your life's ultimate purpose 21:50" [ref=e3581] [cursor=pointer]:
+            - generic [ref=e3582]:
+              - paragraph [ref=e3583]: out to be? Your life's ultimate purpose
+              - paragraph [ref=e3584]: 21:50
+            - generic [ref=e3585]:
+              - paragraph
+          - button "or destiny. The thing that makes you 21:52" [ref=e3587] [cursor=pointer]:
+            - generic [ref=e3588]:
+              - paragraph [ref=e3589]: or destiny. The thing that makes you
+              - paragraph [ref=e3590]: 21:52
+            - generic [ref=e3591]:
+              - paragraph
+          - button "excited about living? Your most 21:54" [ref=e3593] [cursor=pointer]:
+            - generic [ref=e3594]:
+              - paragraph [ref=e3595]: excited about living? Your most
+              - paragraph [ref=e3596]: 21:54
+            - generic [ref=e3597]:
+              - paragraph
+          - button "important talent. 21:55" [ref=e3599] [cursor=pointer]:
+            - generic [ref=e3600]:
+              - paragraph [ref=e3601]: important talent.
+              - paragraph [ref=e3602]: 21:55
+            - generic [ref=e3603]:
+              - paragraph
+          - button ">> Or walking. I'm really good at walking. 22:04" [ref=e3605] [cursor=pointer]:
+            - generic [ref=e3606]:
+              - paragraph [ref=e3607]: ">> Or walking. I'm really good at walking."
+              - paragraph [ref=e3608]: 22:04
+            - generic [ref=e3609]:
+              - paragraph
+          - button ">> Those really aren't purposes. 22. That's 22:06" [ref=e3611] [cursor=pointer]:
+            - generic [ref=e3612]:
+              - paragraph [ref=e3613]: ">> Those really aren't purposes. 22. That's"
+              - paragraph [ref=e3614]: 22:06
+            - generic [ref=e3615]:
+              - paragraph
+          - button "just regular old living. 22:08" [ref=e3617] [cursor=pointer]:
+            - generic [ref=e3618]:
+              - paragraph [ref=e3619]: just regular old living.
+              - paragraph [ref=e3620]: 22:08
+            - generic [ref=e3621]:
+              - paragraph
+          - button ">> Awesome work today. Again, I can't 22:10" [ref=e3623] [cursor=pointer]:
+            - generic [ref=e3624]:
+              - paragraph [ref=e3625]: ">> Awesome work today. Again, I can't"
+              - paragraph [ref=e3626]: 22:10
+            - generic [ref=e3627]:
+              - paragraph
+          - button "recommend enough going and watching the 22:12" [ref=e3629] [cursor=pointer]:
+            - generic [ref=e3630]:
+              - paragraph [ref=e3631]: recommend enough going and watching the
+              - paragraph [ref=e3632]: 22:12
+            - generic [ref=e3633]:
+              - paragraph
+          - button "full captivating movie. And if you want 22:14" [ref=e3635] [cursor=pointer]:
+            - generic [ref=e3636]:
+              - paragraph [ref=e3637]: full captivating movie. And if you want
+              - paragraph [ref=e3638]: 22:14
+            - generic [ref=e3639]:
+              - paragraph
+          - button "to be able to understand fast-speaking 22:17" [ref=e3641] [cursor=pointer]:
+            - generic [ref=e3642]:
+              - paragraph [ref=e3643]: to be able to understand fast-speaking
+              - paragraph [ref=e3644]: 22:17
+            - generic [ref=e3645]:
+              - paragraph
+          - button "natives without getting lost, without 22:19" [ref=e3647] [cursor=pointer]:
+            - generic [ref=e3648]:
+              - paragraph [ref=e3649]: natives without getting lost, without
+              - paragraph [ref=e3650]: 22:19
+            - generic [ref=e3651]:
+              - paragraph
+          - button "missing the jokes, and without 22:22" [ref=e3653] [cursor=pointer]:
+            - generic [ref=e3654]:
+              - paragraph [ref=e3655]: missing the jokes, and without
+              - paragraph [ref=e3656]: 22:22
+            - generic [ref=e3657]:
+              - paragraph
+          - button "subtitles, just like you've done today 22:23" [ref=e3659] [cursor=pointer]:
+            - generic [ref=e3660]:
+              - paragraph [ref=e3661]: subtitles, just like you've done today
+              - paragraph [ref=e3662]: 22:23
+            - generic [ref=e3663]:
+              - paragraph
+          - button "with Soul, well, every week we make new 22:25" [ref=e3665] [cursor=pointer]:
+            - generic [ref=e3666]:
+              - paragraph [ref=e3667]: with Soul, well, every week we make new
+              - paragraph [ref=e3668]: 22:25
+            - generic [ref=e3669]:
+              - paragraph
+          - button "lessons with your favorite movies and 22:28" [ref=e3671] [cursor=pointer]:
+            - generic [ref=e3672]:
+              - paragraph [ref=e3673]: lessons with your favorite movies and
+              - paragraph [ref=e3674]: 22:28
+            - generic [ref=e3675]:
+              - paragraph
+          - button "series to help you to do this, to really 22:30" [ref=e3677] [cursor=pointer]:
+            - generic [ref=e3678]:
+              - paragraph [ref=e3679]: series to help you to do this, to really
+              - paragraph [ref=e3680]: 22:30
+            - generic [ref=e3681]:
+              - paragraph
+          - button "help you to make learning English a fun, 22:33" [ref=e3683] [cursor=pointer]:
+            - generic [ref=e3684]:
+              - paragraph [ref=e3685]: help you to make learning English a fun,
+              - paragraph [ref=e3686]: 22:33
+            - generic [ref=e3687]:
+              - paragraph
+          - button "natural, and convenient part of your 22:35" [ref=e3689] [cursor=pointer]:
+            - generic [ref=e3690]:
+              - paragraph [ref=e3691]: natural, and convenient part of your
+              - paragraph [ref=e3692]: 22:35
+            - generic [ref=e3693]:
+              - paragraph
+          - button "life. So, all you have to do to not miss 22:37" [ref=e3695] [cursor=pointer]:
+            - generic [ref=e3696]:
+              - paragraph [ref=e3697]: life. So, all you have to do to not miss
+              - paragraph [ref=e3698]: 22:37
+            - generic [ref=e3699]:
+              - paragraph
+          - button "a single one and to join over 10 million 22:39" [ref=e3701] [cursor=pointer]:
+            - generic [ref=e3702]:
+              - paragraph [ref=e3703]: a single one and to join over 10 million
+              - paragraph [ref=e3704]: 22:39
+            - generic [ref=e3705]:
+              - paragraph
+          - button "learners around the world who are doing 22:41" [ref=e3707] [cursor=pointer]:
+            - generic [ref=e3708]:
+              - paragraph [ref=e3709]: learners around the world who are doing
+              - paragraph [ref=e3710]: 22:41
+            - generic [ref=e3711]:
+              - paragraph
+          - button "[music] this is to hit that subscribe 22:43" [ref=e3713] [cursor=pointer]:
+            - generic [ref=e3714]:
+              - paragraph [ref=e3715]: "[music] this is to hit that subscribe"
+              - paragraph [ref=e3716]: 22:43
+            - generic [ref=e3717]:
+              - paragraph
+          - button "button and the bell down below. And if 22:45" [ref=e3719] [cursor=pointer]:
+            - generic [ref=e3720]:
+              - paragraph [ref=e3721]: button and the bell down below. And if
+              - paragraph [ref=e3722]: 22:45
+            - generic [ref=e3723]:
+              - paragraph
+          - button "you're really wanting to take your 22:47" [ref=e3725] [cursor=pointer]:
+            - generic [ref=e3726]:
+              - paragraph [ref=e3727]: you're really wanting to take your
+              - paragraph [ref=e3728]: 22:47
+            - generic [ref=e3729]:
+              - paragraph
+          - button "experience to the next level, again, try 22:48" [ref=e3731] [cursor=pointer]:
+            - generic [ref=e3732]:
+              - paragraph [ref=e3733]: experience to the next level, again, try
+              - paragraph [ref=e3734]: 22:48
+            - generic [ref=e3735]:
+              - paragraph
+          - button "out the Real Life app [music] where you 22:50" [ref=e3737] [cursor=pointer]:
+            - generic [ref=e3738]:
+              - paragraph [ref=e3739]: out the Real Life app [music] where you
+              - paragraph [ref=e3740]: 22:50
+            - generic [ref=e3741]:
+              - paragraph
+          - button "can every single day just with a few 22:51" [ref=e3743] [cursor=pointer]:
+            - generic [ref=e3744]:
+              - paragraph [ref=e3745]: can every single day just with a few
+              - paragraph [ref=e3746]: 22:51
+            - generic [ref=e3747]:
+              - paragraph
+          - button "minutes, watch a short lesson, learn new 22:53" [ref=e3749] [cursor=pointer]:
+            - generic [ref=e3750]:
+              - paragraph [ref=e3751]: minutes, watch a short lesson, learn new
+              - paragraph [ref=e3752]: 22:53
+            - generic [ref=e3753]:
+              - paragraph
+          - button "expressions, and practice actually 22:55" [ref=e3755] [cursor=pointer]:
+            - generic [ref=e3756]:
+              - paragraph [ref=e3757]: expressions, and practice actually
+              - paragraph [ref=e3758]: 22:55
+            - generic [ref=e3759]:
+              - paragraph
+          - button "speaking in real conversations in a safe 22:57" [ref=e3761] [cursor=pointer]:
+            - generic [ref=e3762]:
+              - paragraph [ref=e3763]: speaking in real conversations in a safe
+              - paragraph [ref=e3764]: 22:57
+            - generic [ref=e3765]:
+              - paragraph
+          - button "environment with your AI coach. And if 22:59" [ref=e3767] [cursor=pointer]:
+            - generic [ref=e3768]:
+              - paragraph [ref=e3769]: environment with your AI coach. And if
+              - paragraph [ref=e3770]: 22:59
+            - generic [ref=e3771]:
+              - paragraph
+          - button "you're going to stick with us here on 23:02" [ref=e3773] [cursor=pointer]:
+            - generic [ref=e3774]:
+              - paragraph [ref=e3775]: you're going to stick with us here on
+              - paragraph [ref=e3776]: 23:02
+            - generic [ref=e3777]:
+              - paragraph
+          - button "YouTube, I recommend you check out this 23:03" [ref=e3779] [cursor=pointer]:
+            - generic [ref=e3780]:
+              - paragraph [ref=e3781]: YouTube, I recommend you check out this
+              - paragraph [ref=e3782]: 23:03
+            - generic [ref=e3783]:
+              - paragraph
+          - button "lesson next. 23:04" [ref=e3785] [cursor=pointer]:
+            - generic [ref=e3786]:
+              - paragraph [ref=e3787]: lesson next.
+              - paragraph [ref=e3788]: 23:04
+            - generic [ref=e3789]:
+              - paragraph
+          - button ">> Tonight, we drink from our ancestors 23:06" [ref=e3791] [cursor=pointer]:
+            - generic [ref=e3792]:
+              - paragraph [ref=e3793]: ">> Tonight, we drink from our ancestors"
+              - paragraph [ref=e3794]: 23:06
+            - generic [ref=e3795]:
+              - paragraph
+          - button "bowl as Tai Vasa once did to bestow this 23:10" [ref=e3797] [cursor=pointer]:
+            - generic [ref=e3798]:
+              - paragraph [ref=e3799]: bowl as Tai Vasa once did to bestow this
+              - paragraph [ref=e3800]: 23:10
+            - generic [ref=e3801]:
+              - paragraph
+          - button "title on you to connect to our past, our 23:14" [ref=e3803] [cursor=pointer]:
+            - generic [ref=e3804]:
+              - paragraph [ref=e3805]: title on you to connect to our past, our
+              - paragraph [ref=e3806]: 23:14
+            - generic [ref=e3807]:
+              - paragraph
+          - button "present, and the future that lies 23:20" [ref=e3809] [cursor=pointer]:
+            - generic [ref=e3810]:
+              - paragraph [ref=e3811]: present, and the future that lies
+              - paragraph [ref=e3812]: 23:20
+            - generic [ref=e3813]:
+              - paragraph
+          - button "beyond. 23:23" [ref=e3815] [cursor=pointer]:
+            - generic [ref=e3816]:
+              - paragraph [ref=e3817]: beyond.
+              - paragraph [ref=e3818]: 23:23
+            - generic [ref=e3819]:
+              - paragraph
+          - button "May the ancestors continue to guide us. 23:25" [ref=e3821] [cursor=pointer]:
+            - generic [ref=e3822]:
+              - paragraph [ref=e3823]: May the ancestors continue to guide us.
+              - paragraph [ref=e3824]: 23:25
+            - generic [ref=e3825]:
+              - paragraph
+          - button "big. 23:35" [ref=e3827] [cursor=pointer]:
+            - generic [ref=e3828]:
+              - paragraph [ref=e3829]: big.
+              - paragraph [ref=e3830]: 23:35
+            - generic [ref=e3831]:
+              - paragraph
+          - button "[snorts] 23:36" [ref=e3833] [cursor=pointer]:
+            - generic [ref=e3834]:
+              - paragraph [ref=e3835]: "[snorts]"
+              - paragraph [ref=e3836]: 23:36
+            - generic [ref=e3837]:
+              - paragraph
+          - button ">> I am honored to serve our people. 23:40" [ref=e3839] [cursor=pointer]:
+            - generic [ref=e3840]:
+              - paragraph [ref=e3841]: ">> I am honored to serve our people."
+              - paragraph [ref=e3842]: 23:40
+            - generic [ref=e3843]:
+              - paragraph
+          - button "May the ancestors continue to guide us. 23:46" [ref=e3845] [cursor=pointer]:
+            - generic [ref=e3846]:
+              - paragraph [ref=e3847]: May the ancestors continue to guide us.
+              - paragraph [ref=e3848]: 23:46
+            - generic [ref=e3849]:
+              - paragraph

@@ -1,0 +1,83 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e3]:
+    - complementary [ref=e4]:
+      - generic [ref=e6]:
+        - link "Lingowatch logo Lingowatch Switch to dark mode" [ref=e8] [cursor=pointer]:
+          - /url: /dashboard
+          - img "Lingowatch logo" [ref=e9]
+          - generic [ref=e10]:
+            - paragraph [ref=e12]: Lingowatch
+            - button "Switch to dark mode" [ref=e13]:
+              - img [ref=e14]
+        - generic [ref=e17]:
+          - generic [ref=e19]:
+            - link "Dashboard" [ref=e20] [cursor=pointer]:
+              - /url: /dashboard
+              - img [ref=e22]
+              - generic [ref=e27]: Dashboard
+            - link "Random" [ref=e28] [cursor=pointer]:
+              - /url: /random-phrases
+              - img [ref=e30]
+              - generic [ref=e36]: Random
+            - link "Add Phrase" [ref=e37] [cursor=pointer]:
+              - /url: /add-phrase
+              - img [ref=e39]
+              - generic [ref=e41]: Add Phrase
+          - generic [ref=e43]:
+            - link "Library" [ref=e44] [cursor=pointer]:
+              - /url: /library
+              - img [ref=e46]
+              - generic [ref=e48]: Library
+            - link "Stories" [ref=e49] [cursor=pointer]:
+              - /url: /stories
+              - img [ref=e51]
+              - generic [ref=e53]: Stories
+            - link "Media" [ref=e54] [cursor=pointer]:
+              - /url: /media
+              - img [ref=e56]
+              - generic [ref=e58]: Media
+            - link "Review" [ref=e59] [cursor=pointer]:
+              - /url: /review
+              - img [ref=e61]
+              - generic [ref=e64]: Review
+            - link "Progress" [ref=e65] [cursor=pointer]:
+              - /url: /progress
+              - img [ref=e67]
+              - generic [ref=e69]: Progress
+          - link "Settings" [ref=e72] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e74]
+            - generic [ref=e77]: Settings
+    - main [ref=e78]:
+      - generic [ref=e80]:
+        - generic [ref=e81]:
+          - paragraph [ref=e82]: Review
+          - heading "Review Flashcards" [level=1] [ref=e83]
+          - paragraph [ref=e84]: 0 reviewed · 7 remaining
+        - generic [ref=e86]:
+          - button "Phrase → Meaning" [ref=e87] [cursor=pointer]
+          - button "Meaning → Phrase" [ref=e88] [cursor=pointer]
+          - button "English → Somali" [ref=e89] [cursor=pointer]
+          - button "Somali → English" [ref=e90] [cursor=pointer]
+        - generic [ref=e91]:
+          - generic [ref=e92]:
+            - generic [ref=e93]:
+              - paragraph [ref=e94]: Prompt
+              - paragraph [ref=e95]: Card 1 of 7
+            - generic [ref=e96]:
+              - button "Play pronunciation" [ref=e97] [cursor=pointer]:
+                - img [ref=e98]
+              - generic [ref=e103]:
+                - generic [ref=e104]: Stage
+                - generic [ref=e105]: New
+          - paragraph [ref=e106]: building
+          - generic [ref=e107]:
+            - button "Show Answer" [ref=e108] [cursor=pointer]:
+              - img
+              - text: Show Answer
+            - generic [ref=e109]:
+              - img [ref=e110]
+              - generic [ref=e112]: Press Space to reveal

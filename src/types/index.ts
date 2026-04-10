@@ -87,3 +87,67 @@ export interface DashboardStats {
   favoritePhrases: number;
   dueForReview: number;
 }
+
+export type ImportedTextStatus = "processing" | "ready" | "failed";
+
+export interface ImportedTextProgress {
+  percent: number;
+  completedSectionIds: string[];
+  currentSectionId: string;
+  lastOpenedAt: string;
+}
+
+export interface ImportedTextBlock {
+  type: "heading" | "paragraph" | "quote" | "list";
+  text?: string;
+  level?: number;
+  items?: string[];
+}
+
+export interface ImportedTextSection {
+  id: string;
+  title: string;
+  blocks: ImportedTextBlock[];
+  plainText: string;
+  wordCount: number;
+  estimatedReadingTime: number;
+}
+
+export interface ImportedTextSummary {
+  id: string;
+  title: string;
+  sourceName: string;
+  sourceUrl: string;
+  author: string;
+  publishedAt: string;
+  importedAt: string;
+  updatedAt: string;
+  wordCount: number;
+  estimatedReadingTime: number;
+  sectionCount: number;
+  pageCount: number;
+  progress: ImportedTextProgress;
+  favIconUrl: string;
+  thumbnailUrl: string;
+  status: ImportedTextStatus;
+  previewText: string;
+  failureReason: string;
+  origin?: "extension" | "manual";
+}
+
+export interface ImportedText extends ImportedTextSummary {
+  userId: string;
+  canonicalUrl?: string;
+  plainText: string;
+  content: {
+    sections: ImportedTextSection[];
+  };
+  language?: string;
+  origin?: "extension" | "manual";
+}
+
+export interface ImportedTextListResponse {
+  items: ImportedTextSummary[];
+  availableSources: string[];
+  total: number;
+}

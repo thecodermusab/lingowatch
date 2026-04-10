@@ -7,6 +7,7 @@ import { TopNav } from "@/components/watch/TopNav";
 import { TranscriptPanel } from "@/components/watch/TranscriptPanel";
 import { VideoPlayerShell } from "@/components/watch/VideoPlayerShell";
 import { SavedPhrase, TranscriptCue, TranscriptTab, WatchVideoMeta, WordInsight } from "@/components/watch/types";
+import { translateText } from "@/lib/googleTranslate";
 
 declare global {
   interface Window {
@@ -173,6 +174,8 @@ export default function WatchWorkspacePage() {
   const [translationLoading, setTranslationLoading] = useState(false);
   const [transcriptError, setTranscriptError] = useState<string | null>(null);
   const [cues, setCues] = useState<TranscriptCue[]>([]);
+  const [gtTranslation, setGtTranslation] = useState("");
+  const gtCacheRef = useRef(new Map<string, string>());
   const playerHostRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YouTubePlayer | null>(null);
 
@@ -307,6 +310,36 @@ export default function WatchWorkspacePage() {
   }, []);
 
   const activeCue = useMemo(() => getActiveCue(cues, currentTime), [cues, currentTime]);
+
+  // Translate active cue via Google Translate, with per-cue caching
+  useEffect(() => {
+    if (!activeCue?.text) {
+      setGtTranslation("");
+      return;
+    }
+
+    const cached = gtCacheRef.current.get(activeCue.id);
+    if (cached !== undefined) {
+      setGtTranslation(cached);
+      return;
+    }
+
+    let cancelled = false;
+
+    translateText(activeCue.text, { source: "en", target: "so" })
+      .then((result) => {
+        if (cancelled) return;
+        gtCacheRef.current.set(activeCue.id, result);
+        setGtTranslation(result);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        // Fall back to server-side translation if Google Translate fails
+        setGtTranslation(activeCue.translation || "");
+      });
+
+    return () => { cancelled = true; };
+  }, [activeCue?.id]);
   const derivedWordInsights = useMemo(() => (cues.length > 0 ? buildWordInsights(cues) : []), [cues]);
   const derivedSavedPhrases = useMemo(() => (cues.length > 0 ? buildSavedPhrases(cues) : []), [cues]);
 
@@ -346,6 +379,7 @@ export default function WatchWorkspacePage() {
               isPlaying={isPlaying}
               playerReady={playerReady}
               translationLoading={translationLoading}
+              gtTranslation={gtTranslation}
               onTogglePlay={handleTogglePlay}
               onSeek={handleSeek}
               playerHostRef={playerHostRef}

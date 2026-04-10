@@ -1,5 +1,6 @@
 import { Pause, Play, Settings, Volume2 } from "lucide-react";
 import { TranscriptCue, WatchVideoMeta } from "@/components/watch/types";
+import { SubtitleOverlay } from "@/components/watch/SubtitleOverlay";
 import { RefObject } from "react";
 
 interface VideoPlayerShellProps {
@@ -11,6 +12,7 @@ interface VideoPlayerShellProps {
   isPlaying: boolean;
   playerReady: boolean;
   translationLoading: boolean;
+  gtTranslation: string;
   onTogglePlay: () => void;
   onSeek: (time: number) => void;
   playerHostRef: RefObject<HTMLDivElement>;
@@ -42,6 +44,7 @@ export function VideoPlayerShell({
   isPlaying,
   playerReady,
   translationLoading,
+  gtTranslation,
   onTogglePlay,
   onSeek,
   playerHostRef,
@@ -54,10 +57,11 @@ export function VideoPlayerShell({
   return (
     <section className="flex min-h-0 flex-col bg-[#191d22]">
       <div className="flex min-h-0 flex-1 flex-col px-3 pb-4 pt-3 lg:px-4">
-        <div className="overflow-hidden rounded-xl border border-white/[0.06] bg-black shadow-[0_20px_50px_rgba(0,0,0,0.32)]">
+        <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-black shadow-[0_20px_50px_rgba(0,0,0,0.32)]">
           <div className="aspect-video w-full bg-[#090a0c]">
             <div ref={playerHostRef} className="h-full w-full" />
           </div>
+          <SubtitleOverlay activeCue={activeCue} translation={gtTranslation} />
         </div>
 
         <div className="mt-3 rounded-xl border border-white/[0.05] bg-[#23272e] px-4 py-4 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
@@ -66,9 +70,9 @@ export function VideoPlayerShell({
           </p>
         </div>
 
-        <div className="px-4 py-3 text-center">
-          <p className="mx-auto max-w-4xl text-[18px] leading-[1.6] text-white/72">
-            {activeTranslation || (translationLoading ? "Translating to Somali. First load can take a few seconds." : "Translation will appear here once transcript lines are available.")}
+        <div className="px-4 py-2 text-center">
+          <p className="mx-auto max-w-4xl text-[17px] leading-[1.6] text-white/72">
+            {gtTranslation || (translationLoading ? "Loading translation…" : activeTranslation || "")}
           </p>
         </div>
 

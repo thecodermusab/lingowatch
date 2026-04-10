@@ -20,7 +20,9 @@ const SettingsPage = lazy(() => import("./pages/Settings"));
 const WatchWorkspacePage = lazy(() => import("./pages/WatchWorkspace"));
 const StoriesPage = lazy(() => import("./pages/Stories"));
 const MediaPage = lazy(() => import("./pages/media/MediaPage"));
+const PodcastPlayerPage = lazy(() => import("./pages/media/PodcastPlayerPage"));
 const BookReaderPage = lazy(() => import("./pages/reader/BookReaderPage"));
+const ImportedTextReaderPage = lazy(() => import("./pages/reader/ImportedTextReaderPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -37,7 +39,7 @@ function PageLoader() {
 
 function AppRoutes() {
   const location = useLocation();
-  const fullBleedRoutes = ["/watch", "/read"];
+  const fullBleedRoutes = ["/watch", "/read", "/listen"];
   const isFullBleedRoute = fullBleedRoutes.some((route) => location.pathname.startsWith(route));
 
   const routes = (
@@ -60,6 +62,8 @@ function AppRoutes() {
         <Route path="/stories/:id" element={<StoriesPage />} />
         <Route path="/stories/world/:worldId" element={<StoriesPage />} />
         <Route path="/media" element={<MediaPage />} />
+        <Route path="/listen/:id" element={<PodcastPlayerPage />} />
+        <Route path="/read/web/:id" element={<ImportedTextReaderPage />} />
         <Route path="/read/:id" element={<BookReaderPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

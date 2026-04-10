@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { usePhraseStore } from "@/hooks/usePhraseStore";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, Eye, BookOpen, Keyboard, Volume2 } from "lucide-react";
+import { RotateCcw, Eye, BookOpen, Keyboard, Volume2, CheckCircle2, Trophy } from "lucide-react";
 import { ReviewRating, Phrase } from "@/types";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -85,12 +85,20 @@ export default function ReviewPage() {
   const { phrases, getDueForReview, reviewPhrase } = usePhraseStore();
   const { user } = useAuth();
   const dueForReview = getDueForReview();
+
   const [mode, setMode] = useState<ReviewMode>("phrase_to_meaning");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [completed, setCompleted] = useState(0);
+  const [practiceAll, setPracticeAll] = useState(false);
+  const [sessionDone, setSessionDone] = useState(false);
+  const [sessionStats, setSessionStats] = useState({ again: 0, hard: 0, good: 0, easy: 0 });
 
-  const reviewList = useMemo(() => (dueForReview.length > 0 ? dueForReview : phrases.slice(0, 10)), [dueForReview, phrases]);
+  const reviewList = useMemo(() => {
+    if (practiceAll) return phrases;
+    return dueForReview;
+  }, [dueForReview, phrases, practiceAll]);
+
   const currentPhrase = reviewList[currentIndex];
   const timingPreview = useMemo(
     () => getReviewTimingPreview(currentPhrase?.review),
@@ -103,14 +111,8 @@ export default function ReviewPage() {
 
   function speakCurrentPrompt() {
     if (!currentPhrase || !("speechSynthesis" in window)) return;
-    const text =
-      mode === "english_to_somali" || mode === "phrase_to_meaning"
-        ? currentPhrase.phraseText
-        : mode === "meaning_to_phrase"
-          ? currentPhrase.phraseText
-          : currentPhrase.phraseText;
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
+    const utterance = new SpeechSynthesisUtterance(currentPhrase.phraseText);
     utterance.lang = "en-US";
     utterance.rate = 0.85;
     window.speechSynthesis.speak(utterance);
@@ -118,64 +120,148 @@ export default function ReviewPage() {
 
   const goToNextCard = () => {
     setRevealed(false);
-    setCurrentIndex((index) => (index < reviewList.length - 1 ? index + 1 : 0));
+    setCurrentIndex((index) => index + 1);
   };
 
   const handleRate = (rating: ReviewRating) => {
     if (!currentPhrase) return;
     reviewPhrase(currentPhrase.id, rating);
+    setSessionStats((prev) => ({ ...prev, [rating]: prev[rating] + 1 }));
     setCompleted((count) => count + 1);
-    goToNextCard();
+
+    if (currentIndex >= reviewList.length - 1) {
+      setSessionDone(true);
+    } else {
+      goToNextCard();
+    }
+  };
+
+  const startPracticeAll = () => {
+    setPracticeAll(true);
+    setCurrentIndex(0);
+    setCompleted(0);
+    setSessionDone(false);
+    setSessionStats({ again: 0, hard: 0, good: 0, easy: 0 });
+    setRevealed(false);
+  };
+
+  const restartSession = () => {
+    setCurrentIndex(0);
+    setCompleted(0);
+    setSessionDone(false);
+    setSessionStats({ again: 0, hard: 0, good: 0, easy: 0 });
+    setRevealed(false);
   };
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       const activeTag = (event.target as HTMLElement | null)?.tagName;
       if (activeTag === "INPUT" || activeTag === "TEXTAREA") return;
-
-      if (!currentPhrase) return;
+      if (!currentPhrase || sessionDone) return;
 
       if (event.code === "Space") {
         event.preventDefault();
-        if (!revealed) {
-          setRevealed(true);
-        }
+        if (!revealed) setRevealed(true);
         return;
       }
 
       if (!revealed) return;
 
-      if (event.key === "1") {
-        event.preventDefault();
-        handleRate("again");
-      } else if (event.key === "2") {
-        event.preventDefault();
-        handleRate("hard");
-      } else if (event.key === "3") {
-        event.preventDefault();
-        handleRate("good");
-      } else if (event.key === "4") {
-        event.preventDefault();
-        handleRate("easy");
-      }
+      if (event.key === "1") { event.preventDefault(); handleRate("again"); }
+      else if (event.key === "2") { event.preventDefault(); handleRate("hard"); }
+      else if (event.key === "3") { event.preventDefault(); handleRate("good"); }
+      else if (event.key === "4") { event.preventDefault(); handleRate("easy"); }
     }
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentPhrase, revealed]);
+  }, [currentPhrase, revealed, sessionDone]);
 
   useEffect(() => {
     if (!currentPhrase || !user?.autoPlayAudioEnabled) return;
     speakCurrentPrompt();
   }, [currentPhrase?.id, mode, user?.autoPlayAudioEnabled]);
 
-  if (reviewList.length === 0) {
+  // No phrases at all
+  if (phrases.length === 0) {
     return (
       <div className="app-page py-16 text-center">
         <RotateCcw className="mx-auto h-12 w-12 text-muted-foreground" />
         <h2 className="mt-4 text-xl font-semibold text-foreground">No phrases to review</h2>
         <p className="mt-2 text-muted-foreground">Add some phrases first, then come back to review.</p>
         <Link to="/add-phrase"><Button className="mt-4">Add a Phrase</Button></Link>
+      </div>
+    );
+  }
+
+  // Session complete
+  if (sessionDone) {
+    const total = sessionStats.again + sessionStats.hard + sessionStats.good + sessionStats.easy;
+    const knewIt = sessionStats.good + sessionStats.easy;
+    return (
+      <div className="app-page flex items-center justify-center py-16">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.92 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="mx-auto w-full max-w-sm space-y-6 text-center"
+        >
+          <Trophy className="mx-auto h-14 w-14 text-yellow-500" />
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">Session Complete!</h2>
+            <p className="mt-1 text-muted-foreground">
+              You reviewed {total} {total === 1 ? "phrase" : "phrases"}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 text-left">
+            {[
+              { label: "Again", value: sessionStats.again, color: "text-destructive" },
+              { label: "Hard", value: sessionStats.hard, color: "text-orange-500" },
+              { label: "Good", value: sessionStats.good, color: "text-primary" },
+              { label: "Easy", value: sessionStats.easy, color: "text-success" },
+            ].map((s) => (
+              <div key={s.label} className="rounded-xl border bg-card p-4">
+                <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
+                <p className="text-sm text-muted-foreground">{s.label}</p>
+              </div>
+            ))}
+          </div>
+
+          {total > 0 && (
+            <p className="text-sm text-muted-foreground">
+              You knew{" "}
+              <span className="font-semibold text-foreground">
+                {Math.round((knewIt / total) * 100)}%
+              </span>{" "}
+              of your cards
+            </p>
+          )}
+
+          <div className="flex justify-center gap-3">
+            <Button onClick={restartSession} variant="outline">
+              Review Again
+            </Button>
+            <Link to="/dashboard">
+              <Button>Done</Button>
+            </Link>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Phrases exist but none are due — offer practice mode
+  if (dueForReview.length === 0 && !practiceAll) {
+    return (
+      <div className="app-page py-16 text-center">
+        <CheckCircle2 className="mx-auto h-12 w-12 text-success" />
+        <h2 className="mt-4 text-xl font-semibold text-foreground">All caught up!</h2>
+        <p className="mt-2 text-muted-foreground">
+          No phrases are due right now. Come back later, or practice all {phrases.length} phrases now.
+        </p>
+        <Button className="mt-6" onClick={startPracticeAll}>
+          Practice All {phrases.length} Phrases
+        </Button>
       </div>
     );
   }
@@ -187,25 +273,35 @@ export default function ReviewPage() {
           <p className="admin-kicker">Review</p>
           <h1 className="admin-page-title">Review Flashcards</h1>
           <p className="admin-page-subtitle">
-            {completed} reviewed · {reviewList.length} total
+            {completed} reviewed · {reviewList.length - currentIndex} remaining
+            {practiceAll && (
+              <span className="ml-2 text-xs opacity-60">(practice mode)</span>
+            )}
           </p>
         </div>
 
-        <div className="mx-auto grid w-fit max-w-full gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {(Object.keys(modeLabels) as ReviewMode[]).map((m) => (
-            <button
-              key={m}
-              onClick={() => {
-                setMode(m);
-                setRevealed(false);
-              }}
-              className={`rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
-                mode === m ? "bg-[#161819] text-white" : "bg-muted/40 text-foreground hover:bg-muted"
-              }`}
-            >
-              {modeLabels[m]}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="grid w-full gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {(Object.keys(modeLabels) as ReviewMode[]).map((m) => (
+              <button
+                key={m}
+                onClick={() => {
+                  setMode(m);
+                  setRevealed(false);
+                  setTypedAnswer("");
+                  setTypeResult(null);
+                }}
+                className={`rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
+                  mode === m
+                    ? "bg-[#161819] text-white"
+                    : "bg-muted/40 text-foreground hover:bg-muted"
+                }`}
+              >
+                {modeLabels[m]}
+              </button>
+            ))}
+          </div>
+
         </div>
 
         {currentPhrase && (
@@ -219,7 +315,9 @@ export default function ReviewPage() {
             >
               <div className="flex flex-wrap items-center justify-between gap-3 text-left">
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">{getPromptLabel(mode)}</p>
+                  <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                    {getPromptLabel(mode)}
+                  </p>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Card {currentIndex + 1} of {reviewList.length}
                   </p>
@@ -235,7 +333,9 @@ export default function ReviewPage() {
                   </button>
                   <div className="rounded-xl border bg-muted/20 px-3 py-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">Stage</span>
+                      <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                        Stage
+                      </span>
                       <span className="rounded-full border border-border bg-card px-2.5 py-1 text-xs font-semibold text-foreground">
                         {reviewStage}
                       </span>
@@ -244,11 +344,17 @@ export default function ReviewPage() {
                 </div>
               </div>
 
-              <p className="mt-8 text-3xl font-semibold text-foreground">{getQuestion(currentPhrase, mode)}</p>
+              <p className="mt-8 text-3xl font-semibold text-foreground">
+                {getQuestion(currentPhrase, mode)}
+              </p>
 
               {!revealed ? (
                 <div className="mt-8 space-y-4">
-                  <Button variant="outline" onClick={() => setRevealed(true)} className="h-11 gap-2 rounded-xl px-5">
+                  <Button
+                    variant="outline"
+                    onClick={() => setRevealed(true)}
+                    className="h-11 gap-2 rounded-xl px-5"
+                  >
                     <Eye className="h-4 w-4" /> Show Answer
                   </Button>
                   <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
@@ -258,26 +364,41 @@ export default function ReviewPage() {
                 </div>
               ) : (
                 <div className="mt-6 space-y-6">
+
                   <div className="rounded-[1.5rem] border bg-muted/25 p-5 text-left">
-                    <p className="text-xs font-medium uppercase tracking-[0.18em] text-primary">Answer</p>
-                    <p className="mt-2 text-xl font-semibold text-foreground">{getAnswer(currentPhrase, mode)}</p>
+                    <p className="text-xs font-medium uppercase tracking-[0.18em] text-primary">
+                      Answer
+                    </p>
+                    <p className="mt-2 text-xl font-semibold text-foreground">
+                      {getAnswer(currentPhrase, mode)}
+                    </p>
 
                     {currentPhrase.explanation?.standardMeaning && mode !== "phrase_to_meaning" && (
-                      <p className="mt-3 text-sm text-muted-foreground">{currentPhrase.explanation.standardMeaning}</p>
+                      <p className="mt-3 text-sm text-muted-foreground">
+                        {currentPhrase.explanation.standardMeaning}
+                      </p>
                     )}
 
                     <div className="mt-4 grid gap-3 sm:grid-cols-2">
                       {currentPhrase.explanation?.usageContext ? (
                         <div className="rounded-xl border border-border bg-card px-4 py-3">
-                          <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">When People Use This</p>
-                          <p className="mt-1 text-sm text-foreground">{currentPhrase.explanation.usageContext}</p>
+                          <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                            When People Use This
+                          </p>
+                          <p className="mt-1 text-sm text-foreground">
+                            {currentPhrase.explanation.usageContext}
+                          </p>
                         </div>
                       ) : null}
 
                       {user?.somaliModeEnabled && currentPhrase.explanation?.somaliMeaning ? (
                         <div className="rounded-xl border border-border bg-card px-4 py-3">
-                          <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Somali</p>
-                          <p className="mt-1 text-sm text-foreground">{currentPhrase.explanation.somaliMeaning}</p>
+                          <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                            Somali
+                          </p>
+                          <p className="mt-1 text-sm text-foreground">
+                            {currentPhrase.explanation.somaliMeaning}
+                          </p>
                         </div>
                       ) : null}
                     </div>
@@ -289,14 +410,18 @@ export default function ReviewPage() {
                           Example
                         </p>
                         <p className="mt-1 text-sm text-foreground">
-                          {currentPhrase.examples.find((example) => example.exampleType !== "somali")?.exampleText ?? currentPhrase.examples[0].exampleText}
+                          {currentPhrase.examples.find(
+                            (example) => example.exampleType !== "somali"
+                          )?.exampleText ?? currentPhrase.examples[0].exampleText}
                         </p>
                       </div>
                     ) : null}
                   </div>
 
                   <div>
-                    <p className="mb-3 text-sm text-muted-foreground">How well did you know this?</p>
+                    <p className="mb-3 text-sm text-muted-foreground">
+                      How well did you know this?
+                    </p>
                     <div className="grid gap-3 sm:grid-cols-4">
                       {ratingConfig.map((item) => (
                         <button
@@ -309,11 +434,15 @@ export default function ReviewPage() {
                             <span className="text-sm font-semibold">{item.label}</span>
                             <span className="text-xs font-medium opacity-70">{item.shortcut}</span>
                           </div>
-                          <p className="mt-2 text-xs font-medium opacity-70">{timingPreview[item.rating].label}</p>
+                          <p className="mt-2 text-xs font-medium opacity-70">
+                            {timingPreview[item.rating].label}
+                          </p>
                         </button>
                       ))}
                     </div>
-                    <p className="mt-3 text-xs text-muted-foreground">Keyboard: `1` Again, `2` Hard, `3` Good, `4` Easy</p>
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      Keyboard: `1` Again, `2` Hard, `3` Good, `4` Easy
+                    </p>
                   </div>
                 </div>
               )}

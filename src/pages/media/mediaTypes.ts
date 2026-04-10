@@ -1,3 +1,5 @@
+import { HIDDEN_MEDIA_TABS } from "./hidden/mediaHiddenTabs";
+
 export interface YTChannel {
   id: string;
   handle: string;
@@ -5,6 +7,7 @@ export interface YTChannel {
   label: string;
   thumbnail: string;
   videoCount: number;
+  channelId?: string;
 }
 
 export interface YTVideo {
@@ -21,6 +24,29 @@ export interface YTVideo {
   vocabScore: number; // 0–50000 approximation of word frequency rank
 }
 
+export interface PodcastChannel {
+  id: string;
+  title: string;
+  slug: string;
+  publisher: string | null;
+  description: string | null;
+  artwork_url: string | null;
+  last_synced_at: string | null;
+}
+
+export interface PodcastEpisode {
+  id: string;
+  podcast_id: string;
+  title: string;
+  slug: string;
+  description: string | null;
+  published_at: string | null;
+  duration_seconds: number | null;
+  audio_url: string;
+  artwork_url: string | null;
+  transcript_status: string;
+}
+
 export type SortMode = "date" | "viewCount";
 export type MediaTabId =
   | "youtube"
@@ -32,13 +58,18 @@ export type MediaTabId =
   | "my_texts"
   | "resources";
 
-export const MEDIA_TABS: Array<{ id: MediaTabId; label: string; available: boolean; badge?: string }> = [
+export interface MediaTabDefinition {
+  id: MediaTabId;
+  label: string;
+  available: boolean;
+  badge?: string;
+}
+
+export const MEDIA_TABS: MediaTabDefinition[] = [
   { id: "youtube", label: "YouTube", available: true },
-  { id: "netflix", label: "Netflix", available: false },
   { id: "books", label: "Books", available: true },
-  { id: "fsi_dli", label: "FSI/DLI", available: false },
-  { id: "media_file", label: "Media file", available: false, badge: "NEW" },
-  { id: "podcasts", label: "Podcasts", available: false },
-  { id: "my_texts", label: "My texts", available: false },
-  { id: "resources", label: "Resources", available: false },
+  { id: "podcasts", label: "Podcasts", available: true },
+  { id: "my_texts", label: "My texts", available: true },
 ];
+
+export const ALL_MEDIA_TABS: MediaTabDefinition[] = [...MEDIA_TABS, ...HIDDEN_MEDIA_TABS];

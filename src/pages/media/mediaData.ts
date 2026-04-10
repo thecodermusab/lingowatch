@@ -49,7 +49,7 @@ export const MEDIA_TABS: Array<{ id: MediaTabId; label: string; available: boole
   { id: 'netflix',   label: 'Netflix',   available: false },
   { id: 'books',     label: 'Books',     available: true  },
   { id: 'podcasts',  label: 'Podcasts',  available: false },
-  { id: 'my_texts',  label: 'My texts',  available: false },
+  { id: 'my_texts',  label: 'My texts',  available: true  },
 ];
 
 // ─── Sources ─────────────────────────────────────────────────────────────────

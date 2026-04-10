@@ -1,0 +1,1292 @@
+{
+  "seed:ariannita-la-gri": {
+    "thumbnail": "https://yt3.ggpht.com/h7mMk0EIIrXGuMqzNTI9rNRBYuABVuHKOl9NJrdytR4KcUJEnZ2wPwdGppEeqHmB40UAvh8jFRQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Ariannita la Gringa",
+    "channelId": "UC3uODtYvKjb7gPY9EFOlUWw",
+    "cachedAt": "2026-04-10T09:23:57.351Z"
+  },
+  "seed:matt-d-avella": {
+    "thumbnail": "https://yt3.ggpht.com/9tZhUHaqI9ynPOstWuYVrzbp1wAfLE71TIzws5Fccs0u8a-obZz6WTiocIpFmmp0_O2xGjRteI8=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Matt D'Avella",
+    "channelId": "UCJ24N4O0bP7LGLBDvye7oCA",
+    "cachedAt": "2026-04-10T09:23:57.361Z"
+  },
+  "seed:bangtantv": {
+    "thumbnail": "https://yt3.googleusercontent.com/Ngamm9F16MJk_4Dlk9kw_OvhOwUN5yFdd84-_V5534dxYZQUSDJSarjLXvpyHBYzWPDXDk_i=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "BANGTANTV",
+    "channelId": "UCLkAepWjdylmXSltofFvsYQ",
+    "cachedAt": "2026-04-10T09:23:57.373Z"
+  },
+  "seed:wired": {
+    "thumbnail": "https://yt3.ggpht.com/3xLaRljIs8OZjbxyGnMlpHXtzrxY-keMiy9foklNwa9G5wzB2stC4ND56rZfZAuyLKmRLMm2cik=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "WIRED",
+    "channelId": "UCftwRNsjfRo08xYE31tkiyw",
+    "cachedAt": "2026-04-10T09:23:57.497Z"
+  },
+  "seed:mit-opencour": {
+    "thumbnail": "https://yt3.ggpht.com/swNtJDBP8xHP_zwrbL4tCUQt02B-7Mr8XggFMBjANHn_Q5aUtPmxPs8f8Ag3wO2O-rJpsQQGpA=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "MIT OpenCourseWare",
+    "channelId": "UCEBb1b_L6zDS3xTUrIALZOw",
+    "cachedAt": "2026-04-10T09:23:58.969Z"
+  },
+  "seed:joseph-everett": {
+    "thumbnail": "https://yt3.ggpht.com/iCN_e45hrtNFpmomEJPnmVAI5MrvGtFUOR6a1AUKsqd-jkvRl2wU-W6ShIK2ge1uI72cFc67iw=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Joseph Everett",
+    "channelId": "UCEMuR9oAAWiryj0Gq7IkMeg",
+    "cachedAt": "2026-04-10T09:23:58.998Z"
+  },
+  "seed:nbc-news": {
+    "thumbnail": "https://yt3.ggpht.com/PJj5jtuEOi5UmkFy4IBonj5WcabNcnJAIJe-jZMd1ArwIuVyQxFH_2zryBHwvfv6mJujwRpWDCM=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "NBC News",
+    "channelId": "UCeY0bbntWzzVIaj2z3QigXg",
+    "cachedAt": "2026-04-10T09:23:59.018Z"
+  },
+  "seed:abc-news": {
+    "thumbnail": "https://yt3.ggpht.com/GJ8V0NX6NddGh9bf4zED4tsjPjjBK2hdp5FWHMy09pV7sdSkkE3yEhCRSch4waEb9ZavyUrWfw=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "ABC News",
+    "channelId": "UCBi2mrWuNuyYy4gbM6fU18Q",
+    "cachedAt": "2026-04-10T09:23:59.346Z"
+  },
+  "seed:storybooth": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_nNxXqPQ3NlZ8rhiqh18xlCJ2ag_cyU3OkrzSiklgW_F1I=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "storybooth",
+    "channelId": "UCWENB1OaGA9402PKzEVl0ow",
+    "cachedAt": "2026-04-10T09:24:00.700Z"
+  },
+  "seed:cnn": {
+    "thumbnail": "https://yt3.ggpht.com/wSqAf5WdxsGsl7ZMtlyfz3qKULo_URoFjmKky0gLThm_Jtu2wsVHMu-XzGZPAb-z8zeMBYUUMYA=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "CNN",
+    "channelId": "UCupvZG-5ko_eiXAupbDfxWw",
+    "cachedAt": "2026-04-10T09:24:00.905Z"
+  },
+  "seed:ted": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_koIFcCOrvh0KThLNOiazAIDu6hcs8bjkGNwe1f6A_OYm8=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "TED",
+    "channelId": "UCAuUUnT6oDeKwE6v1NGQxug",
+    "cachedAt": "2026-04-10T09:24:01.100Z"
+  },
+  "seed:lex-fridman": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_ljfMy9kUR1PH9VRf-XsTsPqFMgORC_zodOQVEAm4hx36lC=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Lex Fridman",
+    "channelId": "UCSHZKyawb77ixDdsGog4iWA",
+    "cachedAt": "2026-04-10T09:24:01.121Z"
+  },
+  "seed:genius": {
+    "thumbnail": "https://yt3.ggpht.com/MqakHuFktIhFCdhHVU6t5a838FSm_UZfQjbI1I826lapHOHoEmviw7ghwNZBCgNdY_lvWQSplhE=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Genius",
+    "channelId": "UCyFZMEnm1il5Wv3a6tPscbA",
+    "cachedAt": "2026-04-10T09:24:02.742Z"
+  },
+  "seed:ted-ed": {
+    "thumbnail": "https://yt3.ggpht.com/PKUi-Lc3VFjUfsIhjK3n-FJDNBf-XQLdg4G4bv4fPFF96D3MVnkbub9ePpLoWdmdFgl5I1Zd=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "TED-Ed",
+    "channelId": "UCsooa4yRKGN_zEE8iknghZA",
+    "cachedAt": "2026-04-10T09:24:02.759Z"
+  },
+  "seed:speak-english": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_kVsraP2aOOCCwX6FKamHjeC3aGT7AoYwAEf6MHHnW9mEE=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Speak English With Vanessa",
+    "channelId": "UCxJGMJbjokfnr2-s4_RXPxQ",
+    "cachedAt": "2026-04-10T09:24:02.772Z"
+  },
+  "seed:rachel-s-english": {
+    "thumbnail": "https://yt3.ggpht.com/9PaqSmys-JJVyYRuwEUPYrR5SGgTcSCIcqUobHyznUhv2KA3ImJ1I2HEYHwlOO21zltEXthrFJ4=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Rachel's English",
+    "channelId": "UCvn_XCl_mgQmt3sD753zdJA",
+    "cachedAt": "2026-04-10T09:24:02.898Z"
+  },
+  "seed:national-geog": {
+    "thumbnail": "https://yt3.ggpht.com/lSalOZV0QHCVcSJI8962l2HrEscpczQFXmyAoSI6stkw2pAyNJlhcK26P-npagYfWb27MzxmMw=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "National Geographic",
+    "channelId": "UCpVm7bg6pXKo1Pr6k5kxG9A",
+    "cachedAt": "2026-04-10T09:24:05.837Z"
+  },
+  "seed:speak-english-2": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_kVsraP2aOOCCwX6FKamHjeC3aGT7AoYwAEf6MHHnW9mEE=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Speak English With Vanessa",
+    "channelId": "UCxJGMJbjokfnr2-s4_RXPxQ",
+    "cachedAt": "2026-04-10T09:24:12.217Z"
+  },
+  "seed:steve-kaufman": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_mKdbvZ6naFnbw-mIbszy-LSH4e0fALn6ufyOwMITE7T8c=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Steve Kaufmann - lingosteve",
+    "channelId": "UCez-2shYlHQY3LfILBuDYqQ",
+    "cachedAt": "2026-04-10T09:24:22.502Z"
+  },
+  "seed:learn-english": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_n6-w6FLV8bqbCARAQdcch-xOgjpwIZkAWxh2ZbuWnULQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Learn English With TV Series",
+    "channelId": "UCKgpamMlm872zkGDcBJHYDg",
+    "cachedAt": "2026-04-10T12:27:27.942Z"
+  },
+  "seed:learn-english-2": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_n6-w6FLV8bqbCARAQdcch-xOgjpwIZkAWxh2ZbuWnULQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Learn English With TV Series",
+    "channelId": "UCKgpamMlm872zkGDcBJHYDg",
+    "cachedAt": "2026-04-10T09:24:36.895Z"
+  },
+  "seed:ali-abdaal": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_m2xx6mCZwsyjARnkwBKJxEv0FqGxGS2NwWNkjWH__Smw=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Ali Abdaal",
+    "channelId": "UCoOae5nYA7VqaXzerajD0lg",
+    "cachedAt": "2026-04-10T09:24:40.511Z"
+  },
+  "seed:easy-english": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_lfZwnSmVnO856uNy-EhviA286XT_WNHIjXeTlLTwmPmMM=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Easy English",
+    "channelId": "UCTRHegh7UqWuKRymXoqzbzA",
+    "cachedAt": "2026-04-10T09:24:45.936Z"
+  },
+  "seed:vlogbrothers": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_kRgkKL2CrQ4Ix8eIcTVlL7kQtdiePYEmYeCHq126dk4TE=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "vlogbrothers",
+    "channelId": "UCGaVdbSav8xWuFWTadK6loA",
+    "cachedAt": "2026-04-10T09:24:46.555Z"
+  },
+  "seed:hybe-labels": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_l8g0yRFG8xoe_qeqk8Ki9UFy36cB2IjZEWZWz0h7gl-t0=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "HYBE LABELS",
+    "channelId": "UC3IZKseVpdzPSBaWxBxundA",
+    "cachedAt": "2026-04-10T09:24:54.744Z"
+  },
+  "seed:dw-document": {
+    "thumbnail": "https://yt3.ggpht.com/rgphL4c6DGPlwzkxIzE5tH0DPe1yuynH0nTdOAecCVIX5gUjJGsCwXtp9wnxjcsfqboL6C5aFg=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "DW Documentary",
+    "channelId": "UCW39zufHfsuGgpLviKh297Q",
+    "cachedAt": "2026-04-10T09:24:55.467Z"
+  },
+  "seed:marques-brow": {
+    "thumbnail": "https://yt3.ggpht.com/qu4TmIaYUlS41-dJ9gZ7DUR3nilvmB5_11i6OKSdvNnBNiyOusZP1bMN6ICnuxtjFBb6ioKgRQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Marques Brownlee",
+    "channelId": "UCBJycsmduvYEL83R_U4JriQ",
+    "cachedAt": "2026-04-10T09:25:02.981Z"
+  },
+  "seed:freecodecamp": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_lGRc-05M2OoE1ejQdxeFhyP7OkJg9h4Y-7CK_5je3QqFI=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "freeCodeCamp.org",
+    "channelId": "UC8butISFwT-Wl7EV0hUK0BQ",
+    "cachedAt": "2026-04-10T09:25:03.799Z"
+  },
+  "seed:luke-s-english-p": {
+    "thumbnail": "https://yt3.ggpht.com/Rmzu3c21PAiDTbSw7gI8yuzLRTInRJzkJB_dc8cIhNC95B5RO-XjmowRfk5NIQo4o5W7thv0=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Luke's English Podcast",
+    "channelId": "UC2L7vR43LKuBXXV2AentEMw",
+    "cachedAt": "2026-04-10T09:25:11.118Z"
+  },
+  "seed:veronika-s-lan": {
+    "thumbnail": "https://yt3.ggpht.com/iTZ-6h4-p9ekuQxYdJaDdYpmy3YHU-CGXwU20zAPlG8cP7xEkQl8mEOwahqRMD7eOx3GbfJ-yQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Veronika Lan",
+    "channelId": "UCbEuN2hJopyBFzBXnm8ZgJw",
+    "cachedAt": "2026-04-10T09:25:11.669Z"
+  },
+  "seed:andrew-huber": {
+    "thumbnail": "https://yt3.ggpht.com/Y8lhyl8aHY42phxwoAwUqwLGDp-z8nmtj3Z7_JB-Oh4yIZ1OFYb-MlJRuz_oygqsYQU-VgGqiOM=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Andrew Huberman",
+    "channelId": "UC2D2CMWXMOVWx7giW1n3LIg",
+    "cachedAt": "2026-04-10T09:25:18.672Z"
+  },
+  "seed:reallife-english": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_kdRAlGdtjPqmakGUhb0t36UNo-qhHKtHFR_Vv2WirC8to=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "RealLife English",
+    "channelId": "UC9d2mNoH8coSqtnotE81Tww",
+    "cachedAt": "2026-04-10T09:25:20.029Z"
+  },
+  "seed:to-fluency": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_muqgX_tHe-UM90ioN8fjDLCFxKeQ8rx4p37LepTdn2mtw=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "To Fluency",
+    "channelId": "UC32mYgIHS-e3C3Eyd2tRw6g",
+    "cachedAt": "2026-04-10T09:25:26.987Z"
+  },
+  "seed:trutv": {
+    "thumbnail": "https://yt3.ggpht.com/aZpNbjxkd2w1iQMtEc-OWuAEwgfmw7Zfzytml3fwXsXZJQ7kvwdeT7DFRe_xqTCMCoqiMmnZ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "truTV",
+    "channelId": "UCb0xfM3HGOsqPYNAocXXNAQ",
+    "cachedAt": "2026-04-10T09:25:27.858Z"
+  },
+  "seed:the-real-dayti": {
+    "thumbnail": "https://yt3.ggpht.com/AhnrBUJMI1BDdflIu1pR9bKgWbtm4hFL-Qw0yfojKT980rPhYK4AkUU6l2altR2S5Th-Mg0xgw=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "The Real Daytime",
+    "channelId": "UCdM8C3ufiI-i-I1XSugKVvg",
+    "cachedAt": "2026-04-10T09:26:55.948Z"
+  },
+  "seed:bbc-learning-e": {
+    "thumbnail": "https://yt3.ggpht.com/ANAs2cAwxesjyoe3vsyhZGzlTafbicnuGMzPNSAuJdpTwg8CesHkViMTCrYqAJEGaKXG6_KEUg=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "BBC Learning English",
+    "channelId": "UCHaHD477h-FeBbVh9Sh7syA",
+    "cachedAt": "2026-04-10T09:26:56.212Z"
+  },
+  "seed:english-with-l": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_nZnUEKXrbewVcDQSSWIa1xPXjUZCwNF-b8Hz2CsybaZU4=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "English with Lucy",
+    "channelId": "UCz4tgANd4yy8Oe0iXCdSWfA",
+    "cachedAt": "2026-04-10T09:26:56.228Z"
+  },
+  "seed:the-tonight-sh": {
+    "thumbnail": "https://yt3.ggpht.com/rNNmF5XK6SpfwhSL2Uf-GFiezejcbhfRYax6qTG0wQNHbBldm3YyQ6HLY6Ps4YweUNvXQGvUCg=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "The Tonight Show Starring Jimmy Fallon",
+    "channelId": "UC8-Th83bH_thdKZDJCrn88g",
+    "cachedAt": "2026-04-10T09:26:56.288Z"
+  },
+  "seed:learn-english-w": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_n6-w6FLV8bqbCARAQdcch-xOgjpwIZkAWxh2ZbuWnULQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Learn English With TV Series",
+    "channelId": "UCKgpamMlm872zkGDcBJHYDg",
+    "cachedAt": "2026-04-10T09:26:57.836Z"
+  },
+  "seed:kurzgesagt-in": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_n1Ribd7LwdP_qKtqWL3ZDfIgv9M1d6g78VwpHGXVR2Ir4=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Kurzgesagt – In a Nutshell",
+    "channelId": "UCsXVk37bltHxD1rDPwtNM8Q",
+    "cachedAt": "2026-04-10T09:26:57.851Z"
+  },
+  "seed:ruri-ohama": {
+    "thumbnail": "https://yt3.ggpht.com/GBFgeo3PNpI7NJ8tYhGL_qjwYA_ztI_DYsWb1uio6MDXyptTI5Wxt-VE9lFSRkkg7ppbkefKwNU=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Ruri Ohama",
+    "channelId": "UCKtiMrNZq0gGbPTnsMu7Bsw",
+    "cachedAt": "2026-04-10T09:26:58.009Z"
+  },
+  "seed:bbc-news": {
+    "thumbnail": "https://yt3.ggpht.com/v4JamQ9B-PUiJHjmZQs9UwTaoLQW8vijJMMpV5QvA2wHQ6iwWM8Q1s6O4jgTl0dtDigVWAi7SA=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "BBC News",
+    "channelId": "UC16niRr50-MSBwiO3YDb3RA",
+    "cachedAt": "2026-04-10T09:26:58.356Z"
+  },
+  "seed:tbs": {
+    "thumbnail": "https://yt3.ggpht.com/Qf7rWDQx3_Mjh0NYofh8dPOUBQ6cRVEF7rnA6abuKKTojlgt4LiAgbOglbU3guPTeVHaJUz-=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "TBS",
+    "channelId": "UCgCudMsK-kxYxB2RgiS3bzQ",
+    "cachedAt": "2026-04-10T09:26:59.791Z"
+  },
+  "seed:linguamarina": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_khZgrqVTSi_R9eAk5-MokIr5gBW9PjcqW0rCWne8eiRQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "linguamarina",
+    "channelId": "UCAQg09FkoobmLquNNoO4ulg",
+    "cachedAt": "2026-04-10T09:27:00.000Z"
+  },
+  "seed:vox": {
+    "thumbnail": "https://yt3.ggpht.com/iak9xjDjDoQHn9UNWSvkobPuxAzK1ApefjPH7HGObwo71AbaiEqdafMjmUJCgOoBFWNKPS2t2eI=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Vox",
+    "channelId": "UCLXo7UDZvByw2ixzpQCufnA",
+    "cachedAt": "2026-04-10T09:27:00.019Z"
+  },
+  "seed:crashcourse": {
+    "thumbnail": "https://yt3.ggpht.com/E454zI2spNFZsN_wgJPTHjMsqs1fFqb_qp4PYanWuyaXQJp98wKEV1kIQYlR57epaweO5P8v=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "CrashCourse",
+    "channelId": "UCX6b17PVsYBQ0ip5gyeme-Q",
+    "cachedAt": "2026-04-10T09:27:00.103Z"
+  },
+  "seed:mmmenglish": {
+    "thumbnail": "https://yt3.ggpht.com/RFXL_Eqyw1aVTicQvA6RFL5LwKQ5yUof989SYz0blxzzyW_sTtAlp6rjr_cyxcO1ejF-Ek5_hg=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "mmmEnglish",
+    "channelId": "UCrRiVfHqBIIvSgKmgnSY66g",
+    "cachedAt": "2026-04-10T09:27:01.564Z"
+  },
+  "seed:the-infographi": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_lXfGenrTAobxcy-fKXlzwvp7w2l7IlLOVk0jS7NUZZTGQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "The Infographics Show",
+    "channelId": "UCfdNM3NAhaBOXCafH7krzrA",
+    "cachedAt": "2026-04-10T09:27:01.589Z"
+  },
+  "seed:psych2go": {
+    "thumbnail": "https://yt3.ggpht.com/mtKHKAUQsEV9ciCGDrRH5jkJLcCgimHKPaaGTEpMuvie4GQA_bS_z_WeD4MvQFx646SdxSb2Fw=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Psych2Go",
+    "channelId": "UCkJEpR7JmS36tajD34Gp4VA",
+    "cachedAt": "2026-04-10T09:27:01.620Z"
+  },
+  "seed:vogue": {
+    "thumbnail": "https://yt3.ggpht.com/pjWEB6VpO5GmzI7aGg6pAjkNSdLf75LKoUXmmj2HAs1Fq1V1zlcevvR4hf7J9VtV7fYxaYJHS8g=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Vogue",
+    "channelId": "UCRXiA3h1no_PFkb1JCP0yMA",
+    "cachedAt": "2026-04-10T09:27:02.001Z"
+  },
+  "seed:english-fluenc": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_lqaHauPrLEzweEsMPMuHZzzLhnGNg5SB32eus6n8gZT3M=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "English Fluency Journey",
+    "channelId": "UC9eIq7PwD0WA-2B_Sp7xGdw",
+    "cachedAt": "2026-04-10T09:27:04.702Z"
+  },
+  "seed:theellenshow": {
+    "thumbnail": "https://yt3.ggpht.com/n6BksIXpbZfRmlxqgdhTGVLvQVDtajIo1a8mxFDADhwE4wMUOhjnZ9qsRVPoTa9dfHnW1Yn9=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "TheEllenShow",
+    "channelId": "UCp0hYYBW6IMayGgR-WeoCvQ",
+    "cachedAt": "2026-04-10T09:27:13.311Z"
+  },
+  "seed:cnbc": {
+    "thumbnail": "https://yt3.ggpht.com/sS9OtcPLL1vQNfGnRudALfNzfpHVy7qwRRKTYF4HEfyICGTfXfHsfP2hhIPgKK0iBxW7p1lH1g=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "CNBC",
+    "channelId": "UCvJJ_dzjViJCoLf5uKUTwoA",
+    "cachedAt": "2026-04-10T09:31:37.252Z"
+  },
+  "seed:russian-with-max": {
+    "thumbnail": "https://yt3.ggpht.com/2N_VIJsOgJ8O6f2BI5Bq5oLG9PbOsCsTkyZ7UoM5iJON-blvJWPN7z66X8k0n0bMxTrLlXKydw=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Russian With Max",
+    "channelId": "UCklUqFEcJqFnWKEBozw5p4g",
+    "cachedAt": "2026-04-10T09:31:37.296Z"
+  },
+  "seed:zoe-languages": {
+    "thumbnail": "https://yt3.ggpht.com/7jJ8zAuBu2gNyhVrZmHuU0dF2mvl8Bi5lmfOxfnqLuPjEk2n-sX5CJlg_cHcMWGcWYXeuWbdBg=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Zoe.languages",
+    "channelId": "UCRAltBg8Fp5c1-RbAXzk4LQ",
+    "cachedAt": "2026-04-10T09:31:37.475Z"
+  },
+  "seed:the-school-of": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_ldJz69qUu_3sEO5c-lO5Cevt7X2gUE2YQ11iWAC-6TZFU=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "The School of Life",
+    "channelId": "UC7IcJI8PUf5Z3zKxnZvTBog",
+    "cachedAt": "2026-04-10T09:31:37.544Z"
+  },
+  "seed:spanish-after-h": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_mVj71zoI7A_MvdVp6FpREpxTlwXYchggPY54YQf_f9Rg=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Spanish After Hours",
+    "channelId": "UCfG2VhlQgy5bHGmkpeKcjVA",
+    "cachedAt": "2026-04-10T09:31:39.132Z"
+  },
+  "seed:english-speaki": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_m8GIX0Aj-9h2aTEJCWKVWJPCYM500phK5CtwmM12qA9M0=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "English Speaking Success",
+    "channelId": "UCiVm8XcbwS8-pcDEa5lFXIA",
+    "cachedAt": "2026-04-10T09:31:39.142Z"
+  },
+  "seed:big-think": {
+    "thumbnail": "https://yt3.ggpht.com/QWMOoT-7-bivHzD5AvaxHtC2aDl6tUjzAlsKsMo98EmOYfUUFpZGkKaDbA555fNqjqklJHeSjGc=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Big Think",
+    "channelId": "UCvQECJukTDE2i6aCoMnS-Vg",
+    "cachedAt": "2026-04-10T09:31:39.336Z"
+  },
+  "seed:netflix": {
+    "thumbnail": "https://yt3.ggpht.com/3b73AYEMMfa3SX5KJMeygio9smTPvrPrpicuQZbfQ_2DN7dV_ApiRM4CdYjSprEy1YYvt_9b=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Netflix",
+    "channelId": "UCWOA1ZGywLbqmigxE4Qlvuw",
+    "cachedAt": "2026-04-10T09:31:39.419Z"
+  },
+  "seed:veritasium": {
+    "thumbnail": "https://yt3.ggpht.com/7vCbvtCqtjQ3YLgsJt7Y952MQV1sBvhllSCSxHP8_sVZdcPCBrITfhkN2RdyCuwPnsByq-1GoA=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Veritasium",
+    "channelId": "UCHnyfMqiRRG1u-2MsSQLbXA",
+    "cachedAt": "2026-04-10T09:31:52.017Z"
+  },
+  "seed:dw-news": {
+    "thumbnail": "https://yt3.ggpht.com/NSOdTQTWlqMy8O_j32dx-ftfTCHMOt04Hm7KZ4pfAK6-eQzQSZMWvvss90kG8KQfJ7iNP3phyA=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "DW News",
+    "channelId": "UCknLrEdhRCp1aegoMqRaCZg",
+    "cachedAt": "2026-04-10T09:31:52.070Z"
+  },
+  "seed:the-economist": {
+    "thumbnail": "https://yt3.ggpht.com/pBw3GOKlTYBarIE0qE5-cNoIHMNbPGsER61kuJC5MSI6HzqV16fcaQZQlUSxlJMUFi0_-S9VAw=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "The Economist",
+    "channelId": "UC0p5jTq6Xx_DosDFxVXnWaQ",
+    "cachedAt": "2026-04-10T09:31:52.085Z"
+  },
+  "seed:the-wall-street": {
+    "thumbnail": "https://yt3.ggpht.com/zbPzRWTIiIg_sNPoAgBf4COWvAoac3vgbiTEu1dfpqH3YPDNvnxMjDtAGftuw5EPx8wfSjMzr2I=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "The Wall Street Journal",
+    "channelId": "UCK7tptUDHh-RYDsdxO1-5QQ",
+    "cachedAt": "2026-04-10T09:31:52.142Z"
+  },
+  "seed:the-daily-show": {
+    "thumbnail": "https://yt3.ggpht.com/clBZ7D-wYk_ysfU_X0U2GAN3lAxkP5drwADfpuqvSrbPzkcemCXx9XQV8XEXqjSK3uMYiReJPQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "The Daily Show",
+    "channelId": "UCwWhs_6x42TyRM4Wstoq8HA",
+    "cachedAt": "2026-04-10T09:31:52.215Z"
+  },
+  "seed:nicki-swift": {
+    "thumbnail": "https://yt3.ggpht.com/5t-epKBdCQ5ApDmRWM20mNEKqmcnLh9o487z-ITp1R4A0FGGy2E0Fy9677y-j-L4MHQYNJ2k=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Nicki Swift",
+    "channelId": "UC1DGpYiEiqBrQtYXFbLhMVQ",
+    "cachedAt": "2026-04-10T09:31:52.235Z"
+  },
+  "seed:accent-s-way-e": {
+    "thumbnail": "https://yt3.ggpht.com/9Kyn7kuX5ACC9w5PrP2qXFRGiDz2y3PRC_RF5RcYn0qIJiLo8_sL-vtrHZOS8i0azUgJ2XU4hQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Accent's Way English with Hadar",
+    "channelId": "UClPyOwXLnSMejFdLvJXjA5A",
+    "cachedAt": "2026-04-10T09:31:52.727Z"
+  },
+  "seed:jimmy-kimmel": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_lhbMFP_RRAtTgX-58mKKhuVG_P-qESOBnMDiPE0vhJgEMm=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Jimmy Kimmel Live",
+    "channelId": "UCa6vGFO9ty8v5KZJXQxdhaw",
+    "cachedAt": "2026-04-10T09:31:52.740Z"
+  },
+  "seed:luca-lamparie": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_mvCdJRnduR2fCu1Y_U9IVpUkGOrGiqe7WQwlc-rJzG-ms=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Luca Lampariello",
+    "channelId": "UCOJ88yDbqOkAZXNuuYpAAAA",
+    "cachedAt": "2026-04-10T09:31:52.910Z"
+  },
+  "seed:jubilee": {
+    "thumbnail": "https://yt3.ggpht.com/KPfeFoMZ18KYP7q-i3xfEO6Vwd96aQh1V_Bto5m96rwcAR5FmrJQfK-Bo8rWfrn9RqcM0Kxq0Q=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Jubilee",
+    "channelId": "UCJjSDX-jUChzOEyok9XYRJQ",
+    "cachedAt": "2026-04-10T09:31:52.974Z"
+  },
+  "seed:powerfuljre": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_kIOv8XSayB3mVzdmGH6r6nOuncclc_QxWr7TYTXM4dFrs=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "PowerfulJRE",
+    "channelId": "UCzQUP1qoWDoEbmsQxvdjxgQ",
+    "cachedAt": "2026-04-10T09:31:53.118Z"
+  },
+  "seed:stanford-grad": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_lWoHJNSE1UPPiFdCG4_aQZ1apKXrKI7nZ_sFlKwhNwRl0=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Stanford Graduate School of Business",
+    "channelId": "UCGwuxdEeCf0TIA2RbPOj-8g",
+    "cachedAt": "2026-04-10T09:31:53.264Z"
+  },
+  "seed:cs50": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_m7MWMBm4PynPndRMCxUEfNcU9Eufkk5ZkYI5RNjPchQ_c=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "CS50",
+    "channelId": "UCcabW7890RKJzL968QWEykA",
+    "cachedAt": "2026-04-10T09:31:53.466Z"
+  },
+  "seed:thomas-frank": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_nIr5PB90HA3Uoa6w6PNkbMDZVVINovFpKb5hbHd7JwG0nP=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Thomas Frank",
+    "channelId": "UCG-KntY7aVnIGXYEBQvmBAQ",
+    "cachedAt": "2026-04-10T09:31:53.755Z"
+  },
+  "seed:english-speech": {
+    "thumbnail": "https://yt3.ggpht.com/eRB6oijQ30Os9V2O2ZfPMsPtZElNxANfcP0j8jP0V2x7IBhPX_xCsIf_tdFS4WSlkmcSqBrE=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "English Speeches",
+    "channelId": "UCLyr-hfWVCKHcZjV5fg3jbw",
+    "cachedAt": "2026-04-10T09:31:53.773Z"
+  },
+  "seed:khan-academy": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_l3GggKOWViCBpDs9APIsK6MHB2Mu-ECo5dUEU-Vay2gg=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Khan Academy",
+    "channelId": "UC4a-Gbdw7vOaccHmFo40b9g",
+    "cachedAt": "2026-04-10T09:31:53.787Z"
+  },
+  "seed:better-ideas": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_kNzBhztgwPy3i0rF0P7jTRjKtqcIdSZaHgr8lpvUae_g=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Better Ideas",
+    "channelId": "UCtUId5WFnN82GdDy7DgaQ7w",
+    "cachedAt": "2026-04-10T09:31:53.962Z"
+  },
+  "seed:thewizardliz": {
+    "thumbnail": "https://yt3.ggpht.com/4vTd6lQgW2dJqqBTIoLj9_yMccnBiDk5j2K1XHzglDhoBqqEdsrXhoXrujl38euQnACsSdpyiA=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Thewizardliz",
+    "channelId": "UC64KwGynvj3hA7T0C9gC5cA",
+    "cachedAt": "2026-04-10T09:31:54.132Z"
+  },
+  "seed:the-diary-of-a": {
+    "thumbnail": "https://yt3.ggpht.com/JHCZDz37bsTmwoE1o4LEodF5vhsHfk29kCEauDTFr27-7hHXsHHvvWGzcG77v32ERrkpfInkGQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "The Diary Of A CEO",
+    "channelId": "UCGq-a57w-aPwyi3pW7XLiHw",
+    "cachedAt": "2026-04-10T09:31:54.315Z"
+  },
+  "seed:emma-chambe": {
+    "thumbnail": "https://yt3.ggpht.com/zDSI5VOhKgSHZMOihPFJGh4NmgHu1fI7bVYp8lhTuhnwhDBECt-Hgs1nm69dCn23aXZZAtCQ7g=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "emma chamberlain",
+    "channelId": "UC78cxCAcp7JfQPgKxYdyGrg",
+    "cachedAt": "2026-04-10T09:31:54.629Z"
+  },
+  "seed:bloomberg-ori": {
+    "thumbnail": "https://yt3.ggpht.com/8sL0eqOeU4a1wZBVxn5NOFsug17I2XM0dmCdT7eouq12qE-I-JLCzrzub9Z4SdF0IEt5AzEY=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Bloomberg Originals",
+    "channelId": "UCUMZ7gohGI9HcU9VNsr2FJQ",
+    "cachedAt": "2026-04-10T09:31:54.768Z"
+  },
+  "seed:steve-tv-show": {
+    "thumbnail": "https://yt3.ggpht.com/kseRzBOc1OHYhzeoQXfiVNd-6r5_nbS58Xbiye3X9p93Fbg8UKf0uSBYHewAGqMugowEjM3l=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Steve TV Show",
+    "channelId": "UCEs-zSwH2NYGskxF-ptoT1w",
+    "cachedAt": "2026-04-10T09:31:54.795Z"
+  },
+  "seed:johnny-harris": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_kswBDn49WW5IneVE-5RlKyud5GvdzyQQ5SJQyVvJ4S3pk=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Johnny Harris",
+    "channelId": "UCmGSJVG3mCRXVOP4yZrU1Dw",
+    "cachedAt": "2026-04-10T09:31:55.190Z"
+  },
+  "seed:real-men-real": {
+    "thumbnail": "https://yt3.ggpht.com/qE6usHp_Fr3DaKEtuP2Wpb9Nq5nAFRDinmds0iifhwOW7cF4R7rHb42SIfuYkJK_9X9586CO2g=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Real Men Real Style",
+    "channelId": "UCmRfQHc3U4fV1-i8Ry1HmtA",
+    "cachedAt": "2026-04-10T09:31:56.017Z"
+  },
+  "seed:italy-made-easy": {
+    "thumbnail": "https://yt3.ggpht.com/gTfnpVfHdeMit7s1AXKgH9LDGmg4IgLvExpmTGx9y9874mv715Lho8JOufpMVCWD2042FoZhBA=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Italy Made Easy",
+    "channelId": "UCXGt7134NOG1mgS6Ox7edtw",
+    "cachedAt": "2026-04-10T09:31:57.912Z"
+  },
+  "seed:jay-shetty-pod": {
+    "thumbnail": "https://yt3.ggpht.com/FPk4BUkb_OaCmCW7oiBaFWo4e25JqPV5mMWq3GMIGRBKikyGasog1d49He-fu16BlB5oSpXWaA=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Jay Shetty Podcast",
+    "channelId": "UCbk_QsfaFZG6PdQeCvaYXJQ",
+    "cachedAt": "2026-04-10T09:31:58.835Z"
+  },
+  "seed:oxford-online": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_l9vxewHnT2_r54mnV8MBnSzn-aNfxt84V4XtytUZNzqw=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Oxford Online English",
+    "channelId": "UCNbeSPp8RYKmHUliYBUDizg",
+    "cachedAt": "2026-04-10T09:31:59.803Z"
+  },
+  "seed:mark-wiens": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_l5kBueFnVEGQPnVudhsy3mCw1fMiasD0gibo-OF7FDCtSP=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Mark Wiens",
+    "channelId": "UCyEd6QBSgat5kkC6svyjudA",
+    "cachedAt": "2026-04-10T09:32:01.062Z"
+  },
+  "seed:pewdiepie": {
+    "thumbnail": "https://yt3.ggpht.com/vik8mAiwHQbXiFyKfZ3__p55_VBdGvwxPpuPJBBwdbF0PjJxikXhrP-C3nLQAMAxGNd_-xQCIg=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "PewDiePie",
+    "channelId": "UC-lHJZR3Gqxm24_Vd_AJ5Yw",
+    "cachedAt": "2026-04-10T09:32:02.782Z"
+  },
+  "seed:like-nastya": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_mVv_9v6t_6ni8YIQZWxmabSsNCVTyGQ48CHQ8-2W-OQtM=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Like Nastya",
+    "channelId": "UCJplp5SjeGSdVdwsfb9Q7lQ",
+    "cachedAt": "2026-04-10T09:32:11.525Z"
+  },
+  "seed:toys-and-colors": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_nKO-qf2jEK-xmzuggQvgjoHJO1xBIxDQ3bEgxuI4PLyHk=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Toys and Colors",
+    "channelId": "UCgFXm4TI8htWmCyJ6cVPG_A",
+    "cachedAt": "2026-04-10T09:32:11.543Z"
+  },
+  "seed:wwe": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_muzDjR0hfGdlXBS-2A8NfR-Q9e-PO96K-gxrm2i1jSStI7=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "WWE",
+    "channelId": "UCJ5v_MCY6GNUBTO8-D3XoAg",
+    "cachedAt": "2026-04-10T09:32:11.602Z"
+  },
+  "seed:alan-s-universe": {
+    "thumbnail": "https://yt3.ggpht.com/QYrADJNN_BMJSYm0LkqAs13ehWHjtxITE7kSBPsEIB_I_VFeDvujpH4aJfHfJO3FsFMsYa6Oig=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Alan's Universe",
+    "channelId": "UC5gxP-2QqIh_09djvlm9Xcg",
+    "cachedAt": "2026-04-10T09:32:21.079Z"
+  },
+  "seed:genevieve-s-pl": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_kbIC31vc6vnxLlz_EpLvg_xxTI3MuN2dq7klx_4g_qBuk=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Genevieve's Playhouse - Learning Videos for Kids",
+    "channelId": "UCK5Q72Uyo73uRPk8PmM2A3w",
+    "cachedAt": "2026-04-10T09:32:44.065Z"
+  },
+  "seed:justin-flom": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_kYgRFcfXEnEVYfiJ5Z-eY8IIIaL6kh2-cImdXyjTgbgEY=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Justin Flom",
+    "channelId": "UCb9A6uotqUiuVCvVp4GMqOg",
+    "cachedAt": "2026-04-10T09:32:44.084Z"
+  },
+  "seed:sssniperwolf": {
+    "thumbnail": "https://yt3.ggpht.com/zmwPW6LtafadphG0c5qdxTY11Tx6hGwMCiBVQGrsDQRjf2-5oGlC_hPawSrmbNk5mo5Xpx9rag=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "SSSniperWolf",
+    "channelId": "UCpB959t8iPrxQWj7G6n0ctQ",
+    "cachedAt": "2026-04-10T09:32:22.062Z"
+  },
+  "seed:eminemvevo": {
+    "thumbnail": "https://yt3.googleusercontent.com/fYB3KuH8P5jyoReOqbDRyHQJjfKsPj-BYDcJb1XANiEpo6bhCf6LXpsNxE9_fvefub9S1hCkldU=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "EminemVEVO",
+    "channelId": "UC20vb-R_px4CguHzzBPhoyQ",
+    "cachedAt": "2026-04-10T09:32:22.070Z"
+  },
+  "seed:daniel-labelle": {
+    "thumbnail": "https://yt3.ggpht.com/mtLBECHLKLPzfFu7admDqPxSpc1dWIgkJG7jVmQwVuEdpDxQ3_u1ijNwySCVlgkkay-aiFcBrs4=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Daniel LaBelle",
+    "channelId": "UCb8vrqP8Z7Oz9ZTYvUtjUHQ",
+    "cachedAt": "2026-04-10T09:32:22.164Z"
+  },
+  "seed:arianagrandev": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_nF8IachQv5A9rtNA4jMLqDoTFS9KIoBAYYxH62YagGvg=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "arianagrandev.e.v.o",
+    "channelId": "UCMvI33M4VhWrRRei7bwz9Dw",
+    "cachedAt": "2026-04-10T09:32:22.223Z"
+  },
+  "seed:blippi-educati": {
+    "thumbnail": "https://yt3.ggpht.com/t_0zKAbFUTLdh3JwAEahKAd-su7ZJ9T1jBkwdtKr24Wsq7MzxbWWjVRFH2D5WQQQ0GYn8i0MVQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Blippi - Educational Videos for Kids",
+    "channelId": "UC5PYHgAzJ1wLEidB58SK6Xw",
+    "cachedAt": "2026-04-10T09:32:22.239Z"
+  },
+  "seed:taylor-swift": {
+    "thumbnail": "https://yt3.googleusercontent.com/HFEgZENJw23LuRb0ldBpDrQKscFUWSf4n2jqrNh-1EqpE3Uiy_IYwacuUXCjCruNUP3Ttq9N=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Taylor Swift",
+    "channelId": "UCqECaJ8Gagnn7YCbPEzWH6g",
+    "cachedAt": "2026-04-10T09:32:44.071Z"
+  },
+  "seed:lionfield": {
+    "thumbnail": "https://yt3.ggpht.com/UovYb2RtV9-K1JlfEcTICgH9q7VyGPBqdv_3U2ccbC_ekpJHbecRoc88D_zUWJ0rvU5ZZHwB=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Lionfield",
+    "channelId": "UCHwpDpLoyJgtFXoAaaSut4Q",
+    "cachedAt": "2026-04-10T09:32:22.254Z"
+  },
+  "seed:sagawa": {
+    "thumbnail": "https://yt3.ggpht.com/QlwomwC80pW7jmuvyPzj6qVY1Z8cLKDgph0GKAvjbOSGCmRf6NqJBNuVMbWAFeGfsNssMAn3f0E=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Sagawa /さがわ",
+    "channelId": "UCWaOde99oeUVoXbIj3SNu9g",
+    "cachedAt": "2026-04-10T09:32:22.330Z"
+  },
+  "seed:minimoochi": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_moo4taVxYbN0k3JUi713t_9YxV0PlzrJy3Re_kR5cShA=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "MiniMoochi",
+    "channelId": "UCAQOf_uPOJ6rXO_k9RwfK3A",
+    "cachedAt": "2026-04-10T09:32:22.343Z"
+  },
+  "seed:sesame-street": {
+    "thumbnail": "https://yt3.ggpht.com/UqIbNSghcysIlsbnGUxGMcY1Me7_bJ_zCrjz1oy9PueZVo63d1CnIk1tz8sAmTMNX9ojl4MhDQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Sesame Street",
+    "channelId": "UCoookXUzPciGrEZEXmh4Jjg",
+    "cachedAt": "2026-04-10T09:32:53.459Z"
+  },
+  "seed:nickandcarrie": {
+    "thumbnail": "https://yt3.ggpht.com/ForAO94X58Gbeyk40UN_v9gRq-E_cPGz0C38exvqPgGiBGzpRXG8vS2oE7mNmf0qddXrZqPTxw=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "NickandCarrie",
+    "channelId": "UCR1Jltq7vMzGQVtRd-DR5AA",
+    "cachedAt": "2026-04-10T09:32:22.361Z"
+  },
+  "seed:ryan-s-world": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_mIPCAPZ4k1NbKEYcWQ-TbtucaftdvpIaBZRjzOodYoWGA=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Ryan's World",
+    "channelId": "UChGJGhZ9SOOHvBB0Y4DOO_w",
+    "cachedAt": "2026-04-10T09:32:42.187Z"
+  },
+  "seed:d-billions": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_lWUWOvwHYqQqkJH0JUb-IkToxPykv50sQMFpfAtSBFc94=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "D Billions",
+    "channelId": "UCi3onjs7UU2Z64i3RrVci-Q",
+    "cachedAt": "2026-04-10T09:32:42.350Z"
+  },
+  "seed:netflix-jr": {
+    "thumbnail": "https://yt3.ggpht.com/wwngc-7lnve847kvoCymKGW0gAt_U_K-iAtPHLY8a7O2xtl9nbC1rJ-c7aLOT0IGJA0DmJgm4Q=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Netflix Jr.",
+    "channelId": "UCAJnyTWJPpKXuwgWQDdNWrQ",
+    "cachedAt": "2026-04-10T09:32:22.855Z"
+  },
+  "seed:celine-dept": {
+    "thumbnail": "https://yt3.ggpht.com/sDAm8ocq7opc6Ik08zsZokx_r7KaKGD3bgX-fpV0omhgJS2tYKnD-9XUXqGI_EjxX1mONdwm1Q=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Celine Dept",
+    "channelId": "UC1a2ZCw7tugRZYRMnecNj3A",
+    "cachedAt": "2026-04-10T09:32:42.353Z"
+  },
+  "seed:inside-edition": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_ktuZGxgQyNlCBkn28UE_anSGsF7hRHn9V9uxZ7ECFW5w=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Inside Edition",
+    "channelId": "UC9k-yiEpRHMNVOnOi_aQK8w",
+    "cachedAt": "2026-04-10T09:32:23.239Z"
+  },
+  "seed:looloo-kids": {
+    "thumbnail": "https://yt3.googleusercontent.com/XQ8Z5bwcV4dgjWEYFI1n1M9W2lgEP6RPh8LxqUq6ScFkXWXXwZIz0TTun_B05TTiTvReU5vy=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "LooLoo Kids - Nursery Rhymes and Children's Songs",
+    "channelId": "UC4NALVCmcmL5ntpV0thoH6w",
+    "cachedAt": "2026-04-10T09:32:43.922Z"
+  },
+  "seed:the-late-late": {
+    "thumbnail": "https://yt3.ggpht.com/6lH5B1Yz0-PCRkjUTsNeWKTBdxtdrdMMDzoxnMccnGwPxXFMURvT0g8A_nbGmvLoJHo7m5BB=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "The Late Late Show",
+    "channelId": "UC52Ou5u4yl7PiQzDaYIrICg",
+    "cachedAt": "2026-04-10T09:32:31.133Z"
+  },
+  "seed:kelly-kim": {
+    "thumbnail": "https://yt3.ggpht.com/g3vnMP7dROChxNmUv4q1VUSabMjmwIOhC9cFB0MdpzFeFSBa-dKmjNhaYjRfsiPW-bPKCDHoSDc=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Kelly Kim",
+    "channelId": "UCG8tU5lHTYV2SJVxzB-40GA",
+    "cachedAt": "2026-04-10T09:32:31.210Z"
+  },
+  "seed:michelle-choi": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_mQ4Hr1cPvGqCnbqg7jMOqnp_8JpVfFrrZz_yKRWIKdeJA=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Michelle Choi",
+    "channelId": "UCqJODva8CJ_JTbi5ssC2L-g",
+    "cachedAt": "2026-04-10T09:32:33.719Z"
+  },
+  "seed:peppa-pig-offi": {
+    "thumbnail": "https://yt3.ggpht.com/yOGkYbrYZWokyxAwY8vIqVNaPEDYHSUSovT9xXffr-zpPGfVM198_KZI3E1IzHxHMYcGb9Uiyw=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Peppa Pig - Official Channel",
+    "channelId": "UCAOtE1V7Ots4DjM8JLlrYgg",
+    "cachedAt": "2026-04-10T09:32:36.511Z"
+  },
+  "seed:vlad-and-niki": {
+    "thumbnail": "https://yt3.ggpht.com/il7dQx5fz3qs2ykOvWQVhtjT-_grY_oPmXlah13q694r_5zUS_7M33pBuUC34Cq0VearBaT1NOE=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Vlad and Niki",
+    "channelId": "UCvlE5gTbOvjiolFlEm-c_Ow",
+    "cachedAt": "2026-04-10T09:32:42.044Z"
+  },
+  "seed:chuchu-tv-nu": {
+    "thumbnail": "https://yt3.ggpht.com/9HW0sh3SxpygY7QohdMTkUfNToJHJR1M_C1UYevboxlesumkq84nMLo1RT0JI0NYb7dqv2kHUMM=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "ChuChu TV Nursery Rhymes & Kids Songs",
+    "channelId": "UCBnZ16ahKA2DZ_T5W0FPUXg",
+    "cachedAt": "2026-04-10T09:32:43.914Z"
+  },
+  "seed:abs-cbn-entert": {
+    "thumbnail": "https://yt3.ggpht.com/4bXwJYOOQaZkVY1KpXj-VgGNaZF5jtDM_FqSgFco276AXH0Aff5CE-DWE9-5_oF_8z0xWIHVHg=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "ABS-CBN Entertainment",
+    "channelId": "UCstEtN0pgOmCf02EdXsGChw",
+    "cachedAt": "2026-04-10T09:32:45.396Z"
+  },
+  "seed:babybus-kids": {
+    "thumbnail": "https://yt3.ggpht.com/h8scB8Et9ooSoeRG3goQ3spO1Hh2P8c_aJgH5MtbQ-KdrAXhrLv_RrhoiigOuuzaAMwDAQvfJw=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "BabyBus - Kids Songs and Cartoons",
+    "channelId": "UCpYye8D5fFMUPf9nSfgd4bA",
+    "cachedAt": "2026-04-10T09:32:50.094Z"
+  },
+  "seed:lankybox": {
+    "thumbnail": "https://yt3.ggpht.com/s34n05C549gbmPlspcwdTBzjC-xE-0ii4MG0ppJf-0DzOuEpKgDh0byajvX6kKAC1ns_RQWu3w=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "LankyBox",
+    "channelId": "UCSf0s2ogUVYpJPuzW1zpAOg",
+    "cachedAt": "2026-04-10T09:32:55.380Z"
+  },
+  "seed:trytrychinese": {
+    "thumbnail": "https://yt3.ggpht.com/ytc/AIdro_m-BQ9cHAlq1jZsVv0311NimqUYlE4g7_EsWTQQtm7eQuBVngvypJrk2Wkalb5TxAxiCQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "TryTryChinese",
+    "channelId": "UCTN8-vTRmqhhuak0KjwpcbQ",
+    "cachedAt": "2026-04-10T09:59:19.919Z"
+  },
+  "seed:jenn-im": {
+    "thumbnail": "https://yt3.ggpht.com/7TVV3obqKJ7c4kbL3ZK3vIgnjVUdkKCMTyp4sXgLyce6NbLlYmoo1u8eNGiJiRnl3f7v3xi9tA=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Jenn Im",
+    "channelId": "UCgWfS_47YPVbKx5EK4FLm4A",
+    "cachedAt": "2026-04-10T09:59:19.951Z"
+  },
+  "seed:jforrest-english": {
+    "thumbnail": "https://yt3.ggpht.com/L_30bdHvY3cInVvujbkDDY2w90zCI5d8Jng487mvfAv2TxtoMuNXEFxXc3uf_BUW0SwGrXUSb5w=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "JForrest English",
+    "channelId": "UCLNBasuHKOILIwewAetJO6g",
+    "cachedAt": "2026-04-10T09:59:19.978Z"
+  },
+  "seed:ink-master": {
+    "thumbnail": "https://yt3.ggpht.com/yaSUJNtrMRfAyy7K8r12N4JkOGfjv3DuZKmreZEkBcoG1quJLtCU_Cw-vC4PU_6QqAQBPZRC=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Ink Master",
+    "channelId": "UCzrh2s9Vu9wUBf2Y2iIYcgA",
+    "cachedAt": "2026-04-10T09:59:20.170Z"
+  },
+  "seed:jyp-entertainme": {
+    "thumbnail": "https://yt3.ggpht.com/2gb_g-qmLOeU6ZC3xyEPFN-fxDqkOkqr44TapTNi6iKQfLL13nOK6kuPWtYVTMPuiyT2tcb64A=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "JYP Entertainment",
+    "channelId": "UCaO6TYtlC8U5ttz62hTrZgg",
+    "cachedAt": "2026-04-10T09:59:20.190Z"
+  },
+  "seed:kids-diana-s": {
+    "thumbnail": "https://yt3.ggpht.com/G88LBGqFoBWMos0glZEdCvQ7uEMPnhBYsPRMOFX5b5z6tuqWaD6ZcscslaKu0zLO37v8sMUA=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "✿ Kids Diana Show",
+    "channelId": "UCk8GzjMOrta8yxDcKfylJYw",
+    "cachedAt": "2026-04-10T09:59:20.213Z"
+  },
+  "seed:movieclips": {
+    "thumbnail": "https://yt3.ggpht.com/1uIk9g0sODh4NzeUK86fyEa67EUfZLNDa3FRLfSV0JzvmWrFSZeQVlGQmOnDEcjMZoGFb8MqVQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Movieclips",
+    "channelId": "UC3gNmTGu-TTbFPpfSs5kNkg",
+    "cachedAt": "2026-04-10T09:59:20.531Z"
+  },
+  "seed:sierra-rhia-fam": {
+    "thumbnail": "https://yt3.ggpht.com/22KWq5Yhu83VPw7IVzKltoTktVVPzE0uS3ypEs3NkOpvKIkgjddQYQuLQB3vzOrJv1yunb-f=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Sierra & Rhia FAM",
+    "channelId": "UCe6n0z9UbsxYCS8P83f84tw",
+    "cachedAt": "2026-04-10T09:59:20.793Z"
+  },
+  "seed:baby-shark-pi": {
+    "thumbnail": "https://yt3.googleusercontent.com/HmRKCZ8IQxKJd39MJEVi34_zBOaQMTZVrDTgXLJ-hmT1ue0nKOHqkZLhZaGwaqjKS85uNR7glQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Baby Shark - Pinkfong Kids’ Songs & Stories",
+    "channelId": "UCcdwLMPsaU2ezNSJU1nFoBQ",
+    "cachedAt": "2026-04-10T09:59:20.973Z"
+  },
+  "seed:super-simple-s": {
+    "thumbnail": "https://yt3.ggpht.com/x7yHOvSWKX_olv_pgx1Ou4SsHI_eOg27sXy9jbNO15rHMG3y425LnmFIyoxDyvLA8Qi3k_0rWw=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Super Simple Songs - Kids Songs",
+    "channelId": "UCLsooMJoIpl_7ux2jvdPB-Q",
+    "cachedAt": "2026-04-10T09:59:21.023Z"
+  },
+  "seed:little-baby-bu": {
+    "thumbnail": "https://yt3.googleusercontent.com/m_TEySnkSgW4JSO1zH-Ln0Hu0v9mGUTMQXJawt3dpHVLB6VjC7jme0bJkziIvKbx2YW1IhfPxho=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Little Baby Bum - Nursery Rhymes & Kids Songs",
+    "channelId": "UCKAqou7V9FAWXpZd9xtOg3Q",
+    "cachedAt": "2026-04-10T09:59:21.049Z"
+  },
+  "seed:mr-degree": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_k8LXkXtQX2Skbr0NZ2jzNO-_j-Bu2T80hWwDUs3eL2ZCg=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Mr DegrEE",
+    "channelId": "UCeYTfGpNCmVhlxjQxBDrGPA",
+    "cachedAt": "2026-04-10T09:59:21.360Z"
+  },
+  "seed:viralhog": {
+    "thumbnail": "https://yt3.ggpht.com/Yr7ez2tBDzqsxDUUz6FihFjIa3gznt_mtknbML6iD_x4lM0GjoTywMuhu0cXtXhzBCkOgYmFIMM=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "ViralHog",
+    "channelId": "UC3339WgBDKIcxTfywuSmG8w",
+    "cachedAt": "2026-04-10T09:59:21.687Z"
+  },
+  "seed:justinbiebervevo": {
+    "thumbnail": "https://yt3.googleusercontent.com/4Mz5el_eyeB5cBod2jHMV-CC3fYiuSmDuCT9A9tGyYh03KQyVdrP04KYYMttZItBCtn4kfef=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "JustinBieberVEVO",
+    "channelId": "UCHkj014U2CQ2Nv0UZeYpE_A",
+    "cachedAt": "2026-04-10T09:59:21.699Z"
+  },
+  "seed:masha-and-th": {
+    "thumbnail": "https://yt3.ggpht.com/GXTC73Mo4rC4hUo-xkOaI77IQdC4tnYm-qYO2lbQZTmO7bXdXjlkQdvhXgIVUD0f3wJtsO5cEQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Masha and The Bear",
+    "channelId": "UCu59yAFE8fM0sVNTipR4edw",
+    "cachedAt": "2026-04-10T09:59:21.727Z"
+  },
+  "seed:ed-sheeran": {
+    "thumbnail": "https://yt3.googleusercontent.com/pZQ5JMD4EOI8TcNYAPTzMexe_fC0CKnb_hYlV4rPfIzmDidF239fH1XKmzkeT30XSg7fxNwc_w=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Ed Sheeran",
+    "channelId": "UC0C-w0YjGpqDXGB8IHb662A",
+    "cachedAt": "2026-04-10T09:59:21.744Z"
+  },
+  "seed:dylan-anderson": {
+    "thumbnail": "https://yt3.ggpht.com/ndqwgmGblfXKBSJq5qC7BbWdY493JrLdtvXFVwal0XOjqbDfaL1iVO71hSf3jOB6maEPHSKF6w=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Dylan Anderson",
+    "channelId": "UCpuT8AlP9P9EgW_pZ0_xInQ",
+    "cachedAt": "2026-04-10T09:59:21.825Z"
+  },
+  "seed:jason-derulo": {
+    "thumbnail": "https://yt3.googleusercontent.com/IghFAuWuRuClXClC4624ESpJEftVbSVga1tRPAw07xH2gXwXCazs922F0b57qSJg24iE5NuEag=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Jason Derulo",
+    "channelId": "UCe3yZzUwpmy2eKKmF9svX0Q",
+    "cachedAt": "2026-04-10T09:59:22.061Z"
+  },
+  "seed:youtube": {
+    "thumbnail": "https://yt3.ggpht.com/3s6evpqAiDU9tQR4sC2siJippbH2RWVPnwHgyl4V0th2iuQz0VDQZbUhQBGmsxLYo-mjG6TqZQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "YouTube",
+    "channelId": "UCBR8-60-B28hp2BmDPdntcQ",
+    "cachedAt": "2026-04-10T09:59:22.410Z"
+  },
+  "seed:leonata-family": {
+    "thumbnail": "https://yt3.ggpht.com/_mAgJyJ6QJYmRes8DlRbZRYAHhoYNDCfT7DflsHZFdZq9z6TCZ5dwy0LgbiH0g_xgOJv3hhVgDE=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "LeoNata Family",
+    "channelId": "UCMsPm8-25ygqRrRe9_s1WFw",
+    "cachedAt": "2026-04-10T09:59:22.517Z"
+  },
+  "seed:disney-jr": {
+    "thumbnail": "https://yt3.ggpht.com/ycmH6u_8GXdVOSwL8K8D0QSLxzoJvd6yiRORWT0QYosXdtBBOkqQdXTR4DS6kDHd-U49Z3dcpHY=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Disney Jr. ",
+    "channelId": "UCNcdbMyA59zE-Vk668bKWOg",
+    "cachedAt": "2026-04-10T09:59:22.632Z"
+  },
+  "seed:that-little-puff": {
+    "thumbnail": "https://yt3.ggpht.com/TiNzXP-vFhFxK1Fw6WBz_Hfn7gwGYK0RMy4Sv9bBtMHvFM3tBPpJNTJpCCuR8tUTbbTqLRoLVw=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "That Little Puff",
+    "channelId": "UClFN9LShD_Pv0wnSeUKbUZw",
+    "cachedAt": "2026-04-10T09:59:22.802Z"
+  },
+  "seed:aphmau": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_kGFsd6S-kWwQvx_DobbU5MCwPc6Rvec6-fDVnjqiEW8mI=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Aphmau",
+    "channelId": "UCzYfz8uibvnB7Yc1LjePi4g",
+    "cachedAt": "2026-04-10T09:59:22.832Z"
+  },
+  "seed:gh-s": {
+    "thumbnail": "https://yt3.ggpht.com/EIgEVfLNXj7LHM98mXOoG0mBE_7nsL6Pf9wjfiofqF5Un9akWxLbTIRZtasy3jd_WcaJmQxk=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "GH'S",
+    "channelId": "UCdrBnBNLsN4_cH32HWbr9qg",
+    "cachedAt": "2026-04-10T09:59:24.767Z"
+  },
+  "seed:google": {
+    "thumbnail": "https://yt3.ggpht.com/L57LUY5ZsQlyu953MP6yE-t-qf6BNtP-QKs5URJ5aoFJwCjeydm1OFcXD1zpWZxeUq2cV4NtAcE=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Google",
+    "channelId": "UCK8sQmJBp8GCxrOtXWBpyEA",
+    "cachedAt": "2026-04-10T09:59:24.797Z"
+  },
+  "seed:bounce-patrol": {
+    "thumbnail": "https://yt3.ggpht.com/ytc/AIdro_mI96w7ZDNqK8w_bxjASmLysfsUY2txHbXKZd8NTSnKF2s=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Bounce Patrol - Kids Songs",
+    "channelId": "UC56cowXhoqRWHeqfSJkIQaA",
+    "cachedAt": "2026-04-10T09:59:28.529Z"
+  },
+  "seed:theweekndvevo": {
+    "thumbnail": "https://yt3.googleusercontent.com/WHvw1ak1FcJaHeEiTmG2iN0dqEjjPxAtT_tA8ruJ3MlNr9I-RHsAur1iAenYeQN_d6LNPH2Z8Ic=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "TheWeekndVEVO",
+    "channelId": "UCF_fDSgPpBQuh1MsUTgIARQ",
+    "cachedAt": "2026-04-10T09:59:40.601Z"
+  },
+  "seed:maroon5vevo": {
+    "thumbnail": "https://yt3.googleusercontent.com/IswqBkzuEWxL5VD_jLk1wwvOg8gBnNtyoi56CrmfQCjf18buW-J6do9_EtfR-Egb6kwgybD3=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Maroon5VEVO",
+    "channelId": "UCN1hnUccO4FD5WfM7ithXaw",
+    "cachedAt": "2026-04-10T09:59:42.343Z"
+  },
+  "seed:zhong": {
+    "thumbnail": "https://yt3.ggpht.com/FKuNOzSM4kV6WgdJK4iJ7mqCJmONtUbY_b52vskqQUYe7kjUB8iUeVMn8lLMzAO8z_YSDm4L=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Zhong",
+    "channelId": "UCyagEfIN1okQ-s996XAqCFQ",
+    "cachedAt": "2026-04-10T09:59:55.827Z"
+  },
+  "seed:dantdm": {
+    "thumbnail": "https://yt3.ggpht.com/1IPv4TRdl3RaT1HEsqdvjzqA0OvBHbVxZFt2U5QZHKDgbEGosdazeBqyJH9ZU5rhs9kfC8dGXRc=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "DanTDM",
+    "channelId": "UCS5Oz6CHmeoF7vSad0qqXfw",
+    "cachedAt": "2026-04-10T09:59:57.431Z"
+  },
+  "seed:jojo-sim": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_m2bUzNisPApozGOd1MVbxWmAqWt4r8F0jm8SLwi5uAHlc=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Jojo Sim",
+    "channelId": "UChK6a3Ro3po3fUfAm3_MyUQ",
+    "cachedAt": "2026-04-10T09:59:58.939Z"
+  },
+  "seed:saturday-night": {
+    "thumbnail": "https://yt3.ggpht.com/0UstnnBY3C69WcOIv8W_8blHZKMpoxluehKazofyMTt93kO2wGbJ1-ZIiHaFSNYBVGAgu3AEUEo=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Saturday Night Live",
+    "channelId": "UCqFzWxSCi39LnW1JKFR3efg",
+    "cachedAt": "2026-04-10T10:00:00.112Z"
+  },
+  "seed:chrisbrownvevo": {
+    "thumbnail": "https://yt3.googleusercontent.com/thThZ4bkkS3tkBYWKuuMcH7aDz2rChNznek8eI5LPnrrfozEPddhlE8tpvuXd1AlQhZ3fpCO=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "ChrisBrownVEVO",
+    "channelId": "UCm1dsgJNnhaLkY3uAdqN4mA",
+    "cachedAt": "2026-04-10T10:00:14.400Z"
+  },
+  "seed:dude-perfect": {
+    "thumbnail": "https://yt3.ggpht.com/nZRsCgyfOVFhBzY-YFV8AhdMcYAybNZ8uttjcsrUGOnGRSVF5yKqRh6XHIs_o03TcbixvlOZ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Dude Perfect",
+    "channelId": "UCRijo3ddMTht_IHyNSNXpNQ",
+    "cachedAt": "2026-04-10T10:00:14.487Z"
+  },
+  "seed:camman18": {
+    "thumbnail": "https://yt3.ggpht.com/uCvGBEz07x5ShLo8goWv2T_e9nUu0CBFIpoK95RjKkYw5tx0K2BB6ixKKnEbuDsZfEvfq6PJb5w=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "camman18",
+    "channelId": "UCiZ2z8F8ilr6SC7lOaxAQ4g",
+    "cachedAt": "2026-04-10T10:00:16.555Z"
+  },
+  "seed:like-nastya-sh": {
+    "thumbnail": "https://yt3.ggpht.com/jZe81ws5l57kOqfmVGKlgNZZbNiPQBarmxBiFzB4icuWz2uebZ4aUVYzUkBA-kAbwbR7rMa8ww=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Like Nastya Show",
+    "channelId": "UCS94J1s6-qc8v7btCdS2pNg",
+    "cachedAt": "2026-04-10T10:00:24.647Z"
+  },
+  "seed:adam-w": {
+    "thumbnail": "https://yt3.ggpht.com/buX9y9Ml0MixrkSl5kyMVKskdu9GRS3wf2a8BGbFY4mE5QWOrIkaDMX8i_OlnjRwwlFqQDvYKA=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Adam W",
+    "channelId": "UC_k6e2PPDUnxEdMJC9Q044g",
+    "cachedAt": "2026-04-10T10:00:26.703Z"
+  },
+  "seed:jason-vlogs": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_nAFhIzogDD2jxU6NWvbBkncrF3FiApABVDUyysHrpDk7Y=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Jason Vlogs",
+    "channelId": "UCjmAh2qxmvWdH3xNPbg0IUQ",
+    "cachedAt": "2026-04-10T10:00:29.693Z"
+  },
+  "seed:ign": {
+    "thumbnail": "https://yt3.ggpht.com/M5xbpJc3JNKQuLgzHr0Qv_ZhjPVpUeSn1BaWhopQFyMGlQmBVY_0Mn5MIf-JWbxTKYZRS67_GcI=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "IGN",
+    "channelId": "UCKy1dAqELo0zrOtPkf0eTMw",
+    "cachedAt": "2026-04-10T10:00:35.541Z"
+  },
+  "seed:react": {
+    "thumbnail": "https://yt3.ggpht.com/gArfrWy0dYo1JMgBhA8HofkvOImzx6DpdTfA5BMNC9n9rOsfCif-aTM6vtD3B-Q-4sm-_FD1ybw=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "REACT",
+    "channelId": "UC0v-tlzsn0QZwJnkiaUSJVQ",
+    "cachedAt": "2026-04-10T10:00:36.567Z"
+  },
+  "seed:brandon-b": {
+    "thumbnail": "https://yt3.ggpht.com/1BMD750URkFkfRutTfbR-0J_bwrXXUF0Sa2tyTUzsygmJgaUw17dBPptkQEh1XhVVOupgHWRCg=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Brandon B",
+    "channelId": "UCUnmH8N8k4E7y3dKfCzDKKg",
+    "cachedAt": "2026-04-10T10:00:36.590Z"
+  },
+  "seed:aditya-movies": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_l1wl3kwI9K6pupJ8nrIqat_DeT2yF9JPpMpkx2Lg14TgI=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Aditya Movies",
+    "channelId": "UCX_uPA_dGf7wXjuMEaSKLJA",
+    "cachedAt": "2026-04-10T10:00:36.704Z"
+  },
+  "seed:vania-mania-ki": {
+    "thumbnail": "https://yt3.ggpht.com/faS__JdNT-AuGacf3RdK1oB-WnMYIx7fbUpzINetsJEaAY7hhZB-OeM5Uz4tWa83rOQNAWtf=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Vania Mania Kids",
+    "channelId": "UCLbyJSPEe2lx3jY-G0CFR3g",
+    "cachedAt": "2026-04-10T10:00:37.828Z"
+  },
+  "seed:luke-davidson": {
+    "thumbnail": "https://yt3.ggpht.com/-Untl-0bg0QYO9wa0LQ79sjtVtCMXx3sZKY43ti7RUx7BJc_OeOsiygBujfZ9zSkgw814GcafQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Luke Davidson",
+    "channelId": "UCuwJoiGWRxPYStBp0l0WuZw",
+    "cachedAt": "2026-04-10T10:00:38.044Z"
+  },
+  "seed:katyperryvevo": {
+    "thumbnail": "https://yt3.googleusercontent.com/dRQl_GlYLxMZJ4UwtVqkBfh8XkAnu_E_DQK4DPNUzLLDxP9wj53MPsDFWk0vJBVgm4w3Fk9nIyY=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "KatyPerryVEVO",
+    "channelId": "UC-8Q-hLdECwQmaWNwXitYDw",
+    "cachedAt": "2026-04-10T10:04:07.894Z"
+  },
+  "seed:meowji": {
+    "thumbnail": "https://yt3.ggpht.com/qtYy-3hXIuyixxJInnasHKzEVIYv3e0VVoUBHbchWLwBK0d-jt9KU-5AB_C2Qj3516BjXgq5aA=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "MEOWJI",
+    "channelId": "UCZ5FV000uOKva7-9p34bVQw",
+    "cachedAt": "2026-04-10T10:04:08.025Z"
+  },
+  "seed:little-angel-n": {
+    "thumbnail": "https://yt3.ggpht.com/j7KExG58R4J4ze5fLR1UNm0y3ZFUTuH4OB4p08mur08H_Ooh3b6EQTQI4rLrPhl5KoSiEyb2=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Little Angel: Nursery Rhymes & Kids Songs",
+    "channelId": "UCvksjnr7kInzcIjMpJpqF2A",
+    "cachedAt": "2026-04-10T10:04:08.284Z"
+  },
+  "seed:gma-network": {
+    "thumbnail": "https://yt3.ggpht.com/AaMjrGOGCe-y-0voecP3APxMBPnteZDCFOTalNEC2_JZrdpGu9oJNZsVW44uhi4cLePAbJo7=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "GMA Network",
+    "channelId": "UCKL5hAuzgFQsyrsQKgU0Qng",
+    "cachedAt": "2026-04-10T10:04:08.312Z"
+  },
+  "seed:red-bull": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_k94J7kkxpmlJe3c2iDFJpHk8SAADPpf49cN7XjomXSzEE=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Red Bull",
+    "channelId": "UCblfuW_4rakIf2h6aqANefA",
+    "cachedAt": "2026-04-10T10:04:08.495Z"
+  },
+  "seed:markiplier": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_nfDvwu14-iN5YZcaLIomwno1_3oFcYTmG5_kn7SMj_nec=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Markiplier",
+    "channelId": "UC7_YxT-KID8kRbqZo7MyscQ",
+    "cachedAt": "2026-04-10T10:04:08.506Z"
+  },
+  "seed:topper-guild": {
+    "thumbnail": "https://yt3.ggpht.com/tIUjsEc4SPp4pLASoh1Zvt9Oto5X9qdkWUTeJPDTUcuhLLbh_QAdn7R4CXTcGT-EfG03-DDQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Topper Guild",
+    "channelId": "UCPuEAY09CtdTzFNWuqVZgDw",
+    "cachedAt": "2026-04-10T10:04:08.771Z"
+  },
+  "seed:stokes-twins": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_licRUYkb1mqyEXaQPq67wtqgk7qinfWOEvc6gjnsSofu4=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Stokes Twins",
+    "channelId": "UCbp9MyKCTEww4CxEzc_Tp0Q",
+    "cachedAt": "2026-04-10T10:04:08.985Z"
+  },
+  "seed:fgteev": {
+    "thumbnail": "https://yt3.ggpht.com/8lYzEQAP23681vKEG0ahOTlsM6kBwvq8fNDWgNzhq8cYTlPcBVWGZifL6huG9M_3AedplOvpjlQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "FGTeeV",
+    "channelId": "UCC-RHF_77zQdKcA75hr5oTQ",
+    "cachedAt": "2026-04-10T10:04:09.034Z"
+  },
+  "seed:jbalvinvevo": {
+    "thumbnail": "https://yt3.googleusercontent.com/UqJr0qGvZ5xpw2BMCjPEl8_oOp7Y3ttA6ZG2fJspi8jLx6e2GRLiqLjM5dtPB6Gxkc1JFTRXS3Y=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "jbalvinVEVO",
+    "channelId": "UCrHL_BF5lHyK43BxLU8-vBQ",
+    "cachedAt": "2026-04-10T10:04:09.143Z"
+  },
+  "seed:albert-cancook": {
+    "thumbnail": "https://yt3.ggpht.com/_MoSKPOsCnW10PuJN7htONrLTrem_KpmTn32jqXKrWLX7_uvIOE7r_N2Zut62qH8f35W7gHz=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "albert_cancook",
+    "channelId": "UC0NkSnlCOhoODbykzZwpiDw",
+    "cachedAt": "2026-04-10T10:04:09.159Z"
+  },
+  "seed:cvs-3d-rhymes": {
+    "thumbnail": "https://yt3.ggpht.com/ytc/AIdro_nl1cW_9u2VFAJ0pQ0Qkv71CXFWJq1V1QUtuzomShkMc4Q=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "CVS 3D Rhymes & Kids Songs",
+    "channelId": "UCsPF3cApzCohxPp5oKdoWSQ",
+    "cachedAt": "2026-04-10T10:04:09.322Z"
+  },
+  "seed:saito": {
+    "thumbnail": "https://yt3.ggpht.com/OZtaBEvhS4ANeRmDlBAOsEjM-vmG0NzjrBPap8h6zkKA308C9slAkBAuf2O9KItc0EqQzj0_=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Saito",
+    "channelId": "UCKLbzfmjFv_oalDX8sHxhkQ",
+    "cachedAt": "2026-04-10T10:04:09.724Z"
+  },
+  "seed:rihannavevo": {
+    "thumbnail": "https://yt3.googleusercontent.com/qMCGjRaKKRar82KzcIWdUoLbJ03aW2K2sEf-m4GaB7JwLshoHOZHvkxLRXsZVgpKvqCXVhKCWg=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "RihannaVEVO",
+    "channelId": "UC2xskkQVFEpLcGFnNSLQY0A",
+    "cachedAt": "2026-04-10T10:04:09.735Z"
+  },
+  "seed:panda-boi": {
+    "thumbnail": "https://yt3.ggpht.com/Eea7wEGVog5xpo1GAoOwc9hlj31T395FzKUwnUr8VERoO-x0InNVbINT2ron3WrVsqsEbSwo7LU=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "PANDA BOI",
+    "channelId": "UC0Wju2yvRlfwqraLlz5152Q",
+    "cachedAt": "2026-04-10T10:04:09.751Z"
+  },
+  "seed:linh-nhi-shorts": {
+    "thumbnail": "https://yt3.ggpht.com/pHispikVwgCBn8NZVBbHv7lq5Hk3d_eu9ukTcTWZ_hCgD9W4c0OEWGdt17rM3ZT9lQWZg0gBfpA=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Linh Nhi Shorts",
+    "channelId": "UCuiyUjYZyG24sgzBG0P6WsQ",
+    "cachedAt": "2026-04-10T10:04:09.765Z"
+  },
+  "seed:5-minute-crafts": {
+    "thumbnail": "https://yt3.ggpht.com/qxMg7xnccD_tt-YtUTTK-ctCtUqUH9d3qKsbqm_DAti0nC7RHVbFlFiC6k8BoNS1O2O4ytAlZiE=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "5-Minute Crafts",
+    "channelId": "UC295-Dw_tDNtZXFeAPAW6Aw",
+    "cachedAt": "2026-04-10T10:04:09.896Z"
+  },
+  "seed:zach-king": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_kik7i7hId8EjFMERTw3_j8ODyhoot8JF3iUJRs53htOJc=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Zach King",
+    "channelId": "UCq8DICunczvLuJJq414110A",
+    "cachedAt": "2026-04-10T10:04:10.066Z"
+  },
+  "seed:nunu-tv-nur": {
+    "thumbnail": "https://yt3.googleusercontent.com/iLzm9sY3MDgRN_cmVWRXixikHZu51a8BWsD1ri_tdNCiEGl9NynNc-PNb7qxuGazthxAYndfIA=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "NuNu Tv - Nursery Rhymes ",
+    "channelId": "UCMEVZK5J38upc4XiRO3sqWQ",
+    "cachedAt": "2026-04-10T10:04:10.430Z"
+  },
+  "seed:disney-kids": {
+    "thumbnail": "https://yt3.ggpht.com/Qbi8o0IRFgKn0oIX_tPBqkeYyWCi293sfpIhd0OtP0xdC-LsCOXUStLWo1EPX__JfTve3or1BQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Disney Kids",
+    "channelId": "UC7Gf2tZ8coTX2ckTPgn62iQ",
+    "cachedAt": "2026-04-10T10:04:10.488Z"
+  },
+  "seed:bruno-mars": {
+    "thumbnail": "https://yt3.googleusercontent.com/dxwzp4IYsNJKDcwNYgF0UGdw9vCWSMqkHaLtC08VVKg8eybNs69pbdTaGdoaKQYHVQjFyeybzA=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Bruno Mars",
+    "channelId": "UCoUM-UJ7rirJYP8CQ0EIaHA",
+    "cachedAt": "2026-04-10T10:04:32.371Z"
+  },
+  "seed:worldstarhi": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_mloRM0bI1pn66R7WBMhq99FWJJ1VhADmRHh-c4GNlZaIg=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "WORLDSTARHIPHOP",
+    "channelId": "UC-yXuc1__OzjwpsJPlxYUCQ",
+    "cachedAt": "2026-04-10T12:27:29.709Z"
+  },
+  "seed:infobells-telugu": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_kUAl1fLmWiVNSYzhmNasdgy2rnS3RY3tHUI9LZwDHf0Bg=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "infobells - Telugu",
+    "channelId": "UCHvoq_rGmOKJKGId1nD1V4Q",
+    "cachedAt": "2026-04-10T12:27:29.936Z"
+  },
+  "seed:omar-raja-espn": {
+    "thumbnail": "https://yt3.ggpht.com/WzVYyHts2uYGRuVZLXdYr_tsyyKxA0z186P_ipt01oyLG5V_1XlSB1J29e0G3_0ZO8DZBWpslA=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Omar Raja - ESPN",
+    "channelId": "UCx18ywTcohtS9lpNXt8noWQ",
+    "cachedAt": "2026-04-10T12:27:29.971Z"
+  },
+  "seed:sun-tv": {
+    "thumbnail": "https://yt3.ggpht.com/ZeW9yVbhXq0R5DNVUBN895lr_tEc7XA06yB3F7RdJZXyd6VtQbw0eCRoHtGIR4-JNji39AFv4Vs=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Sun TV",
+    "channelId": "UCBnxEdpoZwstJqC1yZpOjRA",
+    "cachedAt": "2026-04-10T12:27:30.037Z"
+  },
+  "seed:spinnin-records": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_lAEdCN-f5liiRVIRudaJzXbIsroI3oe-4QoemUi6t8RqI=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Spinnin' Records",
+    "channelId": "UCpDJl2EmP7Oh90Vylx0dZtA",
+    "cachedAt": "2026-04-10T12:27:30.144Z"
+  },
+  "seed:house-of-highl": {
+    "thumbnail": "https://yt3.ggpht.com/4H5WXKVzgQdZM8zUHU_otJCbtU8F7EA62IbEgLt68SAaXUXr1Z2CHIZpyh9uHSDGYP6oW2nUyQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "House of Highlights",
+    "channelId": "UCqQo7ewe87aYAe7ub5UqXMw",
+    "cachedAt": "2026-04-10T12:27:30.357Z"
+  },
+  "seed:cookieswirlc": {
+    "thumbnail": "https://yt3.ggpht.com/RiB3oxxIn6Pf6kqpr12mQzGonzLj6dBE0Tn-cNuqMkMYT7mm4FHI9CsnnnK47hBp2mAGmXM-dw=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "CookieSwirlC",
+    "channelId": "UCelMeixAOTs2OQAAi9wU8-g",
+    "cachedAt": "2026-04-10T12:27:30.596Z"
+  },
+  "seed:im-siowei": {
+    "thumbnail": "https://yt3.ggpht.com/fG_nloVkeamLB2JEszHy7jw0zFCrPXjKF76OLYBlxHrRBclW85c-JIMtcjOlISZaMhM0NH8-Jto=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "im_siowei",
+    "channelId": "UCSgue5Dm418CCUCZ-aeUtEA",
+    "cachedAt": "2026-04-10T12:27:30.630Z"
+  },
+  "seed:dhar-mann-stu": {
+    "thumbnail": "https://yt3.ggpht.com/doh5alwBXzBdi8PXAq4S7vgKsL5IKsKCNjMG7AYDStbrja1rRgUBMo9SnpHx_xGMiRxp6L9Zhw=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Dhar Mann Studios",
+    "channelId": "UC_hK9fOxyy_TM8FJGXIyG8Q",
+    "cachedAt": "2026-04-10T12:27:30.729Z"
+  },
+  "seed:bebefinn-nur": {
+    "thumbnail": "https://yt3.googleusercontent.com/UtzuH4poMQv9ogsO75o8oMdbNmRbRsd2bJCCMqyxvhH-2uCZ8sMLnwFcHkZfBNjp8sByzDQVUQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Bebefinn - Nursery Rhymes & Kids Songs",
+    "channelId": "UC-cY4X2sLECUhishGNiyofQ",
+    "cachedAt": "2026-04-10T12:27:30.817Z"
+  },
+  "seed:ladygagavevo": {
+    "thumbnail": "https://yt3.googleusercontent.com/lM8HHBd5BZtP_-Dh1i3n1Z4teVW8v2KTG-hsS83yXUiK0K6krkk1XNEFbho3uwH-CS-FQpnlHw=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "LadyGagaVEVO",
+    "channelId": "UC07Kxew-cMIaykMOkzqHtBQ",
+    "cachedAt": "2026-04-10T12:27:30.959Z"
+  },
+  "seed:buzzfeedvideo": {
+    "thumbnail": "https://yt3.ggpht.com/FQRjWCifwITpxpp4EvfHUEUjUwtS_wrDwGEHzvUA3NlzRlxqb-cUpfBKizDKSt-iiGW4mtFl3Q=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "BuzzFeedVideo",
+    "channelId": "UCpko_-a4wgz2u_DgDgd9fqA",
+    "cachedAt": "2026-04-10T12:27:31.230Z"
+  },
+  "seed:fizzle-wop": {
+    "thumbnail": "https://yt3.ggpht.com/Gsz4ZGWjc0e8mUhkXWI91KRar1LhnhGLI8MGcMkU9xIa3eEPgiUhceEPv9rFh7TOLH_EszZj=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Fizzle Wop",
+    "channelId": "UCW24VzH4Np5j597p8yzfD8A",
+    "cachedAt": "2026-04-10T12:27:31.383Z"
+  },
+  "seed:tibo-inshape": {
+    "thumbnail": "https://yt3.ggpht.com/MXKYsX4ryzhIwTLMwBUvx6eoWMcaF-gsHO_PLidZMEKyFj-eKyg9u0IykU8uh7ejCAS9omOlyP8=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Tibo InShape",
+    "channelId": "UCpWaR3gNAQGsX48cIlQC0qw",
+    "cachedAt": "2026-04-10T12:27:31.478Z"
+  },
+  "seed:david-guetta": {
+    "thumbnail": "https://yt3.ggpht.com/ytc/AIdro_nVKPoGkfw44ICB715GPlzNDsmqZdlwewB1QGa9K4vD94o=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "David Guetta",
+    "channelId": "UC1l7wYrva1qCH-wgqcHaaRg",
+    "cachedAt": "2026-04-10T12:27:31.510Z"
+  },
+  "seed:sambucha": {
+    "thumbnail": "https://yt3.ggpht.com/xRjlxjSOh5b0W-G6Qh_YYWQwNA5iZPp8a1tMzOI9mZvD9y6OD3E9LGLzg955Pfu5--GgpltOjrY=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Sambucha",
+    "channelId": "UCWBWgCD4oAqT3hUeq40SCUw",
+    "cachedAt": "2026-04-10T12:27:31.534Z"
+  },
+  "seed:sofi-manassyan": {
+    "thumbnail": "https://yt3.ggpht.com/vyKYDvRNHlyl-cMyRWxz2zWdbEmsGnBCK3cbKKhqUtddIt5xyk8NhxlptEAAdwgCx7RKIccHGA=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Sofi Manassyan",
+    "channelId": "UCZFBnnCCO65xMXOdtFz8CfA",
+    "cachedAt": "2026-04-10T12:27:31.726Z"
+  },
+  "seed:coldplay": {
+    "thumbnail": "https://yt3.googleusercontent.com/vWWn3HO1emNl2iGb08UuY4q_OtqXwUUWJMjMDr6bBPpuCBoWg-dE_Gu-yoMQNrBqb2gMzA3wLQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Coldplay",
+    "channelId": "UCDPM_n1atn2ijUwHd0NNRQw",
+    "cachedAt": "2026-04-10T12:27:32.241Z"
+  },
+  "seed:jacksepticeye": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_m7K306sLhJfQqGAMnuHdEBTwdqBA4gVTGa_FtEmarXd34=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "jacksepticeye",
+    "channelId": "UCYzPXprvl5Y-Sf0g4vX-m6g",
+    "cachedAt": "2026-04-10T12:27:32.278Z"
+  },
+  "seed:beter-bocuk": {
+    "thumbnail": "https://yt3.ggpht.com/h6JNY_6GJWYJkhoROr-XyTI8KNbzG5PdL7lxmU4dvbzpnrm5ZzTZgxJz7y8t1E3gkPmcwpJpLZE=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "BETER BÖCÜK",
+    "channelId": "UC6gVx_vALsYT-z_u1djJbBQ",
+    "cachedAt": "2026-04-10T12:27:32.636Z"
+  },
+  "seed:vanossgaming": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_mrzXEes8j0Li9x1M2wO0dif1mW10t_lmgrDcxllRfaJNE=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "VanossGaming",
+    "channelId": "UCKqH_9mk1waLgBiL2vT5b9g",
+    "cachedAt": "2026-04-10T12:27:32.972Z"
+  },
+  "seed:nichlmao": {
+    "thumbnail": "https://yt3.ggpht.com/OpGVtVsqeoEVXiEA7D1VlGP0Tmug1Hfs8IWLc1yz10npTXCr7FjWwSQgGj9uZhUvKtT0A_KQKQ=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "NichLmao",
+    "channelId": "UC6VAIqNQBc7ggiqvsOHOBqw",
+    "cachedAt": "2026-04-10T12:27:33.639Z"
+  },
+  "seed:calvinharrisvevo": {
+    "thumbnail": "https://yt3.googleusercontent.com/72_4Eejrb4-fDX2lDx254OnZIXeBIw4YRTa2dEW_nOnq4Be1AGpR4v6-CFx-PM7xZG1onjzG=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "CalvinHarrisVEVO",
+    "channelId": "UCaHNFIob5Ixv74f5on3lvIw",
+    "cachedAt": "2026-04-10T12:27:34.729Z"
+  },
+  "seed:come-play-wit": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_kykimzIFQ9sGp6jUx_8cxUHY9UvnE1Pv4k63ECfvYDuXU=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Come Play With Me",
+    "channelId": "UCQ00zWTLrgRQJUb8MHQg21A",
+    "cachedAt": "2026-04-10T12:27:35.039Z"
+  },
+  "seed:raffy-tulfo-in-ac": {
+    "thumbnail": "https://yt3.ggpht.com/hXibU1z7ILVAW_jLu4xdY-kDSh9fNv5r1DX9i4pU3ancJJjDaKCs-Fhp00eZRRsXvWFUUjACiw=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Raffy Tulfo in Action",
+    "channelId": "UCxhygwqQ1ZMoBGQM2yEcNug",
+    "cachedAt": "2026-04-10T12:27:35.114Z"
+  },
+  "seed:imaginedragon": {
+    "thumbnail": "https://yt3.googleusercontent.com/l6ARvvtI4GWlZMV0nMCoatBy6NjJIB_PVK4ZTEpImbspN57kMaSqMHskIPXkgxsiISB0inbO9J4=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "ImagineDragons",
+    "channelId": "UCT9zcQNlyht7fRlcjmflRSA",
+    "cachedAt": "2026-04-10T12:27:36.508Z"
+  },
+  "seed:peet-montzingo": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_kdV9xue3BfuOzzrXT2BC_QHvzd7eajXW8SiqtqQrEej_k=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Peet Montzingo",
+    "channelId": "UC1WbRuMMzbzUfBG65x1FmXQ",
+    "cachedAt": "2026-04-10T12:27:37.735Z"
+  },
+  "seed:fueled-by-ram": {
+    "thumbnail": "https://yt3.ggpht.com/DSRM5zRas-sat4nQdrw6ntW8MCI8GcxsxYJPdE6Pj53CFwK6gVd9xWTCErd8xom3fAoapwN2=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Fueled By Ramen",
+    "channelId": "UClVrJwcIy7saPcGc1nct80A",
+    "cachedAt": "2026-04-10T12:27:57.226Z"
+  },
+  "seed:ninja-kidz-tv": {
+    "thumbnail": "https://yt3.googleusercontent.com/ytc/AIdro_kq7z9RapLdnSymMLH6lWlj2LJ07bXcfcnNmPw7A31rP8Q=s176-c-k-c0x00ffffff-no-rj-mo",
+    "name": "Ninja Kidz TV",
+    "channelId": "UCpZ88DWlKW0H_AYDaUZptcw",
+    "cachedAt": "2026-04-10T12:28:15.591Z"
+  }
+}
