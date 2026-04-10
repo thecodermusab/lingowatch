@@ -2,14 +2,33 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
-  ArrowLeft, Info, Search, SkipBack, SkipForward, Play as PlayIcon, Square, Settings, Share, Layers, Keyboard, Edit2, Loader2
+  ArrowLeft, Info, Search, SkipBack, SkipForward, Play as PlayIcon, Square, Settings, Share, Layers, Keyboard, Edit2, Loader2, X
 } from "lucide-react";
+
+import { AnnotationToolbar, HighlightColor } from "@/components/reader/AnnotationToolbar";
+import { HighlightableText, TextHighlight } from "@/components/reader/HighlightableText";
 
 const TTS_KEY = import.meta.env.VITE_GOOGLE_TTS_KEY as string;
 import { fetchImportedTextById } from "@/lib/importedTexts";
 import { useAuth } from "@/contexts/AuthContext";
 import { ImportedTextBlock } from "@/types";
 import { translateTexts } from "@/lib/googleTranslate";
+
+interface AnnotationState {
+  text: string;
+  x: number;
+  y: number;
+  sentenceId: string;
+  start: number;
+  end: number;
+}
+
+interface ActiveHighlightState {
+  highlight: { id: string; color: HighlightColor; note?: string };
+  x: number;
+  y: number;
+  sentenceId: string;
+}
 
 const QUERY_KEY = "imported-text-detail";
 
@@ -30,6 +49,103 @@ export default function ImportedTextReaderPage() {
   const [playingId, setPlayingId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const ttsCache = useRef(new Map<string, string>());
+
+  const [annotationState, setAnnotationState] = useState<AnnotationState | null>(null);
+  const [activeHighlight, setActiveHighlight] = useState<ActiveHighlightState | null>(null);
+  const [highlights, setHighlights] = useState<Record<string, TextHighlight[]>>({});
+
+  useEffect(() => {
+    if (!id) return;
+    try {
+      const storedHl = localStorage.getItem(`lingowatch-imported-highlights-${id}`);
+      if (storedHl) setHighlights(JSON.parse(storedHl));
+      else setHighlights({});
+    } catch {}
+  }, [id]);
+
+  const handleMouseUp = React.useCallback(() => {
+    setTimeout(() => {
+      const selection = window.getSelection();
+      if (!selection || selection.isCollapsed) return;
+      const selectedText = selection.toString().trim();
+      if (!selectedText || selectedText.length < 2) return;
+      try {
+        const range = selection.getRangeAt(0);
+        let el: HTMLElement | null = range.startContainer.parentElement;
+        let sentenceEl: HTMLElement | null = null;
+        let sentenceId = "";
+        while (el && el.tagName !== "MAIN") {
+           if (el.id?.startsWith("sentence-text-")) {
+              sentenceEl = el;
+              sentenceId = el.id.replace("sentence-text-", "");
+              break;
+           }
+           el = el.parentElement;
+        }
+        if (!sentenceEl) return;
+
+        const preCaretRange = range.cloneRange();
+        preCaretRange.selectNodeContents(sentenceEl);
+        preCaretRange.setEnd(range.startContainer, range.startOffset);
+        
+        const start = preCaretRange.toString().length;
+        const end = start + range.toString().length;
+
+        const rect = range.getBoundingClientRect();
+        setAnnotationState({ 
+           text: selectedText, 
+           x: rect.left + rect.width / 2, 
+           y: rect.top,
+           sentenceId,
+           start,
+           end
+        });
+      } catch {}
+    }, 10);
+  }, []);
+
+  const saveAnnotation = (color: HighlightColor, note: string, hlId?: string) => {
+    const targetSentenceId = annotationState ? annotationState.sentenceId : activeHighlight?.sentenceId;
+    if (!targetSentenceId || !id) return;
+    
+    setHighlights(prev => {
+      const updated = { ...prev };
+      if (!updated[targetSentenceId]) updated[targetSentenceId] = [];
+      
+      if (hlId) {
+        updated[targetSentenceId] = updated[targetSentenceId].map(h => h.id === hlId ? { ...h, color, note } : h);
+      } else if (annotationState) {
+        const newHl: TextHighlight = {
+          id: Date.now().toString(),
+          start: annotationState.start,
+          end: annotationState.end,
+          color,
+          note
+        };
+        updated[targetSentenceId] = [...updated[targetSentenceId], newHl];
+      }
+      
+      localStorage.setItem(`lingowatch-imported-highlights-${id}`, JSON.stringify(updated));
+      return updated;
+    });
+    setAnnotationState(null);
+    setActiveHighlight(null);
+    window.getSelection()?.removeAllRanges();
+  };
+
+  const deleteAnnotation = (hlId: string) => {
+    const targetSentenceId = activeHighlight?.sentenceId;
+    if (!targetSentenceId || !id) return;
+    setHighlights(prev => {
+      const updated = { ...prev };
+      if (updated[targetSentenceId]) {
+        updated[targetSentenceId] = updated[targetSentenceId].filter(h => h.id !== hlId);
+        localStorage.setItem(`lingowatch-imported-highlights-${id}`, JSON.stringify(updated));
+      }
+      return updated;
+    });
+    setActiveHighlight(null);
+  };
 
   async function speakSentence(id: string, text: string) {
     if (playingId === id) {
@@ -225,7 +341,7 @@ export default function ImportedTextReaderPage() {
       </header>
 
       {/* Main Translation Viewer */}
-      <main className="flex flex-1 overflow-hidden relative">
+      <main className="flex flex-1 overflow-hidden relative" onMouseUp={handleMouseUp}>
          {/* Left Side Sidebar (Generic LR style) */}
          <aside className="w-[50px] bg-[#1a1a1a] border-r border-[#333] hidden lg:flex flex-col items-center py-4 gap-6 shrink-0">
             <div className="w-6 h-6 rounded bg-[#4fb5a2] text-[#121c25] flex items-center justify-center font-bold text-xs">E</div>
@@ -268,8 +384,23 @@ export default function ImportedTextReaderPage() {
                                   : <PlayIcon className="w-2.5 h-2.5 text-white ml-0.5" fill="currentColor" />
                                 }
                               </button>
-                              <p className={`text-[16px] leading-[1.8] font-medium tracking-wide ${isSelected ? 'text-white' : 'text-[#cccccc]'}`}>
-                                {sentence.eng}
+                              <p id={`sentence-text-${sentence.id}`} className={`text-[16px] leading-[1.8] font-medium tracking-wide relative ${isSelected ? 'text-white' : 'text-[#cccccc]'}`}>
+                                <HighlightableText
+                                   text={sentence.eng}
+                                   highlights={highlights[sentence.id] || []}
+                                   onHighlightClick={(hl, e) => {
+                                     e.stopPropagation();
+                                     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                                     setActiveHighlight({
+                                        highlight: { id: hl.id, color: hl.color, note: hl.note },
+                                        x: rect.left + rect.width / 2,
+                                        y: rect.top,
+                                        sentenceId: sentence.id
+                                     });
+                                     setAnnotationState(null);
+                                     window.getSelection()?.removeAllRanges();
+                                   }}
+                                />
                               </p>
                            </div>
 
@@ -301,6 +432,27 @@ export default function ImportedTextReaderPage() {
             : <PlayIcon className="w-8 h-8 ml-1" fill="currentColor" />
           }
         </button>
+      )}
+
+      {/* ── Annotation Toolbar ─────────────────────────────────────────────── */}
+      {(annotationState || activeHighlight) && (
+        <AnnotationToolbar
+           x={annotationState ? annotationState.x : activeHighlight!.x}
+           y={annotationState ? annotationState.y : activeHighlight!.y}
+           selectedText={annotationState ? annotationState.text : undefined}
+           existingHighlight={activeHighlight ? activeHighlight.highlight : undefined}
+           onSaveAnnotation={saveAnnotation}
+           onDeleteAnnotation={deleteAnnotation}
+           onTranslate={annotationState ? async () => {
+             const res = await translateTexts([annotationState.text], { source: "en", target: "so" });
+             return res[0] || null;
+           } : undefined}
+           onClose={() => {
+             setAnnotationState(null);
+             setActiveHighlight(null);
+             window.getSelection()?.removeAllRanges();
+           }}
+        />
       )}
 
     </div>

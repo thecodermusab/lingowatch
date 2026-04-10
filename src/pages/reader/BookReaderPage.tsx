@@ -5,17 +5,28 @@ import { MOCK_READER_DICTIONARY } from "./mockReaderData";
 import { translateText } from "@/lib/googleTranslate";
 import { BOOK_ITEMS } from "../media/bookData";
 import { WordWithTooltip } from "./hidden/WordWithTooltip";
+import { AnnotationToolbar, HighlightColor, ExistingHighlight } from "@/components/reader/AnnotationToolbar";
+import { HighlightableText, TextHighlight } from "@/components/reader/HighlightableText";
 
 interface SavedEntry {
   translation: string;
   note?: string;
 }
 
-interface PhraseBar {
+interface AnnotationState {
   text: string;
   x: number;
   y: number;
-  translation?: string;
+  rowId: string;
+  start: number;
+  end: number;
+}
+
+interface ActiveHighlightState {
+  highlight: ExistingHighlight;
+  x: number;
+  y: number;
+  rowId: string;
 }
 
 function tokenize(text: string): string[] {
@@ -37,11 +48,12 @@ export default function BookReaderPage() {
   // ── Vocabulary ────────────────────────────────────────────────────────────
   const [savedWords, setSavedWords] = useState<Record<string, SavedEntry>>({});
   const [isVocabOpen, setIsVocabOpen] = useState(false);
-  const [phraseBar, setPhraseBar] = useState<PhraseBar | null>(null);
-  const [isTranslatingPhrase, setIsTranslatingPhrase] = useState(false);
   const [editingNoteFor, setEditingNoteFor] = useState<string | null>(null);
   const [noteInput, setNoteInput] = useState("");
-  const phraseBarRef = useRef<HTMLDivElement>(null);
+  
+  const [annotationState, setAnnotationState] = useState<AnnotationState | null>(null);
+  const [activeHighlight, setActiveHighlight] = useState<ActiveHighlightState | null>(null);
+  const [highlights, setHighlights] = useState<Record<string, TextHighlight[]>>({});
 
   // Load saved words from localStorage (per book)
   useEffect(() => {
@@ -53,6 +65,11 @@ export default function BookReaderPage() {
     } catch {
       setSavedWords({});
     }
+    try {
+      const storedHl = localStorage.getItem(`lingowatch-highlights-${id}`);
+      if (storedHl) setHighlights(JSON.parse(storedHl));
+      else setHighlights({});
+    } catch {}
   }, [id]);
 
   const persistVocab = (bookId: string, data: Record<string, SavedEntry>) => {
@@ -108,52 +125,81 @@ export default function BookReaderPage() {
       if (!selectedText || selectedText.length < 2) return;
       try {
         const range = selection.getRangeAt(0);
+        
+        let el: HTMLElement | null = range.startContainer.parentElement;
+        let rowEl: HTMLElement | null = null;
+        let rowId = "";
+        while (el && el.id !== "main-reader-scroll") {
+           if (el.id?.startsWith("row-text-")) {
+              rowEl = el;
+              rowId = el.id.replace("row-text-", "");
+              break;
+           }
+           el = el.parentElement;
+        }
+        if (!rowEl) return;
+
+        const preCaretRange = range.cloneRange();
+        preCaretRange.selectNodeContents(rowEl);
+        preCaretRange.setEnd(range.startContainer, range.startOffset);
+        
+        const start = preCaretRange.toString().length;
+        const end = start + range.toString().length;
+
         const rect = range.getBoundingClientRect();
-        if (rect.width === 0 && rect.height === 0) return;
-        setPhraseBar({ text: selectedText, x: rect.left + rect.width / 2, y: rect.top });
+        setAnnotationState({ 
+           text: selectedText, 
+           x: rect.left + rect.width / 2, 
+           y: rect.top,
+           rowId,
+           start,
+           end
+        });
       } catch {}
     }, 10);
   }, []);
 
-  // Close phrase bar when clicking outside it
-  useEffect(() => {
-    const handleMouseDown = (e: MouseEvent) => {
-      if (phraseBarRef.current && !phraseBarRef.current.contains(e.target as Node)) {
-        setPhraseBar(null);
+  const saveAnnotation = (color: HighlightColor, note: string, hlId?: string) => {
+    const targetRowId = annotationState ? annotationState.rowId : activeHighlight?.rowId;
+    if (!targetRowId || !id) return;
+    
+    setHighlights(prev => {
+      const updated = { ...prev };
+      if (!updated[targetRowId]) updated[targetRowId] = [];
+      
+      if (hlId) {
+        updated[targetRowId] = updated[targetRowId].map(h => h.id === hlId ? { ...h, color, note } : h);
+      } else if (annotationState) {
+        const newHl: TextHighlight = {
+          id: Date.now().toString(),
+          start: annotationState.start,
+          end: annotationState.end,
+          color,
+          note
+        };
+        updated[targetRowId] = [...updated[targetRowId], newHl];
       }
-    };
-    document.addEventListener("mousedown", handleMouseDown);
-    return () => document.removeEventListener("mousedown", handleMouseDown);
-  }, []);
-
-  const translatePhrase = async () => {
-    if (!phraseBar || phraseBar.translation || isTranslatingPhrase) return;
-    setIsTranslatingPhrase(true);
-    try {
-      const result = await translateText(phraseBar.text, { source: "en", target: "so" });
-      setPhraseBar((prev) => (prev ? { ...prev, translation: result } : null));
-    } finally {
-      setIsTranslatingPhrase(false);
-    }
-  };
-
-  const savePhrase = () => {
-    if (!phraseBar || !id) return;
-    const cleanPhrase = phraseBar.text.toLowerCase().replace(/\s+/g, " ");
-    setSavedWords((prev) => {
-      const updated = {
-        ...prev,
-        [cleanPhrase]: {
-          translation: phraseBar.translation || "",
-          note: prev[cleanPhrase]?.note,
-        },
-      };
-      persistVocab(id, updated);
+      
+      localStorage.setItem(`lingowatch-highlights-${id}`, JSON.stringify(updated));
       return updated;
     });
-    setPhraseBar(null);
+    setAnnotationState(null);
+    setActiveHighlight(null);
     window.getSelection()?.removeAllRanges();
-    setIsVocabOpen(true);
+  };
+
+  const deleteAnnotation = (hlId: string) => {
+    const targetRowId = activeHighlight?.rowId;
+    if (!targetRowId || !id) return;
+    setHighlights(prev => {
+      const updated = { ...prev };
+      if (updated[targetRowId]) {
+        updated[targetRowId] = updated[targetRowId].filter(h => h.id !== hlId);
+        localStorage.setItem(`lingowatch-highlights-${id}`, JSON.stringify(updated));
+      }
+      return updated;
+    });
+    setActiveHighlight(null);
   };
 
   // ── Audio ─────────────────────────────────────────────────────────────────
@@ -436,18 +482,40 @@ export default function BookReaderPage() {
                     </div>
                   </div>
 
-                  <p className="text-[15.5px] leading-[1.8] font-sans text-[#e0e0e0] flex-1 font-medium tracking-wide">
-                    {tokenize(row.source).map((word, i) => {
-                      const clean = word.replace(/[.,!?'"();:\-]/g, "").toLowerCase();
-                      return (
-                        <WordWithTooltip
-                          key={`${row.id}-${i}`}
-                          word={word}
-                          onSave={saveWord}
-                          isSaved={!!savedWords[clean]}
-                        />
-                      );
-                    })}
+                  <p id={`row-text-${row.id}`} className="text-[15.5px] leading-[1.8] font-sans text-[#e0e0e0] flex-1 font-medium tracking-wide">
+                    <HighlightableText
+                       text={row.source}
+                       highlights={highlights[row.id] || []}
+                       onHighlightClick={(hl, e) => {
+                         e.stopPropagation();
+                         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                         setActiveHighlight({
+                            highlight: { id: hl.id, color: hl.color, note: hl.note },
+                            x: rect.left + rect.width / 2,
+                            y: rect.top,
+                            rowId: row.id
+                         });
+                         // disable current annotation if any
+                         setAnnotationState(null);
+                         window.getSelection()?.removeAllRanges();
+                       }}
+                       renderText={(chunkText, isHighlighted) => (
+                         <>
+                           {tokenize(chunkText).map((word, i) => {
+                             const clean = word.replace(/[.,!?'"();:\-]/g, "").toLowerCase();
+                             return (
+                               <WordWithTooltip
+                                 key={`${row.id}-chunk-${i}`}
+                                 word={word}
+                                 onSave={saveWord}
+                                 isSaved={!!savedWords[clean]}
+                                 disabled={isHighlighted}
+                               />
+                             );
+                           })}
+                         </>
+                       )}
+                    />
                   </p>
                 </div>
 
@@ -480,90 +548,24 @@ export default function BookReaderPage() {
         </button>
       </div>
 
-      {/* ── Phrase Selection Toolbar ─────────────────────────────────────── */}
-      {phraseBar && (
-        <div
-          ref={phraseBarRef}
-          onMouseDown={(e) => e.stopPropagation()}
-          style={{
-            position: "fixed",
-            left: phraseBar.x,
-            top: Math.max(phraseBar.y - 64, 8),
-            transform: "translateX(-50%)",
-            zIndex: 60,
-          }}
-          className="bg-[#2B2D31] border border-[#3E4044] rounded-xl shadow-2xl overflow-hidden"
-        >
-          {phraseBar.translation ? (
-            /* ─ Translated state ─ */
-            <div className="flex flex-col min-w-[180px] max-w-[280px]">
-              <div className="px-4 py-3 text-center">
-                <p className="text-[10px] text-white/30 uppercase tracking-widest mb-1.5">
-                  Somali
-                </p>
-                <p className="text-[15px] text-white/90 font-medium leading-snug">
-                  {phraseBar.translation}
-                </p>
-              </div>
-              <div className="flex border-t border-[#3E4044]">
-                <button
-                  onClick={savePhrase}
-                  className="flex-1 px-3 py-2.5 text-[12px] text-[#a855f7] hover:bg-[#a855f7]/10 transition-colors font-medium flex items-center justify-center gap-1.5"
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="w-3.5 h-3.5"
-                  >
-                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-                  </svg>
-                  Save phrase
-                </button>
-                <button
-                  onClick={() => {
-                    setPhraseBar(null);
-                    window.getSelection()?.removeAllRanges();
-                  }}
-                  className="px-3 py-2.5 text-white/30 hover:text-white/70 hover:bg-white/5 transition-colors border-l border-[#3E4044]"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          ) : (
-            /* ─ Pre-translate state ─ */
-            <div className="flex items-center">
-              <div className="px-3 py-2 text-[12px] text-white/50 max-w-[180px] truncate">
-                &ldquo;{phraseBar.text.slice(0, 35)}
-                {phraseBar.text.length > 35 ? "…" : ""}&rdquo;
-              </div>
-              <button
-                onClick={translatePhrase}
-                disabled={isTranslatingPhrase}
-                className="flex items-center gap-1.5 px-3 py-2.5 text-[12px] text-[#a855f7] hover:bg-[#a855f7]/10 transition-colors font-medium border-l border-[#3E4044] shrink-0"
-              >
-                {isTranslatingPhrase ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  "Translate"
-                )}
-              </button>
-              <button
-                onClick={() => {
-                  setPhraseBar(null);
-                  window.getSelection()?.removeAllRanges();
-                }}
-                className="px-2 py-2.5 text-white/30 hover:text-white/70 border-l border-[#3E4044]"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          )}
-        </div>
+      {/* ── Annotation Toolbar ─────────────────────────────────────────────── */}
+      {(annotationState || activeHighlight) && (
+        <AnnotationToolbar
+           x={annotationState ? annotationState.x : activeHighlight!.x}
+           y={annotationState ? annotationState.y : activeHighlight!.y}
+           selectedText={annotationState ? annotationState.text : undefined}
+           existingHighlight={activeHighlight ? activeHighlight.highlight : undefined}
+           onSaveAnnotation={saveAnnotation}
+           onDeleteAnnotation={deleteAnnotation}
+           onTranslate={annotationState ? async () => {
+             return translateText(annotationState.text, { source: "en", target: "so" });
+           } : undefined}
+           onClose={() => {
+             setAnnotationState(null);
+             setActiveHighlight(null);
+             window.getSelection()?.removeAllRanges();
+           }}
+        />
       )}
 
       {/* ── Vocabulary Drawer ────────────────────────────────────────────── */}

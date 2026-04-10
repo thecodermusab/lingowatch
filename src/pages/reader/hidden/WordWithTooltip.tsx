@@ -9,9 +9,10 @@ interface WordWithTooltipProps {
   word: string;
   onSave?: (word: string, translation: string) => void;
   isSaved?: boolean;
+  disabled?: boolean;
 }
 
-export function WordWithTooltip({ word, onSave, isSaved }: WordWithTooltipProps) {
+export function WordWithTooltip({ word, onSave, isSaved, disabled }: WordWithTooltipProps) {
   const [translation, setTranslation] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -51,8 +52,27 @@ export function WordWithTooltip({ word, onSave, isSaved }: WordWithTooltipProps)
 
   const saved = isSaved || justSaved;
 
+  if (disabled) {
+    return (
+      <span className="relative -mx-[1px] px-[1px]">
+        {word}{" "}
+      </span>
+    );
+  }
+
+  const handleOpenChange = (open: boolean) => {
+    if (open) {
+      const selection = window.getSelection();
+      if (selection && selection.toString().trim().length > 0) {
+        setIsOpen(false);
+        return;
+      }
+    }
+    setIsOpen(open);
+  };
+
   return (
-    <HoverCard openDelay={300} closeDelay={100} onOpenChange={setIsOpen}>
+    <HoverCard open={isOpen} openDelay={300} closeDelay={100} onOpenChange={handleOpenChange}>
       <HoverCardTrigger asChild>
         <span
           className={`cursor-pointer rounded-[2px] transition-colors duration-150 relative -mx-[1px] px-[1px] ${
