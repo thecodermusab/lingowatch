@@ -7,12 +7,15 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Star, Trash2, ArrowLeft, RotateCcw, CheckCircle2, Volume2, Globe, BookOpen, Lightbulb, MessageCircle, AlertTriangle, Edit, Loader2, Save, X, Sparkles } from "lucide-react";
-import { generateAIExplanation } from "@/lib/ai";
+import { AI_PROVIDER_OPTIONS, generateAIExplanation, getAiProviderLabel } from "@/lib/ai";
+import { speakText } from "@/lib/tts";
+import { translateText } from "@/lib/googleTranslate";
 import { useToast } from "@/hooks/use-toast";
 import { categories } from "@/lib/mockData";
-import { DifficultyLevel, PhraseType } from "@/types";
+import { DifficultyLevel, PhraseType, PreferredAiProvider, AIGenerationResult } from "@/types";
 import { getReviewStage } from "@/lib/review";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
+import { useAuth } from "@/contexts/AuthContext";
 
 const phraseTypes: { value: PhraseType; label: string }[] = [
   { value: "word", label: "Word" },
@@ -45,6 +48,7 @@ function SectionCard({ icon: Icon, title, children, color = "bg-primary/10 text-
 export default function PhraseDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { phrases, toggleFavorite, toggleLearned, deletePhrase, savePhraseEdits, updatePhrase } = usePhraseStore();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
@@ -60,6 +64,9 @@ export default function PhraseDetailPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [googleTranslation, setGoogleTranslation] = useState<string>("");
+  const [googleTranslationState, setGoogleTranslationState] = useState<"loading" | "ready" | "error">("loading");
+  const [reExplainProvider, setReExplainProvider] = useState<PreferredAiProvider>(user?.preferredAiProvider || "auto");
 
   const phrase = phrases.find((p) => p.id === id);
 
@@ -71,7 +78,38 @@ export default function PhraseDetailPage() {
     setDifficultyLevel(phrase.difficultyLevel);
     setNotes(phrase.notes);
     setNoteDraft(phrase.notes);
-  }, [phrase]);
+    const savedGoogleTranslation = phrase.explanation?.googleTranslation?.trim() || "";
+    if (savedGoogleTranslation) {
+      setGoogleTranslation(savedGoogleTranslation);
+      setGoogleTranslationState("ready");
+      return;
+    }
+
+    setGoogleTranslation("");
+    setGoogleTranslationState("loading");
+    translateText(phrase.phraseText)
+      .then((translation) => {
+        setGoogleTranslation(translation);
+        setGoogleTranslationState(translation ? "ready" : "error");
+        if (translation && phrase.explanation) {
+          updatePhrase(phrase.id, {
+            explanation: {
+              ...phrase.explanation,
+              googleTranslation: translation,
+              googleTranslationUpdatedAt: new Date().toISOString(),
+            },
+          });
+        }
+      })
+      .catch(() => {
+        setGoogleTranslation("");
+        setGoogleTranslationState("error");
+      });
+  }, [phrase?.id]);
+
+  useEffect(() => {
+    setReExplainProvider(user?.preferredAiProvider || "auto");
+  }, [user?.preferredAiProvider]);
 
   if (!phrase) {
     return (
@@ -86,13 +124,35 @@ export default function PhraseDetailPage() {
   const ex = phrase.explanation;
   const examples = phrase.examples || [];
   const reviewStage = getReviewStage(phrase.review);
+  const explainedBy = getAiProviderLabel(ex?.aiProvider, ex?.aiProviderLabel);
+  const explainedModel = ex?.aiModel ? ` · ${ex.aiModel}` : "";
+
+  const buildExplanation = (result: AIGenerationResult) => ({
+    id: phrase.explanation?.id ?? crypto.randomUUID(),
+    phraseId: phrase.id,
+    standardMeaning: result.standardMeaning,
+    easyMeaning: result.easyMeaning,
+    aiExplanation: result.aiExplanation,
+    usageContext: result.usageContext,
+    somaliMeaning: result.somaliMeaning,
+    somaliExplanation: result.somaliExplanation,
+    somaliSentence: result.somaliSentence,
+    commonMistake: result.commonMistake,
+    pronunciationText: result.pronunciationText,
+    relatedPhrases: result.relatedPhrases,
+    googleTranslation: phrase.explanation?.googleTranslation,
+    googleTranslationUpdatedAt: phrase.explanation?.googleTranslationUpdatedAt,
+    aiProvider: result.aiProvider,
+    aiProviderLabel: result.aiProviderLabel,
+    aiModel: result.aiModel,
+  });
 
   const handleGenerateExplanation = async () => {
     setIsGenerating(true);
     try {
-      const result = await generateAIExplanation(phrase.phraseText);
+      const result = await generateAIExplanation(phrase.phraseText, reExplainProvider);
       updatePhrase(phrase.id, {
-        explanation: result,
+        explanation: buildExplanation(result),
         examples: result.examples?.map((e: any) => ({
           id: crypto.randomUUID(),
           phraseId: phrase.id,
@@ -100,7 +160,7 @@ export default function PhraseDetailPage() {
           exampleText: e.text,
         })) ?? [],
       });
-      toast({ title: "Explanation generated!" });
+      toast({ title: "Explanation generated", description: `Used ${getAiProviderLabel(result.aiProvider, result.aiProviderLabel)}.` });
     } catch (err) {
       toast({ title: "Failed to generate", description: err instanceof Error ? err.message : "Unknown error", variant: "destructive" });
     } finally {
@@ -164,13 +224,8 @@ export default function PhraseDetailPage() {
     }
   };
 
-  const handleSpeak = () => {
-    if ("speechSynthesis" in window) {
-      const u = new SpeechSynthesisUtterance(phrase.phraseText);
-      u.lang = "en-US";
-      u.rate = 0.8;
-      speechSynthesis.speak(u);
-    }
+  const handleSpeak = (text?: string) => {
+    speakText(text ?? phrase.phraseText);
   };
 
   const handleSaveNotes = async () => {
@@ -255,14 +310,14 @@ export default function PhraseDetailPage() {
                 <span className="admin-chip">
                   {phrase.phraseType.replace("_", " ")}
                 </span>
-                <h1 className="mt-3 text-4xl font-semibold tracking-tight text-foreground">{phrase.phraseText}</h1>
+                <div className="mt-3 flex items-center gap-2">
+                  <h1 className="text-4xl font-semibold tracking-tight text-foreground">{phrase.phraseText}</h1>
+                  <button onClick={() => handleSpeak()} className="rounded-full p-1 text-primary hover:bg-primary/10" aria-label="Listen to phrase">
+                    <Volume2 className="h-5 w-5" />
+                  </button>
+                </div>
                 {ex?.pronunciationText && (
-                  <div className="mt-1 flex items-center gap-2">
-                    <p className="text-sm text-muted-foreground">{ex.pronunciationText}</p>
-                    <button onClick={handleSpeak} className="rounded-full p-1 text-primary hover:bg-primary/10">
-                      <Volume2 className="h-4 w-4" />
-                    </button>
-                  </div>
+                  <p className="mt-1 text-sm text-muted-foreground">{ex.pronunciationText}</p>
                 )}
               </div>
             </div>
@@ -290,6 +345,22 @@ export default function PhraseDetailPage() {
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => setIsEditing(true)} className="h-10 gap-1 rounded-xl px-4">
                   <Edit className="h-4 w-4" /> Edit
+                </Button>
+                <Select value={reExplainProvider} onValueChange={(value) => setReExplainProvider(value as PreferredAiProvider)}>
+                  <SelectTrigger className="h-10 w-[190px] rounded-xl">
+                    <SelectValue placeholder="Choose AI" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {AI_PROVIDER_OPTIONS.map((provider) => (
+                      <SelectItem key={provider.value} value={provider.value}>
+                        {provider.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button variant="outline" size="sm" onClick={handleGenerateExplanation} disabled={isGenerating} className="h-10 gap-1 rounded-xl px-4">
+                  {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                  {isGenerating ? "Re-explaining…" : "Re-explain"}
                 </Button>
                 <Link to="/review">
                   <Button variant="outline" size="sm" className="h-10 gap-1 rounded-xl px-4">
@@ -373,29 +444,42 @@ export default function PhraseDetailPage() {
                   {examples.filter(e => e.exampleType !== "somali").map((ex, i) => (
                     <li key={i} className="flex items-start gap-2">
                       <span className="mt-1 rounded bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-secondary-foreground uppercase">{ex.exampleType}</span>
-                      <p className="text-sm italic text-foreground">"{ex.exampleText}"</p>
+                      <p className="flex-1 text-sm italic text-foreground">"{ex.exampleText}"</p>
+                      <button onClick={() => handleSpeak(ex.exampleText)} className="mt-0.5 shrink-0 rounded-full p-1 text-muted-foreground hover:text-primary hover:bg-primary/10">
+                        <Volume2 className="h-3.5 w-3.5" />
+                      </button>
                     </li>
                   ))}
                 </ul>
               </SectionCard>
             )}
 
-            {(ex?.somaliMeaning || ex?.somaliExplanation) && (
+            {(ex?.somaliMeaning || ex?.somaliExplanation || googleTranslation || googleTranslationState !== "ready") && (
               <div className="admin-panel border-somali/20 bg-somali/5 p-5">
                 <div className="flex items-center gap-2">
                   <Globe className="h-5 w-5 text-somali" />
                   <h3 className="font-semibold text-foreground">Somali Support 🇸🇴</h3>
                 </div>
                 <div className="mt-4 space-y-3">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-somali">Google Translate</p>
+                    <p className="mt-1 text-lg font-medium text-foreground">
+                      {googleTranslationState === "loading"
+                        ? "Loading Google translation..."
+                        : googleTranslationState === "error"
+                          ? "Google Translate could not load right now."
+                          : googleTranslation}
+                    </p>
+                  </div>
                   {ex?.somaliMeaning && (
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-somali">Meaning</p>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-somali">AI Meaning</p>
                       <p className="mt-1 text-lg font-medium text-foreground">{ex.somaliMeaning}</p>
                     </div>
                   )}
                   {ex?.somaliExplanation && (
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-somali">Explanation</p>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-somali">AI Explanation</p>
                       <p className="mt-1 text-foreground">{ex.somaliExplanation}</p>
                     </div>
                   )}
@@ -411,34 +495,49 @@ export default function PhraseDetailPage() {
           </div>
         </div>
 
-        <SectionCard icon={Edit} title="Your Notes">
-          {isEditingNotes ? (
-            <div className="space-y-3">
-              <Textarea
-                value={noteDraft}
-                onChange={(e) => setNoteDraft(e.target.value)}
-                rows={4}
-                placeholder="Add your notes here..."
-              />
-              <div className="flex flex-wrap gap-2">
-                <Button size="sm" onClick={handleSaveNotes} className="gap-1" disabled={isSavingNotes}>
-                  {isSavingNotes ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                  Save Notes
-                </Button>
-                <Button variant="outline" size="sm" onClick={handleCancelNotesEdit} className="gap-1" disabled={isSavingNotes}>
-                  <X className="h-4 w-4" /> Cancel
+        <div className="admin-panel admin-panel-body">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Edit className="h-4 w-4" />
+            </div>
+            <h3 className="font-semibold text-foreground">Your Notes</h3>
+          </div>
+          <div className="mt-3">
+            {isEditingNotes ? (
+              <div className="space-y-3">
+                <Textarea
+                  value={noteDraft}
+                  onChange={(e) => setNoteDraft(e.target.value)}
+                  rows={4}
+                  placeholder="Add your notes here..."
+                />
+                <div className="flex flex-wrap gap-2">
+                  <Button size="sm" onClick={handleSaveNotes} className="gap-1" disabled={isSavingNotes}>
+                    {isSavingNotes ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    Save Notes
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleCancelNotesEdit} className="gap-1" disabled={isSavingNotes}>
+                    <X className="h-4 w-4" /> Cancel
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-foreground">{phrase.notes || "No notes yet."}</p>
+                <Button variant="outline" size="sm" onClick={() => setIsEditingNotes(true)} className="gap-1">
+                  <Edit className="h-4 w-4" /> {phrase.notes ? "Edit Notes" : "Add Notes"}
                 </Button>
               </div>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <p className="text-foreground">{phrase.notes || "No notes yet."}</p>
-              <Button variant="outline" size="sm" onClick={() => setIsEditingNotes(true)} className="gap-1">
-                <Edit className="h-4 w-4" /> {phrase.notes ? "Edit Notes" : "Add Notes"}
-              </Button>
+            )}
+          </div>
+          {(ex?.aiProvider || ex?.aiProviderLabel || ex?.aiModel) && (
+            <div className="mt-4 flex justify-end border-t border-border pt-3">
+              <p className="text-right text-xs font-medium text-muted-foreground">
+                Answered by {explainedBy}{explainedModel}
+              </p>
             </div>
           )}
-        </SectionCard>
+        </div>
       </div>
     </div>
   );

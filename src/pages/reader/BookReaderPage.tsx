@@ -7,6 +7,7 @@ import { BOOK_ITEMS } from "../media/bookData";
 import { WordWithTooltip } from "./hidden/WordWithTooltip";
 import { AnnotationToolbar, HighlightColor, ExistingHighlight } from "@/components/reader/AnnotationToolbar";
 import { HighlightableText, TextHighlight } from "@/components/reader/HighlightableText";
+import { fetchTtsAudioContent } from "@/lib/tts";
 
 interface SavedEntry {
   translation: string;
@@ -27,6 +28,7 @@ interface ActiveHighlightState {
   x: number;
   y: number;
   rowId: string;
+  text: string;
 }
 
 function tokenize(text: string): string[] {
@@ -70,6 +72,13 @@ export default function BookReaderPage() {
       if (storedHl) setHighlights(JSON.parse(storedHl));
       else setHighlights({});
     } catch {}
+    try {
+      const storedTranslations = localStorage.getItem(`lingowatch-reader-translations-${id}`);
+      if (storedTranslations) setTranslatedRows(JSON.parse(storedTranslations));
+      else setTranslatedRows({});
+    } catch {
+      setTranslatedRows({});
+    }
   }, [id]);
 
   const persistVocab = (bookId: string, data: Record<string, SavedEntry>) => {
@@ -150,7 +159,7 @@ export default function BookReaderPage() {
         setAnnotationState({ 
            text: selectedText, 
            x: rect.left + rect.width / 2, 
-           y: rect.top,
+           y: rect.bottom + 8,
            rowId,
            start,
            end
@@ -208,7 +217,11 @@ export default function BookReaderPage() {
     setTranslatingRows((prev) => ({ ...prev, [rowId]: true }));
     try {
       const translation = await translateText(sourceText, { source: "en", target: "so" });
-      setTranslatedRows((prev) => ({ ...prev, [rowId]: translation }));
+      setTranslatedRows((prev) => {
+        const updated = { ...prev, [rowId]: translation };
+        if (id) localStorage.setItem(`lingowatch-reader-translations-${id}`, JSON.stringify(updated));
+        return updated;
+      });
     } catch (e) {
       console.error(e);
       setTranslatedRows((prev) => ({ ...prev, [rowId]: "Error translating" }));
@@ -228,30 +241,11 @@ export default function BookReaderPage() {
 
     const promise = (async () => {
       try {
-        const apiKey =
-          import.meta.env.VITE_GOOGLE_TTS_KEY || import.meta.env.VITE_GOOGLE_TRANSLATE_KEY;
-        if (!apiKey) {
-          console.warn("Google API Key missing for high-quality audio.");
-          return null;
-        }
-        const response = await fetch(
-          `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              input: { text },
-              voice: { languageCode: "en-US", name: "en-US-Journey-F" },
-              audioConfig: { audioEncoding: "MP3" },
-            }),
-          }
-        );
-        const data = await response.json();
-        if (data.error) { console.error("TTS API Error:", data.error); return null; }
-        if (data.audioContent) {
-          audioCache.current[text] = data.audioContent;
-          return data.audioContent;
-        }
+        const audioContent = await fetchTtsAudioContent(text);
+        if (!audioContent) return null;
+
+        audioCache.current[text] = audioContent;
+        return audioContent;
       } catch (e) {
         console.error(e);
       }
@@ -310,8 +304,6 @@ export default function BookReaderPage() {
       translateRow(activeRowId, activeRow.source);
     }
   }, [activeRowId, readerRows]);
-
-  useEffect(() => { window.speechSynthesis.getVoices(); }, []);
 
   useEffect(() => {
     if (readerRows && readerRows.length > 0) {
@@ -389,7 +381,7 @@ export default function BookReaderPage() {
               BACK
             </Link>
 
-            <div className="flex items-center gap-1 text-white/50">
+            <div className="hidden items-center gap-1 text-white/50 md:flex">
               <button className="p-1 hover:text-white transition-colors">
                 <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
                   <path d="M4 4h2v16H4V4zm14 0L8 12l10 8V4z" />
@@ -410,6 +402,21 @@ export default function BookReaderPage() {
 
           {/* Right — Vocab button */}
           <div className="flex items-center gap-2">
+            <button
+              onClick={toggleAutoPlay}
+              className={`md:hidden flex h-8 w-8 items-center justify-center rounded-full border text-[11px] font-medium transition-colors ${
+                isAutoPlaying
+                  ? "border-[#a855f7]/60 bg-[#a855f7]/20 text-[#a855f7]"
+                  : "border-white/20 text-white/70 hover:bg-white/10 hover:text-white"
+              }`}
+              aria-label={isAutoPlaying ? "Stop listening" : "Listen all"}
+            >
+              {isAutoPlaying ? (
+                <Pause fill="currentColor" className="h-3.5 w-3.5" />
+              ) : (
+                <Play fill="currentColor" className="h-3.5 w-3.5 translate-x-[1px]" />
+              )}
+            </button>
             <button
               onClick={() => setIsVocabOpen((v) => !v)}
               className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-medium transition-colors tracking-wide ${
@@ -492,8 +499,9 @@ export default function BookReaderPage() {
                          setActiveHighlight({
                             highlight: { id: hl.id, color: hl.color, note: hl.note },
                             x: rect.left + rect.width / 2,
-                            y: rect.top,
-                            rowId: row.id
+                            y: rect.bottom + 8,
+                            rowId: row.id,
+                            text: row.source.slice(hl.start, hl.end)
                          });
                          // disable current annotation if any
                          setAnnotationState(null);
@@ -538,7 +546,7 @@ export default function BookReaderPage() {
         {/* FAB */}
         <button
           onClick={toggleAutoPlay}
-          className="fixed bottom-10 right-10 w-16 h-16 rounded-full bg-[#a855f7] shadow-lg flex items-center justify-center hover:scale-105 transition-transform z-20"
+          className="fixed bottom-10 right-10 z-20 hidden h-16 w-16 items-center justify-center rounded-full bg-[#a855f7] shadow-lg transition-transform hover:scale-105 md:flex"
         >
           {isAutoPlaying ? (
             <Pause fill="currentColor" className="w-7 h-7 text-white" />
@@ -553,12 +561,13 @@ export default function BookReaderPage() {
         <AnnotationToolbar
            x={annotationState ? annotationState.x : activeHighlight!.x}
            y={annotationState ? annotationState.y : activeHighlight!.y}
-           selectedText={annotationState ? annotationState.text : undefined}
+           selectedText={annotationState ? annotationState.text : activeHighlight!.text}
            existingHighlight={activeHighlight ? activeHighlight.highlight : undefined}
            onSaveAnnotation={saveAnnotation}
            onDeleteAnnotation={deleteAnnotation}
-           onTranslate={annotationState ? async () => {
-             return translateText(annotationState.text, { source: "en", target: "so" });
+           onTranslate={(annotationState || activeHighlight) ? async () => {
+             const textToTranslate = annotationState ? annotationState.text : activeHighlight!.text;
+             return translateText(textToTranslate, { source: "en", target: "so" });
            } : undefined}
            onClose={() => {
              setAnnotationState(null);

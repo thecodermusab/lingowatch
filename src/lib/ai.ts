@@ -1,6 +1,21 @@
-import { AIGenerationResult, DifficultyLevel, PhraseType } from "@/types";
+import { AIGenerationResult, DifficultyLevel, PhraseType, PreferredAiProvider } from "@/types";
 
-type PreferredAiProvider = "gemini" | "grok" | "openrouter" | "cerebras";
+export const AI_PROVIDER_OPTIONS: { value: PreferredAiProvider; label: string }[] = [
+  { value: "auto", label: "Auto" },
+  { value: "glm4", label: "GLM-4.7 Flash" },
+  { value: "deepseek", label: "DeepSeek V3.2" },
+  { value: "gemini-lite", label: "Gemini 2.5 Flash-Lite" },
+  { value: "gemini", label: "Gemini" },
+  { value: "grok", label: "Grok" },
+  { value: "openrouter", label: "OpenRouter" },
+  { value: "cerebras", label: "Cerebras" },
+  { value: "antigravity", label: "Antigravity" },
+];
+
+export function getAiProviderLabel(provider?: string, fallback?: string) {
+  if (fallback) return fallback;
+  return AI_PROVIDER_OPTIONS.find((item) => item.value === provider)?.label || provider || "Unknown AI";
+}
 
 function getPreferredAiProvider(): PreferredAiProvider | undefined {
   try {
@@ -38,6 +53,8 @@ function simplifyAiErrorMessage(message: string) {
 
   if (
     lower.includes("invalid api key") ||
+    lower.includes("api_key_invalid") ||
+    lower.includes("api key expired") ||
     lower.includes("unauthorized") ||
     lower.includes("missing") ||
     lower.includes("not configured")
@@ -48,8 +65,10 @@ function simplifyAiErrorMessage(message: string) {
   return text.length > 180 ? `${text.slice(0, 177)}...` : text;
 }
 
-export async function generateAIExplanation(phraseText: string): Promise<AIGenerationResult> {
-  const preferredProvider = getPreferredAiProvider();
+export async function generateAIExplanation(
+  phraseText: string,
+  preferredProvider: PreferredAiProvider | undefined = getPreferredAiProvider()
+): Promise<AIGenerationResult> {
   const response = await fetch("/api/ai/explain", {
     method: "POST",
     headers: {
@@ -124,7 +143,7 @@ export interface AiTestResult {
 }
 
 export interface AiProviderStatusResult {
-  provider: "gemini" | "grok" | "openrouter" | "cerebras";
+  provider: PreferredAiProvider;
   model: string;
   configured: boolean;
   ok: boolean;

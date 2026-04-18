@@ -1,19 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
 import { usePhraseStore } from "@/hooks/usePhraseStore";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, Eye, BookOpen, Keyboard, Volume2, CheckCircle2, Trophy } from "lucide-react";
-import { ReviewRating, Phrase } from "@/types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RotateCcw, Eye, BookOpen, Keyboard, Volume2, CheckCircle2, Trophy, Loader2, Sparkles } from "lucide-react";
+import { ReviewRating, Phrase, PreferredAiProvider, AIGenerationResult } from "@/types";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { getReviewStage, getReviewTimingPreview } from "@/lib/review";
+import { speakText } from "@/lib/tts";
+import { AI_PROVIDER_OPTIONS, generateAIExplanation, getAiProviderLabel } from "@/lib/ai";
+import { translateText } from "@/lib/googleTranslate";
+import { useToast } from "@/hooks/use-toast";
 
-type ReviewMode = "phrase_to_meaning" | "meaning_to_phrase" | "english_to_somali" | "somali_to_english";
+type ReviewMode = "phrase_to_meaning" | "meaning_to_phrase" | "somali_to_english";
 
 const modeLabels: Record<ReviewMode, string> = {
   phrase_to_meaning: "Phrase → Meaning",
   meaning_to_phrase: "Meaning → Phrase",
-  english_to_somali: "English → Somali",
   somali_to_english: "Somali → English",
 };
 
@@ -33,7 +37,7 @@ const ratingConfig: {
     rating: "hard",
     label: "Hard",
     shortcut: "2",
-    buttonClassName: "border-orange-400 text-orange-600 hover:bg-orange-50",
+    buttonClassName: "border-orange-400 text-orange-400 hover:bg-orange-500/10 hover:text-orange-300",
   },
   {
     rating: "good",
@@ -50,7 +54,7 @@ const ratingConfig: {
 ];
 
 function getPromptLabel(mode: ReviewMode) {
-  if (mode === "phrase_to_meaning" || mode === "english_to_somali") return "Prompt";
+  if (mode === "phrase_to_meaning") return "Prompt";
   if (mode === "meaning_to_phrase") return "Meaning";
   return "Somali";
 }
@@ -61,8 +65,6 @@ function getQuestion(phrase: Phrase, mode: ReviewMode) {
       return phrase.phraseText;
     case "meaning_to_phrase":
       return phrase.explanation?.easyMeaning || "...";
-    case "english_to_somali":
-      return phrase.phraseText;
     case "somali_to_english":
       return phrase.explanation?.somaliMeaning || "...";
   }
@@ -74,16 +76,15 @@ function getAnswer(phrase: Phrase, mode: ReviewMode) {
       return phrase.explanation?.easyMeaning || phrase.explanation?.standardMeaning || "...";
     case "meaning_to_phrase":
       return phrase.phraseText;
-    case "english_to_somali":
-      return phrase.explanation?.somaliMeaning || "...";
     case "somali_to_english":
       return phrase.phraseText;
   }
 }
 
 export default function ReviewPage() {
-  const { phrases, getDueForReview, reviewPhrase } = usePhraseStore();
+  const { phrases, getDueForReview, reviewPhrase, updatePhrase } = usePhraseStore();
   const { user } = useAuth();
+  const { toast } = useToast();
   const dueForReview = getDueForReview();
 
   const [mode, setMode] = useState<ReviewMode>("phrase_to_meaning");
@@ -93,6 +94,9 @@ export default function ReviewPage() {
   const [practiceAll, setPracticeAll] = useState(false);
   const [sessionDone, setSessionDone] = useState(false);
   const [sessionStats, setSessionStats] = useState({ again: 0, hard: 0, good: 0, easy: 0 });
+  const [googleTranslation, setGoogleTranslation] = useState("");
+  const [reExplainProvider, setReExplainProvider] = useState<PreferredAiProvider>(user?.preferredAiProvider || "auto");
+  const [isReExplaining, setIsReExplaining] = useState(false);
 
   const reviewList = useMemo(() => {
     if (practiceAll) return phrases;
@@ -110,13 +114,55 @@ export default function ReviewPage() {
   );
 
   function speakCurrentPrompt() {
-    if (!currentPhrase || !("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(currentPhrase.phraseText);
-    utterance.lang = "en-US";
-    utterance.rate = 0.85;
-    window.speechSynthesis.speak(utterance);
+    if (!currentPhrase) return;
+    speakText(currentPhrase.phraseText);
   }
+
+  const buildExplanation = (phrase: Phrase, result: AIGenerationResult) => ({
+    id: phrase.explanation?.id ?? crypto.randomUUID(),
+    phraseId: phrase.id,
+    standardMeaning: result.standardMeaning,
+    easyMeaning: result.easyMeaning,
+    aiExplanation: result.aiExplanation,
+    usageContext: result.usageContext,
+    somaliMeaning: result.somaliMeaning,
+    somaliExplanation: result.somaliExplanation,
+    somaliSentence: result.somaliSentence,
+    commonMistake: result.commonMistake,
+    pronunciationText: result.pronunciationText,
+    relatedPhrases: result.relatedPhrases,
+    googleTranslation: phrase.explanation?.googleTranslation,
+    googleTranslationUpdatedAt: phrase.explanation?.googleTranslationUpdatedAt,
+    aiProvider: result.aiProvider,
+    aiProviderLabel: result.aiProviderLabel,
+    aiModel: result.aiModel,
+  });
+
+  const handleReExplainCurrent = async () => {
+    if (!currentPhrase) return;
+    setIsReExplaining(true);
+    try {
+      const result = await generateAIExplanation(currentPhrase.phraseText, reExplainProvider);
+      updatePhrase(currentPhrase.id, {
+        explanation: buildExplanation(currentPhrase, result),
+        examples: result.examples?.map((example) => ({
+          id: crypto.randomUUID(),
+          phraseId: currentPhrase.id,
+          exampleType: example.type,
+          exampleText: example.text,
+        })) ?? [],
+      });
+      toast({ title: "Explanation updated", description: `Used ${getAiProviderLabel(result.aiProvider, result.aiProviderLabel)}.` });
+    } catch (error) {
+      toast({
+        title: "Could not re-explain",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive",
+      });
+    } finally {
+      setIsReExplaining(false);
+    }
+  };
 
   const goToNextCard = () => {
     setRevealed(false);
@@ -181,6 +227,35 @@ export default function ReviewPage() {
     if (!currentPhrase || !user?.autoPlayAudioEnabled) return;
     speakCurrentPrompt();
   }, [currentPhrase?.id, mode, user?.autoPlayAudioEnabled]);
+
+  useEffect(() => {
+    setReExplainProvider(user?.preferredAiProvider || "auto");
+  }, [user?.preferredAiProvider]);
+
+  useEffect(() => {
+    if (!currentPhrase) return;
+    const savedGoogleTranslation = currentPhrase.explanation?.googleTranslation?.trim() || "";
+    if (savedGoogleTranslation) {
+      setGoogleTranslation(savedGoogleTranslation);
+      return;
+    }
+
+    setGoogleTranslation("");
+    translateText(currentPhrase.phraseText)
+      .then((translation) => {
+        setGoogleTranslation(translation);
+        if (translation && currentPhrase.explanation) {
+          updatePhrase(currentPhrase.id, {
+            explanation: {
+              ...currentPhrase.explanation,
+              googleTranslation: translation,
+              googleTranslationUpdatedAt: new Date().toISOString(),
+            },
+          });
+        }
+      })
+      .catch(() => {});
+  }, [currentPhrase?.id]);
 
   // No phrases at all
   if (phrases.length === 0) {
@@ -281,20 +356,18 @@ export default function ReviewPage() {
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="grid w-full gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid w-full gap-3 sm:grid-cols-3">
             {(Object.keys(modeLabels) as ReviewMode[]).map((m) => (
               <button
                 key={m}
                 onClick={() => {
                   setMode(m);
                   setRevealed(false);
-                  setTypedAnswer("");
-                  setTypeResult(null);
                 }}
                 className={`rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
                   mode === m
-                    ? "bg-[#161819] text-white"
-                    : "bg-muted/40 text-foreground hover:bg-muted"
+                    ? "bg-primary/90 text-primary-foreground shadow-sm"
+                    : "bg-secondary/70 text-foreground hover:bg-secondary"
                 }`}
               >
                 {modeLabels[m]}
@@ -379,6 +452,13 @@ export default function ReviewPage() {
                       </p>
                     )}
 
+                    {(currentPhrase.explanation?.aiProvider || currentPhrase.explanation?.aiProviderLabel || currentPhrase.explanation?.aiModel) && (
+                      <p className="mt-3 text-xs font-medium text-muted-foreground">
+                        Answered by {getAiProviderLabel(currentPhrase.explanation.aiProvider, currentPhrase.explanation.aiProviderLabel)}
+                        {currentPhrase.explanation.aiModel ? ` · ${currentPhrase.explanation.aiModel}` : ""}
+                      </p>
+                    )}
+
                     <div className="mt-4 grid gap-3 sm:grid-cols-2">
                       {currentPhrase.explanation?.usageContext ? (
                         <div className="rounded-xl border border-border bg-card px-4 py-3">
@@ -391,10 +471,21 @@ export default function ReviewPage() {
                         </div>
                       ) : null}
 
+                      {user?.somaliModeEnabled && googleTranslation ? (
+                        <div className="rounded-xl border border-border bg-card px-4 py-3">
+                          <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                            Google Translate
+                          </p>
+                          <p className="mt-1 text-sm text-foreground">
+                            {googleTranslation}
+                          </p>
+                        </div>
+                      ) : null}
+
                       {user?.somaliModeEnabled && currentPhrase.explanation?.somaliMeaning ? (
                         <div className="rounded-xl border border-border bg-card px-4 py-3">
                           <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                            Somali
+                            AI Meaning
                           </p>
                           <p className="mt-1 text-sm text-foreground">
                             {currentPhrase.explanation.somaliMeaning}
@@ -416,6 +507,33 @@ export default function ReviewPage() {
                         </p>
                       </div>
                     ) : null}
+
+                    <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border pt-4">
+                      <span className="text-xs font-medium text-muted-foreground">Re-explain with</span>
+                      <Select value={reExplainProvider} onValueChange={(value) => setReExplainProvider(value as PreferredAiProvider)}>
+                        <SelectTrigger className="h-9 w-[190px] rounded-xl">
+                          <SelectValue placeholder="Choose AI" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {AI_PROVIDER_OPTIONS.map((provider) => (
+                            <SelectItem key={provider.value} value={provider.value}>
+                              {provider.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleReExplainCurrent}
+                        disabled={isReExplaining}
+                        className="h-9 gap-2 rounded-xl"
+                      >
+                        {isReExplaining ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                        {isReExplaining ? "Re-explaining..." : "Re-explain"}
+                      </Button>
+                    </div>
                   </div>
 
                   <div>

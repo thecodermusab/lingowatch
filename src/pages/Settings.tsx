@@ -10,7 +10,9 @@ import { useToast } from "@/hooks/use-toast";
 import { getAIHealth, getAllAIProviderStatuses, testAIConnection } from "@/lib/ai";
 import { loadImportedPhraseBank, phraseBank } from "@/lib/phraseBank";
 import { Download, Loader2, Upload } from "lucide-react";
-import { Phrase, PhraseType, DifficultyLevel } from "@/types";
+import { Phrase, PhraseType, DifficultyLevel, UserProfile } from "@/types";
+
+type PreferredAiProvider = UserProfile["preferredAiProvider"];
 
 export default function SettingsPage() {
   const { user, updateProfile } = useAuth();
@@ -22,7 +24,7 @@ export default function SettingsPage() {
   const [statusLoading, setStatusLoading] = useState(true);
   const [testLoading, setTestLoading] = useState(false);
   const [providerStatuses, setProviderStatuses] = useState<Array<{
-    provider: "gemini" | "grok" | "openrouter" | "cerebras";
+    provider: PreferredAiProvider;
     model: string;
     configured: boolean;
     ok: boolean;
@@ -268,11 +270,16 @@ export default function SettingsPage() {
     setImportPreview(null);
   };
 
-  const providerLabels: Record<"gemini" | "grok" | "openrouter" | "cerebras", string> = {
+  const providerLabels: Record<PreferredAiProvider, string> = {
+    auto: "Auto",
+    glm4: "Z.ai GLM-4.7 Flash",
+    deepseek: "DeepSeek V3.2",
+    "gemini-lite": "Gemini 2.5 Flash-Lite",
     gemini: "Gemini",
     grok: "Grok",
     openrouter: "OpenRouter",
     cerebras: "Cerebras",
+    antigravity: "Antigravity",
   };
 
   return (
@@ -307,16 +314,21 @@ export default function SettingsPage() {
             </div>
             <div>
               <Label>Preferred Provider</Label>
-              <Select value={user.preferredAiProvider} onValueChange={(value) => updateProfile({ preferredAiProvider: value as "gemini" | "grok" | "openrouter" | "cerebras" })}>
+              <Select value={user.preferredAiProvider} onValueChange={(value) => updateProfile({ preferredAiProvider: value as PreferredAiProvider })}>
                 <SelectTrigger className="mt-2 h-12 rounded-xl"><SelectValue /></SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="auto">Auto (cost optimized)</SelectItem>
+                  <SelectItem value="glm4">Z.ai GLM-4.7 Flash</SelectItem>
+                  <SelectItem value="deepseek">DeepSeek V3.2</SelectItem>
+                  <SelectItem value="gemini-lite">Gemini 2.5 Flash-Lite</SelectItem>
                   <SelectItem value="gemini">Gemini</SelectItem>
                   <SelectItem value="grok">Grok</SelectItem>
                   <SelectItem value="openrouter">OpenRouter</SelectItem>
                   <SelectItem value="cerebras">Cerebras</SelectItem>
+                  <SelectItem value="antigravity">Antigravity</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="mt-2 text-sm text-muted-foreground">When quota is reached, switch provider here and test again from the website.</p>
+              <p className="mt-2 text-sm text-muted-foreground">Auto uses GLM for daily lookups, DeepSeek for bulk work, and Gemini Flash-Lite when Google quality is needed.</p>
             </div>
             <div className="grid gap-3">
               <div className="rounded-[1.25rem] border bg-muted/20 px-4 py-3">

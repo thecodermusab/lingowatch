@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import {
   Loader2,
 } from "lucide-react";
 import { TopNav } from "@/components/watch/TopNav";
 import { TranscriptPanel } from "@/components/watch/TranscriptPanel";
 import { VideoPlayerShell } from "@/components/watch/VideoPlayerShell";
-import { SavedPhrase, TranscriptCue, TranscriptTab, WatchVideoMeta, WordInsight } from "@/components/watch/types";
-import { translateText } from "@/lib/googleTranslate";
+import { TranscriptCue, TranscriptTab, WatchVideoMeta } from "@/components/watch/types";
+import { translateText, translateTexts } from "@/lib/googleTranslate";
+import { usePhraseStore } from "@/hooks/usePhraseStore";
+import { useToast } from "@/hooks/use-toast";
 
 declare global {
   interface Window {
@@ -41,6 +43,8 @@ interface YouTubePlayer {
   seekTo: (seconds: number, allowSeekAhead?: boolean) => void;
   getCurrentTime: () => number;
   getDuration: () => number;
+  unloadModule?: (module: string) => void;
+  setOption?: (module: string, option: string, value: unknown) => void;
 }
 
 interface TranscriptApiEntry {
@@ -66,6 +70,7 @@ const SAMPLE_VIDEO: WatchVideoMeta = {
 };
 const TRANSLATION_POLL_DELAY_MS = 1500;
 const TRANSLATION_POLL_MAX_ATTEMPTS = 60;
+const SIDEBAR_TRANSLATION_BATCH_SIZE = 20;
 
 function decodeHtml(input: string): string {
   if (typeof window === "undefined") return input;
@@ -101,38 +106,25 @@ function normalizeTranscriptEntries(entries: TranscriptApiEntry[]): TranscriptCu
   });
 }
 
-function buildWordInsights(cues: TranscriptCue[]): WordInsight[] {
-  const frequency = new Map<string, number>();
-  const stopWords = new Set(["the", "and", "for", "that", "with", "this", "your", "from", "have", "will", "they", "them", "what", "when", "into", "through", "then", "than", "were", "about"]);
+function mergeTranscriptCues(previous: TranscriptCue[], next: TranscriptCue[]): TranscriptCue[] {
+  if (!previous.length) return next;
 
-  cues.forEach((cue) => {
-    cue.text
-      .toLowerCase()
-      .replace(/[^a-z0-9\s']/g, " ")
-      .split(/\s+/)
-      .filter((word) => word.length > 3 && !stopWords.has(word))
-      .forEach((word) => {
-        frequency.set(word, (frequency.get(word) || 0) + 1);
-      });
+  const previousById = new Map(previous.map((cue) => [cue.id, cue]));
+  return next.map((cue) => {
+    if (cue.translation) return cue;
+    const previousCue = previousById.get(cue.id);
+    return previousCue?.translation ? { ...cue, translation: previousCue.translation } : cue;
   });
-
-  return Array.from(frequency.entries())
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 8)
-    .map(([term, count], index) => ({
-      term,
-      meaning: "Subtitle vocabulary extracted from the current transcript.",
-      level: index < 2 ? "B1" : index < 5 ? "B2" : "C1",
-      count,
-    }));
 }
 
-function buildSavedPhrases(cues: TranscriptCue[]): SavedPhrase[] {
-  return cues.slice(0, 3).map((cue) => ({
-    term: cue.text.split(" ").slice(0, 4).join(" "),
-    note: "Saved from the active subtitle line.",
-    timestamp: `${Math.floor(cue.start / 60)}:${Math.floor(cue.start % 60).toString().padStart(2, "0")}`,
-  }));
+function normalizeWordKey(text: string) {
+  return text.replace(/[.,!?'"();:\-]/g, "").trim().toLowerCase();
+}
+
+function inferWordDifficulty(word: string) {
+  if (word.length <= 5) return "beginner" as const;
+  if (word.length >= 10) return "advanced" as const;
+  return "intermediate" as const;
 }
 
 function loadYouTubeIframeApi(): Promise<void> {
@@ -163,12 +155,11 @@ function loadYouTubeIframeApi(): Promise<void> {
 
 export default function WatchWorkspacePage() {
   const [searchParams] = useSearchParams();
+  const { phrases, addPhrase } = usePhraseStore();
+  const { toast } = useToast();
   const [video, setVideo] = useState<WatchVideoMeta>(() => buildVideoMeta(searchParams));
   const [activeTab, setActiveTab] = useState<TranscriptTab>("subtitles");
   const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [playerReady, setPlayerReady] = useState(false);
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(false);
   const [transcriptLoading, setTranscriptLoading] = useState(true);
   const [translationLoading, setTranslationLoading] = useState(false);
@@ -176,12 +167,26 @@ export default function WatchWorkspacePage() {
   const [cues, setCues] = useState<TranscriptCue[]>([]);
   const [gtTranslation, setGtTranslation] = useState("");
   const gtCacheRef = useRef(new Map<string, string>());
+  const sidebarTranslationKeyRef = useRef<string | null>(null);
   const playerHostRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YouTubePlayer | null>(null);
+  const savedWordKeys = useMemo(
+    () => new Set(phrases.map((phrase) => normalizeWordKey(phrase.phraseText)).filter(Boolean)),
+    [phrases],
+  );
 
   useEffect(() => {
     setVideo(buildVideoMeta(searchParams));
   }, [searchParams]);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(`lingowatch-watch-google-translations-${video.id}`);
+      gtCacheRef.current = new Map(Object.entries(stored ? JSON.parse(stored) : {}));
+    } catch {
+      gtCacheRef.current = new Map();
+    }
+  }, [video.id]);
 
   useEffect(() => {
     let cancelled = false;
@@ -196,6 +201,7 @@ export default function WatchWorkspacePage() {
       if (resetCues) {
         setCues([]);
         setTranslationLoading(false);
+        sidebarTranslationKeyRef.current = null;
       }
 
       try {
@@ -210,7 +216,7 @@ export default function WatchWorkspacePage() {
         if (!normalized.length) throw new Error("Transcript unavailable");
 
         if (!cancelled) {
-          setCues(normalized);
+          setCues((previous) => mergeTranscriptCues(previous, normalized));
         }
 
         const translationsReady = payload.translationsReady ?? normalized.every((cue) => Boolean(cue.translation));
@@ -261,28 +267,27 @@ export default function WatchWorkspacePage() {
           playsinline: 1,
           rel: 0,
           modestbranding: 1,
+          cc_load_policy: 0,
         },
         events: {
           onReady: (event) => {
-            setPlayerReady(true);
-            setDuration(event.target.getDuration());
+            event.target.unloadModule?.("captions");
+            event.target.unloadModule?.("cc");
+            event.target.setOption?.("captions", "track", {});
+            event.target.setOption?.("cc", "track", {});
             event.target.playVideo();
           },
           onStateChange: (event) => {
             if (!window.YT?.PlayerState) return;
             if (event.data === window.YT.PlayerState.PLAYING) {
-              setIsPlaying(true);
               setAutoScrollEnabled(true);
             }
-            if (event.data === window.YT.PlayerState.PAUSED) setIsPlaying(false);
           },
         },
       });
     }
 
-    setPlayerReady(false);
     setCurrentTime(0);
-    setDuration(0);
     setAutoScrollEnabled(false);
     mountPlayer();
 
@@ -300,7 +305,6 @@ export default function WatchWorkspacePage() {
 
       try {
         setCurrentTime(player.getCurrentTime());
-        setDuration(player.getDuration());
       } catch {
         // Ignore polling errors while the player is initializing.
       }
@@ -310,6 +314,91 @@ export default function WatchWorkspacePage() {
   }, []);
 
   const activeCue = useMemo(() => getActiveCue(cues, currentTime), [cues, currentTime]);
+  const sidebarTranslationKey = useMemo(() => {
+    if (!cues.length || cues.every((cue) => cue.translation)) return "";
+    return `${video.id}:${cues.map((cue) => `${cue.id}:${cue.text}`).join("|")}`;
+  }, [cues, video.id]);
+
+  useEffect(() => {
+    if (!sidebarTranslationKey) return;
+    if (sidebarTranslationKeyRef.current === sidebarTranslationKey) return;
+
+    let cancelled = false;
+    const sourceCues = cues.map((cue) => ({ id: cue.id, text: cue.text }));
+    sidebarTranslationKeyRef.current = sidebarTranslationKey;
+    setTranslationLoading(true);
+
+    async function fetchServerSidebarTranslations() {
+      const response = await fetch(`/api/transcript/${encodeURIComponent(video.id)}?translate=1`);
+      const payload: TranscriptApiResponse = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload?.detail || "Transcript translation unavailable");
+      }
+
+      return normalizeTranscriptEntries(payload.transcript || []);
+    }
+
+    async function fetchGoogleSidebarTranslations() {
+      const translations: string[] = [];
+
+      for (let index = 0; index < sourceCues.length; index += SIDEBAR_TRANSLATION_BATCH_SIZE) {
+        const chunk = sourceCues.slice(index, index + SIDEBAR_TRANSLATION_BATCH_SIZE);
+        const translatedChunk = await translateTexts(
+          chunk.map((cue) => cue.text),
+          { source: "en", target: "so" },
+        );
+
+        translations.push(...translatedChunk);
+      }
+
+      return sourceCues.map((cue, index) => ({
+        id: cue.id,
+        start: 0,
+        end: 0,
+        text: cue.text,
+        translation: translations[index] || "",
+      }));
+    }
+
+    async function translateSidebarCues() {
+      let translatedCues: TranscriptCue[] = [];
+
+      try {
+        translatedCues = await fetchServerSidebarTranslations();
+      } catch {
+        translatedCues = [];
+      }
+
+      if (!translatedCues.some((cue) => cue.translation)) {
+        translatedCues = await fetchGoogleSidebarTranslations();
+      }
+
+      if (cancelled) return;
+
+      const translationsById = new Map(translatedCues.map((cue) => [cue.id, cue.translation]));
+      setCues((previous) => {
+        if (previous.length !== sourceCues.length) return previous;
+
+        return previous.map((cue) => ({
+          ...cue,
+          translation: cue.translation || translationsById.get(cue.id) || "",
+        }));
+      });
+      setTranslationLoading(false);
+    }
+
+    translateSidebarCues().catch(() => {
+      if (!cancelled) {
+        sidebarTranslationKeyRef.current = null;
+        setTranslationLoading(false);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [sidebarTranslationKey]);
 
   // Translate active cue via Google Translate, with per-cue caching
   useEffect(() => {
@@ -330,6 +419,10 @@ export default function WatchWorkspacePage() {
       .then((result) => {
         if (cancelled) return;
         gtCacheRef.current.set(activeCue.id, result);
+        localStorage.setItem(
+          `lingowatch-watch-google-translations-${video.id}`,
+          JSON.stringify(Object.fromEntries(gtCacheRef.current)),
+        );
         setGtTranslation(result);
       })
       .catch(() => {
@@ -340,54 +433,84 @@ export default function WatchWorkspacePage() {
 
     return () => { cancelled = true; };
   }, [activeCue?.id]);
-  const derivedWordInsights = useMemo(() => (cues.length > 0 ? buildWordInsights(cues) : []), [cues]);
-  const derivedSavedPhrases = useMemo(() => (cues.length > 0 ? buildSavedPhrases(cues) : []), [cues]);
-
   function handleSelectCue(cue: TranscriptCue) {
     playerRef.current?.seekTo(cue.start, true);
     playerRef.current?.playVideo();
     setCurrentTime(cue.start);
   }
 
-  function handleTogglePlay() {
-    const player = playerRef.current;
-    if (!player) return;
+  function handleSaveSubtitleWord(word: string, translation: string) {
+    const cleanWord = normalizeWordKey(word);
+    if (!cleanWord) return;
 
-    if (isPlaying) player.pauseVideo();
-    else player.playVideo();
-  }
+    if (savedWordKeys.has(cleanWord)) {
+      toast({
+        title: "Already saved",
+        description: `"${cleanWord}" is already in your dashboard.`,
+      });
+      return;
+    }
 
-  function handleSeek(time: number) {
-    if (!Number.isFinite(time)) return;
-    playerRef.current?.seekTo(time, true);
-    setCurrentTime(time);
+    void addPhrase(
+      {
+        phraseText: cleanWord,
+        phraseType: "word",
+        category: "YouTube",
+        difficultyLevel: inferWordDifficulty(cleanWord),
+        notes: translation || "Saved from video subtitle",
+      },
+      {
+        phraseType: "word",
+        standardMeaning: translation || cleanWord,
+        easyMeaning: translation || cleanWord,
+        aiExplanation: `Saved from the video subtitle: ${activeCue?.text || cleanWord}`,
+        usageContext: activeCue?.text || "Saved from video subtitle",
+        examples: [
+          {
+            type: "simple",
+            text: activeCue?.text || cleanWord,
+          },
+        ],
+        somaliMeaning: translation || "",
+        somaliExplanation: translation || "",
+        somaliSentence: "",
+        commonMistake: "",
+        pronunciationText: cleanWord,
+        relatedPhrases: [],
+      },
+    ).then(() => {
+      toast({
+        title: "Word saved",
+        description: `"${cleanWord}" will appear in Recent Phrases.`,
+      });
+    }).catch((error) => {
+      toast({
+        title: "Could not save word",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive",
+      });
+    });
   }
 
   return (
-    <div className="flex min-h-screen bg-[#111317] text-white">
-      <div className="flex min-w-0 flex-1 flex-col bg-[#14181d]">
+    <div className="flex min-h-screen bg-background text-foreground">
+      <div className="flex min-w-0 flex-1 flex-col bg-background">
         <TopNav title={video.title} />
 
-        <main className="grid min-h-[calc(100vh-48px)] grid-cols-1 bg-[#161a1f] xl:grid-cols-[minmax(0,56%)_minmax(0,44%)] xl:h-[calc(100vh-48px)] xl:overflow-hidden">
+        <main className="grid min-h-[calc(100vh-48px)] grid-cols-1 bg-background xl:h-[calc(100vh-48px)] xl:grid-cols-[minmax(0,56%)_minmax(0,44%)] xl:overflow-hidden">
           <div className="flex min-h-0 flex-col">
             <VideoPlayerShell
-              video={video}
-              cues={cues}
               activeCue={activeCue}
-              currentTime={currentTime}
-              duration={duration}
-              isPlaying={isPlaying}
-              playerReady={playerReady}
               translationLoading={translationLoading}
               gtTranslation={gtTranslation}
-              onTogglePlay={handleTogglePlay}
-              onSeek={handleSeek}
+              savedWordKeys={savedWordKeys}
+              onSaveWord={handleSaveSubtitleWord}
               playerHostRef={playerHostRef}
             />
 
             {transcriptLoading ? (
               <div className="pointer-events-none -mt-20 flex justify-center px-4 pb-4">
-                <div className="flex items-center gap-3 rounded-full border border-white/[0.08] bg-[#0f1216]/92 px-4 py-2 text-[13px] text-white/62 backdrop-blur">
+                <div className="flex items-center gap-3 rounded-full border border-border bg-card/92 px-4 py-2 text-[13px] text-muted-foreground backdrop-blur">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Loading subtitles...
                 </div>
@@ -395,7 +518,7 @@ export default function WatchWorkspacePage() {
             ) : null}
 
             {transcriptError ? (
-              <div className="border-t border-white/[0.06] px-4 py-3 text-[12px] text-white/42">
+              <div className="border-t border-border px-4 py-3 text-[12px] text-muted-foreground">
                 Transcript fetch failed for this video, so subtitles and translation are unavailable right now.
               </div>
             ) : null}
@@ -407,8 +530,6 @@ export default function WatchWorkspacePage() {
             cues={cues}
             activeCueId={activeCue?.id ?? null}
             onSelectCue={handleSelectCue}
-            wordInsights={derivedWordInsights}
-            savedPhrases={derivedSavedPhrases}
             autoScrollEnabled={autoScrollEnabled}
           />
         </main>

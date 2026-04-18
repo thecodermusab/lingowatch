@@ -223,19 +223,24 @@ export function SelectionLearningOverlay({ containerRef }: { containerRef?: RefO
               <div className="space-y-2">
                 <Label>Change AI provider</Label>
                 <Select
-                  value={user?.preferredAiProvider ?? "gemini"}
+                  value={user?.preferredAiProvider ?? "auto"}
                   onValueChange={(value) =>
-                    updateProfile({ preferredAiProvider: value as "gemini" | "grok" | "openrouter" | "cerebras" })
+                    updateProfile({ preferredAiProvider: value as NonNullable<typeof user>["preferredAiProvider"] })
                   }
                 >
                   <SelectTrigger className="h-11 rounded-xl">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="auto">Auto (cost optimized)</SelectItem>
+                    <SelectItem value="glm4">Z.ai GLM-4.7 Flash</SelectItem>
+                    <SelectItem value="deepseek">DeepSeek V3.2</SelectItem>
+                    <SelectItem value="gemini-lite">Gemini 2.5 Flash-Lite</SelectItem>
                     <SelectItem value="gemini">Gemini</SelectItem>
                     <SelectItem value="grok">Grok</SelectItem>
                     <SelectItem value="openrouter">OpenRouter</SelectItem>
                     <SelectItem value="cerebras">Cerebras</SelectItem>
+                    <SelectItem value="antigravity">Antigravity</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">

@@ -21,7 +21,15 @@ const CHANNEL_THUMBNAIL_TTL_MS = 20 * 24 * 60 * 60 * 1000; // 20 days
 
 loadEnvFile();
 
+const AI_REQUEST_TIMEOUT_MS = Number(env.AI_REQUEST_TIMEOUT_MS || 20000);
+const TTS_REQUEST_TIMEOUT_MS = Number(env.TTS_REQUEST_TIMEOUT_MS || 5000);
+
 const sql = env.DATABASE_URL ? neon(env.DATABASE_URL) : null;
+
+// Run schema migrations
+if (sql) {
+  void ensureSavedWordsSchema();
+}
 
 const SYSTEM_PROMPT = `
 You are an English phrase learning assistant.
@@ -244,7 +252,7 @@ createServer(async (req, res) => {
   if (req.method === "GET" && pathname === "/api/ai/providers/status") {
     try {
       const statuses = await Promise.all(
-        ["gemini", "grok", "openrouter", "cerebras", "antigravity"].map((provider) => testSingleProvider(provider))
+        ["glm4", "deepseek", "gemini-lite", "gemini", "grok", "openrouter", "cerebras", "antigravity"].map((provider) => testSingleProvider(provider))
       );
       sendJson(res, 200, statuses);
       return;
@@ -364,10 +372,87 @@ createServer(async (req, res) => {
     return;
   }
 
+  // ── Google Cloud TTS proxy ──────────────────────────────────────
+  if (req.method === "POST" && pathname === "/api/tts") {
+    try {
+      const body = await readJsonBody(req);
+      const text = String(body?.text || "").trim();
+      if (!text) { sendJson(res, 400, { error: "text is required" }); return; }
+      const apiKey = env.GOOGLE_TTS_KEY || env.GOOGLE_CLOUD_TTS_KEY || env.VITE_GOOGLE_TTS_KEY;
+      if (!apiKey) { sendJson(res, 503, { error: "TTS not configured" }); return; }
+      const voiceName = String(body?.voiceName || env.GOOGLE_TTS_VOICE || "en-US-Neural2-J");
+      const languageCode = String(body?.languageCode || env.GOOGLE_TTS_LANGUAGE || "en-US");
+      const speakingRate = Number(body?.speakingRate || env.GOOGLE_TTS_SPEAKING_RATE || 0.9);
+      const ttsRes = await fetchWithTimeout(
+        `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            input: { text },
+            voice: { languageCode, name: voiceName },
+            audioConfig: { audioEncoding: "MP3", speakingRate },
+          }),
+        },
+        TTS_REQUEST_TIMEOUT_MS
+      );
+      const data = await ttsRes.json();
+      sendJson(res, ttsRes.ok ? 200 : 500, data);
+    } catch (err) { sendJson(res, 500, { error: String(err) }); }
+    return;
+  }
+
+  if (req.method === "POST" && pathname === "/api/translate") {
+    try {
+      const body = await readJsonBody(req);
+      const texts = Array.isArray(body?.texts)
+        ? body.texts.map((item) => String(item || "").trim())
+        : [String(body?.text || "").trim()];
+      const filteredTexts = texts.filter(Boolean);
+      const source = String(body?.source || "en");
+      const target = String(body?.target || "so");
+      const apiKey = env.GOOGLE_TRANSLATE_KEY || env.GOOGLE_CLOUD_TRANSLATE_KEY || env.VITE_GOOGLE_TRANSLATE_KEY || env.GOOGLE_TTS_KEY;
+
+      if (!filteredTexts.length) {
+        sendJson(res, 400, { error: "text is required" });
+        return;
+      }
+
+      if (!apiKey) {
+        sendJson(res, 503, { error: "Google Translate is not configured" });
+        return;
+      }
+
+      const translateRes = await fetchWithTimeout(
+        `https://translation.googleapis.com/language/translate/v2?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            q: filteredTexts,
+            source,
+            target,
+            format: "text",
+          }),
+        }
+      );
+      const data = await translateRes.json();
+      const translations = Array.isArray(data?.data?.translations)
+        ? data.data.translations.map((entry) => String(entry?.translatedText || "").trim())
+        : [];
+
+      sendJson(res, translateRes.ok ? 200 : 500, { translations, error: data?.error?.message });
+    } catch (err) {
+      sendJson(res, 500, { error: String(err) });
+    }
+    return;
+  }
+
   // ── Saved words (Neon) ──────────────────────────────────────────
   if (req.method === "GET" && pathname === "/api/words") {
     try {
       if (!sql) { sendJson(res, 200, []); return; }
+      await ensureSavedWordsSchema();
       const rows = await sql`SELECT * FROM saved_words ORDER BY saved_at DESC`;
       sendJson(res, 200, rows);
     } catch (err) { sendJson(res, 500, { error: String(err) }); }
@@ -377,12 +462,14 @@ createServer(async (req, res) => {
   if (req.method === "POST" && pathname === "/api/words") {
     try {
       if (!sql) { sendJson(res, 503, { error: "Database not configured" }); return; }
+      await ensureSavedWordsSchema();
       const body = await readJsonBody(req);
       const word = String(body?.word || "").trim().toLowerCase();
       if (!word) { sendJson(res, 400, { error: "word is required" }); return; }
+      const phraseData = body.phrase_data ?? null;
       const rows = await sql`
-        INSERT INTO saved_words (word, display_word, translation, note, source, is_manual, is_custom_translation)
-        VALUES (${word}, ${body.displayWord || body.display_word || word}, ${body.translation || ""}, ${body.note || ""}, ${body.source || ""}, ${body.isManual || false}, ${body.isCustomTranslation || false})
+        INSERT INTO saved_words (word, display_word, translation, note, source, is_manual, is_custom_translation, phrase_data)
+        VALUES (${word}, ${body.displayWord || body.display_word || word}, ${body.translation || ""}, ${body.note || ""}, ${body.source || ""}, ${body.isManual || false}, ${body.isCustomTranslation || false}, ${phraseData})
         ON CONFLICT (word) DO UPDATE SET
           display_word = EXCLUDED.display_word,
           translation = EXCLUDED.translation,
@@ -390,6 +477,7 @@ createServer(async (req, res) => {
           source = EXCLUDED.source,
           is_manual = EXCLUDED.is_manual,
           is_custom_translation = EXCLUDED.is_custom_translation,
+          phrase_data = EXCLUDED.phrase_data,
           saved_at = NOW()
         RETURNING *
       `;
@@ -401,6 +489,7 @@ createServer(async (req, res) => {
   if (req.method === "DELETE" && pathname.startsWith("/api/words/")) {
     try {
       if (!sql) { sendJson(res, 503, { error: "Database not configured" }); return; }
+      await ensureSavedWordsSchema();
       const word = decodeURIComponent(pathname.slice("/api/words/".length));
       await sql`DELETE FROM saved_words WHERE word = ${word}`;
       sendJson(res, 200, { ok: true });
@@ -474,17 +563,18 @@ createServer(async (req, res) => {
     try {
       const videoId = decodeURIComponent(pathname.slice("/api/transcript/".length));
       const preferredProvider = normalizePreferredProvider(url.searchParams.get("preferredProvider"));
+      const transcriptLang = "en";
 
       if (!videoId) {
         sendJson(res, 400, { detail: "video id is required" });
         return;
       }
 
-      const transcriptCacheKey = `yt-transcript:${videoId}`;
+      const transcriptCacheKey = `yt-transcript:${videoId}:${transcriptLang}`;
       let entries = ytCacheGet(transcriptCacheKey);
 
       if (!entries) {
-        const transcript = await fetchYoutubeTranscript(videoId);
+        const transcript = await fetchYoutubeTranscript(videoId, { lang: transcriptLang });
         entries = transcript
           .map((item, index) => {
             const rawOffset = Number(item?.offset) || 0;
@@ -496,6 +586,7 @@ createServer(async (req, res) => {
               text: String(item?.text || "").replace(/\n/g, " ").trim(),
               start: Math.round((usesMilliseconds ? rawOffset / 1000 : rawOffset) * 100) / 100,
               duration: Math.round((usesMilliseconds ? rawDuration / 1000 : rawDuration) * 100) / 100,
+              lang: String(item?.lang || transcriptLang),
             };
           })
           .filter((item) => item.text);
@@ -510,16 +601,25 @@ createServer(async (req, res) => {
         return;
       }
 
-      const transcriptWithTranslations = getTranscriptEntriesWithCachedTranslations({
-        videoId,
-        entries,
-      });
+      const shouldWaitForTranslations = url.searchParams.get("translate") === "1";
+      const transcriptWithTranslations = shouldWaitForTranslations
+        ? await translateTranscriptEntriesToSomali({
+            videoId,
+            entries,
+            preferredProvider,
+          })
+        : getTranscriptEntriesWithCachedTranslations({
+            videoId,
+            entries,
+          });
 
-      void primeTranscriptTranslations({
-        videoId,
-        entries,
-        preferredProvider,
-      });
+      if (!shouldWaitForTranslations) {
+        void primeTranscriptTranslations({
+          videoId,
+          entries,
+          preferredProvider,
+        });
+      }
 
       sendJson(res, 200, {
         transcript: transcriptWithTranslations,
@@ -673,9 +773,10 @@ createServer(async (req, res) => {
       const sort       = url.searchParams.get("sort") === "viewCount" ? "viewCount" : "date";
       const pageToken  = url.searchParams.get("pageToken") || "";
       const q          = url.searchParams.get("q") || "";
+      const refresh    = url.searchParams.get("refresh") === "1";
       const result     = channelSeed
-        ? await fetchVideosForChannelSeed(ytKey, { channelSeed, sort, pageToken })
-        : await fetchYouTubeVideos(ytKey, { channelId, sort, pageToken, q });
+        ? await fetchVideosForChannelSeed(ytKey, { channelSeed, sort, pageToken, refresh })
+        : await fetchYouTubeVideos(ytKey, { channelId, sort, pageToken, q, refresh });
       sendJson(res, 200, result);
     } catch (err) {
       sendJson(res, 500, { error: String(err.message || err) });
@@ -762,6 +863,8 @@ async function backgroundRefreshChannelThumbnails() {
 
 const YT_BASE = "https://www.googleapis.com/youtube/v3";
 const ytCache = new Map(); // key → { data, expiresAt }
+const YT_API_CACHE_TTL_MS = 2 * 60 * 1000;
+const PLAYLIST_WINDOW_CACHE_TTL_MS = 5 * 60 * 1000;
 const TRANSCRIPT_CACHE_TTL_MS = 5 * 60 * 1000;
 const TRANSCRIPT_TRANSLATION_TTL_MS = 24 * 60 * 60 * 1000;
 const TRANSCRIPT_TRANSLATION_CHUNK_SIZE = 60;
@@ -778,14 +881,14 @@ function ytCacheSet(key, data, ttlMs) {
   ytCache.set(key, { data, expiresAt: Date.now() + ttlMs });
 }
 
-async function ytFetch(apiKey, endpoint, params) {
+async function ytFetch(apiKey, endpoint, params, options = {}) {
   const url = new URL(`${YT_BASE}/${endpoint}`);
   url.searchParams.set("key", apiKey);
   for (const [k, v] of Object.entries(params)) {
     if (v !== undefined && v !== null && v !== "") url.searchParams.set(k, String(v));
   }
   const cacheKey = url.toString();
-  const cached = ytCacheGet(cacheKey);
+  const cached = options.skipCache ? null : ytCacheGet(cacheKey);
   if (cached) return cached;
 
   const res = await fetch(url.toString());
@@ -798,7 +901,7 @@ async function ytFetch(apiKey, endpoint, params) {
     throw new Error(normalizeYouTubeApiErrorMessage(rawMessage, reasons));
   }
   const data = await res.json();
-  ytCacheSet(cacheKey, data, 5 * 60 * 1000); // 5 min
+  ytCacheSet(cacheKey, data, YT_API_CACHE_TTL_MS);
   return data;
 }
 
@@ -1198,10 +1301,10 @@ async function resolveChannelSeed(apiKey, channelSeed) {
   }
 }
 
-async function fetchVideosForChannelSeed(apiKey, { channelSeed, sort, pageToken }) {
+async function fetchVideosForChannelSeed(apiKey, { channelSeed, sort, pageToken, refresh = false }) {
   const resolvedChannel = await resolveChannelSeed(apiKey, channelSeed);
   if (resolvedChannel?.id) {
-    return fetchYouTubeVideos(apiKey, { channelId: resolvedChannel.id, sort, pageToken, q: "" });
+    return fetchYouTubeVideos(apiKey, { channelId: resolvedChannel.id, sort, pageToken, q: "", refresh });
   }
 
   return fetchYouTubeVideos(apiKey, {
@@ -1209,12 +1312,13 @@ async function fetchVideosForChannelSeed(apiKey, { channelSeed, sort, pageToken 
     sort,
     pageToken,
     q: cleanChannelSeedQuery(channelSeed),
+    refresh,
   });
 }
 
-async function fetchYouTubeVideos(apiKey, { channelId, sort, pageToken, q }) {
+async function fetchYouTubeVideos(apiKey, { channelId, sort, pageToken, q, refresh = false }) {
   if (!channelId && !q) {
-    return fetchCuratedYouTubeVideos(apiKey, { sort, pageToken });
+    return fetchCuratedYouTubeVideos(apiKey, { sort, pageToken, refresh });
   }
 
   if (channelId) {
@@ -1224,7 +1328,8 @@ async function fetchYouTubeVideos(apiKey, { channelId, sort, pageToken, q }) {
         playlistId: channel.uploadsPlaylistId,
         sort,
         pageToken,
-        sampleSize: sort === "viewCount" ? 120 : 75,
+        sampleSize: 200,
+        refresh,
       });
     }
   }
@@ -1233,7 +1338,7 @@ async function fetchYouTubeVideos(apiKey, { channelId, sort, pageToken, q }) {
     part: "snippet",
     type: "video",
     order: sort,
-    maxResults: 25,
+    maxResults: 50,
     relevanceLanguage: "en",
     videoDuration: "medium", // exclude Shorts (< 4 min) at the API level
   };
@@ -1243,7 +1348,7 @@ async function fetchYouTubeVideos(apiKey, { channelId, sort, pageToken, q }) {
   if (q)          searchParams.q = q;
   else if (!channelId) searchParams.q = "learn english";
 
-  const searchData = await ytFetch(apiKey, "search", searchParams);
+  const searchData = await ytFetch(apiKey, "search", searchParams, { skipCache: refresh });
   const items = searchData.items || [];
   const videoIds = items.map(i => i.id?.videoId).filter(Boolean).join(",");
 
@@ -1252,7 +1357,7 @@ async function fetchYouTubeVideos(apiKey, { channelId, sort, pageToken, q }) {
     const statsData = await ytFetch(apiKey, "videos", {
       part: "statistics,contentDetails",
       id: videoIds,
-    });
+    }, { skipCache: refresh });
     for (const v of (statsData.items || [])) {
       statsMap[v.id] = {
         viewCount:  parseInt(v.statistics?.viewCount  || "0"),
@@ -1292,9 +1397,9 @@ async function fetchYouTubeVideos(apiKey, { channelId, sort, pageToken, q }) {
   };
 }
 
-async function fetchPlaylistWindow(apiKey, { playlistId, limit = 75 }) {
+async function fetchPlaylistWindow(apiKey, { playlistId, limit = 75, refresh = false }) {
   const cacheKey = `playlist-window:${playlistId}:${limit}`;
-  const cached = ytCacheGet(cacheKey);
+  const cached = refresh ? null : ytCacheGet(cacheKey);
   if (cached) return cached;
 
   const items = [];
@@ -1306,18 +1411,18 @@ async function fetchPlaylistWindow(apiKey, { playlistId, limit = 75 }) {
       playlistId,
       maxResults: Math.min(50, limit - items.length),
       pageToken: nextPageToken,
-    });
+    }, { skipCache: refresh });
 
     items.push(...(batch.items || []));
     if (!batch.nextPageToken) break;
     nextPageToken = batch.nextPageToken;
   }
 
-  ytCacheSet(cacheKey, items, 15 * 60 * 1000);
+  ytCacheSet(cacheKey, items, PLAYLIST_WINDOW_CACHE_TTL_MS);
   return items;
 }
 
-async function fetchYouTubeVideoDetails(apiKey, videoIds) {
+async function fetchYouTubeVideoDetails(apiKey, videoIds, options = {}) {
   const detailsMap = {};
 
   for (let index = 0; index < videoIds.length; index += 50) {
@@ -1327,7 +1432,7 @@ async function fetchYouTubeVideoDetails(apiKey, videoIds) {
     const data = await ytFetch(apiKey, "videos", {
       part: "snippet,statistics,contentDetails",
       id: chunk.join(","),
-    });
+    }, { skipCache: options.refresh === true });
 
     for (const video of data.items || []) {
       detailsMap[video.id] = {
@@ -1353,16 +1458,16 @@ function parsePlaylistOffset(pageToken, playlistId, sort) {
   return Number.isFinite(value) && value >= 0 ? value : 0;
 }
 
-async function fetchPlaylistBackedVideos(apiKey, { playlistId, sort, pageToken, sampleSize }) {
-  const pageSize = 25;
+async function fetchPlaylistBackedVideos(apiKey, { playlistId, sort, pageToken, sampleSize, refresh = false }) {
+  const pageSize = sort === "date" ? 100 : 50;
   const offset = parsePlaylistOffset(pageToken, playlistId, sort);
-  const playlistItems = await fetchPlaylistWindow(apiKey, { playlistId, limit: sampleSize });
+  const playlistItems = await fetchPlaylistWindow(apiKey, { playlistId, limit: sampleSize, refresh });
 
   const videoIds = playlistItems
     .map((item) => item?.contentDetails?.videoId || item?.snippet?.resourceId?.videoId || "")
     .filter(Boolean);
 
-  const detailsMap = await fetchYouTubeVideoDetails(apiKey, videoIds);
+  const detailsMap = await fetchYouTubeVideoDetails(apiKey, videoIds, { refresh });
   const videos = videoIds
     .map((videoId) => {
       const details = detailsMap[videoId];
@@ -1404,11 +1509,11 @@ async function fetchPlaylistBackedVideos(apiKey, { playlistId, sort, pageToken, 
   };
 }
 
-async function fetchCuratedYouTubeVideos(apiKey, { sort, pageToken }) {
+async function fetchCuratedYouTubeVideos(apiKey, { sort, pageToken, refresh = false }) {
   const channels = await fetchCuratedChannels(apiKey);
   const offset = parseCuratedOffset(pageToken);
-  const pageSize = 25;
-  const maxResultsPerChannel = sort === "viewCount" ? 12 : 8;
+  const pageSize = sort === "date" ? 100 : 50;
+  const maxResultsPerChannel = sort === "viewCount" ? 12 : 16;
 
   const playlistResults = await Promise.all(
     channels
@@ -1416,6 +1521,7 @@ async function fetchCuratedYouTubeVideos(apiKey, { sort, pageToken }) {
       .map((channel) => fetchPlaylistWindow(apiKey, {
         playlistId: channel.uploadsPlaylistId,
         limit: maxResultsPerChannel,
+        refresh,
       })),
   );
 
@@ -1431,7 +1537,7 @@ async function fetchCuratedYouTubeVideos(apiKey, { sort, pageToken }) {
     }
   }
 
-  const detailsMap = await fetchYouTubeVideoDetails(apiKey, uniqueItems);
+  const detailsMap = await fetchYouTubeVideoDetails(apiKey, uniqueItems, { refresh });
 
   const videos = uniqueItems
     .map((videoId) => {
@@ -1457,18 +1563,39 @@ async function fetchCuratedYouTubeVideos(apiKey, { sort, pageToken }) {
     .filter((video) => video.id && video.title)
     .filter((video) => !isLikelyYouTubeShort(video));
 
-  videos.sort((a, b) => {
-    if (sort === "viewCount") return b.viewCount - a.viewCount;
-    return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
-  });
+  let arrangedVideos;
+  if (sort === "viewCount") {
+    videos.sort((a, b) => b.viewCount - a.viewCount);
+    arrangedVideos = videos;
+  } else {
+    // Interleave by channel so no single prolific channel floods the feed.
+    // Each channel's videos are sorted newest-first, then we round-robin across channels.
+    const byChannel = new Map();
+    for (const video of videos) {
+      const key = video.channelId || "unknown";
+      if (!byChannel.has(key)) byChannel.set(key, []);
+      byChannel.get(key).push(video);
+    }
+    for (const channelVideos of byChannel.values()) {
+      channelVideos.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+    }
+    const queues = [...byChannel.values()];
+    arrangedVideos = [];
+    let qi = 0;
+    while (queues.some((q) => q.length > 0)) {
+      const queue = queues[qi % queues.length];
+      if (queue.length > 0) arrangedVideos.push(queue.shift());
+      qi++;
+    }
+  }
 
-  const pagedVideos = videos.slice(offset, offset + pageSize);
-  const nextPageToken = offset + pageSize < videos.length ? `curated:${offset + pageSize}` : null;
+  const pagedVideos = arrangedVideos.slice(offset, offset + pageSize);
+  const nextPageToken = offset + pageSize < arrangedVideos.length ? `curated:${offset + pageSize}` : null;
 
   return {
     videos: pagedVideos,
     nextPageToken,
-    totalResults: videos.length,
+    totalResults: arrangedVideos.length,
   };
 }
 
@@ -1527,20 +1654,25 @@ function loadEnvFile() {
   }
 }
 
-async function fetchYoutubeTranscript(videoId) {
+async function fetchYoutubeTranscript(videoId, options = {}) {
   if (typeof YoutubeTranscriptModule.fetchTranscript === "function") {
-    return YoutubeTranscriptModule.fetchTranscript(videoId);
+    return YoutubeTranscriptModule.fetchTranscript(videoId, options);
   }
 
   if (typeof YoutubeTranscriptModule.YoutubeTranscript?.fetchTranscript === "function") {
-    return YoutubeTranscriptModule.YoutubeTranscript.fetchTranscript(videoId);
+    return YoutubeTranscriptModule.YoutubeTranscript.fetchTranscript(videoId, options);
   }
 
   throw new Error("youtube-transcript export is unavailable");
 }
 
+function getTranscriptTranslationCacheKey(videoId, entries) {
+  const sourceLang = String(entries.find((entry) => entry?.lang)?.lang || "unknown").trim().toLowerCase();
+  return `transcript-translation:${videoId}:${sourceLang}`;
+}
+
 function getTranscriptEntriesWithCachedTranslations({ videoId, entries }) {
-  const cacheKey = `transcript-translation:${videoId}`;
+  const cacheKey = getTranscriptTranslationCacheKey(videoId, entries);
   const cachedTranslations = ytCacheGet(cacheKey);
 
   if (Array.isArray(cachedTranslations) && cachedTranslations.length === entries.length) {
@@ -1557,7 +1689,7 @@ function getTranscriptEntriesWithCachedTranslations({ videoId, entries }) {
 }
 
 async function primeTranscriptTranslations({ videoId, entries, preferredProvider }) {
-  const cacheKey = `transcript-translation:${videoId}`;
+  const cacheKey = getTranscriptTranslationCacheKey(videoId, entries);
   const cachedTranslations = ytCacheGet(cacheKey);
 
   if (Array.isArray(cachedTranslations) && cachedTranslations.length === entries.length) {
@@ -1576,6 +1708,7 @@ async function primeTranscriptTranslations({ videoId, entries, preferredProvider
         const chunk = entries.slice(index, index + TRANSCRIPT_TRANSLATION_CHUNK_SIZE);
         const result = await requestJsonFromProviders({
           preferredProvider,
+          task: "bulk",
           systemPrompt: TRANSCRIPT_TRANSLATION_SYSTEM_PROMPT,
           userPrompt: buildTranscriptTranslationPrompt(chunk),
         });
@@ -1673,6 +1806,36 @@ function saveInboxCaptures(captures) {
   writeFileSync(INBOX_FILE, `${JSON.stringify(captures, null, 2)}\n`, "utf8");
 }
 
+async function ensureSavedWordsSchema() {
+  if (!sql) return;
+
+  try {
+    await sql`
+      CREATE TABLE IF NOT EXISTS saved_words (
+        word TEXT PRIMARY KEY,
+        display_word TEXT NOT NULL DEFAULT '',
+        translation TEXT NOT NULL DEFAULT '',
+        note TEXT NOT NULL DEFAULT '',
+        source TEXT NOT NULL DEFAULT '',
+        is_manual BOOLEAN NOT NULL DEFAULT FALSE,
+        is_custom_translation BOOLEAN NOT NULL DEFAULT FALSE,
+        saved_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        phrase_data JSONB
+      )
+    `;
+    await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS display_word TEXT NOT NULL DEFAULT ''`;
+    await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS translation TEXT NOT NULL DEFAULT ''`;
+    await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS note TEXT NOT NULL DEFAULT ''`;
+    await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS source TEXT NOT NULL DEFAULT ''`;
+    await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS is_manual BOOLEAN NOT NULL DEFAULT FALSE`;
+    await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS is_custom_translation BOOLEAN NOT NULL DEFAULT FALSE`;
+    await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS saved_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`;
+    await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS phrase_data JSONB`;
+  } catch (error) {
+    console.warn("Could not initialize saved_words schema:", error);
+  }
+}
+
 function createInboxCapture(input) {
   const word = String(input?.word || input?.phraseText || "").trim().toLowerCase();
   const displayWord = String(input?.displayWord || input?.word || input?.phraseText || "").trim();
@@ -1746,8 +1909,10 @@ function readJsonBody(req) {
 async function explainPhrase(phraseText, preferredProvider) {
   const result = await requestJsonFromProviders({
     preferredProvider,
+    task: "lookup",
     systemPrompt: SYSTEM_PROMPT,
     userPrompt: `Phrase: ${phraseText}`,
+    includeProviderMeta: true,
   });
 
   return normalizeAiResult(result);
@@ -1775,6 +1940,7 @@ async function generateRandomPhrases({ count, preferredProvider, difficulty, phr
 
   const result = await requestJsonFromProviders({
     preferredProvider,
+    task: "bulk",
     systemPrompt: RANDOM_PHRASES_SYSTEM_PROMPT,
     userPrompt: `Return ${count} useful phrase entries. ${filterText} ${excludeText}`,
   });
@@ -1785,6 +1951,7 @@ async function generateRandomPhrases({ count, preferredProvider, difficulty, phr
 async function getExtensionWordInsights({ word, sentenceContext, preferredProvider }) {
   const result = await requestJsonFromProviders({
     preferredProvider,
+    task: "lookup",
     systemPrompt: EXTENSION_WORD_INSIGHTS_SYSTEM_PROMPT,
     userPrompt: `Word: ${word}\nSubtitle context: ${sentenceContext || "(none)"}`,
   });
@@ -1795,6 +1962,7 @@ async function getExtensionWordInsights({ word, sentenceContext, preferredProvid
 async function getExtensionWordAiExplanation({ word, sentenceContext, preferredProvider }) {
   const result = await requestJsonFromProviders({
     preferredProvider,
+    task: "lookup",
     systemPrompt: EXTENSION_WORD_AI_EXPLANATION_SYSTEM_PROMPT,
     userPrompt: `Word: ${word}\nSubtitle context: ${sentenceContext || "(none)"}`,
   });
@@ -1817,6 +1985,7 @@ async function generateStory(words, preferredProvider) {
   const wordList = words.join(", ");
   const raw = await requestTextFromProviders({
     preferredProvider,
+    task: "bulk",
     systemPrompt: STORY_SYSTEM_PROMPT,
     userPrompt: `Write a simple English learning story using all of these words: ${wordList}`,
   });
@@ -1835,13 +2004,41 @@ async function generateStory(words, preferredProvider) {
   return { title, content };
 }
 
-async function generateTextWithGemini(systemPrompt, userPrompt) {
+const DIRECT_AI_PROVIDERS = ["gemini", "gemini-lite", "deepseek", "grok", "openrouter", "cerebras", "antigravity", "glm4"];
+const SELECTABLE_AI_PROVIDERS = ["auto", ...DIRECT_AI_PROVIDERS];
+
+const AUTO_PROVIDER_CHAINS = {
+  lookup: ["glm4", "deepseek", "gemini-lite", "gemini", "openrouter", "cerebras", "grok", "antigravity"],
+  bulk: ["deepseek", "glm4", "gemini-lite", "gemini", "openrouter", "cerebras", "grok", "antigravity"],
+  google: ["gemini-lite", "gemini", "glm4", "deepseek", "openrouter", "cerebras", "grok", "antigravity"],
+};
+
+function getGeminiModel() {
+  return env.GEMINI_MODEL || "gemini-2.5-flash";
+}
+
+function getGeminiLiteModel() {
+  return env.GEMINI_LITE_MODEL || "gemini-2.5-flash-lite";
+}
+
+function getDeepSeekApiKey() {
+  return env.DEEPSEEK_API_KEY || "";
+}
+
+function getDeepSeekModel() {
+  return env.DEEPSEEK_MODEL || "deepseek-chat";
+}
+
+function getDeepSeekBaseUrl() {
+  return String(env.DEEPSEEK_BASE_URL || "https://api.deepseek.com").trim().replace(/\/$/, "");
+}
+
+async function generateTextWithGemini(systemPrompt, userPrompt, model = getGeminiModel()) {
   const apiKey = env.GEMINI_API_KEY;
-  const model = env.GEMINI_MODEL || "gemini-2.5-flash";
 
   if (!apiKey) throw new Error("Missing GEMINI_API_KEY in .env.local");
 
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+  const response = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -1858,18 +2055,21 @@ async function generateTextWithGemini(systemPrompt, userPrompt) {
   return text;
 }
 
-async function requestTextFromProviders({ preferredProvider, systemPrompt, userPrompt }) {
-  const providers = getProviderChain(preferredProvider);
+async function requestTextFromProviders({ preferredProvider, systemPrompt, userPrompt, task = "lookup" }) {
+  const providers = getProviderChain(preferredProvider, task);
   const errors = [];
 
   for (const provider of providers) {
     try {
       // Use text-mode (no JSON mime type) for all providers
-      if (provider === "gemini") return await generateTextWithGemini(systemPrompt, userPrompt);
+      if (provider === "gemini") return await generateTextWithGemini(systemPrompt, userPrompt, getGeminiModel());
+      if (provider === "gemini-lite") return await generateTextWithGemini(systemPrompt, userPrompt, getGeminiLiteModel());
+      if (provider === "deepseek") return await explainWithDeepSeekPrompt(systemPrompt, userPrompt);
       if (provider === "grok") return await explainWithGrokPrompt(systemPrompt, userPrompt);
       if (provider === "openrouter") return await explainWithOpenRouterPrompt(systemPrompt, userPrompt);
       if (provider === "cerebras") return await explainWithCerebrasPrompt(systemPrompt, userPrompt);
       if (provider === "antigravity") return await explainWithAntigravityPrompt(systemPrompt, userPrompt);
+      if (provider === "glm4") return await explainWithGlm4Prompt(systemPrompt, userPrompt);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown provider error";
       errors.push({ provider, message: summarizeProviderError(provider, message) });
@@ -1881,7 +2081,7 @@ async function requestTextFromProviders({ preferredProvider, systemPrompt, userP
 
 function normalizePreferredProvider(value) {
   const provider = String(value || "").trim().toLowerCase();
-  return ["gemini", "grok", "openrouter", "cerebras", "antigravity"].includes(provider) ? provider : undefined;
+  return SELECTABLE_AI_PROVIDERS.includes(provider) ? provider : undefined;
 }
 
 async function testSingleProvider(provider) {
@@ -1935,13 +2135,42 @@ async function testSingleProvider(provider) {
 }
 
 function getAiHealth(preferredProvider) {
-  const provider = normalizePreferredProvider(preferredProvider) || String(env.AI_PROVIDER || "").trim().toLowerCase();
+  const envProvider = normalizePreferredProvider(env.AI_PROVIDER) || "auto";
+  const provider = normalizePreferredProvider(preferredProvider) || envProvider;
+
+  if (provider === "auto") {
+    const lookupChain = getProviderChain("auto", "lookup", { throwIfEmpty: false });
+    const bulkChain = getProviderChain("auto", "bulk", { throwIfEmpty: false });
+    const googleChain = getProviderChain("auto", "google", { throwIfEmpty: false });
+
+    return {
+      provider,
+      model: `lookup: ${lookupChain[0] || "none"} / bulk: ${bulkChain[0] || "none"} / google: ${googleChain[0] || "none"}`,
+      configured: lookupChain.length > 0 || bulkChain.length > 0 || googleChain.length > 0,
+    };
+  }
 
   if (provider === "gemini") {
     return {
       provider,
-      model: env.GEMINI_MODEL || "gemini-2.5-flash",
+      model: getGeminiModel(),
       configured: Boolean(env.GEMINI_API_KEY),
+    };
+  }
+
+  if (provider === "gemini-lite") {
+    return {
+      provider,
+      model: getGeminiLiteModel(),
+      configured: Boolean(env.GEMINI_API_KEY),
+    };
+  }
+
+  if (provider === "deepseek") {
+    return {
+      provider,
+      model: getDeepSeekModel(),
+      configured: Boolean(getDeepSeekApiKey()),
     };
   }
 
@@ -1977,6 +2206,14 @@ function getAiHealth(preferredProvider) {
     };
   }
 
+  if (provider === "glm4") {
+    return {
+      provider,
+      model: getGlm4Model(),
+      configured: Boolean(getGlm4ApiKey()),
+    };
+  }
+
   return {
     provider: provider || "unset",
     model: "unset",
@@ -1984,17 +2221,31 @@ function getAiHealth(preferredProvider) {
   };
 }
 
-function getProviderChain(preferredProvider) {
-  const preferred = normalizePreferredProvider(preferredProvider) || String(env.AI_PROVIDER || "gemini").trim().toLowerCase();
+function getProviderChain(preferredProvider, task = "lookup", options = {}) {
+  const normalizedPreferred = normalizePreferredProvider(preferredProvider);
+  const envProvider = normalizePreferredProvider(env.AI_PROVIDER) || "auto";
+  const selectedProvider = normalizedPreferred || envProvider;
+  const fallbackChain = AUTO_PROVIDER_CHAINS[task] || AUTO_PROVIDER_CHAINS.lookup;
+  const orderedProviders = selectedProvider && selectedProvider !== "auto"
+    ? [selectedProvider, ...fallbackChain.filter((provider) => provider !== selectedProvider)]
+    : fallbackChain;
   const configuredProviders = [];
 
-  const orderedProviders = [preferred, "antigravity", "gemini", "grok", "openrouter", "cerebras"];
-
   for (const provider of orderedProviders) {
-    if (!["gemini", "grok", "openrouter", "cerebras", "antigravity"].includes(provider)) continue;
+    if (!DIRECT_AI_PROVIDERS.includes(provider)) continue;
     if (configuredProviders.includes(provider)) continue;
 
     if (provider === "gemini" && env.GEMINI_API_KEY) {
+      configuredProviders.push(provider);
+      continue;
+    }
+
+    if (provider === "gemini-lite" && env.GEMINI_API_KEY) {
+      configuredProviders.push(provider);
+      continue;
+    }
+
+    if (provider === "deepseek" && getDeepSeekApiKey()) {
       configuredProviders.push(provider);
       continue;
     }
@@ -2017,10 +2268,16 @@ function getProviderChain(preferredProvider) {
     if (provider === "antigravity" && env.ANTIGRAVITY_API_KEY && env.ANTIGRAVITY_BASE_URL) {
       configuredProviders.push(provider);
     }
+
+    if (provider === "glm4" && getGlm4ApiKey()) {
+      configuredProviders.push(provider);
+      continue;
+    }
   }
 
   if (configuredProviders.length === 0) {
-    throw new Error("No AI provider is configured. Add ANTIGRAVITY_API_KEY, GEMINI_API_KEY, XAI_API_KEY, OPENROUTER_API_KEY, or CEREBRAS_API_KEY to .env.local");
+    if (options.throwIfEmpty === false) return [];
+    throw new Error("No AI provider is configured. Add GLM4_API_KEY, DEEPSEEK_API_KEY, GEMINI_API_KEY, ANTIGRAVITY_API_KEY, XAI_API_KEY, OPENROUTER_API_KEY, or CEREBRAS_API_KEY to .env.local");
   }
 
   return configuredProviders;
@@ -2038,31 +2295,41 @@ async function explainWithOpenRouter(phraseText) {
   return explainWithOpenRouterPrompt(SYSTEM_PROMPT, `Phrase: ${phraseText}`);
 }
 
-async function requestJsonFromProviders({ preferredProvider, systemPrompt, userPrompt }) {
-  const providers = getProviderChain(preferredProvider);
+async function requestJsonFromProviders({ preferredProvider, systemPrompt, userPrompt, task = "lookup", includeProviderMeta = false }) {
+  const providers = getProviderChain(preferredProvider, task);
   const errors = [];
 
   for (const provider of providers) {
     try {
+      let parsed;
       if (provider === "gemini") {
-        return parseModelJson(await explainWithGeminiPrompt(systemPrompt, userPrompt));
+        parsed = parseModelJson(await explainWithGeminiPrompt(systemPrompt, userPrompt, getGeminiModel()));
+      } else if (provider === "gemini-lite") {
+        parsed = parseModelJson(await explainWithGeminiPrompt(systemPrompt, userPrompt, getGeminiLiteModel()));
+      } else if (provider === "deepseek") {
+        parsed = parseModelJson(await explainWithDeepSeekPrompt(systemPrompt, userPrompt));
+      } else if (provider === "grok") {
+        parsed = parseModelJson(await explainWithGrokPrompt(systemPrompt, userPrompt));
+      } else if (provider === "openrouter") {
+        parsed = parseModelJson(await explainWithOpenRouterPrompt(systemPrompt, userPrompt));
+      } else if (provider === "cerebras") {
+        parsed = parseModelJson(await explainWithCerebrasPrompt(systemPrompt, userPrompt));
+      } else if (provider === "antigravity") {
+        parsed = parseModelJson(await explainWithAntigravityPrompt(systemPrompt, userPrompt));
+      } else if (provider === "glm4") {
+        parsed = parseModelJson(await explainWithGlm4Prompt(systemPrompt, userPrompt));
       }
 
-      if (provider === "grok") {
-        return parseModelJson(await explainWithGrokPrompt(systemPrompt, userPrompt));
+      if (parsed && includeProviderMeta && typeof parsed === "object" && !Array.isArray(parsed)) {
+        return {
+          ...parsed,
+          aiProvider: provider,
+          aiProviderLabel: getProviderLabel(provider),
+          aiModel: getAiHealth(provider).model,
+        };
       }
 
-      if (provider === "openrouter") {
-        return parseModelJson(await explainWithOpenRouterPrompt(systemPrompt, userPrompt));
-      }
-
-      if (provider === "cerebras") {
-        return parseModelJson(await explainWithCerebrasPrompt(systemPrompt, userPrompt));
-      }
-
-      if (provider === "antigravity") {
-        return parseModelJson(await explainWithAntigravityPrompt(systemPrompt, userPrompt));
-      }
+      return parsed;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown provider error";
       errors.push({ provider, message: summarizeProviderError(provider, message) });
@@ -2074,7 +2341,15 @@ async function requestJsonFromProviders({ preferredProvider, systemPrompt, userP
 
 async function requestJsonFromSingleProvider({ provider, systemPrompt, userPrompt }) {
   if (provider === "gemini") {
-    return parseModelJson(await explainWithGeminiPrompt(systemPrompt, userPrompt));
+    return parseModelJson(await explainWithGeminiPrompt(systemPrompt, userPrompt, getGeminiModel()));
+  }
+
+  if (provider === "gemini-lite") {
+    return parseModelJson(await explainWithGeminiPrompt(systemPrompt, userPrompt, getGeminiLiteModel()));
+  }
+
+  if (provider === "deepseek") {
+    return parseModelJson(await explainWithDeepSeekPrompt(systemPrompt, userPrompt));
   }
 
   if (provider === "grok") {
@@ -2093,13 +2368,23 @@ async function requestJsonFromSingleProvider({ provider, systemPrompt, userPromp
     return parseModelJson(await explainWithAntigravityPrompt(systemPrompt, userPrompt));
   }
 
+  if (provider === "glm4") {
+    return parseModelJson(await explainWithGlm4Prompt(systemPrompt, userPrompt));
+  }
+
   throw new Error("Unknown provider");
 }
 
 function getProviderLabel(provider) {
-  return provider === "gemini"
+  return provider === "auto"
+    ? "Auto"
+    : provider === "gemini"
     ? "Gemini"
-    : provider === "grok"
+    : provider === "gemini-lite"
+      ? "Gemini 2.5 Flash-Lite"
+      : provider === "deepseek"
+      ? "DeepSeek V3.2"
+      : provider === "grok"
       ? "Grok"
       : provider === "openrouter"
         ? "OpenRouter"
@@ -2107,6 +2392,8 @@ function getProviderLabel(provider) {
           ? "Cerebras"
           : provider === "antigravity"
             ? "Antigravity"
+            : provider === "glm4"
+            ? "GLM-4-Flash"
         : String(provider || "Unknown");
 }
 
@@ -2128,6 +2415,8 @@ function summarizeProviderError(provider, message) {
   if (
     lower.includes("unauthorized") ||
     lower.includes("invalid api key") ||
+    lower.includes("api_key_invalid") ||
+    lower.includes("api key expired") ||
     lower.includes("missing") ||
     lower.includes("forbidden") ||
     lower.includes("permission")
@@ -2169,15 +2458,57 @@ function summarizeCombinedProviderErrors(errors) {
   return "All AI providers are unavailable right now. Try again later.";
 }
 
-async function explainWithGeminiPrompt(systemPrompt, userPrompt) {
+async function fetchWithTimeout(url, options = {}, timeoutMs = AI_REQUEST_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      throw new Error(`Request timed out after ${Math.round(timeoutMs / 1000)}s`);
+    }
+
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function getGlm4ApiKey() {
+  return env.GLM4_API_KEY || env.ZAI_API_KEY || "";
+}
+
+function getGlm4Model() {
+  const configuredModel = String(env.GLM4_MODEL || env.ZAI_MODEL || "").trim();
+  if (!configuredModel || configuredModel === "glm-4-flash") return "glm-4.7-flash";
+  return configuredModel;
+}
+
+function getGlm4BaseUrls() {
+  const configuredBaseUrl = String(env.GLM4_BASE_URL || env.ZAI_BASE_URL || "").trim().replace(/\/$/, "");
+
+  if (configuredBaseUrl) {
+    return [configuredBaseUrl];
+  }
+
+  return [
+    "https://open.bigmodel.cn/api/paas/v4",
+    "https://api.z.ai/api/paas/v4",
+  ];
+}
+
+async function explainWithGeminiPrompt(systemPrompt, userPrompt, model = getGeminiModel()) {
   const apiKey = env.GEMINI_API_KEY;
-  const model = env.GEMINI_MODEL || "gemini-2.5-flash";
 
   if (!apiKey) {
     throw new Error("Missing GEMINI_API_KEY in .env.local");
   }
 
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+  const response = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -2213,6 +2544,47 @@ async function explainWithGeminiPrompt(systemPrompt, userPrompt) {
   return text;
 }
 
+async function explainWithDeepSeekPrompt(systemPrompt, userPrompt) {
+  const apiKey = getDeepSeekApiKey();
+  const model = getDeepSeekModel();
+  const baseUrl = getDeepSeekBaseUrl();
+
+  if (!apiKey) {
+    throw new Error("Missing DEEPSEEK_API_KEY in .env.local");
+  }
+
+  const response = await fetchWithTimeout(`${baseUrl}/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      temperature: 0.2,
+      max_tokens: 1200,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`DeepSeek request failed: ${errorText}`);
+  }
+
+  const data = await response.json();
+  const text = data?.choices?.[0]?.message?.content;
+
+  if (!text) {
+    throw new Error("DeepSeek returned an empty response");
+  }
+
+  return text;
+}
+
 async function explainWithGrokPrompt(systemPrompt, userPrompt) {
   const apiKey = env.XAI_API_KEY;
   const model = env.XAI_MODEL || "grok-4-fast-reasoning";
@@ -2221,7 +2593,7 @@ async function explainWithGrokPrompt(systemPrompt, userPrompt) {
     throw new Error("Missing XAI_API_KEY in .env.local");
   }
 
-  const response = await fetch("https://api.x.ai/v1/chat/completions", {
+  const response = await fetchWithTimeout("https://api.x.ai/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -2259,7 +2631,7 @@ async function explainWithOpenRouterPrompt(systemPrompt, userPrompt) {
     throw new Error("Missing OPENROUTER_API_KEY in .env.local");
   }
 
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+  const response = await fetchWithTimeout("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -2298,7 +2670,7 @@ async function explainWithCerebrasPrompt(systemPrompt, userPrompt) {
     throw new Error("Missing CEREBRAS_API_KEY in .env.local");
   }
 
-  const response = await fetch("https://api.cerebras.ai/v1/chat/completions", {
+  const response = await fetchWithTimeout("https://api.cerebras.ai/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -2343,7 +2715,7 @@ async function explainWithAntigravityPrompt(systemPrompt, userPrompt) {
     throw new Error("Missing ANTIGRAVITY_BASE_URL in .env.local");
   }
 
-  const response = await fetch(`${baseUrl}/chat/completions`, {
+  const response = await fetchWithTimeout(`${baseUrl}/chat/completions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -2374,12 +2746,81 @@ async function explainWithAntigravityPrompt(systemPrompt, userPrompt) {
   return text;
 }
 
+async function explainWithGlm4Prompt(systemPrompt, userPrompt) {
+  const apiKey = getGlm4ApiKey();
+  const model = getGlm4Model();
+
+  if (!apiKey) {
+    throw new Error("Missing GLM4_API_KEY or ZAI_API_KEY in .env");
+  }
+
+  const payload = {
+    model,
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ],
+    thinking: { type: "disabled" },
+    temperature: 0.2,
+    max_tokens: 1200,
+  };
+  const baseUrls = getGlm4BaseUrls();
+  let lastError = "";
+  let response = null;
+
+  for (const baseUrl of baseUrls) {
+    response = await fetchWithTimeout(`${baseUrl}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (response.ok) break;
+    lastError = await response.text();
+    if ([401, 403, 429].includes(response.status)) break;
+  }
+
+  if (!response?.ok) {
+    throw new Error(`GLM-4-Flash request failed: ${lastError}`);
+  }
+
+  const data = await response.json();
+  const msg = data?.choices?.[0]?.message;
+  const text = msg?.content || msg?.reasoning_content;
+
+  if (!text) {
+    throw new Error("GLM-4-Flash returned an empty response");
+  }
+
+  return text;
+}
+
 function parseModelJson(text) {
-  const cleaned = text
+  let cleaned = text
     .replace(/^```json\s*/i, "")
     .replace(/^```\s*/i, "")
     .replace(/\s*```$/, "")
+    .replace(/<think>[\s\S]*?<\/think>/gi, "")
     .trim();
+
+  const firstBrace = cleaned.indexOf("{");
+  const firstBracket = cleaned.indexOf("[");
+  const startsAt = [firstBrace, firstBracket].filter((index) => index >= 0).sort((a, b) => a - b)[0];
+
+  if (startsAt > 0) {
+    cleaned = cleaned.slice(startsAt);
+  }
+
+  const lastBrace = cleaned.lastIndexOf("}");
+  const lastBracket = cleaned.lastIndexOf("]");
+  const endsAt = Math.max(lastBrace, lastBracket);
+
+  if (endsAt >= 0 && endsAt < cleaned.length - 1) {
+    cleaned = cleaned.slice(0, endsAt + 1);
+  }
 
   return JSON.parse(cleaned);
 }
@@ -2413,6 +2854,9 @@ function normalizeAiResult(result) {
     commonMistake: stringOrFallback(result?.commonMistake, "No common mistake provided."),
     pronunciationText: stringOrFallback(result?.pronunciationText, "/unknown/"),
     relatedPhrases: relatedPhrases.length > 0 ? relatedPhrases : ["related phrase 1", "related phrase 2", "related phrase 3"],
+    aiProvider: stringOrFallback(result?.aiProvider, ""),
+    aiProviderLabel: stringOrFallback(result?.aiProviderLabel, ""),
+    aiModel: stringOrFallback(result?.aiModel, ""),
   };
 }
 

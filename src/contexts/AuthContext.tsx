@@ -20,7 +20,7 @@ function createDefaultProfile(): UserProfile {
     englishLevel: "beginner",
     somaliModeEnabled: true,
     autoPlayAudioEnabled: false,
-    preferredAiProvider: "gemini",
+    preferredAiProvider: "auto",
     createdAt: new Date().toISOString(),
   };
 }
@@ -36,6 +36,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (stored) {
       try {
         profile = { ...profile, ...(JSON.parse(stored) as UserProfile) };
+        if (profile.preferredAiProvider === "gemini") {
+          profile.preferredAiProvider = "auto";
+        }
         localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
       } catch {}
     } else {

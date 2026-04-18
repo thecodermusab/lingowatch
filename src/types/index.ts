@@ -2,6 +2,7 @@ export type PhraseType = "word" | "phrase" | "phrasal_verb" | "idiom" | "express
 export type DifficultyLevel = "beginner" | "intermediate" | "advanced";
 export type ExampleType = "simple" | "daily" | "work" | "extra" | "somali";
 export type ReviewRating = "again" | "hard" | "good" | "easy";
+export type PreferredAiProvider = "auto" | "glm4" | "deepseek" | "gemini-lite" | "gemini" | "grok" | "openrouter" | "cerebras" | "antigravity";
 
 export interface UserProfile {
   id: string;
@@ -11,7 +12,7 @@ export interface UserProfile {
   englishLevel: DifficultyLevel;
   somaliModeEnabled: boolean;
   autoPlayAudioEnabled: boolean;
-  preferredAiProvider: "gemini" | "grok" | "openrouter" | "cerebras";
+  preferredAiProvider: PreferredAiProvider;
   createdAt: string;
 }
 
@@ -46,6 +47,11 @@ export interface PhraseExplanation {
   commonMistake: string;
   pronunciationText: string;
   relatedPhrases: string[];
+  googleTranslation?: string;
+  googleTranslationUpdatedAt?: string;
+  aiProvider?: PreferredAiProvider | string;
+  aiProviderLabel?: string;
+  aiModel?: string;
 }
 
 export interface PhraseExample {
@@ -79,6 +85,9 @@ export interface AIGenerationResult {
   commonMistake: string;
   pronunciationText: string;
   relatedPhrases: string[];
+  aiProvider?: PreferredAiProvider | string;
+  aiProviderLabel?: string;
+  aiModel?: string;
 }
 
 export interface DashboardStats {

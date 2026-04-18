@@ -1,18 +1,17 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
-  ArrowLeft, Info, Search, SkipBack, SkipForward, Play as PlayIcon, Square, Settings, Share, Layers, Keyboard, Edit2, Loader2, X
+  ArrowLeft, Play as PlayIcon, Square, Loader2
 } from "lucide-react";
 
 import { AnnotationToolbar, HighlightColor } from "@/components/reader/AnnotationToolbar";
 import { HighlightableText, TextHighlight } from "@/components/reader/HighlightableText";
 
-const TTS_KEY = import.meta.env.VITE_GOOGLE_TTS_KEY as string;
 import { fetchImportedTextById } from "@/lib/importedTexts";
 import { useAuth } from "@/contexts/AuthContext";
-import { ImportedTextBlock } from "@/types";
 import { translateTexts } from "@/lib/googleTranslate";
+import { getTtsAudioDataUrl } from "@/lib/tts";
 
 interface AnnotationState {
   text: string;
@@ -28,6 +27,7 @@ interface ActiveHighlightState {
   x: number;
   y: number;
   sentenceId: string;
+  text: string;
 }
 
 const QUERY_KEY = "imported-text-detail";
@@ -47,6 +47,8 @@ export default function ImportedTextReaderPage() {
   const [translatedSentences, setTranslatedSentences] = useState<Record<string, string>>({});
   const [translationsLoading, setTranslationsLoading] = useState(false);
   const [playingId, setPlayingId] = useState<string | null>(null);
+  const [isPlayingAll, setIsPlayingAll] = useState(false);
+  const isPlayingAllRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const ttsCache = useRef(new Map<string, string>());
 
@@ -61,9 +63,16 @@ export default function ImportedTextReaderPage() {
       if (storedHl) setHighlights(JSON.parse(storedHl));
       else setHighlights({});
     } catch {}
+    try {
+      const storedTranslations = localStorage.getItem(`lingowatch-imported-translations-${id}`);
+      if (storedTranslations) setTranslatedSentences(JSON.parse(storedTranslations));
+      else setTranslatedSentences({});
+    } catch {
+      setTranslatedSentences({});
+    }
   }, [id]);
 
-  const handleMouseUp = React.useCallback(() => {
+  const handleMouseUp = useCallback(() => {
     setTimeout(() => {
       const selection = window.getSelection();
       if (!selection || selection.isCollapsed) return;
@@ -95,7 +104,7 @@ export default function ImportedTextReaderPage() {
         setAnnotationState({ 
            text: selectedText, 
            x: rect.left + rect.width / 2, 
-           y: rect.top,
+           y: rect.bottom + 8,
            sentenceId,
            start,
            end
@@ -147,6 +156,39 @@ export default function ImportedTextReaderPage() {
     setActiveHighlight(null);
   };
 
+  async function getSentenceAudioUrl(id: string, text: string) {
+    let dataUrl = ttsCache.current.get(id);
+    if (!dataUrl) {
+      try {
+        dataUrl = await getTtsAudioDataUrl(text);
+        if (!dataUrl) return null;
+        ttsCache.current.set(id, dataUrl);
+      } catch (err) {
+        console.error("TTS error", err);
+        return null;
+      }
+    }
+    return dataUrl;
+  }
+
+  async function playSentenceAudio(id: string, text: string) {
+    const dataUrl = await getSentenceAudioUrl(id, text);
+    if (!dataUrl) return;
+
+    const audio = new Audio(dataUrl);
+    audioRef.current = audio;
+    setPlayingId(id);
+    await new Promise<void>((resolve) => {
+      audio.onended = () => resolve();
+      audio.onerror = () => resolve();
+      audio.play().catch((err) => {
+        console.error("Audio playback error", err);
+        resolve();
+      });
+    });
+    setPlayingId(null);
+  }
+
   async function speakSentence(id: string, text: string) {
     if (playingId === id) {
       audioRef.current?.pause();
@@ -154,37 +196,31 @@ export default function ImportedTextReaderPage() {
       return;
     }
     audioRef.current?.pause();
+    await playSentenceAudio(id, text);
+  }
 
-    let dataUrl = ttsCache.current.get(id);
-    if (!dataUrl) {
-      try {
-        const res = await fetch(
-          `https://texttospeech.googleapis.com/v1/text:synthesize?key=${TTS_KEY}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              input: { text },
-              voice: { languageCode: "en-US", ssmlGender: "FEMALE" },
-              audioConfig: { audioEncoding: "MP3" },
-            }),
-          }
-        );
-        const data = await res.json();
-        dataUrl = `data:audio/mp3;base64,${data.audioContent}`;
-        ttsCache.current.set(id, dataUrl);
-      } catch (err) {
-        console.error("TTS error", err);
-        return;
-      }
+  async function toggleListenAll() {
+    if (isPlayingAllRef.current) {
+      isPlayingAllRef.current = false;
+      setIsPlayingAll(false);
+      audioRef.current?.pause();
+      setPlayingId(null);
+      return;
     }
 
-    const audio = new Audio(dataUrl);
-    audioRef.current = audio;
-    setPlayingId(id);
-    audio.onended = () => setPlayingId(null);
-    audio.onerror = () => setPlayingId(null);
-    void audio.play();
+    isPlayingAllRef.current = true;
+    setIsPlayingAll(true);
+    audioRef.current?.pause();
+
+    for (let index = activeSentenceIndex; index < allSentences.length; index += 1) {
+      if (!isPlayingAllRef.current) break;
+      const sentence = allSentences[index];
+      setActiveSentenceIndex(index);
+      await playSentenceAudio(sentence.id, sentence.eng);
+    }
+
+    isPlayingAllRef.current = false;
+    setIsPlayingAll(false);
   }
 
   const textQuery = useQuery({
@@ -196,7 +232,7 @@ export default function ImportedTextReaderPage() {
   const allSentences = useMemo(() => {
     if (!textQuery.data?.content?.sections) return [];
     
-    const sentences: { eng: string, id: string }[] = [];
+    const sentences: { eng: string, id: string, isNewParagraph?: boolean }[] = [];
     textQuery.data.content.sections.forEach((section, sidx) => {
       section.blocks.forEach((block, bidx) => {
         if (block.type === "paragraph" || block.type === "heading") {
@@ -204,7 +240,8 @@ export default function ImportedTextReaderPage() {
           split.forEach((s, idx) => {
             sentences.push({
               eng: s,
-              id: `s-${sidx}-${bidx}-${idx}`
+              id: `s-${sidx}-${bidx}-${idx}`,
+              isNewParagraph: idx === 0
             });
           });
         }
@@ -232,13 +269,21 @@ export default function ImportedTextReaderPage() {
         return;
       }
 
+      const cachedRaw = localStorage.getItem(`lingowatch-imported-translations-${id}`);
+      const cachedMap: Record<string, string> = cachedRaw ? JSON.parse(cachedRaw) : {};
+      const missingSentences = allSentences.filter((sentence) => !cachedMap[sentence.id]);
+      if (!missingSentences.length) {
+        setTranslatedSentences(cachedMap);
+        return;
+      }
+
       setTranslationsLoading(true);
       try {
-        const nextMap: Record<string, string> = {};
+        const nextMap: Record<string, string> = { ...cachedMap };
         const chunkSize = 25;
 
-        for (let index = 0; index < allSentences.length; index += chunkSize) {
-          const chunk = allSentences.slice(index, index + chunkSize);
+        for (let index = 0; index < missingSentences.length; index += chunkSize) {
+          const chunk = missingSentences.slice(index, index + chunkSize);
           const translations = await translateTexts(
             chunk.map((sentence) => sentence.eng),
             { source: "en", target: "so" },
@@ -251,6 +296,7 @@ export default function ImportedTextReaderPage() {
 
         if (!cancelled) {
           setTranslatedSentences(nextMap);
+          if (id) localStorage.setItem(`lingowatch-imported-translations-${id}`, JSON.stringify(nextMap));
         }
       } catch (error) {
         console.error("Imported text translation error", error);
@@ -284,59 +330,37 @@ export default function ImportedTextReaderPage() {
   return (
     <div className="min-h-screen flex flex-col bg-[#212121] text-white overflow-hidden relative">
       
-      {/* Top Navigation Header matching LR Design */}
-      <header className="h-[52px] bg-[#1e1e1e] border-b border-[#333] flex items-center justify-between px-4 shrink-0 shadow-sm z-10 w-full relative">
-        <div className="flex items-center h-full">
-           <Link to="/media?tab=my_texts" className="flex items-center gap-2 text-white hover:text-gray-300 tracking-wider text-[12.5px] font-medium transition-colors">
-              <ArrowLeft className="w-4 h-4" />
-              CATALOGUE
-           </Link>
-           
-           <div className="flex items-center ml-6 gap-2 text-[#aaa]">
-              <button className="hover:text-white transition-colors" onClick={() => { autoScrollActive.current = true; setActiveSentenceIndex(Math.max(0, activeSentenceIndex - 1)); }}>
-                 <SkipBack className="w-4 h-4" />
-              </button>
-              <button className="hover:text-white transition-colors" onClick={() => { autoScrollActive.current = true; setActiveSentenceIndex(Math.min(allSentences.length - 1, activeSentenceIndex + 1)); }}>
-                 <SkipForward className="w-4 h-4" />
-              </button>
-           </div>
-           
-           <div className="ml-6 flex items-center gap-3 border-l border-[#333] pl-6 h-[24px]">
-              <span className="text-[14px] font-medium tracking-wide text-white truncate max-w-[400px]">
-                {textQuery.data.title}
-              </span>
-              <button className="text-[#888] hover:text-white"><Info className="w-4 h-4" /></button>
-              <button className="text-[#888] hover:text-white"><Edit2 className="w-3.5 h-3.5" /></button>
-           </div>
-        </div>
-        
-        <div className="flex items-center gap-1.5 h-full">
-            <div className="flex items-center gap-4 text-[#888] border-r border-[#333] pr-5 h-[24px]">
-               <button className="hover:text-white"><Keyboard className="w-4 h-4" /></button>
-               <button className="hover:text-white"><Share className="w-4 h-4" /></button>
-               <button className="hover:text-white"><Layers className="w-4 h-4" /></button>
-               <button className="hover:text-white"><Settings className="w-4 h-4" /></button>
-            </div>
-            
-            <div className="flex items-center gap-4 px-3">
-               <span className="text-[11px] font-medium text-white/50 bg-[#333] px-1.5 py-0.5 rounded cursor-pointer hover:bg-[#444] transition-colors">AP</span>
-               <div className="w-6 h-6 rounded-full border-2 border-[#555] flex items-center justify-center text-[10px] font-bold text-[#888] cursor-pointer hover:border-white hover:text-white transition-all">
-                 1x
-               </div>
-            </div>
-            
-            <div className="flex text-[12px] font-medium uppercase tracking-wider text-[#888] h-full items-center ml-2 border-l border border-t-0 border-b-0 border-[#333]">
-                <button className="px-5 h-full border-b-[3px] border-white text-white bg-[#2a2a2a]">
-                  TEXT
-                </button>
-                <button className="px-5 h-full hover:bg-[#2a2a2a] transition-colors border-b-[3px] border-transparent">
-                  WORDS
-                </button>
-            </div>
-            
-            <button className="pl-4 pr-2 text-[#888] hover:text-white">
-               <Search className="w-5 h-5" />
-            </button>
+      <header className="h-[52px] w-full shrink-0 border-b border-[#333] bg-[#1e1e1e] px-3 shadow-sm">
+        <div className="flex h-full min-w-0 items-center justify-between gap-3">
+          <Link
+            to="/media?tab=my_texts"
+            className="flex shrink-0 items-center gap-1.5 rounded-full border border-white/20 px-3 py-1 text-[11px] font-medium tracking-wide text-white transition-colors hover:bg-white/10"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            BACK
+          </Link>
+
+          <div className="min-w-0 flex-1 text-center md:text-left">
+            <span className="block truncate text-[14px] font-medium tracking-wide text-white/90">
+              {textQuery.data.title}
+            </span>
+          </div>
+
+          <button
+            onClick={toggleListenAll}
+            className={`flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wide transition-colors md:px-3 ${
+              isPlayingAll
+                ? "border-[#4fb5a2]/60 bg-[#4fb5a2]/20 text-[#4fb5a2]"
+                : "border-[#4fb5a2]/30 bg-[#4fb5a2]/10 text-[#4fb5a2] hover:bg-[#4fb5a2]/20"
+            }`}
+          >
+            {isPlayingAll ? (
+              <Square className="h-3 w-3" fill="currentColor" />
+            ) : (
+              <PlayIcon className="h-3 w-3 translate-x-[1px]" fill="currentColor" />
+            )}
+            <span className="hidden sm:inline">{isPlayingAll ? "Stop" : "Listen"}</span>
+          </button>
         </div>
       </header>
 
@@ -351,8 +375,8 @@ export default function ImportedTextReaderPage() {
 
          <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-[#444] scrollbar-track-transparent">
             {/* The Translation Layout grid container */}
-            <div className="min-h-full px-10 py-12 flex justify-center">
-               <div className="w-full max-w-5xl flex flex-col pt-8 pb-32">
+            <div className="flex min-h-full justify-center px-4 py-8 md:px-10 md:py-12">
+               <div className="flex w-full max-w-5xl flex-col pb-28 pt-2 md:pt-8 md:pb-32">
                   {allSentences.map((sentence, idx) => {
                      const isSelected = activeSentenceIndex === idx;
                      
@@ -365,10 +389,10 @@ export default function ImportedTextReaderPage() {
                              autoScrollActive.current = false;
                              setActiveSentenceIndex(idx);
                           }}
-                          className={`flex group border-b border-[#333] cursor-pointer transition-colors ${isSelected ? 'bg-[#313338] border-[#444]' : 'hover:bg-[#282828]'}`}
+                          className={`group flex cursor-pointer flex-col border-b border-[#333] transition-colors md:flex-row ${sentence.isNewParagraph && idx > 0 ? 'mt-8 border-t border-t-[#333]' : ''} ${isSelected ? 'bg-[#313338] border-[#444]' : 'hover:bg-[#282828]'}`}
                         >
                            {/* English Left Column */}
-                           <div className="flex-1 p-5 pr-8 flex items-start gap-3 min-h-[80px]">
+                           <div className="flex min-h-[80px] flex-1 items-start gap-3 p-4 md:p-5 md:pr-8">
                               <button
                                 onClick={(e) => { e.stopPropagation(); void speakSentence(sentence.id, sentence.eng); }}
                                 className={`mt-1 shrink-0 w-5 h-5 rounded-full flex items-center justify-center transition-all ${
@@ -384,7 +408,7 @@ export default function ImportedTextReaderPage() {
                                   : <PlayIcon className="w-2.5 h-2.5 text-white ml-0.5" fill="currentColor" />
                                 }
                               </button>
-                              <p id={`sentence-text-${sentence.id}`} className={`text-[16px] leading-[1.8] font-medium tracking-wide relative ${isSelected ? 'text-white' : 'text-[#cccccc]'}`}>
+                              <p id={`sentence-text-${sentence.id}`} className={`relative text-[15px] font-medium leading-[1.8] tracking-wide md:text-[16px] ${isSelected ? 'text-white' : 'text-[#cccccc]'}`}>
                                 <HighlightableText
                                    text={sentence.eng}
                                    highlights={highlights[sentence.id] || []}
@@ -394,8 +418,9 @@ export default function ImportedTextReaderPage() {
                                      setActiveHighlight({
                                         highlight: { id: hl.id, color: hl.color, note: hl.note },
                                         x: rect.left + rect.width / 2,
-                                        y: rect.top,
-                                        sentenceId: sentence.id
+                                        y: rect.bottom + 8,
+                                        sentenceId: sentence.id,
+                                        text: sentence.eng.slice(hl.start, hl.end)
                                      });
                                      setAnnotationState(null);
                                      window.getSelection()?.removeAllRanges();
@@ -405,11 +430,11 @@ export default function ImportedTextReaderPage() {
                            </div>
 
                            {/* Divider */}
-                           <div className="w-[1px] bg-[#333] self-stretch" />
+                           <div className="h-[1px] bg-[#333] md:h-auto md:w-[1px] md:self-stretch" />
 
                            {/* Somali Translated Right Column */}
-                           <div className="flex-1 p-5 pl-8 min-h-[80px]">
-                              <p className={`text-[15px] leading-[1.8] font-normal tracking-wide ${isSelected ? 'text-[#b3b3b3]' : 'text-[#777777]'}`}>
+                           <div className="min-h-[64px] flex-1 p-4 md:min-h-[80px] md:p-5 md:pl-8">
+                              <p className={`text-[14px] font-normal leading-[1.8] tracking-wide md:text-[15px] ${isSelected ? 'text-[#b3b3b3]' : 'text-[#777777]'}`}>
                                 {translatedSentences[sentence.id] || (translationsLoading ? "Translating..." : "")}
                               </p>
                            </div>
@@ -421,30 +446,18 @@ export default function ImportedTextReaderPage() {
          </div>
       </main>
 
-      {/* Global Floating Action Button */}
-      {allSentences[activeSentenceIndex] && (
-        <button
-          onClick={() => { const s = allSentences[activeSentenceIndex]; void speakSentence(s.id, s.eng); }}
-          className="absolute bottom-10 right-10 w-16 h-16 rounded-full bg-[#9c27b0] hover:bg-[#ba68c8] text-white flex items-center justify-center shadow-2xl transition-all transform hover:scale-105"
-        >
-          {playingId === allSentences[activeSentenceIndex]?.id
-            ? <Square className="w-7 h-7" fill="currentColor" />
-            : <PlayIcon className="w-8 h-8 ml-1" fill="currentColor" />
-          }
-        </button>
-      )}
-
       {/* ── Annotation Toolbar ─────────────────────────────────────────────── */}
       {(annotationState || activeHighlight) && (
         <AnnotationToolbar
            x={annotationState ? annotationState.x : activeHighlight!.x}
            y={annotationState ? annotationState.y : activeHighlight!.y}
-           selectedText={annotationState ? annotationState.text : undefined}
+           selectedText={annotationState ? annotationState.text : activeHighlight!.text}
            existingHighlight={activeHighlight ? activeHighlight.highlight : undefined}
            onSaveAnnotation={saveAnnotation}
            onDeleteAnnotation={deleteAnnotation}
-           onTranslate={annotationState ? async () => {
-             const res = await translateTexts([annotationState.text], { source: "en", target: "so" });
+           onTranslate={(annotationState || activeHighlight) ? async () => {
+             const textToTranslate = annotationState ? annotationState.text : activeHighlight!.text;
+             const res = await translateTexts([textToTranslate], { source: "en", target: "so" });
              return res[0] || null;
            } : undefined}
            onClose={() => {

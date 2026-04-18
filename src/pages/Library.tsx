@@ -16,6 +16,10 @@ import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 type SortOption = "newest" | "oldest" | "alphabetical" | "review_due" | "hardest";
 type FilterStatus = "all" | "learned" | "not_learned" | "favorite";
 
+function storyWordsKey(words: string[]) {
+  return words.map((word) => word.trim().toLowerCase()).filter(Boolean).sort().join("|");
+}
+
 export default function LibraryPage() {
   const { phrases, bulkDeletePhrases, bulkUpdatePhrases } = usePhraseStore();
   const navigate = useNavigate();
@@ -111,10 +115,18 @@ export default function LibraryPage() {
   const handleMakeStory = async () => {
     if (!selectedIds.length) return;
     const words = phrases.filter((p) => selectedIds.includes(p.id)).map((p) => p.phraseText);
+    const requestedKey = storyWordsKey(words);
     setMakingStory(true);
     try {
-      const { title, content } = await generateStory(words);
       const stored = JSON.parse(localStorage.getItem("lingowatch_stories") || "[]");
+      const existing = stored.find((story: { words?: string[] }) => storyWordsKey(story.words || []) === requestedKey);
+      if (existing?.id) {
+        setSelectedIds([]);
+        navigate(`/stories/${existing.id}`);
+        return;
+      }
+
+      const { title, content } = await generateStory(words);
       const entry = { id: crypto.randomUUID(), title, words, content, createdAt: new Date().toISOString() };
       localStorage.setItem("lingowatch_stories", JSON.stringify([entry, ...stored]));
       setSelectedIds([]);

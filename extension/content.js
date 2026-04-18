@@ -32,6 +32,9 @@
     starredLines: new Set(),
     overlayRequestId: 0,
     popupRequestId: 0,
+    wordFastCache: new Map(),
+    wordAiCache: new Map(),
+    ttsAudioCache: new Map(),
     hoverTimer: null,
     noSubtitleTimer: null,
     wordInputTimer: null,
@@ -2190,20 +2193,15 @@
     const popup = state.elements.popup;
     const requestId = ++state.popupRequestId;
     const currentLine = state.subtitleClickContext || state.subtitles[state.currentIndex]?.text || "";
-
-    const skeletonHtml = `
-      <div class="lw-loading">
-        <div class="lw-skeleton"></div>
-        <div class="lw-skeleton short"></div>
-        <div class="lw-skeleton"></div>
-      </div>`;
+    const normalizedWord = word.trim().toLowerCase();
+    const aiCacheKey = `${normalizedWord}::${currentLine}`;
 
     popup.innerHTML = `
       <div class="lw-popup-header">
         <div class="lw-popup-header-left">
           <div class="lw-popup-word">${escapeHtml(word)}</div>
           <div class="lw-popup-phonetic" id="lw-popup-phonetic-el"></div>
-          <div class="lw-popup-translation-main" id="lw-popup-translation-el">...</div>
+          <div class="lw-popup-translation-main" id="lw-popup-translation-el">Finding meaning...</div>
         </div>
         <div class="lw-popup-header-right">
           <button type="button" class="lw-popup-speak" data-popup-action="speak" data-word="${escapeAttribute(word)}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/></svg></button>
@@ -2216,9 +2214,9 @@
           <button type="button" class="lw-popup-tab" data-popup-action="tab" data-tab="usage">Usage</button>
           <button type="button" class="lw-popup-tab" data-popup-action="tab" data-tab="somali">Somali</button>
         </div>
-        <div class="lw-popup-panel" id="lw-panel-learn">${skeletonHtml}</div>
-        <div class="lw-popup-panel" id="lw-panel-usage" style="display:none">${skeletonHtml}</div>
-        <div class="lw-popup-panel" id="lw-panel-somali" style="display:none">${skeletonHtml}</div>
+        <div class="lw-popup-panel" id="lw-panel-learn"></div>
+        <div class="lw-popup-panel" id="lw-panel-usage" style="display:none"></div>
+        <div class="lw-popup-panel" id="lw-panel-somali" style="display:none"></div>
       </div>
       <div class="lw-popup-actions">
         <button type="button" class="lw-btn-save" id="lw-popup-save-btn" data-popup-action="save-word" data-word="${escapeAttribute(word)}">
@@ -2239,24 +2237,6 @@
     popup.style.display = "flex";
     positionPopup(popup, rect);
 
-    // Fetch all word data (AI + dict + Datamuse in parallel)
-    const { aiData, dictEntries, synonyms, antonyms, tatoebaExamples } = await getFullWordData(word, currentLine);
-    if (requestId !== state.popupRequestId) return;
-
-    state.lastPopupAiData = aiData;
-    state.lastPopupSynonyms = synonyms;
-    state.lastPopupAntonyms = antonyms;
-
-    const phonetic = dictEntries[0]?.phonetic || aiData?.pronunciationText || "";
-    const translation = aiData?.somaliMeaning || "";
-    if (requestId !== state.popupRequestId) return;
-
-    // Update header
-    popup.querySelector("#lw-popup-phonetic-el").textContent = phonetic;
-    popup.querySelector("#lw-popup-translation-el").textContent = translation;
-    const saveBtn = popup.querySelector("#lw-popup-save-btn");
-    if (saveBtn) saveBtn.dataset.translation = translation;
-
     // Helpers
     const audioSvg = (size) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/></svg>`;
     function audioBtn(text, small = false) {
@@ -2269,137 +2249,186 @@
       }).join("");
     }
 
-    // aiData fields from /api/ai/explain:
-    // standardMeaning, easyMeaning, aiExplanation, usageContext,
-    // examples [{type, text}], somaliMeaning, somaliExplanation, somaliSentence,
-    // commonMistake, relatedPhrases[]
-    const meanings = dictEntries[0]?.meanings || [];
-    const dictDef = meanings[0]?.definitions?.[0]?.definition || "";
-    const examples = (aiData?.examples || []).filter(ex => ex.type !== "somali");
+    let fastData = state.wordFastCache.get(normalizedWord) || { dictEntries: [], synonyms: [], antonyms: [], tatoebaExamples: [] };
+    let aiData = state.wordAiCache.get(aiCacheKey) || null;
+    let aiLoading = !aiData;
+    let aiError = "";
 
-    // === Learn tab: Standard Meaning + Easy Meaning + AI Explanation + Examples ===
-    const learnPanel = popup.querySelector("#lw-panel-learn");
-    if (learnPanel) {
-      learnPanel.innerHTML = `
-        ${aiData?.easyMeaning ? `
-          <div class="lw-easy-meaning-box" style="margin-top:10px">
-            <div class="lw-easy-meaning-label">Easy Meaning</div>
-            <div class="lw-easy-meaning-text">${escapeHtml(aiData.easyMeaning)}</div>
-          </div>
-        ` : ""}
-        ${aiData?.aiExplanation ? `
-          <div class="lw-popup-divider"></div>
-          <div class="lw-section-label">AI Explanation</div>
-          <div class="lw-ai-explanation">${escapeHtml(aiData.aiExplanation)}</div>
-        ` : ""}
-        ${currentLine ? `
-          <div class="lw-popup-divider"></div>
-          <div class="lw-section-label">From this subtitle</div>
-          <div class="lw-examples-list">
-            <div class="lw-example-row current">
-              <span class="lw-example-type-tag lw-example-type-tag-current">Now</span>
-              <span class="lw-example-row-text">${highlightWordInText(escapeHtml(currentLine), word)}</span>
-              ${audioBtn(currentLine, true)}
+    function renderPanels() {
+      if (requestId !== state.popupRequestId) return;
+
+      const { dictEntries, synonyms, antonyms, tatoebaExamples } = fastData;
+      const meanings = dictEntries[0]?.meanings || [];
+      const dictDef = meanings[0]?.definitions?.[0]?.definition || "";
+      const examples = (aiData?.examples || []).filter(ex => ex.type !== "somali");
+      const phonetic = dictEntries[0]?.phonetic || aiData?.pronunciationText || "";
+      const translation = aiData?.somaliMeaning || (aiLoading ? "Finding Somali meaning..." : "");
+      const saveBtn = popup.querySelector("#lw-popup-save-btn");
+
+      state.lastPopupAiData = aiData;
+      state.lastPopupSynonyms = synonyms;
+      state.lastPopupAntonyms = antonyms;
+      popup.querySelector("#lw-popup-phonetic-el").textContent = phonetic;
+      popup.querySelector("#lw-popup-translation-el").textContent = translation;
+      if (saveBtn) saveBtn.dataset.translation = translation;
+
+      const learnPanel = popup.querySelector("#lw-panel-learn");
+      if (learnPanel) {
+        learnPanel.innerHTML = `
+          ${aiData?.easyMeaning || dictDef ? `
+            <div class="lw-easy-meaning-box" style="margin-top:10px">
+              <div class="lw-easy-meaning-label">${aiData?.easyMeaning ? "Easy Meaning" : "Dictionary Meaning"}</div>
+              <div class="lw-easy-meaning-text">${escapeHtml(aiData?.easyMeaning || dictDef)}</div>
             </div>
-          </div>
-        ` : ""}
-        ${examples.length || tatoebaExamples?.length ? `
-          <div class="lw-popup-divider"></div>
-          <div class="lw-section-label">Example Sentences</div>
-          <div class="lw-examples-list">
-            ${examples.map((ex) => `
-              <div class="lw-example-row">
-                ${ex.type ? `<span class="lw-example-type-tag">${escapeHtml(ex.type.toUpperCase())}</span>` : ""}
-                <span class="lw-example-row-text">${highlightWordInText(escapeHtml(ex.text), word)}</span>
-                ${audioBtn(ex.text, true)}
+          ` : ""}
+          ${currentLine ? `
+            <div class="lw-popup-divider"></div>
+            <div class="lw-section-label">From this subtitle</div>
+            <div class="lw-examples-list">
+              <div class="lw-example-row current">
+                <span class="lw-example-type-tag lw-example-type-tag-current">Now</span>
+                <span class="lw-example-row-text">${highlightWordInText(escapeHtml(currentLine), word)}</span>
+                ${audioBtn(currentLine, true)}
               </div>
-            `).join("")}
-            ${(tatoebaExamples || []).map(ex => `
-              <div class="lw-example-row">
-                <span class="lw-example-type-tag lw-example-type-tag-real">Real</span>
-                <span class="lw-example-row-text">${highlightWordInText(escapeHtml(ex.text), word)}</span>
-                ${ex.audioUrl
-                  ? `<button type="button" class="lw-example-audio-btn small" data-popup-action="play-audio-url" data-url="${escapeAttribute(ex.audioUrl)}" title="Listen">${audioSvg(12)}</button>`
-                  : audioBtn(ex.text, true)
-                }
-              </div>
-            `).join("")}
+            </div>
+          ` : ""}
+          ${aiData?.aiExplanation ? `
+            <div class="lw-popup-divider"></div>
+            <div class="lw-section-label">AI Explanation</div>
+            <div class="lw-ai-explanation">${escapeHtml(aiData.aiExplanation)}</div>
+          ` : aiLoading ? `
+            <div class="lw-popup-divider"></div>
+            <div class="lw-section-label">AI Explanation</div>
+            <div class="lw-popup-empty">AI details are loading because this asks your selected online model.</div>
+          ` : aiError ? `
+            <div class="lw-popup-divider"></div>
+            <div class="lw-section-label">AI Explanation</div>
+            <div class="lw-popup-empty">${escapeHtml(aiError)}</div>
+          ` : ""}
+          ${examples.length || tatoebaExamples?.length ? `
+            <div class="lw-popup-divider"></div>
+            <div class="lw-section-label">Example Sentences</div>
+            <div class="lw-examples-list">
+              ${examples.map((ex) => `
+                <div class="lw-example-row">
+                  ${ex.type ? `<span class="lw-example-type-tag">${escapeHtml(ex.type.toUpperCase())}</span>` : ""}
+                  <span class="lw-example-row-text">${highlightWordInText(escapeHtml(ex.text), word)}</span>
+                  ${audioBtn(ex.text, true)}
+                </div>
+              `).join("")}
+              ${(tatoebaExamples || []).map(ex => `
+                <div class="lw-example-row">
+                  <span class="lw-example-type-tag lw-example-type-tag-real">Real</span>
+                  <span class="lw-example-row-text">${highlightWordInText(escapeHtml(ex.text), word)}</span>
+                  ${ex.audioUrl
+                    ? `<button type="button" class="lw-example-audio-btn small" data-popup-action="play-audio-url" data-url="${escapeAttribute(ex.audioUrl)}" title="Listen">${audioSvg(12)}</button>`
+                    : audioBtn(ex.text, true)
+                  }
+                </div>
+              `).join("")}
+            </div>
+          ` : ""}
+          ${synonyms.length ? `
+            <div class="lw-popup-divider"></div>
+            <div class="lw-section-label">Synonyms</div>
+            <div class="lw-chips-wrap">${chips(synonyms)}</div>
+          ` : ""}
+          ${antonyms.length ? `
+            <div class="lw-popup-divider"></div>
+            <div class="lw-section-label">Antonyms</div>
+            <div class="lw-chips-wrap">${chips(antonyms, "antonym")}</div>
+          ` : ""}
+          ${!aiData && !dictDef && !currentLine && !aiLoading ? `<div class="lw-popup-empty">No data found for "${escapeHtml(word)}"</div>` : ""}
+        `;
+      }
+
+      const usagePanel = popup.querySelector("#lw-panel-usage");
+      if (usagePanel) {
+        const phrases = aiData?.relatedPhrases || [];
+        usagePanel.innerHTML = `
+          ${currentLine ? `
+            <div class="lw-usage-box">
+              <div class="lw-usage-label">Current Sentence</div>
+              <div class="lw-usage-text">${highlightWordInText(escapeHtml(currentLine), word)}</div>
+            </div>
+          ` : ""}
+          ${aiData?.usageContext ? `
+            ${currentLine ? `<div class="lw-popup-divider"></div>` : ""}
+            <div class="lw-usage-box">
+              <div class="lw-usage-label">When People Use This</div>
+              <div class="lw-usage-text">${escapeHtml(aiData.usageContext)}</div>
+            </div>
+          ` : aiLoading ? `<div class="lw-popup-empty">Usage explanation is waiting for your selected AI model to respond.</div>` : ""}
+          ${aiData?.commonMistake ? `
+            ${aiData?.usageContext ? `<div class="lw-popup-divider"></div>` : ""}
+            <div class="lw-mistakes-box">
+              <div class="lw-mistakes-label">Common Mistake</div>
+              <div class="lw-mistakes-text">${escapeHtml(aiData.commonMistake)}</div>
+            </div>
+          ` : ""}
+          ${phrases.length ? `
+            <div class="lw-popup-divider"></div>
+            <div class="lw-section-label">Related Phrases</div>
+            <div class="lw-chips-wrap">
+              ${phrases.map((p) => `<span class="lw-phrase-chip">${escapeHtml(p)}</span>`).join("")}
+            </div>
+          ` : ""}
+          ${synonyms.length ? `
+            <div class="lw-popup-divider"></div>
+            <div class="lw-section-label">Synonyms</div>
+            <div class="lw-chips-wrap">${chips(synonyms)}</div>
+          ` : ""}
+          ${antonyms.length ? `
+            <div class="lw-popup-divider"></div>
+            <div class="lw-section-label">Antonyms</div>
+            <div class="lw-chips-wrap">${chips(antonyms, "antonym")}</div>
+          ` : ""}
+          ${!aiLoading && !aiData?.usageContext && !aiData?.commonMistake && !phrases.length && !synonyms.length && !antonyms.length ? `<div class="lw-popup-empty">${escapeHtml(aiError || "No usage data available")}</div>` : ""}
+        `;
+      }
+
+      const somaliPanel = popup.querySelector("#lw-panel-somali");
+      if (somaliPanel) {
+        somaliPanel.innerHTML = `
+          <div class="lw-somali-main-box">
+            <div class="lw-somali-flag-row"><span class="lw-somali-word-label">Somali Support</span></div>
+            ${aiData?.somaliMeaning ? `<div class="lw-somali-translation">${escapeHtml(aiData.somaliMeaning)}</div>` : ""}
+            ${aiData?.somaliExplanation ? `<div class="lw-somali-note">${escapeHtml(aiData.somaliExplanation)}</div>` : ""}
+            ${aiLoading && !aiData?.somaliMeaning ? `<div class="lw-somali-note">Somali meaning is loading from your selected AI model.</div>` : ""}
           </div>
-        ` : ""}
-        ${synonyms.length ? `
-          <div class="lw-popup-divider"></div>
-          <div class="lw-section-label">Synonyms</div>
-          <div class="lw-chips-wrap">${chips(synonyms)}</div>
-        ` : ""}
-        ${antonyms.length ? `
-          <div class="lw-popup-divider"></div>
-          <div class="lw-section-label">Antonyms</div>
-          <div class="lw-chips-wrap">${chips(antonyms, "antonym")}</div>
-        ` : ""}
-        ${!aiData && !dictDef && !currentLine ? `<div class="lw-popup-empty">No data found for "${escapeHtml(word)}"</div>` : ""}
-      `;
+          ${aiData?.somaliSentence ? `
+            <div class="lw-popup-divider"></div>
+            <div class="lw-section-label">Somali Example</div>
+            <div class="lw-example-card">
+              <div class="lw-example-content"><div class="lw-example-text" style="font-style:italic">${escapeHtml(aiData.somaliSentence)}</div></div>
+            </div>
+          ` : ""}
+          ${!aiLoading && !aiData?.somaliMeaning ? `<div class="lw-popup-empty">${escapeHtml(aiError || "No Somali data available")}</div>` : ""}
+        `;
+      }
+
+      positionPopup(popup, rect);
     }
 
-    // === Usage tab: When People Use This + Common Mistake + Related Phrases ===
-    const usagePanel = popup.querySelector("#lw-panel-usage");
-    if (usagePanel) {
-      const phrases = aiData?.relatedPhrases || [];
-      usagePanel.innerHTML = `
-        ${aiData?.usageContext ? `
-          <div class="lw-usage-box">
-            <div class="lw-usage-label">When People Use This</div>
-            <div class="lw-usage-text">${escapeHtml(aiData.usageContext)}</div>
-          </div>
-        ` : ""}
-        ${aiData?.commonMistake ? `
-          ${aiData?.usageContext ? `<div class="lw-popup-divider"></div>` : ""}
-          <div class="lw-mistakes-box">
-            <div class="lw-mistakes-label">Common Mistake</div>
-            <div class="lw-mistakes-text">${escapeHtml(aiData.commonMistake)}</div>
-          </div>
-        ` : ""}
-        ${phrases.length ? `
-          <div class="lw-popup-divider"></div>
-          <div class="lw-section-label">Related Phrases</div>
-          <div class="lw-chips-wrap">
-            ${phrases.map((p) => `<span class="lw-phrase-chip">${escapeHtml(p)}</span>`).join("")}
-          </div>
-        ` : ""}
-        ${synonyms.length ? `
-          <div class="lw-popup-divider"></div>
-          <div class="lw-section-label">Synonyms</div>
-          <div class="lw-chips-wrap">${chips(synonyms)}</div>
-        ` : ""}
-        ${antonyms.length ? `
-          <div class="lw-popup-divider"></div>
-          <div class="lw-section-label">Antonyms</div>
-          <div class="lw-chips-wrap">${chips(antonyms, "antonym")}</div>
-        ` : ""}
-        ${!aiData?.usageContext && !aiData?.commonMistake && !phrases.length ? `<div class="lw-popup-empty">No usage data available</div>` : ""}
-      `;
+    renderPanels();
+
+    if (!state.wordFastCache.has(normalizedWord)) {
+      void getFastWordData(word).then((result) => {
+        fastData = result;
+        setLimitedCache(state.wordFastCache, normalizedWord, result);
+        renderPanels();
+      });
     }
 
-    // === Somali tab: Somali Meaning + Explanation + Example ===
-    const somaliPanel = popup.querySelector("#lw-panel-somali");
-    if (somaliPanel) {
-      somaliPanel.innerHTML = `
-        <div class="lw-somali-main-box">
-          <div class="lw-somali-flag-row"><span class="lw-somali-word-label">Somali Support</span></div>
-          ${aiData?.somaliMeaning ? `<div class="lw-somali-translation">${escapeHtml(aiData.somaliMeaning)}</div>` : ""}
-          ${aiData?.somaliExplanation ? `<div class="lw-somali-note">${escapeHtml(aiData.somaliExplanation)}</div>` : ""}
-        </div>
-        ${aiData?.somaliSentence ? `
-          <div class="lw-popup-divider"></div>
-          <div class="lw-section-label">Somali Example</div>
-          <div class="lw-example-card">
-            <div class="lw-example-content"><div class="lw-example-text" style="font-style:italic">${escapeHtml(aiData.somaliSentence)}</div></div>
-          </div>
-        ` : ""}
-        ${!aiData?.somaliMeaning ? `<div class="lw-popup-empty">No Somali data available</div>` : ""}
-      `;
+    if (!state.wordAiCache.has(aiCacheKey)) {
+      void getAIWordData(word, currentLine).then((result) => {
+        aiData = result;
+        aiLoading = false;
+        aiError = result ? "" : "The AI provider did not answer in time. Try again or choose a faster model in settings.";
+        if (result) setLimitedCache(state.wordAiCache, aiCacheKey, result);
+        renderPanels();
+      });
     }
-
-    positionPopup(popup, rect);
   }
 
   function closeWordPopup() {
@@ -2914,31 +2943,71 @@
     setTimeout(() => closeWordPopup(), 800);
   }
 
-  async function getFullWordData(word, sentenceContext) {
-    const [dictEntries, aiData] = await Promise.all([
-      fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`)
-        .then(r => r.ok ? r.json() : [])
-        .catch(() => []),
+  function withTimeout(promise, timeoutMs, fallback) {
+    let timeoutId;
+    const timeout = new Promise((resolve) => {
+      timeoutId = setTimeout(() => resolve(fallback), timeoutMs);
+    });
+
+    return Promise.race([promise, timeout]).finally(() => clearTimeout(timeoutId));
+  }
+
+  function setLimitedCache(cache, key, value, limit = 80) {
+    if (cache.has(key)) {
+      cache.delete(key);
+    }
+    cache.set(key, value);
+    while (cache.size > limit) {
+      cache.delete(cache.keys().next().value);
+    }
+  }
+
+  async function getAIWordData(word, sentenceContext) {
+    return withTimeout(
       fetch("http://127.0.0.1:3001/api/ai/explain", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phraseText: word })
+        body: JSON.stringify({ phraseText: word, sentenceContext }),
       })
         .then(r => r.ok ? r.json() : null)
-        .catch(() => null)
-    ]);
+        .catch(() => null),
+      8000,
+      null
+    );
+  }
 
-    // Fetch Datamuse synonyms/antonyms + Tatoeba examples in parallel
-    const [datamuseSyn, datamuseAnt, tatoebaExamples] = await Promise.all([
-      fetch(`https://api.datamuse.com/words?rel_syn=${encodeURIComponent(word)}&max=15`)
-        .then(r => r.json()).then(arr => arr.map(x => x.word)).catch(() => []),
-      fetch(`https://api.datamuse.com/words?rel_ant=${encodeURIComponent(word)}&max=8`)
-        .then(r => r.json()).then(arr => arr.map(x => x.word)).catch(() => []),
-      new Promise(resolve => {
-        safeRuntimeSendMessage({ type: "FETCH_TATOEBA", word }, (response) => {
-          resolve(response?.results || []);
-        });
-      })
+  async function getFastWordData(word) {
+    const dictPromise = withTimeout(
+      fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`)
+        .then(r => r.ok ? r.json() : [])
+        .catch(() => []),
+      2500,
+      []
+    );
+
+    const [dictEntries, datamuseSyn, datamuseAnt, tatoebaExamples] = await Promise.all([
+      dictPromise,
+      withTimeout(
+        fetch(`https://api.datamuse.com/words?rel_syn=${encodeURIComponent(word)}&max=15`)
+          .then(r => r.json()).then(arr => arr.map(x => x.word)).catch(() => []),
+        2500,
+        []
+      ),
+      withTimeout(
+        fetch(`https://api.datamuse.com/words?rel_ant=${encodeURIComponent(word)}&max=8`)
+          .then(r => r.json()).then(arr => arr.map(x => x.word)).catch(() => []),
+        2500,
+        []
+      ),
+      withTimeout(
+        new Promise(resolve => {
+          safeRuntimeSendMessage({ type: "FETCH_TATOEBA", word }, (response) => {
+            resolve(response?.results || []);
+          });
+        }),
+        2500,
+        []
+      )
     ]);
 
     // Extract dict synonyms/antonyms
@@ -2960,7 +3029,7 @@
     const allAnts = [...new Set([...dictAnts, ...datamuseAnt])]
       .filter(s => s && s.toLowerCase() !== word.toLowerCase()).slice(0, 10);
 
-    return { aiData, dictEntries, synonyms: allSyns, antonyms: allAnts, tatoebaExamples };
+    return { dictEntries, synonyms: allSyns, antonyms: allAnts, tatoebaExamples };
   }
 
   async function getAllExamples(word, dictEntries, currentLine) {
@@ -3035,17 +3104,60 @@
     return escapedHtml.replace(re, '<mark class="lw-word-highlight">$1</mark>');
   }
 
-  function pronounceSentence(text) {
+  async function pronounceSentence(text) {
     if (!text) return;
+    const cacheKey = text.trim();
+
+    // 1. Try official Google Cloud TTS via local server (best quality)
+    try {
+      const cachedAudio = state.ttsAudioCache.get(cacheKey);
+      if (cachedAudio) {
+        await new Audio(`data:audio/mp3;base64,${cachedAudio}`).play();
+        return true;
+      }
+
+      const controller = new AbortController();
+      const ttsTimeout = setTimeout(() => controller.abort(), 3000);
+      try {
+        const res = await fetch("http://127.0.0.1:3001/api/tts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: cacheKey }),
+          signal: controller.signal,
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.audioContent) {
+            setLimitedCache(state.ttsAudioCache, cacheKey, data.audioContent, 120);
+            await new Audio(`data:audio/mp3;base64,${data.audioContent}`).play();
+            return true;
+          }
+        }
+      } finally {
+        clearTimeout(ttsTimeout);
+      }
+    } catch (_e) {}
+
+    // Last resort: browser built-in speech synthesis
+    if (speakWithBrowser(text)) {
+      return true;
+    }
+
+    showToast("This audio file could not be played right now.");
+    return false;
+  }
+
+  function speakWithBrowser(text) {
+    if (!window.speechSynthesis) {
+      return false;
+    }
+
+    window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "en-US";
-    utterance.rate = 0.82;
-    const voices = window.speechSynthesis.getVoices();
-    const bestVoice = voices.find(v => v.name.includes("Samantha")) ||
-                      voices.find(v => v.name.includes("Google US English")) ||
-                      voices.find(v => v.lang === "en-US");
-    if (bestVoice) utterance.voice = bestVoice;
+    utterance.rate = 0.85;
     window.speechSynthesis.speak(utterance);
+    return true;
   }
 
   async function translateToSomali(text, fallback) {
@@ -3091,36 +3203,7 @@
   }
 
   async function pronounce(word) {
-    try {
-      const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
-      const data = await res.json();
-      const audioUrl = data[0]?.phonetics?.find((p) => p.audio)?.audio;
-      if (audioUrl) {
-        new Audio(audioUrl.startsWith("//") ? `https:${audioUrl}` : audioUrl).play();
-        return;
-      }
-    } catch (_error) {
-      // Ignore dictionary audio lookup failures.
-    }
-
-    try {
-      new Audio(`https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(word)}&tl=en&client=tw-ob`).play();
-      return;
-    } catch (_error) {
-      // Ignore remote TTS fallback failures.
-    }
-
-    const utterance = new SpeechSynthesisUtterance(word);
-    utterance.lang = "en-US";
-    utterance.rate = 0.85;
-    const voices = window.speechSynthesis.getVoices();
-    const bestVoice = voices.find((v) => v.name.includes("Samantha")) ||
-                      voices.find((v) => v.name.includes("Google US English")) ||
-                      voices.find((v) => v.lang === "en-US");
-    if (bestVoice) {
-      utterance.voice = bestVoice;
-    }
-    window.speechSynthesis.speak(utterance);
+    await pronounceSentence(word);
   }
 
   function showToast(message) {

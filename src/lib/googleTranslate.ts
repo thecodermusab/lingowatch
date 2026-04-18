@@ -15,17 +15,30 @@ export async function translateTexts(
   texts: string[],
   options: { source?: string; target?: string } = {},
 ): Promise<string[]> {
-  const apiKey = getGoogleTranslateKey();
   const source = options.source || "en";
   const target = options.target || "so";
   const normalized = texts.map((text) => String(text || "").trim());
 
-  if (!apiKey) {
-    throw new Error("Google Translate API key missing");
-  }
-
   if (!normalized.length) {
     return [];
+  }
+
+  try {
+    const response = await fetch("/api/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ texts: normalized, source, target }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (response.ok && Array.isArray(data?.translations)) {
+      return data.translations.map((item: unknown) => decodeHtml(String(item || "").trim()));
+    }
+  } catch {}
+
+  const apiKey = getGoogleTranslateKey();
+
+  if (!apiKey) {
+    throw new Error("Google Translate API key missing");
   }
 
   const response = await fetch(`${GOOGLE_TRANSLATE_ENDPOINT}?key=${apiKey}`, {

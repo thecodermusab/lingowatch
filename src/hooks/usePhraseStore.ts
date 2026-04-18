@@ -6,6 +6,32 @@ import { buildNextReviewDate } from "@/lib/review";
 const STORAGE_KEY = "lingowatch_phrases";
 const LEGACY_STORAGE_KEY = "phrasepal_phrases";
 const DELETED_KEYS_STORAGE_KEY = "lingowatch_deleted_phrase_keys";
+const LOCAL_API_ORIGIN = "http://127.0.0.1:3001";
+
+function shouldTryLocalApiFallback() {
+  if (typeof window === "undefined") return false;
+  return window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+}
+
+async function apiFetch(path: string, init?: RequestInit) {
+  try {
+    return await fetch(path, init);
+  } catch (error) {
+    if (path.startsWith("/api/") && shouldTryLocalApiFallback()) {
+      return fetch(`${LOCAL_API_ORIGIN}${path}`, init);
+    }
+    throw error;
+  }
+}
+
+async function apiJson<T>(path: string, fallback: T): Promise<T> {
+  try {
+    const response = await apiFetch(path);
+    return response.ok ? response.json() : fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 function loadPhrases(): Phrase[] {
   try {
@@ -57,10 +83,6 @@ function clearDeletedPhraseKey(phraseText: string) {
   saveDeletedPhraseKeys(deleted);
 }
 
-function isNeonImportedPhrase(phrase: Phrase) {
-  return phrase.category === "Extension" || phrase.tags.includes("extension");
-}
-
 function isLegacyExtensionPhrase(phrase: Phrase) {
   return phrase.category === "YouTube" || phrase.tags.includes("youtube");
 }
@@ -71,33 +93,44 @@ async function ensureDeleteResponse(response: Response) {
   }
 }
 
-async function syncPhraseDeletion(phrase: Phrase) {
-  const requests: Promise<void>[] = [];
-
-  if (isNeonImportedPhrase(phrase)) {
-    requests.push(
-      fetch(`http://127.0.0.1:3001/api/words/${encodeURIComponent(normalizePhraseKey(phrase.phraseText))}`, {
-        method: "DELETE",
-      }).then(ensureDeleteResponse)
-    );
+async function syncPhraseToNeon(phrase: Phrase) {
+  try {
+    await apiFetch("/api/words", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        word: normalizePhraseKey(phrase.phraseText),
+        displayWord: phrase.phraseText,
+        translation: phrase.notes,
+        source: "app",
+        phrase_data: phrase,
+      }),
+    });
+  } catch {
+    console.warn("Failed to sync phrase to Neon:", phrase.phraseText);
   }
+}
+
+async function syncPhrasesToNeon(phrases: Phrase[]) {
+  await Promise.allSettled(phrases.map((phrase) => syncPhraseToNeon(phrase)));
+}
+
+async function syncPhraseDeletion(phrase: Phrase) {
+  const requests: Promise<void>[] = [
+    apiFetch(`/api/words/${encodeURIComponent(normalizePhraseKey(phrase.phraseText))}`, {
+      method: "DELETE",
+    }).then(ensureDeleteResponse).catch(() => {}),
+  ];
 
   if (isLegacyExtensionPhrase(phrase)) {
     requests.push(
-      fetch(`http://127.0.0.1:3001/api/extension/saved-phrases/${encodeURIComponent(phrase.id)}`, {
+      apiFetch(`/api/extension/saved-phrases/${encodeURIComponent(phrase.id)}`, {
         method: "DELETE",
-      }).then(ensureDeleteResponse)
+      }).then(ensureDeleteResponse).catch(() => {})
     );
   }
 
-  if (!requests.length) return;
-
-  const results = await Promise.allSettled(requests);
-  const failures = results.filter((result) => result.status === "rejected");
-
-  if (failures.length) {
-    console.warn("Some imported phrase deletions could not be synced.", failures);
-  }
+  await Promise.all(requests);
 }
 
 function sanitizePhrase(input: Phrase): Phrase {
@@ -157,19 +190,23 @@ function isPhraseLike(value: unknown): value is Phrase {
 }
 
 export function usePhraseStore() {
-  const [phrases, setPhrases] = useState<Phrase[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [phrases, setPhrases] = useState<Phrase[]>(() => {
+    const deletedKeys = new Set(loadDeletedPhraseKeys());
+    return loadPhrases().filter((phrase) => !deletedKeys.has(normalizePhraseKey(phrase.phraseText)));
+  });
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const deletedKeys = new Set(loadDeletedPhraseKeys());
     const local = loadPhrases().filter((phrase) => !deletedKeys.has(normalizePhraseKey(phrase.phraseText)));
     setPhrases(local);
     setIsLoading(false);
+    void syncPhrasesToNeon(local);
 
     // Merge phrases saved from the extension (Neon) and legacy file-based store
     Promise.all([
-      fetch("http://127.0.0.1:3001/api/words").then(r => r.ok ? r.json() : []).catch(() => []),
-      fetch("http://127.0.0.1:3001/api/extension/saved-phrases").then(r => r.ok ? r.json() : []).catch(() => []),
+      apiJson<unknown[]>("/api/words", []),
+      apiJson<Phrase[]>("/api/extension/saved-phrases", []),
     ]).then(([neonWords, extPhrases]: [unknown[], Phrase[]]) => {
       const currentDeletedKeys = new Set(loadDeletedPhraseKeys());
       const current = loadPhrases().filter((phrase) => !currentDeletedKeys.has(normalizePhraseKey(phrase.phraseText)));
@@ -177,26 +214,38 @@ export function usePhraseStore() {
       let changed = false;
 
       // Merge Neon saved words
-      for (const row of neonWords as Array<{ word: string; display_word: string; translation: string; saved_at: string }>) {
+      for (const row of neonWords as Array<{ word: string; display_word: string; translation: string; saved_at: string; phrase_data?: Phrase }>) {
         const key = row.word.toLowerCase();
         if (currentDeletedKeys.has(key)) continue;
+        const neonPhrase = row.phrase_data
+          ? sanitizePhrase(row.phrase_data)
+          : (() => {
+              const now = row.saved_at ? new Date(row.saved_at).toISOString() : new Date().toISOString();
+              return sanitizePhrase({
+                id: crypto.randomUUID(),
+                phraseText: row.display_word || row.word,
+                phraseType: "word" as const,
+                category: "Extension",
+                notes: row.translation || "",
+                isFavorite: false,
+                isLearned: false,
+                tags: ["extension"],
+                difficultyLevel: "intermediate" as const,
+                createdAt: now,
+                updatedAt: now,
+                examples: [],
+              });
+            })();
         if (!map.has(key)) {
-          const now = row.saved_at ? new Date(row.saved_at).toISOString() : new Date().toISOString();
-          map.set(key, sanitizePhrase({
-            id: crypto.randomUUID(),
-            phraseText: row.display_word || row.word,
-            phraseType: "word" as const,
-            category: "Extension",
-            notes: row.translation || "",
-            isFavorite: false,
-            isLearned: false,
-            tags: ["extension"],
-            difficultyLevel: "intermediate" as const,
-            createdAt: now,
-            updatedAt: now,
-            examples: [],
-          }));
+          map.set(key, neonPhrase);
           changed = true;
+        } else {
+          // Use Neon version if it's newer (e.g. edited on another device)
+          const existing = map.get(key)!;
+          if (new Date(neonPhrase.updatedAt) > new Date(existing.updatedAt)) {
+            map.set(key, neonPhrase);
+            changed = true;
+          }
         }
       }
 
@@ -241,6 +290,9 @@ export function usePhraseStore() {
         pronunciationText: string;
         relatedPhrases: string[];
         phraseType: PhraseType;
+        aiProvider?: string;
+        aiProviderLabel?: string;
+        aiModel?: string;
       }
     ) => {
       setIsLoading(true);
@@ -274,6 +326,9 @@ export function usePhraseStore() {
           commonMistake: aiResult.commonMistake,
           pronunciationText: aiResult.pronunciationText,
           relatedPhrases: aiResult.relatedPhrases,
+          aiProvider: aiResult.aiProvider,
+          aiProviderLabel: aiResult.aiProviderLabel,
+          aiModel: aiResult.aiModel,
         },
         examples: aiResult.examples.map((ex) => ({
           id: crypto.randomUUID(),
@@ -293,6 +348,7 @@ export function usePhraseStore() {
       const updated = [...phrases, newPhrase];
       clearDeletedPhraseKey(newPhrase.phraseText);
       persist(updated);
+      syncPhraseToNeon(newPhrase);
       setIsLoading(false);
       return newPhrase;
     },
@@ -305,6 +361,8 @@ export function usePhraseStore() {
         p.id === id ? { ...p, ...updates, updatedAt: new Date().toISOString() } : p
       );
       persist(updated);
+      const updatedPhrase = updated.find((p) => p.id === id);
+      if (updatedPhrase) syncPhraseToNeon(updatedPhrase);
     },
     [phrases, persist]
   );
@@ -358,6 +416,7 @@ export function usePhraseStore() {
         idSet.has(phrase.id) ? { ...phrase, ...updates, updatedAt: now } : phrase
       );
       persist(updated);
+      void syncPhrasesToNeon(updated.filter((phrase) => idSet.has(phrase.id)));
     },
     [phrases, persist]
   );
@@ -445,6 +504,11 @@ export function usePhraseStore() {
           commonMistake: aiResult.commonMistake,
           pronunciationText: aiResult.pronunciationText,
           relatedPhrases: aiResult.relatedPhrases,
+          googleTranslation: phrase.explanation?.googleTranslation,
+          googleTranslationUpdatedAt: phrase.explanation?.googleTranslationUpdatedAt,
+          aiProvider: aiResult.aiProvider,
+          aiProviderLabel: aiResult.aiProviderLabel,
+          aiModel: aiResult.aiModel,
         };
         examples = aiResult.examples.map((example, index) => ({
           id: phrase.examples?.[index]?.id ?? crypto.randomUUID(),
@@ -472,8 +536,16 @@ export function usePhraseStore() {
 
       clearDeletedPhraseKey(trimmedPhraseText);
       persist(updated);
+      const savedPhrase = updated.find((item) => item.id === id) ?? null;
+      if (savedPhrase) {
+        // If word text changed, remove old key from Neon before upserting new
+        if (trimmedPhraseText !== phrase.phraseText) {
+          apiFetch(`/api/words/${encodeURIComponent(normalizePhraseKey(phrase.phraseText))}`, { method: "DELETE" }).catch(() => {});
+        }
+        syncPhraseToNeon(savedPhrase);
+      }
       setIsLoading(false);
-      return updated.find((item) => item.id === id) ?? null;
+      return savedPhrase;
     },
     [phrases, persist]
   );
@@ -510,6 +582,7 @@ export function usePhraseStore() {
       );
 
       persist(merged);
+      void syncPhrasesToNeon(sanitizedIncoming);
 
       return {
         importedCount,

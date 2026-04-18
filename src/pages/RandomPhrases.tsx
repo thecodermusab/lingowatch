@@ -10,6 +10,7 @@ import { usePhraseStore } from "@/hooks/usePhraseStore";
 import { loadImportedPhraseBank, phraseBank, PhraseBankEntry } from "@/lib/phraseBank";
 import { useToast } from "@/hooks/use-toast";
 import { generateAIExplanation } from "@/lib/ai";
+import { speakText } from "@/lib/tts";
 import { AIGenerationResult, DifficultyLevel, PhraseType } from "@/types";
 
 function normalizePhrase(text: string) {
@@ -231,9 +232,8 @@ export default function RandomPhrasesPage() {
     }
   };
 
-  const playSourceAudio = (url: string) => {
-    const audio = new Audio(url);
-    void audio.play().catch(() => {
+  const playPhraseAudio = (text: string) => {
+    void speakText(text).catch(() => {
       toast({
         title: "Could not play audio",
         description: "This audio file could not be played right now.",
@@ -392,16 +392,16 @@ export default function RandomPhrasesPage() {
               }
             }}
           >
-            <TabsList className="grid h-14 w-full max-w-sm grid-cols-2 rounded-2xl border border-border bg-card p-1 shadow-[0_10px_24px_rgba(15,23,42,0.05)]">
+            <TabsList className="grid h-14 w-full max-w-sm grid-cols-2 rounded-2xl border border-border bg-card/90 p-1">
               <TabsTrigger
                 value="vocabulary"
-                className="rounded-xl text-base font-semibold text-muted-foreground data-[state=active]:bg-[#223044] data-[state=active]:text-white data-[state=active]:shadow-none"
+                className="rounded-xl text-base font-semibold text-muted-foreground data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground data-[state=active]:shadow-none"
               >
                 Vocabulary
               </TabsTrigger>
               <TabsTrigger
                 value="phrases"
-                className="rounded-xl text-base font-semibold text-muted-foreground data-[state=active]:bg-[#6b49db] data-[state=active]:text-white data-[state=active]:shadow-none"
+                className="rounded-xl text-base font-semibold text-muted-foreground data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-none"
               >
                 Phrases
               </TabsTrigger>
@@ -542,12 +542,12 @@ export default function RandomPhrasesPage() {
                 ) : null}
                 {(currentPhrase.sourceAudio?.length || currentPhrase.sourceImages?.length) ? (
                   <div className="flex flex-wrap gap-2">
-                    {currentPhrase.sourceAudio?.map((url, index) => (
-                      <Button key={url} type="button" variant="outline" size="sm" className="gap-2" onClick={() => playSourceAudio(url)}>
+                    {currentPhrase.sourceAudio?.length ? (
+                      <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => playPhraseAudio(currentPhrase.phraseText)}>
                         <Volume2 className="h-4 w-4" />
-                        Audio {index + 1}
+                        Hear phrase
                       </Button>
-                    ))}
+                    ) : null}
                     {currentPhrase.sourceImages?.length ? (
                       <span className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium text-muted-foreground">
                         <ImageIcon className="h-3.5 w-3.5" />
@@ -878,12 +878,12 @@ export default function RandomPhrasesPage() {
               ) : null}
               {(currentPhrase.sourceAudio?.length || currentPhrase.sourceImages?.length) ? (
                 <div className="mt-4 flex flex-wrap justify-center gap-2">
-                  {currentPhrase.sourceAudio?.map((url, index) => (
-                    <Button key={url} type="button" variant="outline" size="sm" className="gap-2" onClick={() => playSourceAudio(url)}>
+                  {currentPhrase.sourceAudio?.length ? (
+                    <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => playPhraseAudio(currentPhrase.phraseText)}>
                       <Volume2 className="h-4 w-4" />
-                      Audio {index + 1}
+                      Hear phrase
                     </Button>
-                  ))}
+                  ) : null}
                   {currentPhrase.sourceImages?.length ? (
                     <span className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium text-muted-foreground">
                       <ImageIcon className="h-3.5 w-3.5" />
