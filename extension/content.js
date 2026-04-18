@@ -2383,7 +2383,7 @@
     const requestId = ++state.popupRequestId;
     const currentLine = state.subtitleClickContext || state.subtitles[state.currentIndex]?.text || "";
     const normalizedWord = word.trim().toLowerCase();
-    const aiCacheKey = `${normalizedWord}::${currentLine}`;
+    const aiCacheKey = `${normalizedWord}::general`;
     const recommendedProvider = getRecommendedPopupProvider(normalizedWord);
     const regenerateSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-15.5 6.3"/><path d="M3 12A9 9 0 0 1 18.5 5.7"/><path d="M18 2v4h4"/><path d="M6 22v-4H2"/></svg>`;
     const regenerateOptions = POPUP_REGENERATE_PROVIDERS.map((provider) => `
@@ -2406,7 +2406,6 @@
             <button type="button" class="lw-popup-regenerate" data-popup-action="regenerate-menu" title="Regenerate with another AI">${regenerateSvg}</button>
             <div class="lw-regenerate-menu" id="lw-regenerate-menu" hidden>
               <div class="lw-regenerate-menu-title">Regenerate with</div>
-              <div class="lw-regenerate-recommended">${escapeHtml(recommendedProvider.reason)}</div>
               ${regenerateOptions}
             </div>
           </div>
@@ -2418,15 +2417,6 @@
           <button type="button" class="lw-popup-tab active" data-popup-action="tab" data-tab="learn">Learn</button>
           <button type="button" class="lw-popup-tab" data-popup-action="tab" data-tab="usage">Usage</button>
           <button type="button" class="lw-popup-tab" data-popup-action="tab" data-tab="somali">Somali</button>
-        </div>
-        <div class="lw-popup-model-picker">
-          <div class="lw-popup-model-picker-title">
-            <span>Regenerate model</span>
-            <span>Recommended: ${escapeHtml(recommendedProvider.label)}</span>
-          </div>
-          <div class="lw-popup-model-options">
-            ${regenerateOptions}
-          </div>
         </div>
         <div class="lw-popup-panel" id="lw-panel-learn"></div>
         <div class="lw-popup-panel" id="lw-panel-usage" style="display:none"></div>
@@ -2522,17 +2512,6 @@
               <div class="lw-easy-meaning-text">${escapeHtml(aiData?.easyMeaning || dictDef)}</div>
             </div>
           ` : ""}
-          ${currentLine ? `
-            <div class="lw-popup-divider"></div>
-            <div class="lw-section-label">From this subtitle</div>
-            <div class="lw-examples-list">
-              <div class="lw-example-row current">
-                <span class="lw-example-type-tag lw-example-type-tag-current">Now</span>
-                <span class="lw-example-row-text">${highlightWordInText(escapeHtml(currentLine), word)}</span>
-                ${audioBtn(currentLine, true)}
-              </div>
-            </div>
-          ` : ""}
           ${aiData?.aiExplanation ? `
             <div class="lw-popup-divider"></div>
             <div class="lw-section-label">AI Explanation</div>
@@ -2589,14 +2568,7 @@
       if (usagePanel) {
         const phrases = aiData?.relatedPhrases || [];
         usagePanel.innerHTML = `
-          ${currentLine ? `
-            <div class="lw-usage-box">
-              <div class="lw-usage-label">Current Sentence</div>
-              <div class="lw-usage-text">${highlightWordInText(escapeHtml(currentLine), word)}</div>
-            </div>
-          ` : ""}
           ${aiData?.usageContext ? `
-            ${currentLine ? `<div class="lw-popup-divider"></div>` : ""}
             <div class="lw-usage-box">
               <div class="lw-usage-label">When People Use This</div>
               <div class="lw-usage-text">${escapeHtml(aiData.usageContext)}</div>
@@ -2613,7 +2585,7 @@
             <div class="lw-popup-divider"></div>
             <div class="lw-section-label">Related Phrases</div>
             <div class="lw-chips-wrap">
-              ${phrases.map((p) => `<span class="lw-phrase-chip">${escapeHtml(p)}</span>`).join("")}
+              ${phrases.map((p) => `<span class="lw-phrase-chip" data-popup-action="lookup-synonym" data-word="${escapeAttribute(p)}">${escapeHtml(p)}</span>`).join("")}
             </div>
           ` : ""}
           ${synonyms.length ? `
@@ -2712,7 +2684,7 @@
     }
 
     if (!state.wordAiCache.has(aiCacheKey)) {
-      void getAIWordData(word, currentLine, recommendedProvider.value).then((result) => {
+      void getAIWordData(word, "", recommendedProvider.value).then((result) => {
         aiData = result;
         aiLoading = false;
         aiError = result ? "" : "The AI provider did not answer after 45 seconds. Try again or choose another model in settings.";
@@ -2722,7 +2694,7 @@
     }
 
     if (!state.wordSomaliCache.has(aiCacheKey)) {
-      void getSomaliSupportData(word, currentLine).then((result) => {
+      void getSomaliSupportData(word, "").then((result) => {
         somaliData = result;
         somaliLoading = false;
         somaliError = result ? "" : "DeepSeek Somali support did not answer after 30 seconds.";
@@ -2745,6 +2717,7 @@
 
   function lookupSynonym(word) {
     closeWordPopup();
+    state.subtitleClickContext = "";
     setTimeout(() => {
       const sidebar = state.elements.sidebar;
       const popupWidth = 380;

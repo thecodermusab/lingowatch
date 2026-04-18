@@ -1,4 +1,4 @@
-import { AIGenerationResult, DifficultyLevel, PhraseType, PreferredAiProvider } from "@/types";
+import { AIGenerationResult, DifficultyLevel, Phrase, PhraseType, PreferredAiProvider } from "@/types";
 
 export const AI_PROVIDER_OPTIONS: { value: PreferredAiProvider; label: string }[] = [
   { value: "auto", label: "Auto" },
@@ -15,6 +15,27 @@ export const AI_PROVIDER_OPTIONS: { value: PreferredAiProvider; label: string }[
 export function getAiProviderLabel(provider?: string, fallback?: string) {
   if (fallback) return fallback;
   return AI_PROVIDER_OPTIONS.find((item) => item.value === provider)?.label || provider || "Unknown AI";
+}
+
+export const SAVED_WORD_REGENERATION_OPTIONS: { value: PreferredAiProvider; label: string }[] = [
+  { value: "deepseek", label: "DeepSeek V3.2" },
+  { value: "gemini-lite", label: "Gemini 2.5 Flash-Lite" },
+  { value: "gemini", label: "Gemini 2.0 Flash" },
+  { value: "grok", label: "Grok" },
+  { value: "openrouter", label: "OpenRouter" },
+  { value: "cerebras", label: "Cerebras" },
+  { value: "glm4", label: "GLM-4.7 Flash" },
+];
+
+export function getSavedWordRegenerationProvider(phrase?: Pick<Phrase, "phraseText" | "phraseType" | "difficultyLevel" | "review">): PreferredAiProvider {
+  if (!phrase) return "deepseek";
+
+  const text = String(phrase.phraseText || "").trim();
+  const isContextHeavyType = phrase.phraseType === "idiom" || phrase.phraseType === "phrasal_verb" || phrase.phraseType === "expression";
+  const isMarkedHard = phrase.difficultyLevel === "advanced" || phrase.review?.difficultyRating === "again" || phrase.review?.difficultyRating === "hard";
+  const isLikelyHardWord = phrase.phraseType === "word" && (text.length >= 12 || /[-']/g.test(text));
+
+  return isContextHeavyType || isMarkedHard || isLikelyHardWord ? "gemini" : "deepseek";
 }
 
 function getPreferredAiProvider(): PreferredAiProvider | undefined {
@@ -67,14 +88,15 @@ function simplifyAiErrorMessage(message: string) {
 
 export async function generateAIExplanation(
   phraseText: string,
-  preferredProvider: PreferredAiProvider | undefined = getPreferredAiProvider()
+  preferredProvider: PreferredAiProvider | undefined = getPreferredAiProvider(),
+  strictProvider = false
 ): Promise<AIGenerationResult> {
   const response = await fetch("/api/ai/explain", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ phraseText, preferredProvider }),
+    body: JSON.stringify({ phraseText, preferredProvider, strictProvider }),
   });
 
   if (!response.ok) {

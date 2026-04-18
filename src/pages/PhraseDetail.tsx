@@ -7,15 +7,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Star, Trash2, ArrowLeft, RotateCcw, CheckCircle2, Volume2, Globe, BookOpen, Lightbulb, MessageCircle, AlertTriangle, Edit, Loader2, Save, X, Sparkles } from "lucide-react";
-import { AI_PROVIDER_OPTIONS, generateAIExplanation, getAiProviderLabel } from "@/lib/ai";
+import { generateAIExplanation, getAiProviderLabel, getSavedWordRegenerationProvider, SAVED_WORD_REGENERATION_OPTIONS } from "@/lib/ai";
 import { speakText } from "@/lib/tts";
 import { translateText } from "@/lib/googleTranslate";
 import { useToast } from "@/hooks/use-toast";
 import { categories } from "@/lib/mockData";
-import { DifficultyLevel, PhraseType, PreferredAiProvider, AIGenerationResult } from "@/types";
+import { DifficultyLevel, PhraseType, AIGenerationResult, PreferredAiProvider } from "@/types";
 import { getReviewStage } from "@/lib/review";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
-import { useAuth } from "@/contexts/AuthContext";
 
 const phraseTypes: { value: PhraseType; label: string }[] = [
   { value: "word", label: "Word" },
@@ -47,8 +46,7 @@ function SectionCard({ icon: Icon, title, children, color = "bg-primary/10 text-
 
 export default function PhraseDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { phrases, toggleFavorite, toggleLearned, deletePhrase, savePhraseEdits, updatePhrase } = usePhraseStore();
-  const { user } = useAuth();
+  const { phrases, addPhrase, toggleFavorite, toggleLearned, deletePhrase, savePhraseEdits, updatePhrase } = usePhraseStore();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
@@ -65,8 +63,9 @@ export default function PhraseDetailPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [googleTranslation, setGoogleTranslation] = useState<string>("");
-  const [googleTranslationState, setGoogleTranslationState] = useState<"loading" | "ready" | "error">("loading");
-  const [reExplainProvider, setReExplainProvider] = useState<PreferredAiProvider>(user?.preferredAiProvider || "auto");
+  const [googleTranslationState, setGoogleTranslationState] = useState<"idle" | "loading" | "ready" | "error">("idle");
+  const [reExplainProvider, setReExplainProvider] = useState<PreferredAiProvider>("deepseek");
+  const [relatedPhraseLoading, setRelatedPhraseLoading] = useState("");
 
   const phrase = phrases.find((p) => p.id === id);
 
@@ -108,8 +107,9 @@ export default function PhraseDetailPage() {
   }, [phrase?.id]);
 
   useEffect(() => {
-    setReExplainProvider(user?.preferredAiProvider || "auto");
-  }, [user?.preferredAiProvider]);
+    if (!phrase) return;
+    setReExplainProvider(getSavedWordRegenerationProvider(phrase));
+  }, [phrase?.id, phrase?.phraseType, phrase?.difficultyLevel, phrase?.review?.difficultyRating]);
 
   if (!phrase) {
     return (
@@ -126,6 +126,7 @@ export default function PhraseDetailPage() {
   const reviewStage = getReviewStage(phrase.review);
   const explainedBy = getAiProviderLabel(ex?.aiProvider, ex?.aiProviderLabel);
   const explainedModel = ex?.aiModel ? ` · ${ex.aiModel}` : "";
+  const recommendedReExplainProvider = getSavedWordRegenerationProvider(phrase);
 
   const buildExplanation = (result: AIGenerationResult) => ({
     id: phrase.explanation?.id ?? crypto.randomUUID(),
@@ -135,8 +136,12 @@ export default function PhraseDetailPage() {
     aiExplanation: result.aiExplanation,
     usageContext: result.usageContext,
     somaliMeaning: result.somaliMeaning,
+    partOfSpeech: result.partOfSpeech,
     somaliExplanation: result.somaliExplanation,
     somaliSentence: result.somaliSentence,
+    somaliSentenceTranslation: result.somaliSentenceTranslation,
+    usageNote: result.usageNote,
+    contextNote: result.contextNote,
     commonMistake: result.commonMistake,
     pronunciationText: result.pronunciationText,
     relatedPhrases: result.relatedPhrases,
@@ -150,7 +155,7 @@ export default function PhraseDetailPage() {
   const handleGenerateExplanation = async () => {
     setIsGenerating(true);
     try {
-      const result = await generateAIExplanation(phrase.phraseText, reExplainProvider);
+      const result = await generateAIExplanation(phrase.phraseText, reExplainProvider, true);
       updatePhrase(phrase.id, {
         explanation: buildExplanation(result),
         examples: result.examples?.map((e: any) => ({
@@ -158,6 +163,7 @@ export default function PhraseDetailPage() {
           phraseId: phrase.id,
           exampleType: e.type,
           exampleText: e.text,
+          translationText: e.translation,
         })) ?? [],
       });
       toast({ title: "Explanation generated", description: `Used ${getAiProviderLabel(result.aiProvider, result.aiProviderLabel)}.` });
@@ -165,6 +171,46 @@ export default function PhraseDetailPage() {
       toast({ title: "Failed to generate", description: err instanceof Error ? err.message : "Unknown error", variant: "destructive" });
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleRelatedPhraseClick = async (relatedPhrase: string) => {
+    const text = relatedPhrase.trim();
+    if (!text || relatedPhraseLoading) return;
+
+    const existing = phrases.find((item) => item.phraseText.trim().toLowerCase() === text.toLowerCase());
+    if (existing) {
+      navigate(`/phrase/${existing.id}`);
+      return;
+    }
+
+    setRelatedPhraseLoading(text);
+    try {
+      const tempPhrase = {
+        phraseText: text,
+        phraseType: text.includes(" ") ? "phrase" as const : "word" as const,
+        difficultyLevel: "intermediate" as const,
+      };
+      const provider = getSavedWordRegenerationProvider(tempPhrase);
+      const result = await generateAIExplanation(text, provider, true);
+      const saved = await addPhrase({
+        phraseText: text,
+        phraseType: result.phraseType || tempPhrase.phraseType,
+        category: "Related",
+        notes: "",
+        difficultyLevel: tempPhrase.difficultyLevel,
+      }, result);
+      if (saved) {
+        navigate(`/phrase/${saved.id}`);
+      }
+    } catch (error) {
+      toast({
+        title: "Could not open related phrase",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive",
+      });
+    } finally {
+      setRelatedPhraseLoading("");
     }
   };
 
@@ -351,9 +397,9 @@ export default function PhraseDetailPage() {
                     <SelectValue placeholder="Choose AI" />
                   </SelectTrigger>
                   <SelectContent>
-                    {AI_PROVIDER_OPTIONS.map((provider) => (
+                    {SAVED_WORD_REGENERATION_OPTIONS.map((provider) => (
                       <SelectItem key={provider.value} value={provider.value}>
-                        {provider.label}
+                        {provider.label}{provider.value === recommendedReExplainProvider ? " (recommended)" : ""}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -424,7 +470,15 @@ export default function PhraseDetailPage() {
               <SectionCard icon={BookOpen} title="Related Phrases">
                 <div className="flex flex-wrap gap-2">
                   {ex.relatedPhrases.map((rp, i) => (
-                    <span key={i} className="rounded-full border bg-secondary px-3 py-1 text-sm text-secondary-foreground">{rp}</span>
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => handleRelatedPhraseClick(rp)}
+                      disabled={Boolean(relatedPhraseLoading)}
+                      className="rounded-full border bg-secondary px-3 py-1 text-sm text-secondary-foreground transition-colors hover:border-primary/50 hover:text-primary disabled:opacity-60"
+                    >
+                      {relatedPhraseLoading === rp ? "Opening..." : rp}
+                    </button>
                   ))}
                 </div>
               </SectionCard>
@@ -454,7 +508,7 @@ export default function PhraseDetailPage() {
               </SectionCard>
             )}
 
-            {(ex?.somaliMeaning || ex?.somaliExplanation || googleTranslation || googleTranslationState !== "ready") && (
+            {(ex?.somaliMeaning || ex?.somaliExplanation || googleTranslation || googleTranslationState === "loading" || googleTranslationState === "error") && (
               <div className="admin-panel border-somali/20 bg-somali/5 p-5">
                 <div className="flex items-center gap-2">
                   <Globe className="h-5 w-5 text-somali" />
@@ -465,11 +519,14 @@ export default function PhraseDetailPage() {
                     <p className="text-xs font-semibold uppercase tracking-wide text-somali">Google Translate</p>
                     <p className="mt-1 text-lg font-medium text-foreground">
                       {googleTranslationState === "loading"
-                        ? "Loading Google translation..."
+                        ? (ex?.somaliMeaning || "Loading Google translation...")
                         : googleTranslationState === "error"
-                          ? "Google Translate could not load right now."
+                          ? (ex?.somaliMeaning || "Google Translate could not load right now.")
                           : googleTranslation}
                     </p>
+                    {googleTranslationState === "loading" && ex?.somaliMeaning && (
+                      <p className="mt-1 text-xs text-muted-foreground">Google translation is updating in the background.</p>
+                    )}
                   </div>
                   {ex?.somaliMeaning && (
                     <div>

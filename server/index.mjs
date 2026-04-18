@@ -2,6 +2,7 @@ import { createServer } from "node:http";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { cwd, env } from "node:process";
+import { createHash, createHmac } from "node:crypto";
 import * as YoutubeTranscriptModule from "youtube-transcript/dist/youtube-transcript.esm.js";
 import { neon } from "@neondatabase/serverless";
 import { handlePodcastRoutes } from "./podcasts.mjs";
@@ -29,13 +30,14 @@ const sql = env.DATABASE_URL ? neon(env.DATABASE_URL) : null;
 // Run schema migrations
 if (sql) {
   void ensureSavedWordsSchema();
+  void ensureTtsAudioCacheSchema();
 }
 
 const SYSTEM_PROMPT = `
-You are an English phrase learning assistant.
-Return only valid JSON.
+You are a bilingual English-Somali vocabulary coach for Somali speakers learning English.
+Return only valid JSON, no markdown, no code fences.
 
-You must return one JSON object with this exact shape:
+Return one JSON object with this exact shape:
 {
   "phraseType": "word | phrase | phrasal_verb | idiom | expression",
   "standardMeaning": "string",
@@ -43,23 +45,39 @@ You must return one JSON object with this exact shape:
   "aiExplanation": "string",
   "usageContext": "string",
   "examples": [
-    { "type": "simple | daily | work | extra | somali", "text": "string" }
+    { "type": "simple | daily | work | extra | somali", "text": "string", "translation": "string" }
   ],
   "somaliMeaning": "string",
+  "partOfSpeech": "string",
   "somaliExplanation": "string",
   "somaliSentence": "string",
+  "somaliSentenceTranslation": "string",
+  "usageNote": "string",
+  "contextNote": "string",
   "commonMistake": "string",
   "pronunciationText": "string",
   "relatedPhrases": ["string", "string", "string"]
 }
 
-Rules:
-- Use simple English.
-- Keep Somali fields helpful and natural.
-- examples must have 3 to 5 items.
-- relatedPhrases must have 3 items.
-- Do not include markdown.
-- Do not include code fences.
+Field rules:
+- phraseType: pick the most accurate type from the options.
+- standardMeaning: dictionary-style definition in clear English, 1-2 sentences.
+- easyMeaning: explain it like the learner is 12 years old, 1 sentence.
+- aiExplanation: 3-4 learner-friendly sentences. If subtitle context is provided, explain that specific use. If no subtitle context is provided, explain the word/phrase generally and do not mention subtitles, videos, speakers, scenes, "here", or "in this sentence".
+- usageContext: 2-3 sentences describing when people commonly use this word/phrase, the tone/register, and a natural situation where it fits.
+- examples: 3 to 5 items. Each must have "type", "text", and "translation".
+- For English examples, "translation" must be a natural Somali translation.
+- For type "somali", "text" must be a natural Somali sentence and "translation" must be the English meaning.
+- somaliMeaning: short natural Somali translation, 1-5 words. Prefer common everyday Somali over formal or Arabic-borrowed terms where both exist.
+- partOfSpeech: one of noun, verb, adjective, adverb, phrase, idiom, conjunction, preposition.
+- somaliExplanation: 2-3 sentences in simple Somali explaining the meaning, when to use it, and one grammar note if relevant.
+- somaliSentence: one natural Somali example sentence using the word in the same sense as the subtitle context.
+- somaliSentenceTranslation: English translation of somaliSentence.
+- usageNote: one short Somali sentence about register.
+- contextNote: write 2-3 sentences in simple English, spoken like a friendly coach talking directly to the learner. If subtitle context is provided, explain the specific sense. If no subtitle context is provided, give a general learner note and do not mention subtitles, videos, speakers, scenes, "here", or "in this sentence".
+- commonMistake: 2-3 sentences describing the most common error Somali speakers make with this word or phrase, why it sounds wrong, and what to say instead.
+- pronunciationText: write using simple English respelling only, e.g. "bih-HAYV" or "EK-struh". Do not use IPA symbols.
+- relatedPhrases: exactly 3 related English words or phrases, as plain strings.
 `.trim();
 
 const RANDOM_PHRASES_SYSTEM_PROMPT = `
@@ -138,6 +156,31 @@ Rules:
 - Do not include code fences.
 `.trim();
 
+const EXTENSION_SOMALI_SUPPORT_SYSTEM_PROMPT = `
+You are a Somali language expert helping learners understand the best Somali meaning for an English word.
+Return only valid JSON, no markdown, no code fences.
+
+Return one JSON object with this exact shape:
+{
+  "somaliMeaning": "string",
+  "partOfSpeech": "string",
+  "somaliExplanation": "string",
+  "usageNote": "string",
+  "somaliSentence": "string",
+  "sentenceTranslation": "string",
+  "contextNote": "string"
+}
+
+Field rules:
+- somaliMeaning: short, natural Somali translation (1-5 words). Prefer common everyday Somali over formal or Arabic-borrowed terms where both exist.
+- partOfSpeech: one of noun, verb, adjective, adverb, phrase, idiom, conjunction, preposition.
+- somaliExplanation: 2-3 sentences in simple Somali explaining the meaning, when to use it, and any important grammar note.
+- usageNote: one short Somali sentence noting register, for example "Waa ereyga caadiga ah", "Waxaa loo isticmaalaa hadal rasmiga ah", or "Dhallinyaradu badanaa way isticmaalaan".
+- somaliSentence: one natural example sentence in Somali using the word in the selected sense.
+- sentenceTranslation: English translation of somaliSentence.
+- contextNote: one Somali sentence explaining which specific sense you chose and why. If no subtitle context is provided, do not mention subtitles, videos, speakers, scenes, or missing context.
+`.trim();
+
 const TRANSCRIPT_TRANSLATION_SYSTEM_PROMPT = `
 You translate English subtitle cues into natural Somali for language learners.
 Return only valid JSON.
@@ -158,9 +201,9 @@ Rules:
 `.trim();
 
 const defaultExamples = [
-  { type: "simple", text: "Here is a simple example sentence." },
-  { type: "daily", text: "Here is a daily life example." },
-  { type: "work", text: "Here is a work example." },
+  { type: "simple", text: "Here is a simple example sentence.", translation: "Waa jumlad tusaale fudud ah." },
+  { type: "daily", text: "Here is a daily life example.", translation: "Waa tusaale nolol maalmeed ah." },
+  { type: "work", text: "Here is a work example.", translation: "Waa tusaale shaqo ah." },
 ];
 
 createServer(async (req, res) => {
@@ -178,14 +221,16 @@ createServer(async (req, res) => {
     try {
       const body = await readJsonBody(req);
       const phraseText = String(body?.phraseText || "").trim();
+      const sentenceContext = String(body?.sentenceContext || "").trim();
       const preferredProvider = normalizePreferredProvider(body?.preferredProvider);
+      const strictProvider = Boolean(body?.strictProvider);
 
       if (!phraseText) {
         sendJson(res, 400, { error: "phraseText is required" });
         return;
       }
 
-      const aiResult = await explainPhrase(phraseText, preferredProvider);
+      const aiResult = await explainPhrase(phraseText, preferredProvider, sentenceContext, strictProvider);
       sendJson(res, 200, aiResult);
       return;
     } catch (error) {
@@ -310,14 +355,33 @@ createServer(async (req, res) => {
       const now = new Date().toISOString();
       const id = body.id || crypto.randomUUID();
       const phraseText = String(body.phraseText).trim();
+      const requestedProvider = normalizePreferredProvider(body?.preferredProvider);
+      const autoProvider = requestedProvider || getRecommendedProviderForSavedPhrase({
+        phraseText,
+        phraseType: body.phraseType || "word",
+        difficultyLevel: body.difficultyLevel || "intermediate",
+      });
+      let aiResult = null;
+
+      try {
+        aiResult = await explainPhrase(phraseText, autoProvider, "", true);
+      } catch (error) {
+        console.warn("Extension save auto-enrichment failed:", error instanceof Error ? error.message : error);
+      }
 
       // Remove existing entry for same word (case-insensitive)
       const filtered = existing.filter(p => p.phraseText?.toLowerCase() !== phraseText.toLowerCase());
+      const explanation = aiResult
+        ? buildPhraseExplanationFromAiResult(aiResult, id, body.explanation)
+        : body.explanation || null;
+      const examples = aiResult
+        ? buildPhraseExamplesFromAiResult(aiResult, id)
+        : body.examples || [];
 
       const phrase = {
         id,
         phraseText,
-        phraseType: body.phraseType || "word",
+        phraseType: aiResult?.phraseType || body.phraseType || "word",
         category: body.category || "YouTube",
         notes: body.notes || "",
         isFavorite: false,
@@ -326,8 +390,8 @@ createServer(async (req, res) => {
         difficultyLevel: body.difficultyLevel || "intermediate",
         createdAt: now,
         updatedAt: now,
-        explanation: body.explanation || null,
-        examples: body.examples || [],
+        explanation,
+        examples,
         review: { id: crypto.randomUUID(), phraseId: id, reviewCount: 0, nextReviewAt: now, confidenceScore: 0 },
       };
 
@@ -383,20 +447,54 @@ createServer(async (req, res) => {
       const voiceName = String(body?.voiceName || env.GOOGLE_TTS_VOICE || "en-US-Neural2-J");
       const languageCode = String(body?.languageCode || env.GOOGLE_TTS_LANGUAGE || "en-US");
       const speakingRate = Number(body?.speakingRate || env.GOOGLE_TTS_SPEAKING_RATE || 0.9);
+      const includeWordTimings = Boolean(body?.includeWordTimings);
+      const cacheKey = createTtsCacheKey({ text, voiceName, languageCode, speakingRate, includeWordTimings });
+      const cachedAudio = await getCachedTtsAudio(cacheKey);
+      if (cachedAudio) {
+        sendJson(res, 200, {
+          audioUrl: cachedAudio.audio_url,
+          cached: true,
+          wordTimings: cachedAudio.word_timings || [],
+        });
+        return;
+      }
+
+      const markedText = includeWordTimings ? buildTtsMarkedText(text) : null;
+      const ttsEndpointVersion = includeWordTimings ? "v1beta1" : "v1";
       const ttsRes = await fetchWithTimeout(
-        `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`,
+        `https://texttospeech.googleapis.com/${ttsEndpointVersion}/text:synthesize?key=${apiKey}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            input: { text },
+            input: includeWordTimings && markedText ? { ssml: markedText.ssml } : { text },
             voice: { languageCode, name: voiceName },
             audioConfig: { audioEncoding: "MP3", speakingRate },
+            ...(includeWordTimings ? { enableTimePointing: ["SSML_MARK"] } : {}),
           }),
         },
         TTS_REQUEST_TIMEOUT_MS
       );
       const data = await ttsRes.json();
+      if (ttsRes.ok && includeWordTimings && markedText) {
+        data.wordTimings = buildWordTimings(markedText.words, data.timepoints || []);
+      }
+      if (ttsRes.ok && typeof data?.audioContent === "string" && data.audioContent) {
+        const storedAudio = await storeTtsAudio({
+          cacheKey,
+          text,
+          audioContent: data.audioContent,
+          voiceName,
+          languageCode,
+          speakingRate,
+          includeWordTimings,
+          wordTimings: data.wordTimings || [],
+        });
+        if (storedAudio?.audioUrl) {
+          data.audioUrl = storedAudio.audioUrl;
+          data.cached = false;
+        }
+      }
       sendJson(res, ttsRes.ok ? 200 : 500, data);
     } catch (err) { sendJson(res, 500, { error: String(err) }); }
     return;
@@ -503,6 +601,7 @@ createServer(async (req, res) => {
       const word = String(body?.word || "").trim().toLowerCase();
       const sentenceContext = String(body?.sentenceContext || "").trim();
       const preferredProvider = normalizePreferredProvider(body?.preferredProvider);
+      const strictProvider = Boolean(body?.strictProvider);
 
       if (!word) {
         sendJson(res, 400, { error: "word is required" });
@@ -555,6 +654,30 @@ createServer(async (req, res) => {
       }
 
       sendJson(res, 502, { error: message });
+      return;
+    }
+  }
+
+  if (req.method === "POST" && pathname === "/api/extension/somali-support") {
+    try {
+      const body = await readJsonBody(req);
+      const word = String(body?.word || body?.phraseText || "").trim().toLowerCase();
+      const sentenceContext = String(body?.sentenceContext || "").trim();
+      const preferredProvider = normalizePreferredProvider(body?.preferredProvider);
+      const strictProvider = Boolean(body?.strictProvider);
+
+      if (!word) {
+        sendJson(res, 400, { error: "word is required" });
+        return;
+      }
+
+      const support = await getExtensionSomaliSupport({ word, sentenceContext, preferredProvider, strictProvider });
+      sendJson(res, 200, support);
+      return;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not fetch Somali support";
+      console.warn("[AI] Somali support unavailable:", message);
+      sendJson(res, 200, { somaliMeaning: "", somaliExplanation: "", somaliSentence: "", error: "Somali AI support is unavailable right now." });
       return;
     }
   }
@@ -1836,6 +1959,34 @@ async function ensureSavedWordsSchema() {
   }
 }
 
+async function ensureTtsAudioCacheSchema() {
+  if (!sql) return;
+
+  try {
+    await sql`
+      CREATE TABLE IF NOT EXISTS tts_audio_cache (
+        cache_key TEXT PRIMARY KEY,
+        provider TEXT NOT NULL DEFAULT 'google',
+        voice_name TEXT NOT NULL DEFAULT '',
+        language_code TEXT NOT NULL DEFAULT '',
+        speaking_rate TEXT NOT NULL DEFAULT '',
+        include_word_timings BOOLEAN NOT NULL DEFAULT FALSE,
+        text_hash TEXT NOT NULL DEFAULT '',
+        audio_url TEXT NOT NULL,
+        audio_object_key TEXT NOT NULL,
+        word_timings JSONB NOT NULL DEFAULT '[]'::jsonb,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        last_used_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`ALTER TABLE tts_audio_cache ADD COLUMN IF NOT EXISTS include_word_timings BOOLEAN NOT NULL DEFAULT FALSE`;
+    await sql`ALTER TABLE tts_audio_cache ADD COLUMN IF NOT EXISTS word_timings JSONB NOT NULL DEFAULT '[]'::jsonb`;
+    await sql`ALTER TABLE tts_audio_cache ADD COLUMN IF NOT EXISTS last_used_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`;
+  } catch (error) {
+    console.warn("Could not initialize tts_audio_cache schema:", error);
+  }
+}
+
 function createInboxCapture(input) {
   const word = String(input?.word || input?.phraseText || "").trim().toLowerCase();
   const displayWord = String(input?.displayWord || input?.word || input?.phraseText || "").trim();
@@ -1886,6 +2037,239 @@ function sendJson(res, statusCode, data) {
   res.end(JSON.stringify(data));
 }
 
+function escapeSsml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
+function buildTtsMarkedText(text) {
+  const parts = String(text).match(/\s+|\S+/g) || [];
+  const words = [];
+  let ssml = "<speak>";
+
+  for (const part of parts) {
+    if (/^\s+$/.test(part)) {
+      ssml += part;
+      continue;
+    }
+
+    const index = words.length;
+    words.push(part);
+    ssml += `<mark name="w${index}"/>${escapeSsml(part)}`;
+  }
+
+  ssml += "</speak>";
+  return { ssml, words };
+}
+
+function buildWordTimings(words, timepoints) {
+  const starts = new Map();
+
+  for (const point of Array.isArray(timepoints) ? timepoints : []) {
+    const match = String(point?.markName || "").match(/^w(\d+)$/);
+    if (!match) continue;
+    const index = Number(match[1]);
+    const startTime = Number(point?.timeSeconds);
+    if (Number.isFinite(index) && Number.isFinite(startTime)) {
+      starts.set(index, startTime);
+    }
+  }
+
+  return words.map((word, index) => {
+    const startTime = starts.get(index) ?? (index === 0 ? 0 : starts.get(index - 1) ?? 0);
+    const nextStart = starts.get(index + 1);
+
+    return {
+      index,
+      word,
+      startTime,
+      endTime: Number.isFinite(nextStart) ? nextStart : startTime + 0.45,
+    };
+  });
+}
+
+function sha256(value, encoding = "hex") {
+  return createHash("sha256").update(value).digest(encoding);
+}
+
+function hmac(key, value, encoding) {
+  return createHmac("sha256", key).update(value).digest(encoding);
+}
+
+function createTtsCacheKey({ text, voiceName, languageCode, speakingRate, includeWordTimings }) {
+  return sha256(JSON.stringify({
+    provider: "google",
+    text: String(text || "").trim(),
+    voiceName,
+    languageCode,
+    speakingRate,
+    includeWordTimings: Boolean(includeWordTimings),
+  }));
+}
+
+function getSpacesConfig() {
+  const endpoint = String(env.DO_SPACES_ENDPOINT || "").replace(/\/+$/, "");
+  const region = String(env.DO_SPACES_REGION || "").trim();
+  const bucket = String(env.DO_SPACES_BUCKET || "").trim();
+  const accessKeyId = String(env.DO_SPACES_ACCESS_KEY_ID || "").trim();
+  const secretAccessKey = String(env.DO_SPACES_SECRET_ACCESS_KEY || "").trim();
+  const publicBaseUrl = String(env.DO_SPACES_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
+
+  if (!endpoint || !region || !bucket || !accessKeyId || !secretAccessKey || !publicBaseUrl) {
+    return null;
+  }
+
+  return { endpoint, region, bucket, accessKeyId, secretAccessKey, publicBaseUrl };
+}
+
+async function getCachedTtsAudio(cacheKey) {
+  if (!sql) return null;
+
+  try {
+    await ensureTtsAudioCacheSchema();
+    const rows = await sql`
+      SELECT audio_url, word_timings
+      FROM tts_audio_cache
+      WHERE cache_key = ${cacheKey}
+      LIMIT 1
+    `;
+
+    if (!rows.length) return null;
+
+    await sql`
+      UPDATE tts_audio_cache
+      SET last_used_at = NOW()
+      WHERE cache_key = ${cacheKey}
+    `;
+
+    return rows[0];
+  } catch (error) {
+    console.warn("Could not read TTS cache:", error);
+    return null;
+  }
+}
+
+async function storeTtsAudio({ cacheKey, text, audioContent, voiceName, languageCode, speakingRate, includeWordTimings, wordTimings }) {
+  const spaces = getSpacesConfig();
+  if (!sql || !spaces) return null;
+
+  try {
+    await ensureTtsAudioCacheSchema();
+    const audioBuffer = Buffer.from(audioContent, "base64");
+    const objectKey = `tts/${cacheKey}.mp3`;
+    const audioUrl = `${spaces.publicBaseUrl}/${objectKey}`;
+
+    await uploadToSpaces({
+      ...spaces,
+      objectKey,
+      body: audioBuffer,
+      contentType: "audio/mpeg",
+    });
+
+    await sql`
+      INSERT INTO tts_audio_cache (
+        cache_key,
+        provider,
+        voice_name,
+        language_code,
+        speaking_rate,
+        include_word_timings,
+        text_hash,
+        audio_url,
+        audio_object_key,
+        word_timings,
+        created_at,
+        last_used_at
+      )
+      VALUES (
+        ${cacheKey},
+        ${"google"},
+        ${voiceName},
+        ${languageCode},
+        ${String(speakingRate)},
+        ${Boolean(includeWordTimings)},
+        ${sha256(String(text || "").trim())},
+        ${audioUrl},
+        ${objectKey},
+        ${JSON.stringify(wordTimings || [])},
+        NOW(),
+        NOW()
+      )
+      ON CONFLICT (cache_key) DO UPDATE SET
+        audio_url = EXCLUDED.audio_url,
+        audio_object_key = EXCLUDED.audio_object_key,
+        word_timings = EXCLUDED.word_timings,
+        last_used_at = NOW()
+    `;
+
+    return { audioUrl, objectKey };
+  } catch (error) {
+    console.warn("Could not store TTS audio cache:", error);
+    return null;
+  }
+}
+
+async function uploadToSpaces({ endpoint, region, bucket, accessKeyId, secretAccessKey, objectKey, body, contentType }) {
+  const host = new URL(endpoint).host;
+  const encodedKey = objectKey.split("/").map(encodeURIComponent).join("/");
+  const url = `${endpoint}/${bucket}/${encodedKey}`;
+  const now = new Date();
+  const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, "");
+  const dateStamp = amzDate.slice(0, 8);
+  const payloadHash = sha256(body);
+  const canonicalUri = `/${bucket}/${encodedKey}`;
+  const canonicalHeaders = [
+    `content-type:${contentType}`,
+    `host:${host}`,
+    "x-amz-acl:public-read",
+    `x-amz-content-sha256:${payloadHash}`,
+    `x-amz-date:${amzDate}`,
+  ].join("\n") + "\n";
+  const signedHeaders = "content-type;host;x-amz-acl;x-amz-content-sha256;x-amz-date";
+  const canonicalRequest = [
+    "PUT",
+    canonicalUri,
+    "",
+    canonicalHeaders,
+    signedHeaders,
+    payloadHash,
+  ].join("\n");
+  const credentialScope = `${dateStamp}/${region}/s3/aws4_request`;
+  const stringToSign = [
+    "AWS4-HMAC-SHA256",
+    amzDate,
+    credentialScope,
+    sha256(canonicalRequest),
+  ].join("\n");
+  const dateKey = hmac(`AWS4${secretAccessKey}`, dateStamp);
+  const regionKey = hmac(dateKey, region);
+  const serviceKey = hmac(regionKey, "s3");
+  const signingKey = hmac(serviceKey, "aws4_request");
+  const signature = hmac(signingKey, stringToSign, "hex");
+  const authorization = `AWS4-HMAC-SHA256 Credential=${accessKeyId}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
+
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: {
+      Authorization: authorization,
+      "Content-Type": contentType,
+      "x-amz-acl": "public-read",
+      "x-amz-content-sha256": payloadHash,
+      "x-amz-date": amzDate,
+    },
+    body,
+  });
+
+  if (!response.ok) {
+    const message = await response.text().catch(() => "");
+    throw new Error(`Spaces upload failed (${response.status}): ${message.slice(0, 200)}`);
+  }
+}
+
 function readJsonBody(req) {
   return new Promise((resolve, reject) => {
     let raw = "";
@@ -1906,16 +2290,83 @@ function readJsonBody(req) {
   });
 }
 
-async function explainPhrase(phraseText, preferredProvider) {
-  const result = await requestJsonFromProviders({
-    preferredProvider,
-    task: "lookup",
-    systemPrompt: SYSTEM_PROMPT,
-    userPrompt: `Phrase: ${phraseText}`,
-    includeProviderMeta: true,
-  });
+async function explainPhrase(phraseText, preferredProvider, sentenceContext = "", strictProvider = false) {
+  const hasContext = Boolean(String(sentenceContext || "").trim());
+  const userPrompt = hasContext
+    ? `Phrase: ${phraseText}\nSubtitle context: ${sentenceContext}`
+    : `Phrase: ${phraseText}\nNo subtitle context is provided. Explain this word or phrase generally. Do not mention subtitle context, videos, speakers, scenes, "here", or "in this sentence".`;
+  const result = strictProvider && preferredProvider && preferredProvider !== "auto"
+    ? {
+        ...(await requestJsonFromSingleProvider({
+          provider: preferredProvider,
+          systemPrompt: SYSTEM_PROMPT,
+          userPrompt,
+        })),
+        aiProvider: preferredProvider,
+        aiProviderLabel: getProviderLabel(preferredProvider),
+        aiModel: getAiHealth(preferredProvider).model,
+      }
+    : await requestJsonFromProviders({
+        preferredProvider,
+        task: "lookup",
+        systemPrompt: SYSTEM_PROMPT,
+        userPrompt,
+        includeProviderMeta: true,
+      });
 
   return normalizeAiResult(result);
+}
+
+function getRecommendedProviderForSavedPhrase({ phraseText, phraseType, difficultyLevel }) {
+  const text = String(phraseText || "").trim();
+  const type = String(phraseType || "word");
+  const isPhrase = /\s/.test(text) || type === "idiom" || type === "phrasal_verb" || type === "expression";
+  const isHardWord = type === "word" && (text.length >= 12 || /[-']/g.test(text));
+  return isPhrase || isHardWord || difficultyLevel === "advanced" ? "gemini" : "deepseek";
+}
+
+function buildPhraseExplanationFromAiResult(aiResult, phraseId, previousExplanation = null) {
+  return {
+    id: previousExplanation?.id || crypto.randomUUID(),
+    phraseId,
+    standardMeaning: aiResult.standardMeaning || "",
+    easyMeaning: aiResult.easyMeaning || "",
+    aiExplanation: aiResult.aiExplanation || "",
+    usageContext: aiResult.usageContext || "",
+    somaliMeaning: aiResult.somaliMeaning || "",
+    partOfSpeech: aiResult.partOfSpeech || "",
+    somaliExplanation: aiResult.somaliExplanation || "",
+    somaliSentence: aiResult.somaliSentence || "",
+    somaliSentenceTranslation: aiResult.somaliSentenceTranslation || "",
+    usageNote: aiResult.usageNote || "",
+    contextNote: aiResult.contextNote || "",
+    commonMistake: aiResult.commonMistake || "",
+    pronunciationText: aiResult.pronunciationText || "",
+    relatedPhrases: Array.isArray(aiResult.relatedPhrases) ? aiResult.relatedPhrases : [],
+    googleTranslation: previousExplanation?.googleTranslation,
+    googleTranslationUpdatedAt: previousExplanation?.googleTranslationUpdatedAt,
+    aiProvider: aiResult.aiProvider || "",
+    aiProviderLabel: aiResult.aiProviderLabel || "",
+    aiModel: aiResult.aiModel || "",
+  };
+}
+
+function buildPhraseExamplesFromAiResult(aiResult, phraseId) {
+  return (Array.isArray(aiResult.examples) ? aiResult.examples : []).map((example) => ({
+    id: crypto.randomUUID(),
+    phraseId,
+    exampleText: example.text || "",
+    exampleType: normalizeExampleType(example.type),
+    translationText: example.translation || "",
+  }));
+}
+
+function buildWordPrompt(word, sentenceContext = "") {
+  const context = String(sentenceContext || "").trim();
+  if (context) {
+    return `Word: ${word}\nSubtitle context: ${context}`;
+  }
+  return `Word: ${word}\nNo subtitle context is provided. Explain the word generally. Do not mention subtitle context, videos, speakers, scenes, "here", or "in this sentence".`;
 }
 
 async function generateRandomPhrases({ count, preferredProvider, difficulty, phraseType, category, excludePhrases }) {
@@ -1953,7 +2404,7 @@ async function getExtensionWordInsights({ word, sentenceContext, preferredProvid
     preferredProvider,
     task: "lookup",
     systemPrompt: EXTENSION_WORD_INSIGHTS_SYSTEM_PROMPT,
-    userPrompt: `Word: ${word}\nSubtitle context: ${sentenceContext || "(none)"}`,
+    userPrompt: buildWordPrompt(word, sentenceContext),
   });
 
   return normalizeExtensionWordInsights(result, { word, sentenceContext });
@@ -1964,11 +2415,47 @@ async function getExtensionWordAiExplanation({ word, sentenceContext, preferredP
     preferredProvider,
     task: "lookup",
     systemPrompt: EXTENSION_WORD_AI_EXPLANATION_SYSTEM_PROMPT,
-    userPrompt: `Word: ${word}\nSubtitle context: ${sentenceContext || "(none)"}`,
+    userPrompt: buildWordPrompt(word, sentenceContext),
   });
 
   return {
     aiExplanation: stringOrFallback(result?.aiExplanation, ""),
+  };
+}
+
+async function getExtensionSomaliSupport({ word, sentenceContext, preferredProvider, strictProvider = false }) {
+  const provider = preferredProvider || (getDeepSeekApiKey() ? "deepseek" : "auto");
+  const userPrompt = buildWordPrompt(word, sentenceContext).replace(/^Word:/, "English word:");
+  const result = strictProvider && provider !== "auto"
+    ? {
+        ...(await requestJsonFromSingleProvider({
+          provider,
+          systemPrompt: EXTENSION_SOMALI_SUPPORT_SYSTEM_PROMPT,
+          userPrompt,
+        })),
+        aiProvider: provider,
+        aiProviderLabel: getProviderLabel(provider),
+        aiModel: getAiHealth(provider).model,
+      }
+    : await requestJsonFromProviders({
+        preferredProvider: provider,
+        task: "bulk",
+        systemPrompt: EXTENSION_SOMALI_SUPPORT_SYSTEM_PROMPT,
+        userPrompt,
+        includeProviderMeta: true,
+      });
+
+  return {
+    somaliMeaning: stringOrFallback(result?.somaliMeaning, ""),
+    partOfSpeech: stringOrFallback(result?.partOfSpeech, ""),
+    somaliExplanation: stringOrFallback(result?.somaliExplanation, ""),
+    usageNote: stringOrFallback(result?.usageNote, ""),
+    somaliSentence: stringOrFallback(result?.somaliSentence, ""),
+    sentenceTranslation: stringOrFallback(result?.sentenceTranslation, ""),
+    contextNote: stringOrFallback(result?.contextNote, ""),
+    aiProvider: stringOrFallback(result?.aiProvider, provider),
+    aiProviderLabel: stringOrFallback(result?.aiProviderLabel, getProviderLabel(provider)),
+    aiModel: stringOrFallback(result?.aiModel, getAiHealth(provider).model),
   };
 }
 
@@ -2831,6 +3318,7 @@ function normalizeAiResult(result) {
     ? result.examples.slice(0, 5).map((example) => ({
         type: normalizeExampleType(example?.type),
         text: String(example?.text || "").trim() || "Example unavailable.",
+        translation: String(example?.translation || example?.translationText || "").trim(),
       }))
     : defaultExamples;
 
@@ -2849,8 +3337,12 @@ function normalizeAiResult(result) {
     usageContext: stringOrFallback(result?.usageContext, "Usage context unavailable."),
     examples,
     somaliMeaning: stringOrFallback(result?.somaliMeaning, "Macne lama helin."),
+    partOfSpeech: stringOrFallback(result?.partOfSpeech, ""),
     somaliExplanation: stringOrFallback(result?.somaliExplanation, "Sharaxaad lama helin."),
     somaliSentence: stringOrFallback(result?.somaliSentence, "Tusaale lama helin."),
+    somaliSentenceTranslation: stringOrFallback(result?.somaliSentenceTranslation, result?.sentenceTranslation || ""),
+    usageNote: stringOrFallback(result?.usageNote, ""),
+    contextNote: stringOrFallback(result?.contextNote, ""),
     commonMistake: stringOrFallback(result?.commonMistake, "No common mistake provided."),
     pronunciationText: stringOrFallback(result?.pronunciationText, "/unknown/"),
     relatedPhrases: relatedPhrases.length > 0 ? relatedPhrases : ["related phrase 1", "related phrase 2", "related phrase 3"],
