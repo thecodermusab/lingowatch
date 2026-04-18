@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate, useLocation } from "react-router-dom";
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,18 +8,21 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AppShell } from "@/components/layout/AppShell";
 
-const DashboardPage = lazy(() => import("./pages/Dashboard"));
+// Core pages — eager so they never show a spinner
+import DashboardPage from "./pages/Dashboard";
+import MediaPage from "./pages/media/MediaPage";
+import WatchWorkspacePage from "./pages/WatchWorkspace";
+import LibraryPage from "./pages/Library";
+import PhraseDetailPage from "./pages/PhraseDetail";
+import StoriesPage from "./pages/Stories";
+
+// Less-visited pages — lazy loaded
 const RandomPhrasesPage = lazy(() => import("./pages/RandomPhrases"));
 const AddPhrasePage = lazy(() => import("./pages/AddPhrase"));
-const LibraryPage = lazy(() => import("./pages/Library"));
 const InboxPage = lazy(() => import("./pages/Inbox"));
-const PhraseDetailPage = lazy(() => import("./pages/PhraseDetail"));
 const ReviewPage = lazy(() => import("./pages/Review"));
 const ProgressPage = lazy(() => import("./pages/Progress"));
 const SettingsPage = lazy(() => import("./pages/Settings"));
-const WatchWorkspacePage = lazy(() => import("./pages/WatchWorkspace"));
-const StoriesPage = lazy(() => import("./pages/Stories"));
-const MediaPage = lazy(() => import("./pages/media/MediaPage"));
 const PodcastPlayerPage = lazy(() => import("./pages/media/PodcastPlayerPage"));
 const BookReaderPage = lazy(() => import("./pages/reader/BookReaderPage"));
 const ImportedTextReaderPage = lazy(() => import("./pages/reader/ImportedTextReaderPage"));
@@ -29,12 +32,20 @@ const queryClient = new QueryClient();
 
 function PageLoader() {
   return (
-    <div className="app-page">
-      <div className="admin-panel admin-panel-body flex min-h-[320px] items-center justify-center text-sm text-muted-foreground">
-        Loading...
-      </div>
+    <div className="flex h-screen w-full items-center justify-center">
+      <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
     </div>
   );
+}
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [pathname]);
+
+  return null;
 }
 
 function AppRoutes() {
@@ -44,6 +55,7 @@ function AppRoutes() {
 
   const routes = (
     <Suspense fallback={<PageLoader />}>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/login" element={<Navigate to="/dashboard" replace />} />

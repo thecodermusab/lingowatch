@@ -1,50 +1,88 @@
 import { ReactNode, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, PlusCircle, Library, RotateCcw, Settings, Menu, X, Shuffle, BarChart3, BookText, Film, Sun, Moon } from "lucide-react";
+import {
+  LayoutDashboard,
+  PlusCircle,
+  Library,
+  RotateCcw,
+  Settings,
+  Menu,
+  X,
+  Shuffle,
+  BarChart3,
+  BookText,
+  Film,
+  Sun,
+  Moon,
+  Inbox,
+} from "lucide-react";
 import { SelectionLearningOverlay } from "@/components/learning/SelectionLearningOverlay";
 import { useTheme } from "@/contexts/ThemeContext";
 
 const navGroups = [
-  [
-    { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { to: "/random-phrases", label: "Random", icon: Shuffle },
-    { to: "/add-phrase", label: "Add Phrase", icon: PlusCircle },
-  ],
-  [
-    { to: "/library", label: "Library", icon: Library },
-    { to: "/stories", label: "Stories", icon: BookText },
-    { to: "/media", label: "Media", icon: Film },
-    { to: "/review", label: "Review", icon: RotateCcw },
-    { to: "/progress", label: "Progress", icon: BarChart3 },
-  ],
-  [
-    { to: "/settings", label: "Settings", icon: Settings },
-  ],
+  {
+    label: "Learning",
+    links: [
+      { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { to: "/random-phrases", label: "Random", icon: Shuffle },
+      { to: "/add-phrase", label: "Add Phrase", icon: PlusCircle },
+      { to: "/inbox", label: "Inbox", icon: Inbox },
+    ],
+  },
+  {
+    label: "Workspace",
+    links: [
+      { to: "/library", label: "Library", icon: Library },
+      { to: "/stories", label: "Stories", icon: BookText },
+      { to: "/media", label: "Media", icon: Film },
+      { to: "/review", label: "Review", icon: RotateCcw },
+      { to: "/progress", label: "Progress", icon: BarChart3 },
+    ],
+  },
+  {
+    label: "System",
+    links: [{ to: "/settings", label: "Settings", icon: Settings }],
+  },
 ];
+
+function isActiveRoute(pathname: string, target: string) {
+  if (target === "/dashboard") {
+    return pathname === target;
+  }
+  return pathname === target || pathname.startsWith(`${target}/`);
+}
 
 function SidebarLinks({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation();
-  const { isDark, toggleTheme } = useTheme();
 
   return (
     <div className="space-y-6">
       {navGroups.map((group, groupIndex) => (
-        <div key={groupIndex} className={groupIndex > 0 ? "border-t border-white/10 pt-6" : ""}>
-          <div className="space-y-1.5">
-            {group.map((item) => {
-              const active = location.pathname === item.to;
+        <div key={group.label} className={groupIndex > 0 ? "border-t border-sidebar-border/75 pt-6" : ""}>
+          <p className="px-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-sidebar-foreground/44">
+            {group.label}
+          </p>
+          <div className="mt-2 space-y-1.5">
+            {group.links.map((item) => {
+              const active = isActiveRoute(location.pathname, item.to);
               return (
                 <Link
                   key={item.to}
                   to={item.to}
                   onClick={onNavigate}
-                  className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-colors ${
+                  className={`group flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-medium transition-all ${
                     active
-                      ? "bg-white/10 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]"
-                      : "text-white/60 hover:bg-white/5 hover:text-white"
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_14px_34px_rgba(0,0,0,0.26)]"
+                      : "text-sidebar-foreground/72 hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
                   }`}
                 >
-                  <span className={`flex h-8 w-8 items-center justify-center rounded-xl ${active ? "bg-white/10" : "bg-white/5"}`}>
+                  <span
+                    className={`flex h-9 w-9 items-center justify-center rounded-xl transition-colors ${
+                      active
+                        ? "bg-primary/20 text-primary"
+                        : "bg-white/[0.06] text-sidebar-foreground/74 group-hover:bg-white/[0.11] group-hover:text-sidebar-foreground"
+                    }`}
+                  >
                     <item.icon className="h-4 w-4" />
                   </span>
                   <span>{item.label}</span>
@@ -54,7 +92,6 @@ function SidebarLinks({ onNavigate }: { onNavigate?: () => void }) {
           </div>
         </div>
       ))}
-
     </div>
   );
 }
@@ -67,11 +104,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { isDark, toggleTheme } = useTheme();
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur lg:hidden">
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="sticky top-0 z-40 border-b border-border/80 bg-background/80 backdrop-blur-xl lg:hidden">
         <div className="flex h-16 items-center justify-between px-4">
-          <Link to="/dashboard" className="flex items-center gap-3">
-            <img src="/Logo.png" alt="Lingowatch logo" className="h-20 w-20 object-contain" />
+          <Link to="/dashboard" className="flex min-w-0 items-center gap-2.5">
+            <img src="/Logo.png" alt="Lingowatch logo" width="80" height="80" className="h-11 w-11 object-contain" />
             <div>
               <p className="text-base font-semibold text-foreground">Lingowatch</p>
               <p className="text-xs text-muted-foreground">Watch, save, learn</p>
@@ -80,32 +117,36 @@ export function AppShell({ children }: { children: ReactNode }) {
 
           <button
             type="button"
-            className="rounded-xl border border-border bg-card p-2 text-foreground shadow-sm"
+            className="rounded-xl border border-border bg-card/90 p-2 text-foreground shadow-sm"
             onClick={() => setMobileOpen((open) => !open)}
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
       </header>
 
-      <aside className="fixed inset-y-0 left-0 hidden w-80 bg-background lg:block">
-        <div className={`h-full py-0 pl-0 ${isMediaRoute ? "pr-0" : "pr-4"}`}>
+      <aside className="fixed inset-y-0 left-0 hidden w-[19.5rem] bg-background lg:block">
+        <div className={`h-full py-4 pl-4 ${isMediaRoute ? "pr-0" : "pr-5"}`}>
           <div
-            className={`flex h-full flex-col border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-[0_18px_42px_rgba(0,0,0,0.22)] ${
-              isMediaRoute ? "rounded-r-none rounded-l-none" : "rounded-r-[1.75rem] rounded-l-none"
+            className={`flex h-full flex-col overflow-hidden border border-sidebar-border/90 bg-sidebar/95 text-sidebar-foreground shadow-[0_30px_64px_rgba(0,0,0,0.34)] backdrop-blur-xl ${
+              isMediaRoute ? "rounded-l-none rounded-r-none" : "rounded-[1.75rem]"
             }`}
           >
-            <div className="px-5 py-5">
-              <Link to="/dashboard" className="flex items-center gap-1 rounded-2xl">
-                <img src="/Logo.png" alt="Lingowatch logo" className="h-[4.5rem] w-[4.5rem] shrink-0 object-contain" />
-                <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+            <div className="border-b border-sidebar-border/80 px-5 py-5">
+              <Link to="/dashboard" className="flex items-center gap-2.5 rounded-2xl">
+                <img src="/Logo.png" alt="Lingowatch logo" width="72" height="72" className="h-14 w-14 shrink-0 object-contain" />
+                <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-xl text-white" style={{ fontFamily: "Qurova, sans-serif", fontWeight: 600 }}>Lingowatch</p>
+                    <p className="text-xl text-white" style={{ fontFamily: "Qurova, sans-serif", fontWeight: 600 }}>
+                      Lingowatch
+                    </p>
+                    <p className="mt-0.5 text-[11px] uppercase tracking-[0.16em] text-white/45">Fluent every day</p>
                   </div>
                   <button
                     type="button"
                     onClick={toggleTheme}
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
                     aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
                     title={isDark ? "Light mode" : "Dark mode"}
                   >
@@ -118,7 +159,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="flex-1 overflow-y-auto px-4 py-5">
               <SidebarLinks />
             </div>
-
           </div>
         </div>
       </aside>
@@ -131,12 +171,14 @@ export function AppShell({ children }: { children: ReactNode }) {
             onClick={() => setMobileOpen(false)}
             aria-label="Close menu"
           />
-          <div className="absolute left-0 top-0 h-full w-[17rem]">
-            <div className="flex h-full flex-col rounded-r-[1.75rem] border-r border-sidebar-border bg-sidebar text-sidebar-foreground shadow-xl">
+          <div className="absolute left-0 top-0 h-full w-[18rem] max-w-[90vw]">
+            <div className="flex h-full flex-col rounded-r-[1.75rem] border-r border-sidebar-border bg-sidebar text-sidebar-foreground shadow-[0_24px_56px_rgba(0,0,0,0.36)]">
               <div className="flex items-center gap-2 px-5 py-5">
                 <Link to="/dashboard" className="flex items-center gap-2" onClick={() => setMobileOpen(false)}>
-                  <img src="/Logo.png" alt="Lingowatch logo" className="h-14 w-14 object-contain" />
-                  <span className="text-lg text-white" style={{ fontFamily: "Qurova, sans-serif", fontWeight: 600 }}>Lingowatch</span>
+                  <img src="/Logo.png" alt="Lingowatch logo" width="56" height="56" className="h-12 w-12 object-contain" />
+                  <span className="text-lg text-white" style={{ fontFamily: "Qurova, sans-serif", fontWeight: 600 }}>
+                    Lingowatch
+                  </span>
                 </Link>
                 <button
                   type="button"
@@ -156,7 +198,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       ) : null}
 
-      <main ref={mainRef} className="min-h-screen bg-background lg:pl-80">
+      <main ref={mainRef} className="min-h-screen bg-transparent lg:pl-[19.5rem]">
         {children}
       </main>
       {location.pathname !== "/random-phrases" ? <SelectionLearningOverlay containerRef={mainRef} /> : null}

@@ -9,7 +9,12 @@ interface TranscriptListProps {
   autoScrollEnabled?: boolean;
 }
 
-export function TranscriptList({ cues, activeCueId, onSelect, autoScrollEnabled = true }: TranscriptListProps) {
+export function TranscriptList({
+  cues,
+  activeCueId,
+  onSelect,
+  autoScrollEnabled = true,
+}: TranscriptListProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const rowRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const previousCueIdRef = useRef<string | null>(null);
@@ -54,7 +59,11 @@ export function TranscriptList({ cues, activeCueId, onSelect, autoScrollEnabled 
     <div ref={containerRef} className="min-h-0 flex-1 overflow-y-auto bg-[#171b20] [overflow-anchor:none]">
       {cues.map((cue) => (
         <div key={cue.id} ref={(node) => (rowRefs.current[cue.id] = node)}>
-          <TranscriptRow cue={cue} active={cue.id === activeCueId} onSelect={onSelect} />
+          <TranscriptRow
+            cue={cue}
+            active={cue.id === activeCueId}
+            onSelect={onSelect}
+          />
         </div>
       ))}
     </div>

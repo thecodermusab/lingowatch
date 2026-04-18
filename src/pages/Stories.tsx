@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { BookText, Trash2, ArrowLeft, Globe, ExternalLink } from "lucide-react";
+import { BookText, Trash2, ArrowLeft, Globe, ExternalLink, Loader2, Play, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
+import { SyncedTtsText, getActiveWordIndex } from "@/components/reader/SyncedTtsText";
+import { fetchTimedTtsAudio, TtsWordTiming } from "@/lib/tts";
 
 interface StoryEntry {
   id: string;
@@ -103,6 +105,59 @@ function WorldBookCard({ story, onClick }: { story: WorldStory; onClick: () => v
 }
 
 function ReadingView({ story, onBack, onDelete }: { story: StoryEntry; onBack: () => void; onDelete: () => void }) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const wordStartsRef = useRef<number[]>([]);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [activeWordIndex, setActiveWordIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      audioRef.current?.pause();
+      audioRef.current = null;
+    };
+  }, []);
+
+  const stopListening = () => {
+    audioRef.current?.pause();
+    audioRef.current = null;
+    wordStartsRef.current = [];
+    setIsPlayingAudio(false);
+    setIsLoadingAudio(false);
+    setActiveWordIndex(null);
+  };
+
+  const playStory = async () => {
+    if (isPlayingAudio || isLoadingAudio) {
+      stopListening();
+      return;
+    }
+
+    setIsLoadingAudio(true);
+    setActiveWordIndex(null);
+
+    const result = await fetchTimedTtsAudio(story.content.replace(/\*\*/g, ""));
+    if (!result) {
+      setIsLoadingAudio(false);
+      return;
+    }
+
+    const timings: TtsWordTiming[] = result.wordTimings || [];
+    wordStartsRef.current = timings.map((timing) => timing.startTime);
+
+    const audio = new Audio(result.audioUrl);
+    audioRef.current = audio;
+    audio.addEventListener("timeupdate", () => {
+      setActiveWordIndex(getActiveWordIndex(audio.currentTime, wordStartsRef.current));
+    });
+    audio.addEventListener("ended", stopListening);
+    audio.addEventListener("error", stopListening);
+
+    setIsLoadingAudio(false);
+    setIsPlayingAudio(true);
+    await audio.play().catch(stopListening);
+  };
+
   return (
     <div className="app-page">
       <div className="mx-auto max-w-2xl px-4 py-10">
@@ -127,11 +182,40 @@ function ReadingView({ story, onBack, onDelete }: { story: StoryEntry; onBack: (
             <p className="mt-2 text-sm text-muted-foreground">
               {new Date(story.createdAt).toLocaleDateString(undefined, { dateStyle: "long" })}
             </p>
+            <Button
+              type="button"
+              size="sm"
+              className="mt-5 gap-2"
+              variant={isPlayingAudio ? "outline" : "default"}
+              onClick={playStory}
+            >
+              {isLoadingAudio ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : isPlayingAudio ? (
+                <Square className="h-4 w-4" fill="currentColor" />
+              ) : (
+                <Play className="h-4 w-4" fill="currentColor" />
+              )}
+              {isPlayingAudio ? "Stop listening" : "Listen"}
+            </Button>
           </header>
 
           <div className="prose prose-lg mx-auto max-w-none text-center">
             <p className="text-lg leading-relaxed text-foreground/90">
-              {renderContent(story.content)}
+              {isPlayingAudio || activeWordIndex !== null ? (
+                <SyncedTtsText
+                  text={story.content.replace(/\*\*/g, "")}
+                  activeWordIndex={activeWordIndex}
+                  wordClassName="transition-colors duration-100"
+                  inactiveStyle={{ color: "#888" }}
+                  activeStyle={{
+                    color: "#1F383C",
+                    textShadow: "0 0 8px rgba(31, 56, 60, 0.85), 0 0 18px rgba(31, 56, 60, 0.45)",
+                  }}
+                />
+              ) : (
+                renderContent(story.content)
+              )}
             </p>
           </div>
         </article>

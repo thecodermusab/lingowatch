@@ -42,8 +42,12 @@ export interface PhraseExplanation {
   aiExplanation: string;
   usageContext: string;
   somaliMeaning: string;
+  partOfSpeech?: string;
   somaliExplanation: string;
   somaliSentence: string;
+  somaliSentenceTranslation?: string;
+  usageNote?: string;
+  contextNote?: string;
   commonMistake: string;
   pronunciationText: string;
   relatedPhrases: string[];
@@ -78,10 +82,14 @@ export interface AIGenerationResult {
   easyMeaning: string;
   aiExplanation: string;
   usageContext: string;
-  examples: { type: ExampleType; text: string }[];
+  examples: { type: ExampleType; text: string; translation?: string }[];
   somaliMeaning: string;
+  partOfSpeech?: string;
   somaliExplanation: string;
   somaliSentence: string;
+  somaliSentenceTranslation?: string;
+  usageNote?: string;
+  contextNote?: string;
   commonMistake: string;
   pronunciationText: string;
   relatedPhrases: string[];

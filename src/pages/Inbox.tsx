@@ -53,24 +53,24 @@ function getDisplayNote(capture: InboxCapture) {
 function getStatusStyles(status: InboxCapture["status"]) {
   if (status === "imported") {
     return {
-      badge: "border-emerald-400/20 bg-emerald-400/12 text-emerald-200",
-      card: "border-emerald-400/18 bg-[#131c19]",
-      accent: "from-emerald-400/18 to-transparent",
+      badge: "border-success/25 bg-success/10 text-success",
+      card: "border-success/25 bg-card/95",
+      accent: "from-success/20 via-success/6 to-transparent",
     };
   }
 
   if (status === "archived") {
     return {
-      badge: "border-white/10 bg-white/[0.05] text-white/72",
-      card: "border-white/10 bg-[#141920]",
-      accent: "from-white/8 to-transparent",
+      badge: "border-border bg-secondary/55 text-muted-foreground",
+      card: "border-border bg-card/95",
+      accent: "from-secondary/65 via-secondary/20 to-transparent",
     };
   }
 
   return {
-    badge: "border-amber-300/20 bg-amber-300/12 text-amber-200",
-    card: "border-violet-400/20 bg-[#171a24]",
-    accent: "from-violet-400/16 to-transparent",
+    badge: "border-accent/25 bg-accent/15 text-accent",
+    card: "border-accent/25 bg-card/95",
+    accent: "from-accent/22 via-accent/7 to-transparent",
   };
 }
 
@@ -195,14 +195,14 @@ export default function InboxPage() {
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-[#11161f] shadow-[0_30px_80px_rgba(3,8,20,0.3)]">
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-[radial-gradient(circle_at_top_left,rgba(168,85,247,0.14),transparent_48%),radial-gradient(circle_at_top_right,rgba(245,158,11,0.1),transparent_44%)]" />
+        <div className="admin-panel relative overflow-hidden">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-br from-accent/20 via-primary/10 to-transparent" />
           <div className="workspace-section-header relative z-10">
             <div>
               <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/45">Shared Capture</p>
               <h2 className="mt-1 text-xl font-semibold text-white">Extension saves</h2>
             </div>
-            <Button variant="outline" className="h-10 rounded-xl border-white/15 bg-white/5 text-white hover:bg-white/10" onClick={() => void loadInbox()}>
+            <Button variant="outline" className="h-10 rounded-xl" onClick={() => void loadInbox()}>
               Refresh
             </Button>
           </div>
@@ -224,7 +224,7 @@ export default function InboxPage() {
               {filteredCaptures.map((capture) => (
                 <div
                   key={capture.id}
-                  className={`group relative flex min-h-[250px] flex-col overflow-hidden rounded-[28px] border p-5 shadow-[0_20px_55px_rgba(3,8,20,0.28)] ${getStatusStyles(capture.status).card}`}
+                  className={`group relative flex min-h-[250px] flex-col overflow-hidden rounded-[1.5rem] border p-5 shadow-[0_16px_34px_rgba(0,0,0,0.2)] ${getStatusStyles(capture.status).card}`}
                 >
                   <div className={`pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-br ${getStatusStyles(capture.status).accent}`} />
 
@@ -235,24 +235,24 @@ export default function InboxPage() {
                           {capture.status}
                         </span>
                         {capture.sourceHost ? (
-                          <span className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] font-medium text-white/58">
+                          <span className="rounded-full bg-secondary/65 px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
                             {formatCaptureHost(capture.sourceHost)}
                           </span>
                         ) : null}
                         {formatCaptureTimestamp(capture.timestampSeconds) ? (
-                          <span className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] font-medium text-white/58">
+                          <span className="rounded-full bg-secondary/65 px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
                             {formatCaptureTimestamp(capture.timestampSeconds)}
                           </span>
                         ) : null}
                       </div>
 
-                      <h3 className="mt-3 text-[2rem] font-semibold tracking-tight text-white">
+                      <h3 className="mt-3 text-[2rem] font-semibold tracking-tight text-foreground">
                         {capture.displayWord || capture.word}
                       </h3>
                       {capture.translation ? (
-                        <p className="mt-2 text-xl font-semibold text-amber-300">{capture.translation}</p>
+                        <p className="mt-2 text-xl font-semibold text-primary">{capture.translation}</p>
                       ) : (
-                        <p className="mt-2 text-sm text-white/42">No Somali meaning yet</p>
+                        <p className="mt-2 text-sm text-muted-foreground">No Somali meaning yet</p>
                       )}
                     </div>
 
@@ -262,7 +262,7 @@ export default function InboxPage() {
                           href={capture.sourceUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] text-white/72 transition hover:border-white/18 hover:bg-white/[0.1] hover:text-white"
+                          className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border bg-secondary/40 text-muted-foreground transition hover:border-border hover:bg-secondary/70 hover:text-foreground"
                           aria-label="Open source"
                         >
                           <ExternalLink className="h-4 w-4" />
@@ -272,7 +272,7 @@ export default function InboxPage() {
                       {capture.status !== "archived" ? (
                         <button
                           type="button"
-                          className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] text-white/58 transition hover:border-white/18 hover:bg-white/[0.1] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                          className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border bg-secondary/40 text-muted-foreground transition hover:border-border hover:bg-secondary/70 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
                           disabled={busyId === capture.id}
                           onClick={() => void handleArchive(capture)}
                           aria-label="Archive capture"
@@ -284,20 +284,20 @@ export default function InboxPage() {
                   </div>
 
                   {capture.sentenceContext ? (
-                    <div className="relative z-10 mt-4 rounded-[22px] border border-white/10 bg-white/[0.04] px-4 py-3">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/36">From subtitle</p>
-                      <p className="mt-2 line-clamp-2 text-sm italic leading-6 text-slate-200/88">
+                    <div className="relative z-10 mt-4 rounded-[1.2rem] border border-border bg-secondary/35 px-4 py-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">From subtitle</p>
+                      <p className="mt-2 line-clamp-2 text-sm italic leading-6 text-foreground/88">
                         {capture.sentenceContext}
                       </p>
                     </div>
                   ) : null}
 
                   {getDisplayNote(capture) ? (
-                    <p className="relative z-10 mt-3 line-clamp-2 text-sm leading-6 text-white/64">{getDisplayNote(capture)}</p>
+                    <p className="relative z-10 mt-3 line-clamp-2 text-sm leading-6 text-muted-foreground">{getDisplayNote(capture)}</p>
                   ) : null}
 
                   <div className="relative z-10 mt-auto pt-5">
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-[12px] text-white/48">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-[12px] text-muted-foreground">
                       <span>{formatDistanceToNow(new Date(capture.createdAt), { addSuffix: true })}</span>
                       {capture.sourceTitle ? <span className="line-clamp-1 max-w-full">{capture.sourceTitle}</span> : null}
                     </div>
@@ -305,7 +305,7 @@ export default function InboxPage() {
                     <div className="mt-4 flex flex-wrap items-center gap-2">
                       {capture.status !== "imported" ? (
                         <Button
-                          className="h-11 rounded-2xl bg-white text-slate-950 shadow-none transition hover:bg-white/92"
+                          className="h-11 rounded-2xl"
                           disabled={busyId === capture.id}
                           onClick={() => void handleAddToLibrary(capture)}
                         >
@@ -314,13 +314,13 @@ export default function InboxPage() {
                         </Button>
                       ) : capture.importedPhraseId ? (
                         <Link to={`/phrase/${capture.importedPhraseId}`}>
-                          <Button className="h-11 rounded-2xl bg-emerald-300 text-emerald-950 shadow-none transition hover:bg-emerald-200">
+                          <Button className="h-11 rounded-2xl bg-success/20 text-success shadow-none transition hover:bg-success/30">
                             <CheckCircle2 className="mr-2 h-4 w-4" />
                             Open phrase
                           </Button>
                         </Link>
                       ) : (
-                        <div className="inline-flex h-11 items-center rounded-2xl border border-emerald-300/18 bg-emerald-300/10 px-4 text-sm font-medium text-emerald-200">
+                        <div className="inline-flex h-11 items-center rounded-2xl border border-success/25 bg-success/10 px-4 text-sm font-medium text-success">
                           Imported
                         </div>
                       )}

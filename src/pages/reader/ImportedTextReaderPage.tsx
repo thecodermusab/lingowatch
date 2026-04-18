@@ -7,11 +7,12 @@ import {
 
 import { AnnotationToolbar, HighlightColor } from "@/components/reader/AnnotationToolbar";
 import { HighlightableText, TextHighlight } from "@/components/reader/HighlightableText";
+import { SyncedTtsText, getActiveWordIndex } from "@/components/reader/SyncedTtsText";
 
 import { fetchImportedTextById } from "@/lib/importedTexts";
 import { useAuth } from "@/contexts/AuthContext";
 import { translateTexts } from "@/lib/googleTranslate";
-import { getTtsAudioDataUrl } from "@/lib/tts";
+import { fetchTimedTtsAudio, TtsAudioResult } from "@/lib/tts";
 
 interface AnnotationState {
   text: string;
@@ -50,7 +51,9 @@ export default function ImportedTextReaderPage() {
   const [isPlayingAll, setIsPlayingAll] = useState(false);
   const isPlayingAllRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const ttsCache = useRef(new Map<string, string>());
+  const ttsCache = useRef(new Map<string, TtsAudioResult>());
+  const activeWordStartsRef = useRef<number[]>([]);
+  const [activeTtsWordIndex, setActiveTtsWordIndex] = useState<number | null>(null);
 
   const [annotationState, setAnnotationState] = useState<AnnotationState | null>(null);
   const [activeHighlight, setActiveHighlight] = useState<ActiveHighlightState | null>(null);
@@ -71,6 +74,13 @@ export default function ImportedTextReaderPage() {
       setTranslatedSentences({});
     }
   }, [id]);
+
+  useEffect(() => {
+    return () => {
+      audioRef.current?.pause();
+      audioRef.current = null;
+    };
+  }, []);
 
   const handleMouseUp = useCallback(() => {
     setTimeout(() => {
@@ -156,30 +166,36 @@ export default function ImportedTextReaderPage() {
     setActiveHighlight(null);
   };
 
-  async function getSentenceAudioUrl(id: string, text: string) {
-    let dataUrl = ttsCache.current.get(id);
-    if (!dataUrl) {
+  async function getSentenceAudio(id: string, text: string) {
+    let result = ttsCache.current.get(id);
+    if (!result) {
       try {
-        dataUrl = await getTtsAudioDataUrl(text);
-        if (!dataUrl) return null;
-        ttsCache.current.set(id, dataUrl);
+        result = await fetchTimedTtsAudio(text);
+        if (!result) return null;
+        ttsCache.current.set(id, result);
       } catch (err) {
         console.error("TTS error", err);
         return null;
       }
     }
-    return dataUrl;
+    return result;
   }
 
   async function playSentenceAudio(id: string, text: string) {
-    const dataUrl = await getSentenceAudioUrl(id, text);
-    if (!dataUrl) return;
+    const result = await getSentenceAudio(id, text);
+    if (!result) return;
 
-    const audio = new Audio(dataUrl);
+    const audio = new Audio(result.audioUrl);
     audioRef.current = audio;
+    activeWordStartsRef.current = result.wordTimings.map((timing) => timing.startTime);
+    setActiveTtsWordIndex(null);
     setPlayingId(id);
     await new Promise<void>((resolve) => {
+      audio.ontimeupdate = () => {
+        setActiveTtsWordIndex(getActiveWordIndex(audio.currentTime, activeWordStartsRef.current));
+      };
       audio.onended = () => resolve();
+      audio.onpause = () => resolve();
       audio.onerror = () => resolve();
       audio.play().catch((err) => {
         console.error("Audio playback error", err);
@@ -187,12 +203,14 @@ export default function ImportedTextReaderPage() {
       });
     });
     setPlayingId(null);
+    setActiveTtsWordIndex(null);
   }
 
   async function speakSentence(id: string, text: string) {
     if (playingId === id) {
       audioRef.current?.pause();
       setPlayingId(null);
+      setActiveTtsWordIndex(null);
       return;
     }
     audioRef.current?.pause();
@@ -205,6 +223,7 @@ export default function ImportedTextReaderPage() {
       setIsPlayingAll(false);
       audioRef.current?.pause();
       setPlayingId(null);
+      setActiveTtsWordIndex(null);
       return;
     }
 
@@ -409,23 +428,36 @@ export default function ImportedTextReaderPage() {
                                 }
                               </button>
                               <p id={`sentence-text-${sentence.id}`} className={`relative text-[15px] font-medium leading-[1.8] tracking-wide md:text-[16px] ${isSelected ? 'text-white' : 'text-[#cccccc]'}`}>
-                                <HighlightableText
-                                   text={sentence.eng}
-                                   highlights={highlights[sentence.id] || []}
-                                   onHighlightClick={(hl, e) => {
-                                     e.stopPropagation();
-                                     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-                                     setActiveHighlight({
-                                        highlight: { id: hl.id, color: hl.color, note: hl.note },
-                                        x: rect.left + rect.width / 2,
-                                        y: rect.bottom + 8,
-                                        sentenceId: sentence.id,
-                                        text: sentence.eng.slice(hl.start, hl.end)
-                                     });
-                                     setAnnotationState(null);
-                                     window.getSelection()?.removeAllRanges();
-                                   }}
-                                />
+                                {playingId === sentence.id ? (
+                                  <SyncedTtsText
+                                    text={sentence.eng}
+                                    activeWordIndex={activeTtsWordIndex}
+                                    wordClassName="transition-colors duration-100"
+                                    inactiveStyle={{ color: "#888" }}
+                                    activeStyle={{
+                                      color: "#ff5f7e",
+                                      textShadow: "0 0 8px rgba(255, 95, 126, 0.95), 0 0 18px rgba(255, 49, 91, 0.65)",
+                                    }}
+                                  />
+                                ) : (
+                                  <HighlightableText
+                                     text={sentence.eng}
+                                     highlights={highlights[sentence.id] || []}
+                                     onHighlightClick={(hl, e) => {
+                                       e.stopPropagation();
+                                       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                                       setActiveHighlight({
+                                          highlight: { id: hl.id, color: hl.color, note: hl.note },
+                                          x: rect.left + rect.width / 2,
+                                          y: rect.bottom + 8,
+                                          sentenceId: sentence.id,
+                                          text: sentence.eng.slice(hl.start, hl.end)
+                                       });
+                                       setAnnotationState(null);
+                                       window.getSelection()?.removeAllRanges();
+                                     }}
+                                  />
+                                )}
                               </p>
                            </div>
 

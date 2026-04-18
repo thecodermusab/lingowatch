@@ -1,6 +1,6 @@
 # Lingowatch
 
-TODO: Document your project here
+To run the project: 
 
 Terminal 1 — Vite + Node server together:  
  npm run dev

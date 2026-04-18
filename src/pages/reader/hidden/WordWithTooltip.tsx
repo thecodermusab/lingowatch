@@ -10,9 +10,10 @@ interface WordWithTooltipProps {
   onSave?: (word: string, translation: string) => void;
   isSaved?: boolean;
   disabled?: boolean;
+  trailingSpace?: boolean;
 }
 
-export function WordWithTooltip({ word, onSave, isSaved, disabled }: WordWithTooltipProps) {
+export function WordWithTooltip({ word, onSave, isSaved, disabled, trailingSpace = true }: WordWithTooltipProps) {
   const [translation, setTranslation] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -55,7 +56,7 @@ export function WordWithTooltip({ word, onSave, isSaved, disabled }: WordWithToo
   if (disabled) {
     return (
       <span className="relative -mx-[1px] px-[1px]">
-        {word}{" "}
+        {word}{trailingSpace ? " " : ""}
       </span>
     );
   }
@@ -81,7 +82,7 @@ export function WordWithTooltip({ word, onSave, isSaved, disabled }: WordWithToo
               : "hover:bg-white/10"
           }`}
         >
-          {word}{" "}
+          {word}{trailingSpace ? " " : ""}
         </span>
       </HoverCardTrigger>
       <HoverCardContent
@@ -90,8 +91,7 @@ export function WordWithTooltip({ word, onSave, isSaved, disabled }: WordWithToo
         className="w-auto min-w-[100px] max-w-[140px] bg-[#2B2D31] border border-[#3E4044] shadow-2xl rounded-[10px] p-0 overflow-hidden flex flex-col font-sans"
         sideOffset={6}
       >
-        <div className="flex flex-col items-center justify-center px-3 pt-4 pb-3 min-h-[90px] gap-1.5">
-          <span className="text-[10px] text-white/30 uppercase tracking-widest">Somali</span>
+        <div className="flex flex-col items-center justify-center px-3 py-3 min-h-[72px] gap-1.5">
           {isLoading ? (
             <Loader2 className="w-4 h-4 animate-spin text-white/50" />
           ) : translation ? (

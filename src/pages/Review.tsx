@@ -3,13 +3,13 @@ import { usePhraseStore } from "@/hooks/usePhraseStore";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RotateCcw, Eye, BookOpen, Keyboard, Volume2, CheckCircle2, Trophy, Loader2, Sparkles } from "lucide-react";
-import { ReviewRating, Phrase, PreferredAiProvider, AIGenerationResult } from "@/types";
+import { ReviewRating, Phrase, AIGenerationResult } from "@/types";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { getReviewStage, getReviewTimingPreview } from "@/lib/review";
 import { speakText } from "@/lib/tts";
-import { AI_PROVIDER_OPTIONS, generateAIExplanation, getAiProviderLabel } from "@/lib/ai";
+import { generateAIExplanation, getAiProviderLabel, getSavedWordRegenerationProvider, SAVED_WORD_REGENERATION_OPTIONS } from "@/lib/ai";
 import { translateText } from "@/lib/googleTranslate";
 import { useToast } from "@/hooks/use-toast";
 
@@ -95,7 +95,7 @@ export default function ReviewPage() {
   const [sessionDone, setSessionDone] = useState(false);
   const [sessionStats, setSessionStats] = useState({ again: 0, hard: 0, good: 0, easy: 0 });
   const [googleTranslation, setGoogleTranslation] = useState("");
-  const [reExplainProvider, setReExplainProvider] = useState<PreferredAiProvider>(user?.preferredAiProvider || "auto");
+  const [reExplainProvider, setReExplainProvider] = useState<"deepseek" | "gemini">("deepseek");
   const [isReExplaining, setIsReExplaining] = useState(false);
 
   const reviewList = useMemo(() => {
@@ -112,6 +112,14 @@ export default function ReviewPage() {
     () => getReviewStage(currentPhrase?.review),
     [currentPhrase]
   );
+  const recommendedReExplainProvider = useMemo(
+    () => getSavedWordRegenerationProvider(currentPhrase),
+    [currentPhrase]
+  );
+
+  useEffect(() => {
+    setReExplainProvider(recommendedReExplainProvider);
+  }, [recommendedReExplainProvider]);
 
   function speakCurrentPrompt() {
     if (!currentPhrase) return;
@@ -126,8 +134,12 @@ export default function ReviewPage() {
     aiExplanation: result.aiExplanation,
     usageContext: result.usageContext,
     somaliMeaning: result.somaliMeaning,
+    partOfSpeech: result.partOfSpeech,
     somaliExplanation: result.somaliExplanation,
     somaliSentence: result.somaliSentence,
+    somaliSentenceTranslation: result.somaliSentenceTranslation,
+    usageNote: result.usageNote,
+    contextNote: result.contextNote,
     commonMistake: result.commonMistake,
     pronunciationText: result.pronunciationText,
     relatedPhrases: result.relatedPhrases,
@@ -142,7 +154,7 @@ export default function ReviewPage() {
     if (!currentPhrase) return;
     setIsReExplaining(true);
     try {
-      const result = await generateAIExplanation(currentPhrase.phraseText, reExplainProvider);
+      const result = await generateAIExplanation(currentPhrase.phraseText, reExplainProvider, true);
       updatePhrase(currentPhrase.id, {
         explanation: buildExplanation(currentPhrase, result),
         examples: result.examples?.map((example) => ({
@@ -150,6 +162,7 @@ export default function ReviewPage() {
           phraseId: currentPhrase.id,
           exampleType: example.type,
           exampleText: example.text,
+          translationText: example.translation,
         })) ?? [],
       });
       toast({ title: "Explanation updated", description: `Used ${getAiProviderLabel(result.aiProvider, result.aiProviderLabel)}.` });
@@ -227,10 +240,6 @@ export default function ReviewPage() {
     if (!currentPhrase || !user?.autoPlayAudioEnabled) return;
     speakCurrentPrompt();
   }, [currentPhrase?.id, mode, user?.autoPlayAudioEnabled]);
-
-  useEffect(() => {
-    setReExplainProvider(user?.preferredAiProvider || "auto");
-  }, [user?.preferredAiProvider]);
 
   useEffect(() => {
     if (!currentPhrase) return;
@@ -510,14 +519,14 @@ export default function ReviewPage() {
 
                     <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border pt-4">
                       <span className="text-xs font-medium text-muted-foreground">Re-explain with</span>
-                      <Select value={reExplainProvider} onValueChange={(value) => setReExplainProvider(value as PreferredAiProvider)}>
+                      <Select value={reExplainProvider} onValueChange={(value) => setReExplainProvider(value as "deepseek" | "gemini")}>
                         <SelectTrigger className="h-9 w-[190px] rounded-xl">
                           <SelectValue placeholder="Choose AI" />
                         </SelectTrigger>
                         <SelectContent>
-                          {AI_PROVIDER_OPTIONS.map((provider) => (
+                          {SAVED_WORD_REGENERATION_OPTIONS.map((provider) => (
                             <SelectItem key={provider.value} value={provider.value}>
-                              {provider.label}
+                              {provider.label}{provider.value === recommendedReExplainProvider ? " (recommended)" : ""}
                             </SelectItem>
                           ))}
                         </SelectContent>

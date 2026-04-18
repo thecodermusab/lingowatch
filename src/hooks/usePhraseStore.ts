@@ -196,78 +196,108 @@ export function usePhraseStore() {
   });
   const [isLoading, setIsLoading] = useState(false);
 
+  const syncExternalPhrases = useCallback(async () => {
+    const [neonWords, extPhrases] = await Promise.all([
+      apiJson<unknown[]>("/api/words", []),
+      apiJson<Phrase[]>("/api/extension/saved-phrases", []),
+    ]);
+    const currentDeletedKeys = new Set(loadDeletedPhraseKeys());
+    const current = loadPhrases().filter((phrase) => !currentDeletedKeys.has(normalizePhraseKey(phrase.phraseText)));
+    const map = new Map(current.map((phrase) => [normalizePhraseKey(phrase.phraseText), phrase]));
+    let changed = false;
+
+    for (const row of neonWords as Array<{ word: string; display_word: string; translation: string; saved_at: string; phrase_data?: Phrase }>) {
+      const key = normalizePhraseKey(row.display_word || row.word);
+      if (!key || currentDeletedKeys.has(key)) continue;
+      const neonPhrase = row.phrase_data
+        ? sanitizePhrase(row.phrase_data)
+        : (() => {
+            const now = row.saved_at ? new Date(row.saved_at).toISOString() : new Date().toISOString();
+            return sanitizePhrase({
+              id: crypto.randomUUID(),
+              phraseText: row.display_word || row.word,
+              phraseType: "word" as const,
+              category: "Extension",
+              notes: row.translation || "",
+              isFavorite: false,
+              isLearned: false,
+              tags: ["extension"],
+              difficultyLevel: "intermediate" as const,
+              createdAt: now,
+              updatedAt: now,
+              examples: [],
+            });
+          })();
+      const existing = map.get(key);
+      if (!existing || new Date(neonPhrase.updatedAt) > new Date(existing.updatedAt)) {
+        map.set(key, neonPhrase);
+        changed = true;
+      }
+    }
+
+    for (const extPhrase of extPhrases) {
+      const key = normalizePhraseKey(extPhrase.phraseText);
+      if (!key || currentDeletedKeys.has(key)) continue;
+      const sanitized = sanitizePhrase(extPhrase);
+      const existing = map.get(key);
+      if (!existing || new Date(sanitized.updatedAt) > new Date(existing.updatedAt)) {
+        map.set(key, sanitized);
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      const merged = Array.from(map.values()).sort(
+        (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      );
+      setPhrases(merged);
+      savePhrases(merged);
+    }
+  }, []);
+
   useEffect(() => {
     const deletedKeys = new Set(loadDeletedPhraseKeys());
     const local = loadPhrases().filter((phrase) => !deletedKeys.has(normalizePhraseKey(phrase.phraseText)));
     setPhrases(local);
     setIsLoading(false);
     void syncPhrasesToNeon(local);
+    void syncExternalPhrases();
+  }, [syncExternalPhrases]);
 
-    // Merge phrases saved from the extension (Neon) and legacy file-based store
-    Promise.all([
-      apiJson<unknown[]>("/api/words", []),
-      apiJson<Phrase[]>("/api/extension/saved-phrases", []),
-    ]).then(([neonWords, extPhrases]: [unknown[], Phrase[]]) => {
-      const currentDeletedKeys = new Set(loadDeletedPhraseKeys());
-      const current = loadPhrases().filter((phrase) => !currentDeletedKeys.has(normalizePhraseKey(phrase.phraseText)));
-      const map = new Map(current.map(p => [p.phraseText.toLowerCase(), p]));
-      let changed = false;
+  useEffect(() => {
+    let stopped = false;
+    let inFlight = false;
 
-      // Merge Neon saved words
-      for (const row of neonWords as Array<{ word: string; display_word: string; translation: string; saved_at: string; phrase_data?: Phrase }>) {
-        const key = row.word.toLowerCase();
-        if (currentDeletedKeys.has(key)) continue;
-        const neonPhrase = row.phrase_data
-          ? sanitizePhrase(row.phrase_data)
-          : (() => {
-              const now = row.saved_at ? new Date(row.saved_at).toISOString() : new Date().toISOString();
-              return sanitizePhrase({
-                id: crypto.randomUUID(),
-                phraseText: row.display_word || row.word,
-                phraseType: "word" as const,
-                category: "Extension",
-                notes: row.translation || "",
-                isFavorite: false,
-                isLearned: false,
-                tags: ["extension"],
-                difficultyLevel: "intermediate" as const,
-                createdAt: now,
-                updatedAt: now,
-                examples: [],
-              });
-            })();
-        if (!map.has(key)) {
-          map.set(key, neonPhrase);
-          changed = true;
-        } else {
-          // Use Neon version if it's newer (e.g. edited on another device)
-          const existing = map.get(key)!;
-          if (new Date(neonPhrase.updatedAt) > new Date(existing.updatedAt)) {
-            map.set(key, neonPhrase);
-            changed = true;
-          }
-        }
+    const refresh = async () => {
+      if (stopped || inFlight || document.visibilityState === "hidden") return;
+      inFlight = true;
+      try {
+        await syncExternalPhrases();
+      } finally {
+        inFlight = false;
       }
+    };
 
-      // Merge legacy extension phrases
-      for (const ep of extPhrases) {
-        const key = normalizePhraseKey(ep.phraseText);
-        if (currentDeletedKeys.has(key)) continue;
-        if (!map.has(key)) {
-          map.set(key, ep);
-          changed = true;
-        }
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        void refresh();
       }
+    };
 
-      if (changed) {
-        const merged = Array.from(map.values()).sort(
-          (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-        );
-        setPhrases(merged);
-        savePhrases(merged);
-      }
-    });
-  }, []);
+    const interval = window.setInterval(() => {
+      void refresh();
+    }, 2500);
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener("focus", onVisibilityChange);
+
+    return () => {
+      stopped = true;
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("focus", onVisibilityChange);
+    };
+  }, [syncExternalPhrases]);
 
   const persist = useCallback((updated: Phrase[]) => {
     setPhrases(updated);
@@ -282,10 +312,14 @@ export function usePhraseStore() {
         easyMeaning: string;
         aiExplanation: string;
         usageContext: string;
-        examples: { type: "simple" | "daily" | "work" | "extra" | "somali"; text: string }[];
+        examples: { type: "simple" | "daily" | "work" | "extra" | "somali"; text: string; translation?: string }[];
         somaliMeaning: string;
+        partOfSpeech?: string;
         somaliExplanation: string;
         somaliSentence: string;
+        somaliSentenceTranslation?: string;
+        usageNote?: string;
+        contextNote?: string;
         commonMistake: string;
         pronunciationText: string;
         relatedPhrases: string[];
@@ -321,8 +355,12 @@ export function usePhraseStore() {
           aiExplanation: aiResult.aiExplanation,
           usageContext: aiResult.usageContext,
           somaliMeaning: aiResult.somaliMeaning,
+          partOfSpeech: aiResult.partOfSpeech,
           somaliExplanation: aiResult.somaliExplanation,
           somaliSentence: aiResult.somaliSentence,
+          somaliSentenceTranslation: aiResult.somaliSentenceTranslation,
+          usageNote: aiResult.usageNote,
+          contextNote: aiResult.contextNote,
           commonMistake: aiResult.commonMistake,
           pronunciationText: aiResult.pronunciationText,
           relatedPhrases: aiResult.relatedPhrases,
@@ -335,6 +373,7 @@ export function usePhraseStore() {
           phraseId: id,
           exampleText: ex.text,
           exampleType: ex.type,
+          translationText: ex.translation,
         })),
         review: {
           id: crypto.randomUUID(),
@@ -499,8 +538,12 @@ export function usePhraseStore() {
           aiExplanation: aiResult.aiExplanation,
           usageContext: aiResult.usageContext,
           somaliMeaning: aiResult.somaliMeaning,
+          partOfSpeech: aiResult.partOfSpeech,
           somaliExplanation: aiResult.somaliExplanation,
           somaliSentence: aiResult.somaliSentence,
+          somaliSentenceTranslation: aiResult.somaliSentenceTranslation,
+          usageNote: aiResult.usageNote,
+          contextNote: aiResult.contextNote,
           commonMistake: aiResult.commonMistake,
           pronunciationText: aiResult.pronunciationText,
           relatedPhrases: aiResult.relatedPhrases,
@@ -515,6 +558,7 @@ export function usePhraseStore() {
           phraseId: id,
           exampleText: example.text,
           exampleType: example.type,
+          translationText: example.translation,
         }));
       }
 

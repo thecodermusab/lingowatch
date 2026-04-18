@@ -80,7 +80,7 @@ export function AnnotationToolbar({
       style={{
         position: "fixed",
         left: x,
-        top: Math.max(y - 64, 8),
+        top: Math.max(y, 8),
         transform: "translateX(-50%)",
         zIndex: 60,
       }}
@@ -89,10 +89,10 @@ export function AnnotationToolbar({
       {mode === "translated" && translation ? (
         <div className="flex flex-col min-w-[200px] max-w-[280px]">
           <div className="px-4 py-3 text-center">
-            <p className="text-[10px] text-white/30 uppercase tracking-widest mb-1.5">
+            <p className="text-[10px] text-[#a855f7] uppercase tracking-widest mb-1.5">
               Somali
             </p>
-            <p className="text-[15px] text-white/90 font-medium leading-snug">
+            <p className="text-[15px] text-white/90 font-medium leading-snug break-words">
               {translation}
             </p>
           </div>
@@ -193,7 +193,7 @@ export function AnnotationToolbar({
                <Type className="w-4 h-4" />
              </button>
              
-             {onTranslate && (!existingHighlight || selectedText) && (
+             {onTranslate && (
                <button
                  onClick={handleTranslate}
                  disabled={isTranslating}

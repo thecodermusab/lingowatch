@@ -46,11 +46,11 @@ function formatDuration(video: YTVideo): string | null {
 
 export function MediaCardSkeleton() {
   return (
-    <div className="flex flex-col gap-3">
-      <div className="aspect-video w-full animate-pulse rounded-xl bg-[#2d2d2d]" />
-      <div className="space-y-2.5">
-        <div className="h-4 w-[90%] animate-pulse rounded bg-[#2d2d2d]" />
-        <div className="h-3 w-[60%] animate-pulse rounded bg-[#2d2d2d]" />
+    <div className="flex flex-col gap-3 rounded-[1.25rem] border border-border bg-card/90 p-2">
+      <div className="aspect-video w-full animate-pulse rounded-2xl bg-gradient-to-br from-secondary/80 via-secondary/50 to-secondary/30" />
+      <div className="space-y-2.5 px-1 pb-1">
+        <div className="h-4 w-[90%] animate-pulse rounded-md bg-secondary/80" />
+        <div className="h-3 w-[62%] animate-pulse rounded-md bg-secondary/55" />
       </div>
     </div>
   );
@@ -70,9 +70,9 @@ export function MediaCard({ video, onClick }: MediaCardProps) {
   return (
     <article
       onClick={onClick}
-      className="group flex flex-col cursor-pointer transition-all hover:-translate-y-1"
+      className="group flex cursor-pointer flex-col rounded-2xl p-1 transition-all hover:-translate-y-1 hover:bg-secondary/20"
     >
-      <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-[#2d2d2d] shadow-sm">
+      <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-secondary shadow-sm">
         <img
           src={thumbnailUrl}
           alt={title}
@@ -87,13 +87,13 @@ export function MediaCard({ video, onClick }: MediaCardProps) {
       </div>
 
       <div className="flex flex-col mt-3">
-        <h3 className="line-clamp-2 text-[15px] font-semibold leading-tight text-white/95 group-hover:text-white transition-colors">
+        <h3 className="line-clamp-2 text-[15px] font-semibold leading-tight text-foreground transition-colors group-hover:text-foreground">
           {title}
         </h3>
-        <p className="mt-1 text-[13px] text-white/50 line-clamp-1">
+        <p className="mt-1 line-clamp-1 text-[13px] text-muted-foreground">
           {channelTitle}
         </p>
-        <p className="text-[12px] text-white/40 mt-0.5">
+        <p className="mt-0.5 text-[12px] text-muted-foreground">
           {formatViews(video.viewCount)}
           {video.publishedAt ? ` • ${timeAgo(video.publishedAt)}` : ""}
         </p>

@@ -7,7 +7,8 @@ import { BOOK_ITEMS } from "../media/bookData";
 import { WordWithTooltip } from "./hidden/WordWithTooltip";
 import { AnnotationToolbar, HighlightColor, ExistingHighlight } from "@/components/reader/AnnotationToolbar";
 import { HighlightableText, TextHighlight } from "@/components/reader/HighlightableText";
-import { fetchTtsAudioContent } from "@/lib/tts";
+import { SyncedTtsText, getActiveWordIndex } from "@/components/reader/SyncedTtsText";
+import { fetchTimedTtsAudio, TtsAudioResult } from "@/lib/tts";
 
 interface SavedEntry {
   translation: string;
@@ -231,21 +232,24 @@ export default function BookReaderPage() {
   };
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const audioCache = useRef<Record<string, string>>({});
-  const audioPromises = useRef<Record<string, Promise<string | null>>>({});
+  const audioCache = useRef<Record<string, TtsAudioResult>>({});
+  const audioPromises = useRef<Record<string, Promise<TtsAudioResult | null>>>({});
+  const activeWordStartsRef = useRef<number[]>([]);
+  const [activeTtsRowId, setActiveTtsRowId] = useState<string | null>(null);
+  const [activeTtsWordIndex, setActiveTtsWordIndex] = useState<number | null>(null);
 
-  const preloadAudioBase64 = (text: string): Promise<string | null> => {
+  const preloadAudio = (text: string): Promise<TtsAudioResult | null> => {
     if (!text) return Promise.resolve(null);
     if (audioCache.current[text]) return Promise.resolve(audioCache.current[text]);
     if (audioPromises.current[text]) return audioPromises.current[text];
 
     const promise = (async () => {
       try {
-        const audioContent = await fetchTtsAudioContent(text);
-        if (!audioContent) return null;
+        const result = await fetchTimedTtsAudio(text);
+        if (!result) return null;
 
-        audioCache.current[text] = audioContent;
-        return audioContent;
+        audioCache.current[text] = result;
+        return result;
       } catch (e) {
         console.error(e);
       }
@@ -262,14 +266,36 @@ export default function BookReaderPage() {
       audioRef.current.pause();
       audioRef.current = null;
     }
-    const audioContent = await preloadAudioBase64(text);
-    if (!audioContent) return Promise.resolve();
+    setActiveTtsWordIndex(null);
+    const result = await preloadAudio(text);
+    if (!result) return Promise.resolve();
     return new Promise<void>((resolve) => {
-      const audio = new Audio("data:audio/mp3;base64," + audioContent);
+      const audio = new Audio(result.audioUrl);
       audioRef.current = audio;
-      audio.onended = () => resolve();
-      audio.onerror = () => resolve();
-      audio.play().catch((e) => { console.error(e); resolve(); });
+      activeWordStartsRef.current = result.wordTimings.map((timing) => timing.startTime);
+      audio.ontimeupdate = () => {
+        setActiveTtsWordIndex(getActiveWordIndex(audio.currentTime, activeWordStartsRef.current));
+      };
+      audio.onended = () => {
+        setActiveTtsRowId(null);
+        setActiveTtsWordIndex(null);
+        resolve();
+      };
+      audio.onpause = () => {
+        setActiveTtsWordIndex(null);
+        resolve();
+      };
+      audio.onerror = () => {
+        setActiveTtsRowId(null);
+        setActiveTtsWordIndex(null);
+        resolve();
+      };
+      audio.play().catch((e) => {
+        console.error(e);
+        setActiveTtsRowId(null);
+        setActiveTtsWordIndex(null);
+        resolve();
+      });
     });
   };
 
@@ -278,6 +304,8 @@ export default function BookReaderPage() {
       setIsAutoPlaying(false);
       isAutoPlayingRef.current = false;
       if (audioRef.current) audioRef.current.pause();
+      setActiveTtsRowId(null);
+      setActiveTtsWordIndex(null);
       return;
     }
     setIsAutoPlaying(true);
@@ -288,14 +316,17 @@ export default function BookReaderPage() {
       if (!isAutoPlayingRef.current) break;
       const row = readerRows[i];
       setActiveRowId(row.id);
+      setActiveTtsRowId(row.id);
       const rowElement = document.getElementById(`row-${row.id}`);
       if (rowElement) rowElement.scrollIntoView({ behavior: "smooth", block: "center" });
       const nextRow = readerRows[i + 1];
-      if (nextRow) preloadAudioBase64(nextRow.source);
+      if (nextRow) preloadAudio(nextRow.source);
       await playAudio(row.source);
     }
     setIsAutoPlaying(false);
     isAutoPlayingRef.current = false;
+    setActiveTtsRowId(null);
+    setActiveTtsWordIndex(null);
   };
 
   useEffect(() => {
@@ -307,7 +338,7 @@ export default function BookReaderPage() {
 
   useEffect(() => {
     if (readerRows && readerRows.length > 0) {
-      readerRows.slice(0, 3).forEach((row) => preloadAudioBase64(row.source));
+      readerRows.slice(0, 3).forEach((row) => preloadAudio(row.source));
     }
   }, [readerRows]);
 
@@ -316,6 +347,8 @@ export default function BookReaderPage() {
     setTranslatedRows({});
     setTranslatingRows({});
     setIsAutoPlaying(false);
+    setActiveTtsRowId(null);
+    setActiveTtsWordIndex(null);
     isAutoPlayingRef.current = false;
     if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
     const mainContainer = document.getElementById("main-reader-scroll");
@@ -447,12 +480,14 @@ export default function BookReaderPage() {
               <div
                 key={row.id}
                 id={`row-${row.id}`}
-                onMouseEnter={() => preloadAudioBase64(row.source)}
+                onMouseEnter={() => preloadAudio(row.source)}
                 onClick={() => {
                   if (isAutoPlayingRef.current) {
                     setIsAutoPlaying(false);
                     isAutoPlayingRef.current = false;
                     if (audioRef.current) audioRef.current.pause();
+                    setActiveTtsRowId(null);
+                    setActiveTtsWordIndex(null);
                   }
                   setActiveRowId(row.id);
                   if (
@@ -478,6 +513,7 @@ export default function BookReaderPage() {
                     onClick={(e) => {
                       e.stopPropagation();
                       setActiveRowId(row.id);
+                      setActiveTtsRowId(row.id);
                       playAudio(row.source);
                     }}
                   >
@@ -490,40 +526,53 @@ export default function BookReaderPage() {
                   </div>
 
                   <p id={`row-text-${row.id}`} className="text-[15.5px] leading-[1.8] font-sans text-[#e0e0e0] flex-1 font-medium tracking-wide">
-                    <HighlightableText
-                       text={row.source}
-                       highlights={highlights[row.id] || []}
-                       onHighlightClick={(hl, e) => {
-                         e.stopPropagation();
-                         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-                         setActiveHighlight({
-                            highlight: { id: hl.id, color: hl.color, note: hl.note },
-                            x: rect.left + rect.width / 2,
-                            y: rect.bottom + 8,
-                            rowId: row.id,
-                            text: row.source.slice(hl.start, hl.end)
-                         });
-                         // disable current annotation if any
-                         setAnnotationState(null);
-                         window.getSelection()?.removeAllRanges();
-                       }}
-                       renderText={(chunkText, isHighlighted) => (
-                         <>
-                           {tokenize(chunkText).map((word, i) => {
-                             const clean = word.replace(/[.,!?'"();:\-]/g, "").toLowerCase();
-                             return (
-                               <WordWithTooltip
-                                 key={`${row.id}-chunk-${i}`}
-                                 word={word}
-                                 onSave={saveWord}
-                                 isSaved={!!savedWords[clean]}
-                                 disabled={isHighlighted}
-                               />
-                             );
-                           })}
-                         </>
-                       )}
-                    />
+                    {activeTtsRowId === row.id ? (
+                      <SyncedTtsText
+                        text={row.source}
+                        activeWordIndex={activeTtsWordIndex}
+                        wordClassName="transition-colors duration-100"
+                        inactiveStyle={{ color: "#888" }}
+                        activeStyle={{
+                          color: "#ff5f7e",
+                          textShadow: "0 0 8px rgba(255, 95, 126, 0.95), 0 0 18px rgba(255, 49, 91, 0.65)",
+                        }}
+                      />
+                    ) : (
+                      <HighlightableText
+                         text={row.source}
+                         highlights={highlights[row.id] || []}
+                         onHighlightClick={(hl, e) => {
+                           e.stopPropagation();
+                           const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                           setActiveHighlight({
+                              highlight: { id: hl.id, color: hl.color, note: hl.note },
+                              x: rect.left + rect.width / 2,
+                              y: rect.bottom + 8,
+                              rowId: row.id,
+                              text: row.source.slice(hl.start, hl.end)
+                           });
+                           // disable current annotation if any
+                           setAnnotationState(null);
+                           window.getSelection()?.removeAllRanges();
+                         }}
+                         renderText={(chunkText, isHighlighted) => (
+                           <>
+                             {tokenize(chunkText).map((word, i) => {
+                               const clean = word.replace(/[.,!?'"();:\-]/g, "").toLowerCase();
+                               return (
+                                 <WordWithTooltip
+                                   key={`${row.id}-chunk-${i}`}
+                                   word={word}
+                                   onSave={saveWord}
+                                   isSaved={!!savedWords[clean]}
+                                   disabled={isHighlighted}
+                                 />
+                               );
+                             })}
+                           </>
+                         )}
+                      />
+                    )}
                   </p>
                 </div>
 

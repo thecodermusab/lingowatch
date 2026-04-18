@@ -16,7 +16,13 @@ function formatTime(timeInSeconds: number) {
   return `${minutes}:${seconds}`;
 }
 
-export function TranscriptRow({ cue, active, onSelect }: TranscriptRowProps) {
+export function TranscriptRow({
+  cue,
+  active,
+  onSelect,
+}: TranscriptRowProps) {
+  const translationText = cue.translation;
+
   return (
     <button
       type="button"
@@ -32,7 +38,9 @@ export function TranscriptRow({ cue, active, onSelect }: TranscriptRowProps) {
       </div>
 
       <div className="px-4 py-3">
-        <p className="text-[13px] leading-[1.55] text-white/54">{cue.translation || ""}</p>
+        <p className={cn("text-[13px] leading-[1.55] text-white/54", !translationText && "text-white/32")}>
+          {translationText}
+        </p>
       </div>
     </button>
   );

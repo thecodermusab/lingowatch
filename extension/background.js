@@ -108,6 +108,22 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     chrome.storage.local.get(["googleApiKey"], async (result) => {
       const apiKey = result.googleApiKey || "";
 
+      try {
+        const resp = await fetch("http://127.0.0.1:3001/api/translate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, source: "en", target }),
+        });
+        const data = await resp.json().catch(() => ({}));
+        const translation = Array.isArray(data?.translations)
+          ? String(data.translations[0] || "").trim()
+          : "";
+        if (translation && !isMyMemoryWarning(translation)) {
+          sendResponse({ translation });
+          return;
+        }
+      } catch (_e) {}
+
       if (apiKey) {
         try {
           const resp = await fetch(
@@ -121,7 +137,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           const data = await resp.json();
           const translation =
             data.data?.translations?.[0]?.translatedText?.trim() || "";
-          sendResponse({ translation });
+          sendResponse({ translation: isMyMemoryWarning(translation) ? "" : translation });
         } catch (e) {
           sendResponse({ translation: "", error: String(e) });
         }
@@ -133,7 +149,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           const data = await resp.json();
           const translation =
             data.responseData?.translatedText?.trim() || "";
-          sendResponse({ translation });
+          sendResponse({ translation: isMyMemoryWarning(translation) ? "" : translation });
         } catch (e) {
           sendResponse({ translation: "", error: String(e) });
         }
@@ -143,6 +159,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 });
+
+function isMyMemoryWarning(value) {
+  return String(value || "").trim().toUpperCase().startsWith("MYMEMORY WARNING");
+}
 
 function createImportContextMenus() {
   chrome.contextMenus.removeAll(() => {

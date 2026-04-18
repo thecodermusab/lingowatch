@@ -192,6 +192,15 @@ export default function WatchWorkspacePage() {
     let cancelled = false;
     let pollTimer: number | null = null;
     let pollAttempts = 0;
+    const videoId = typeof video.id === "string" ? video.id.trim() : "";
+
+    if (!videoId || videoId === "null" || videoId === "undefined") {
+      setCues([]);
+      setTranscriptLoading(false);
+      setTranscriptError("Choose a video to load subtitles.");
+      setTranslationLoading(false);
+      return;
+    }
 
     async function fetchTranscript({ showLoader, resetCues }: { showLoader: boolean; resetCues: boolean }) {
       if (showLoader) {
@@ -205,7 +214,7 @@ export default function WatchWorkspacePage() {
       }
 
       try {
-        const response = await fetch(`/api/transcript/${encodeURIComponent(video.id)}`);
+        const response = await fetch(`/api/transcript/${encodeURIComponent(videoId)}`);
         const payload: TranscriptApiResponse = await response.json();
 
         if (!response.ok) {
@@ -250,6 +259,11 @@ export default function WatchWorkspacePage() {
 
   useEffect(() => {
     let cancelled = false;
+    const videoId = typeof video.id === "string" ? video.id.trim() : "";
+
+    if (!videoId || videoId === "null" || videoId === "undefined") {
+      return;
+    }
 
     async function mountPlayer() {
       await loadYouTubeIframeApi();
@@ -259,7 +273,7 @@ export default function WatchWorkspacePage() {
       playerHostRef.current.innerHTML = "";
 
       playerRef.current = new window.YT.Player(playerHostRef.current, {
-        videoId: video.id,
+        videoId,
         height: "100%",
         width: "100%",
         playerVars: {
@@ -322,6 +336,8 @@ export default function WatchWorkspacePage() {
   useEffect(() => {
     if (!sidebarTranslationKey) return;
     if (sidebarTranslationKeyRef.current === sidebarTranslationKey) return;
+    const videoId = typeof video.id === "string" ? video.id.trim() : "";
+    if (!videoId || videoId === "null" || videoId === "undefined") return;
 
     let cancelled = false;
     const sourceCues = cues.map((cue) => ({ id: cue.id, text: cue.text }));
@@ -329,7 +345,7 @@ export default function WatchWorkspacePage() {
     setTranslationLoading(true);
 
     async function fetchServerSidebarTranslations() {
-      const response = await fetch(`/api/transcript/${encodeURIComponent(video.id)}?translate=1`);
+      const response = await fetch(`/api/transcript/${encodeURIComponent(videoId)}?translate=1`);
       const payload: TranscriptApiResponse = await response.json();
 
       if (!response.ok) {

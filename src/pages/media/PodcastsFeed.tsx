@@ -29,82 +29,82 @@ export function PodcastsFeed({ selectedPodcast }: { selectedPodcast: string | nu
   });
 
   return (
-    <section className="flex flex-col flex-1 bg-[#1e1e1e] min-h-0 overflow-y-auto scrollbar-thin scrollbar-thumb-[#a855f7] scrollbar-track-transparent">
+    <section className="flex flex-1 min-h-0 flex-col overflow-y-auto bg-background scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent">
       
       {!selectedPodcast ? (
-        <div className="flex-1 flex flex-col items-center justify-center p-10 text-center">
-          <div className="w-20 h-20 rounded-full bg-[#2a2a2a] flex items-center justify-center mb-6 shadow-inset">
-            <svg className="w-10 h-10 text-[#666]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="flex flex-1 flex-col items-center justify-center px-8 py-12 text-center">
+          <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-secondary shadow-inset sm:h-20 sm:w-20">
+            <svg className="h-8 w-8 text-muted-foreground sm:h-10 sm:w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
             </svg>
           </div>
-          <h2 className="text-[#eee] text-xl font-medium tracking-wide">Select a Podcast</h2>
-          <p className="text-[#888] mt-3 max-w-md leading-relaxed text-[15px]">
-            Choose a podcast from the sidebar to browse episodes.
+          <h2 className="text-[18px] font-semibold tracking-wide text-foreground sm:text-xl">Choose audio</h2>
+          <p className="mt-2 max-w-xs text-[13px] leading-6 text-muted-foreground sm:max-w-md sm:text-[15px]">
+            Pick a podcast above to browse episodes.
           </p>
         </div>
       ) : (
         <div className="flex flex-col pb-10">
           {isLoading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="w-8 h-8 animate-spin text-[#888]" />
+            <div className="flex-1 flex items-center justify-center min-h-[300px]">
+              <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
             </div>
           ) : episodes?.length === 0 ? (
-            <div className="p-10 text-center text-[#888]">No episodes found for this podcast. Please wait for feeds to sync.</div>
+            <div className="p-10 text-center text-muted-foreground">No episodes found for this podcast. Please wait for feeds to sync.</div>
           ) : (
             episodes?.map((episode, index) => (
-              <div 
-                key={episode.id} 
-                onClick={() => navigate(`/listen/${episode.id}`)}
-                className="group flex relative p-5 transition-colors hover:bg-[#282828] cursor-pointer border-b border-[#2a2a2a] last:border-0 pl-12 pr-8 gap-5 items-start"
-              >
+               <button
+                 key={episode.id}
+                 onClick={() => navigate(`/listen/${episode.id}`)}
+                 className="group relative flex w-full cursor-pointer items-start gap-4 border-b border-border p-4 text-left transition-colors hover:bg-secondary/70 sm:gap-5 sm:p-5 sm:pl-12 sm:pr-8"
+               >
                 
-                {/* Number track */}
-                <div className="absolute left-6 text-[11px] font-medium text-[#666] pt-2">
-                  {index + 1}
+                {/* Index marker */}
+                <div className="hidden absolute left-6 pt-2 text-[11px] font-medium text-muted-foreground sm:block">
+                  {episodes.length - index}
                 </div>
 
-                {/* Thumbnail */}
-                <div className="relative w-[110px] h-[110px] shrink-0 rounded-xl overflow-hidden shadow-md flex items-center justify-center bg-[#252525] border border-white/5">
-                  {episode.artwork_url ? (
-                    <img src={episode.artwork_url} alt={episode.title} className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="font-serif font-bold text-center text-white/50 px-2 leading-tight uppercase text-sm">POD</span>
-                  )}
-                  {/* Duration Badge */}
-                  <div className="absolute bottom-0 right-0 bg-black/80 text-white/90 text-[10px] font-bold px-1.5 py-0.5 m-1 rounded-[4px] tracking-wide">
-                    {formatDuration(episode.duration_seconds)}
-                  </div>
-                  
-                  {/* Play Overlay */}
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                    <PlayCircle className="w-10 h-10 text-white drop-shadow-md" />
-                  </div>
-                </div>
+                {/* Thumbnail Art */}
+                 <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-card shadow-md sm:h-[110px] sm:w-[110px]">
+                   {episode.artwork_url ? (
+                     <img src={episode.artwork_url} alt={episode.title} className="w-full h-full object-cover" />
+                   ) : (
+                     <span className="px-2 text-center font-serif text-sm font-bold uppercase leading-tight text-muted-foreground">POD</span>
+                   )}
+                   {/* Duration Badge */}
+                   <div className="absolute bottom-0 right-0 m-1 rounded-[4px] bg-black/75 px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-white">
+                     {formatDuration(episode.duration_seconds)}
+                   </div>
+                   
+                   {/* Play Overlay */}
+                   <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
+                     <PlayCircle className="h-8 w-8 text-white drop-shadow-md sm:h-10 sm:w-10" />
+                   </div>
+                 </div>
 
                 {/* Content */}
-                <div className="flex flex-col flex-1">
-                  <h3 className="text-[17px] font-medium text-[#f0f0f0] tracking-wide line-clamp-2">
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <h3 className="line-clamp-2 text-[15px] font-medium tracking-wide text-foreground sm:text-[17px]">
                     {episode.title}
                   </h3>
                   
                   <div className="flex items-center gap-2 mt-2">
                      {episode.transcript_status === 'official_rss_feed' && (
-                       <span className="bg-[#a855f7]/20 text-[#d8b4fe] text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-[4px] tracking-wider border border-[#a855f7]/30">
-                         Official Transcript
-                       </span>
+                        <span className="rounded-[4px] border border-primary/30 bg-primary/20 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary">
+                          Official Transcript
+                        </span>
                      )}
-                     <span className="text-[#666] text-[12px] font-medium tracking-wide">
+                     <span className="text-muted-foreground text-[12px] font-medium tracking-wide">
                        {episode.published_at ? formatDistanceToNow(new Date(episode.published_at), { addSuffix: true }) : 'Unknown date'}
                      </span>
                   </div>
                   
-                  <p className="text-[#999] text-[13px] leading-relaxed mt-3 max-w-4xl line-clamp-2">
+                  <p className="mt-2 line-clamp-2 max-w-4xl text-[12px] leading-relaxed text-muted-foreground sm:mt-3 sm:text-[13px]">
                     {episode.description}
                   </p>
                 </div>
 
-              </div>
+              </button>
             ))
           )}
         </div>

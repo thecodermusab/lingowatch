@@ -8,8 +8,6 @@ interface TranscriptTabsProps {
 
 const tabs: Array<{ id: TranscriptTab; label: string }> = [
   { id: "subtitles", label: "TEXT" },
-  { id: "words", label: "WORDS" },
-  { id: "saved", label: "SAVED" },
 ];
 
 export function TranscriptTabs({ activeTab, onChange }: TranscriptTabsProps) {
