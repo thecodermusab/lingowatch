@@ -14,6 +14,17 @@
 
   const BACKEND_BASE_URL = "http://127.0.0.1:8000";
   const YOUTUBE_HOST_PATTERN = /(^|\.)youtube\.com$/i;
+  const POPUP_AI_TIMEOUT_MS = 45000;
+  const POPUP_SOMALI_TIMEOUT_MS = 30000;
+  const POPUP_REGENERATE_PROVIDERS = [
+    { value: "deepseek", label: "DeepSeek" },
+    { value: "gemini-lite", label: "Gemini Lite" },
+    { value: "gemini", label: "Gemini" },
+    { value: "grok", label: "Grok" },
+    { value: "openrouter", label: "OpenRouter" },
+    { value: "cerebras", label: "Cerebras" },
+    { value: "glm4", label: "GLM-4.7" },
+  ];
   const state = {
     subtitles: [],
     currentIndex: -1,
@@ -34,6 +45,7 @@
     popupRequestId: 0,
     wordFastCache: new Map(),
     wordAiCache: new Map(),
+    wordSomaliCache: new Map(),
     ttsAudioCache: new Map(),
     hoverTimer: null,
     noSubtitleTimer: null,
@@ -46,6 +58,8 @@
     lastPopupAiData: null,
     lastPopupSynonyms: [],
     lastPopupAntonyms: [],
+    currentPopupRegenerate: null,
+    playerUiHost: null,
     elements: {}
   };
 
@@ -269,10 +283,15 @@
       if (!isYouTubePage() || state.subtitles.length) {
         return;
       }
+      const videoId = getYouTubeVideoId();
+      if (!videoId) {
+        renderSubtitleStatus("Open a YouTube video to load subtitles.");
+        return;
+      }
       const sessionId = state.subtitleSessionId;
       fetchYouTubeCaptionTrack(sessionId).then((loaded) => {
         if (!loaded && sessionId === state.subtitleSessionId && !state.subtitles.length) {
-          fetchYouTubeTranscript(getYouTubeVideoId(), sessionId);
+          fetchYouTubeTranscript(videoId, sessionId);
         }
       });
     });
@@ -729,11 +748,6 @@
     const tooltip = document.createElement("div");
     tooltip.id = "lw-hover-tooltip";
 
-    document.body.appendChild(popup);
-    document.body.appendChild(popupArrow);
-    document.body.appendChild(tooltip);
-    injectSidebar(sidebar);
-
     state.elements = {
       sidebar,
       popup,
@@ -743,6 +757,9 @@
       wordsPanel: sidebar.querySelector("#lw-words-panel"),
       savedList: sidebar.querySelector("#lw-saved-list")
     };
+
+    mountFloatingElements();
+    injectSidebar(sidebar);
 
     sidebar.addEventListener("click", handleSidebarClick);
     popup.addEventListener("click", handlePopupClick);
@@ -826,7 +843,7 @@
     video.pause();
   }
 
-  // Word clicked in the subtitle overlay → open popup centered above the word
+  // Word clicked in the subtitle overlay -> open popup centered above that word.
   window.addEventListener("lw:word-click", (e) => {
     const { word, rect, subtitleContext } = e.detail ?? {};
     if (!word || !rect) return;
@@ -835,7 +852,6 @@
 
     if (subtitleContext) state.subtitleClickContext = subtitleContext;
 
-    // Center popup horizontally over the clicked word, place it above the subtitle
     const popupWidth = 380;
     const wordCenterX = rect.left + rect.width / 2;
     const left = Math.max(8, Math.min(wordCenterX - popupWidth / 2, window.innerWidth - popupWidth - 8));
@@ -843,10 +859,10 @@
     const anchorRect = {
       left,
       right: left + popupWidth,
-      top: rect.top,
-      bottom: rect.bottom,
+      top: Number(rect.top),
+      bottom: Number(rect.bottom),
       width: popupWidth,
-      height: rect.height,
+      height: Number(rect.height) || Math.max(0, Number(rect.bottom) - Number(rect.top)),
     };
 
     state.lastAnchorRect = anchorRect;
@@ -1163,6 +1179,15 @@
 
     if (action === "close") { closeWordPopup(); return; }
     if (action === "speak") { pronounce(word); return; }
+    if (action === "regenerate-menu") { toggleRegenerateMenu(); return; }
+    if (action === "regenerate-word") {
+      const provider = button.dataset.provider || "auto";
+      toggleRegenerateMenu(false);
+      if (typeof state.currentPopupRegenerate === "function") {
+        state.currentPopupRegenerate(provider);
+      }
+      return;
+    }
     if (action === "tab") { switchPopupTab(button.dataset.tab); return; }
     if (action === "save-word") { saveWordToLibrary(word); return; }
     if (action === "ignore") { ignoreWord(word); return; }
@@ -1179,6 +1204,21 @@
     const target = event.target;
     if (!(target instanceof Element)) {
       return;
+    }
+
+    // Close popup when clicking the video player
+    const popup = state.elements.popup;
+    if (popup && popup.style.display !== "none") {
+      const isInPopup = target.closest("#lw-word-popup");
+      const isInSidebar = target.closest("#lw-sidebar");
+      const isWord = target.closest(".lw-word") || target.closest(".lw-word-chip");
+      if (!isInPopup && !isInSidebar && !isWord) {
+        const video = state.currentVideo;
+        if (video && (target === video || target.closest(".html5-video-player") || target.closest("#movie_player"))) {
+          closeWordPopup();
+          return;
+        }
+      }
     }
 
     if (target.closest("#lw-word-popup") || target.closest(".lw-word") || target.closest(".lw-word-chip")) {
@@ -1442,6 +1482,83 @@
     return YOUTUBE_HOST_PATTERN.test(window.location.hostname);
   }
 
+  function getYouTubePlayerElement() {
+    return document.querySelector("#movie_player, .html5-video-player");
+  }
+
+  function ensurePlayerUiHost() {
+    if (!isYouTubePage()) {
+      return null;
+    }
+
+    const player = getYouTubePlayerElement();
+    if (!(player instanceof HTMLElement)) {
+      return null;
+    }
+
+    const computedPosition = window.getComputedStyle(player).position;
+    if (computedPosition === "static") {
+      player.style.position = "relative";
+    }
+
+    let host = document.getElementById("lw-player-ui-root");
+    if (!(host instanceof HTMLElement)) {
+      host = document.createElement("div");
+      host.id = "lw-player-ui-root";
+    }
+
+    if (host.parentElement !== player) {
+      player.appendChild(host);
+    }
+
+    state.playerUiHost = host;
+    return host;
+  }
+
+  function mountFloatingElements() {
+    const host = ensurePlayerUiHost();
+    const parent = host || document.body;
+    const floatingElements = [
+      state.elements.popup,
+      state.elements.popupArrow,
+      state.elements.tooltip,
+    ].filter(Boolean);
+
+    floatingElements.forEach((element) => {
+      if (element.parentElement !== parent) {
+        parent.appendChild(element);
+      }
+    });
+
+    return host;
+  }
+
+  function getFloatingHostRect() {
+    const host = mountFloatingElements();
+    if (!(host instanceof HTMLElement)) {
+      return null;
+    }
+
+    const rect = host.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) {
+      return null;
+    }
+
+    return rect;
+  }
+
+  function setFloatingElementPosition(element, left, top) {
+    const hostRect = getFloatingHostRect();
+    if (hostRect) {
+      element.style.left = `${left - hostRect.left}px`;
+      element.style.top = `${top - hostRect.top}px`;
+      return;
+    }
+
+    element.style.left = `${left}px`;
+    element.style.top = `${top}px`;
+  }
+
   function getYouTubeVideoId() {
     const url = new URL(window.location.href);
     if (url.hostname.includes("youtu.be")) {
@@ -1595,6 +1712,14 @@
   }
 
   async function fetchYouTubeTranscript(videoId, sessionId = state.subtitleSessionId) {
+    if (!videoId || videoId === "null" || videoId === "undefined") {
+      if (sessionId === state.subtitleSessionId) {
+        setSubtitles([], sessionId);
+        renderSubtitleStatus("Open a YouTube video to load subtitles.");
+      }
+      return;
+    }
+
     try {
       const response = await fetch(`${BACKEND_BASE_URL}/transcript/${encodeURIComponent(videoId)}?lang=en`);
       const data = await response.json().catch(() => ({}));
@@ -2115,7 +2240,6 @@
 
     closeHoverTooltip();
 
-    // Always anchor popup to the left of the sidebar, near the top — consistent position
     const sidebar = state.elements.sidebar;
     const popupWidth = 380;
     if (sidebar && sidebar.isConnected) {
@@ -2136,16 +2260,72 @@
   }
 
   function positionPopup(popup, rect) {
-    const popupWidth = popup.offsetWidth || 380;
-    const popupHeight = popup.offsetHeight || 420;
+    const hostRect = getFloatingHostRect();
+    const popupWidthTarget = hostRect
+      ? Math.max(260, Math.min(380, hostRect.width - 24))
+      : 380;
+    popup.style.width = `${popupWidthTarget}px`;
+    popup.style.maxHeight = hostRect
+      ? `${Math.max(280, Math.min(420, hostRect.height - 24))}px`
+      : "420px";
+
+    const popupWidth = popup.offsetWidth || popupWidthTarget;
+    const popupHeight = popup.offsetHeight || (hostRect ? Math.min(420, hostRect.height - 24) : 420);
     const gutter = 12;
     const arrowSize = 10;
     const minTop = 8;
 
-    // Clamp left within viewport
+    if (hostRect) {
+      const anchorLeft = rect.left - hostRect.left;
+      const anchorRight = rect.right - hostRect.left;
+      const anchorTop = rect.top - hostRect.top;
+      const anchorBottom = rect.bottom - hostRect.top;
+      const anchorCenterX = anchorLeft + Math.max(0, anchorRight - anchorLeft) / 2;
+      const maxLeft = Math.max(gutter, hostRect.width - popupWidth - gutter);
+
+      const left = Math.max(gutter, Math.min(anchorCenterX - popupWidth / 2, maxLeft));
+
+      const spaceAbove = anchorTop - gutter;
+      const spaceBelow = hostRect.height - anchorBottom - gutter;
+      const above = spaceAbove >= popupHeight || spaceAbove > spaceBelow;
+      let top = above ? anchorTop - popupHeight - gutter : anchorBottom + gutter;
+      const maxTop = Math.max(minTop, hostRect.height - popupHeight - gutter);
+      top = Math.max(minTop, Math.min(top, maxTop));
+
+      popup.style.left = `${left}px`;
+      popup.style.top = `${top}px`;
+
+      const arrow = state.elements.popupArrow;
+      if (arrow) {
+        const arrowLeft = Math.max(
+          gutter,
+          Math.min(anchorCenterX - arrowSize / 2, hostRect.width - arrowSize - gutter)
+        );
+        if (above) {
+          arrow.dataset.placement = "below-popup";
+          arrow.style.top = `${top + popupHeight - 6}px`;
+          arrow.style.transform = "rotate(45deg)";
+          arrow.style.borderTop = "none";
+          arrow.style.borderLeft = "none";
+          arrow.style.borderRight = "1px solid rgba(220,220,220,0.4)";
+          arrow.style.borderBottom = "1px solid rgba(220,220,220,0.4)";
+        } else {
+          arrow.dataset.placement = "above-popup";
+          arrow.style.top = `${top - arrowSize + 6}px`;
+          arrow.style.transform = "rotate(45deg)";
+          arrow.style.borderBottom = "none";
+          arrow.style.borderRight = "none";
+          arrow.style.borderTop = "1px solid rgba(220,220,220,0.4)";
+          arrow.style.borderLeft = "1px solid rgba(220,220,220,0.4)";
+        }
+        arrow.style.left = `${arrowLeft}px`;
+        arrow.style.display = "block";
+      }
+      return true;
+    }
+
     const left = Math.max(gutter, Math.min(rect.left, window.innerWidth - popupWidth - gutter));
 
-    // Place above rect if space, else below
     let top;
     const spaceAbove = rect.top - gutter;
     const spaceBelow = window.innerHeight - rect.bottom - gutter;
@@ -2165,8 +2345,7 @@
     if (arrow) {
       const arrowLeft = left + popupWidth / 2 - arrowSize / 2;
       if (above) {
-        // Popup above word → bottom-right corner of the square points down
-        // Only border-right and border-bottom are exposed (top-left hidden behind popup)
+        arrow.dataset.placement = "below-popup";
         arrow.style.top = `${top + popupHeight - 6}px`;
         arrow.style.transform = "rotate(45deg)";
         arrow.style.borderTop = "none";
@@ -2174,8 +2353,7 @@
         arrow.style.borderRight = "1px solid rgba(220,220,220,0.4)";
         arrow.style.borderBottom = "1px solid rgba(220,220,220,0.4)";
       } else {
-        // Popup below word → top-left corner of the square points up
-        // Only border-top and border-left are exposed (bottom-right hidden behind popup)
+        arrow.dataset.placement = "above-popup";
         arrow.style.top = `${top - arrowSize + 6}px`;
         arrow.style.transform = "rotate(45deg)";
         arrow.style.borderBottom = "none";
@@ -2186,6 +2364,7 @@
       arrow.style.left = `${arrowLeft}px`;
       arrow.style.display = "block";
     }
+    return true;
   }
 
   async function showWordPopup(word, rect) {
@@ -2195,6 +2374,12 @@
     const currentLine = state.subtitleClickContext || state.subtitles[state.currentIndex]?.text || "";
     const normalizedWord = word.trim().toLowerCase();
     const aiCacheKey = `${normalizedWord}::${currentLine}`;
+    const regenerateSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-15.5 6.3"/><path d="M3 12A9 9 0 0 1 18.5 5.7"/><path d="M18 2v4h4"/><path d="M6 22v-4H2"/></svg>`;
+    const regenerateOptions = POPUP_REGENERATE_PROVIDERS.map((provider) => `
+      <button type="button" class="lw-regenerate-option" data-popup-action="regenerate-word" data-provider="${escapeAttribute(provider.value)}">
+        ${escapeHtml(provider.label)}
+      </button>
+    `).join("");
 
     popup.innerHTML = `
       <div class="lw-popup-header">
@@ -2205,6 +2390,13 @@
         </div>
         <div class="lw-popup-header-right">
           <button type="button" class="lw-popup-speak" data-popup-action="speak" data-word="${escapeAttribute(word)}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/></svg></button>
+          <div class="lw-regenerate-wrap">
+            <button type="button" class="lw-popup-regenerate" data-popup-action="regenerate-menu" title="Regenerate with another AI">${regenerateSvg}</button>
+            <div class="lw-regenerate-menu" id="lw-regenerate-menu" hidden>
+              <div class="lw-regenerate-menu-title">Regenerate with</div>
+              ${regenerateOptions}
+            </div>
+          </div>
           <button type="button" class="lw-popup-close" data-popup-action="close">✕</button>
         </div>
       </div>
@@ -2235,7 +2427,7 @@
     `;
 
     popup.style.display = "flex";
-    positionPopup(popup, rect);
+    if (!positionPopup(popup, rect)) return;
 
     // Helpers
     const audioSvg = (size) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/></svg>`;
@@ -2248,11 +2440,24 @@
         return `<span class="lw-synonym-chip${cls ? " " + cls : ""}"${action}>${escapeHtml(s)}</span>`;
       }).join("");
     }
+    function loadingSpinner(label = "Loading") {
+      return `
+        <div class="lw-inline-loading" aria-label="${escapeAttribute(label)}">
+          <span class="lw-inline-spinner"></span>
+          <span>${escapeHtml(label)}</span>
+        </div>
+      `;
+    }
 
     let fastData = state.wordFastCache.get(normalizedWord) || { dictEntries: [], synonyms: [], antonyms: [], tatoebaExamples: [] };
     let aiData = state.wordAiCache.get(aiCacheKey) || null;
+    let somaliData = state.wordSomaliCache.get(aiCacheKey) || null;
+    let quickTranslation = state.translationCache[normalizedWord] || "";
     let aiLoading = !aiData;
+    let somaliLoading = !somaliData;
     let aiError = "";
+    let somaliError = "";
+    let regeneratingLabel = "";
 
     function renderPanels() {
       if (requestId !== state.popupRequestId) return;
@@ -2262,19 +2467,32 @@
       const dictDef = meanings[0]?.definitions?.[0]?.definition || "";
       const examples = (aiData?.examples || []).filter(ex => ex.type !== "somali");
       const phonetic = dictEntries[0]?.phonetic || aiData?.pronunciationText || "";
-      const translation = aiData?.somaliMeaning || (aiLoading ? "Finding Somali meaning..." : "");
+      const rank = getRank(normalizedWord);
+      const mergedAiData = { ...(aiData || {}), ...(somaliData || {}) };
+      const translation = somaliData?.somaliMeaning || aiData?.somaliMeaning || quickTranslation || "";
+      const somaliExplanation = somaliData?.somaliExplanation || aiData?.somaliExplanation || "";
+      const somaliSentence = somaliData?.somaliSentence || aiData?.somaliSentence || "";
+      const partOfSpeech = somaliData?.partOfSpeech || aiData?.partOfSpeech || "";
+      const usageNote = somaliData?.usageNote || aiData?.usageNote || "";
+      const sentenceTranslation = somaliData?.sentenceTranslation || aiData?.somaliSentenceTranslation || "";
+      const contextNote = somaliData?.contextNote || aiData?.contextNote || "";
       const saveBtn = popup.querySelector("#lw-popup-save-btn");
+      const activeLoadingLabel = regeneratingLabel ? `Regenerating with ${regeneratingLabel}` : "Loading AI explanation";
 
-      state.lastPopupAiData = aiData;
+      state.lastPopupAiData = Object.keys(mergedAiData).length ? mergedAiData : aiData;
       state.lastPopupSynonyms = synonyms;
       state.lastPopupAntonyms = antonyms;
       popup.querySelector("#lw-popup-phonetic-el").textContent = phonetic;
-      popup.querySelector("#lw-popup-translation-el").textContent = translation;
+      popup.querySelector("#lw-popup-translation-el").textContent = translation || (rank < 9999 ? `Rank ${rank}` : "Tap Save after meaning loads");
       if (saveBtn) saveBtn.dataset.translation = translation;
 
       const learnPanel = popup.querySelector("#lw-panel-learn");
       if (learnPanel) {
         learnPanel.innerHTML = `
+          <div class="lw-easy-meaning-box" style="margin-top:10px">
+            <div class="lw-easy-meaning-label">Instant</div>
+            <div class="lw-easy-meaning-text">${escapeHtml(translation || (rank < 9999 ? `Frequency rank ${rank}. Full meaning is loading now.` : "Full meaning is loading now."))}</div>
+          </div>
           ${aiData?.easyMeaning || dictDef ? `
             <div class="lw-easy-meaning-box" style="margin-top:10px">
               <div class="lw-easy-meaning-label">${aiData?.easyMeaning ? "Easy Meaning" : "Dictionary Meaning"}</div>
@@ -2299,7 +2517,7 @@
           ` : aiLoading ? `
             <div class="lw-popup-divider"></div>
             <div class="lw-section-label">AI Explanation</div>
-            <div class="lw-popup-empty">AI details are loading because this asks your selected online model.</div>
+            ${loadingSpinner(activeLoadingLabel)}
           ` : aiError ? `
             <div class="lw-popup-divider"></div>
             <div class="lw-section-label">AI Explanation</div>
@@ -2312,7 +2530,7 @@
               ${examples.map((ex) => `
                 <div class="lw-example-row">
                   ${ex.type ? `<span class="lw-example-type-tag">${escapeHtml(ex.type.toUpperCase())}</span>` : ""}
-                  <span class="lw-example-row-text">${highlightWordInText(escapeHtml(ex.text), word)}</span>
+                  <span class="lw-example-row-text">${highlightWordInText(escapeHtml(ex.text), word)}${ex.translation ? `<span class="lw-example-row-translation">${escapeHtml(ex.translation)}</span>` : ""}</span>
                   ${audioBtn(ex.text, true)}
                 </div>
               `).join("")}
@@ -2392,18 +2610,23 @@
         somaliPanel.innerHTML = `
           <div class="lw-somali-main-box">
             <div class="lw-somali-flag-row"><span class="lw-somali-word-label">Somali Support</span></div>
-            ${aiData?.somaliMeaning ? `<div class="lw-somali-translation">${escapeHtml(aiData.somaliMeaning)}</div>` : ""}
-            ${aiData?.somaliExplanation ? `<div class="lw-somali-note">${escapeHtml(aiData.somaliExplanation)}</div>` : ""}
-            ${aiLoading && !aiData?.somaliMeaning ? `<div class="lw-somali-note">Somali meaning is loading from your selected AI model.</div>` : ""}
+            ${translation ? `<div class="lw-somali-translation">${escapeHtml(translation)}</div>` : ""}
+            ${partOfSpeech ? `<div class="lw-somali-note"><strong>Part of speech:</strong> ${escapeHtml(partOfSpeech)}</div>` : ""}
+            ${somaliExplanation ? `<div class="lw-somali-note">${escapeHtml(somaliExplanation)}</div>` : ""}
+            ${usageNote ? `<div class="lw-somali-note"><strong>Usage:</strong> ${escapeHtml(usageNote)}</div>` : ""}
+            ${contextNote ? `<div class="lw-somali-note"><strong>Context:</strong> ${escapeHtml(contextNote)}</div>` : ""}
+            ${somaliData?.aiProviderLabel ? `<div class="lw-somali-note">Somali AI: ${escapeHtml(somaliData.aiProviderLabel)}</div>` : ""}
+            ${somaliLoading && !somaliData?.somaliMeaning ? `<div class="lw-somali-note">${quickTranslation ? "DeepSeek Somali explanation is still loading." : "DeepSeek Somali support is loading."}</div>` : ""}
           </div>
-          ${aiData?.somaliSentence ? `
+          ${somaliSentence ? `
             <div class="lw-popup-divider"></div>
             <div class="lw-section-label">Somali Example</div>
             <div class="lw-example-card">
-              <div class="lw-example-content"><div class="lw-example-text" style="font-style:italic">${escapeHtml(aiData.somaliSentence)}</div></div>
+              <div class="lw-example-content"><div class="lw-example-text" style="font-style:italic">${escapeHtml(somaliSentence)}</div></div>
+              ${sentenceTranslation ? `<div class="lw-example-content"><div class="lw-example-translation">${escapeHtml(sentenceTranslation)}</div></div>` : ""}
             </div>
           ` : ""}
-          ${!aiLoading && !aiData?.somaliMeaning ? `<div class="lw-popup-empty">${escapeHtml(aiError || "No Somali data available")}</div>` : ""}
+          ${!somaliLoading && !translation ? `<div class="lw-popup-empty">${escapeHtml(somaliError || aiError || "No Somali data available")}</div>` : ""}
         `;
       }
 
@@ -2411,6 +2634,49 @@
     }
 
     renderPanels();
+
+    state.currentPopupRegenerate = async (provider) => {
+      if (requestId !== state.popupRequestId) return;
+
+      const providerConfig = POPUP_REGENERATE_PROVIDERS.find((item) => item.value === provider);
+      regeneratingLabel = providerConfig?.label || provider;
+      aiData = null;
+      somaliData = null;
+      aiLoading = true;
+      somaliLoading = true;
+      aiError = "";
+      somaliError = "";
+      state.wordAiCache.delete(aiCacheKey);
+      state.wordSomaliCache.delete(aiCacheKey);
+      renderPanels();
+
+      const [nextAiData, nextSomaliData] = await Promise.all([
+        getAIWordData(word, currentLine, provider, true),
+        getSomaliSupportData(word, currentLine, provider, true),
+      ]);
+
+      if (requestId !== state.popupRequestId) return;
+
+      aiData = nextAiData;
+      somaliData = nextSomaliData;
+      aiLoading = false;
+      somaliLoading = false;
+      aiError = nextAiData ? "" : `${regeneratingLabel} did not answer after 45 seconds.`;
+      somaliError = nextSomaliData ? "" : `${regeneratingLabel} Somali support did not answer after 30 seconds.`;
+      regeneratingLabel = "";
+
+      if (nextAiData) setLimitedCache(state.wordAiCache, aiCacheKey, nextAiData);
+      if (nextSomaliData) setLimitedCache(state.wordSomaliCache, aiCacheKey, nextSomaliData);
+      renderPanels();
+    };
+
+    if (!quickTranslation) {
+      void translateToSomali(normalizedWord, "").then((result) => {
+        if (requestId !== state.popupRequestId || !result) return;
+        quickTranslation = result;
+        renderPanels();
+      });
+    }
 
     if (!state.wordFastCache.has(normalizedWord)) {
       void getFastWordData(word).then((result) => {
@@ -2424,8 +2690,18 @@
       void getAIWordData(word, currentLine).then((result) => {
         aiData = result;
         aiLoading = false;
-        aiError = result ? "" : "The AI provider did not answer in time. Try again or choose a faster model in settings.";
+        aiError = result ? "" : "The AI provider did not answer after 45 seconds. Try again or choose another model in settings.";
         if (result) setLimitedCache(state.wordAiCache, aiCacheKey, result);
+        renderPanels();
+      });
+    }
+
+    if (!state.wordSomaliCache.has(aiCacheKey)) {
+      void getSomaliSupportData(word, currentLine).then((result) => {
+        somaliData = result;
+        somaliLoading = false;
+        somaliError = result ? "" : "DeepSeek Somali support did not answer after 30 seconds.";
+        if (result) setLimitedCache(state.wordSomaliCache, aiCacheKey, result);
         renderPanels();
       });
     }
@@ -2435,6 +2711,7 @@
     if (state.elements.popup) {
       state.elements.popup.style.display = "none";
       state.popupRequestId++;
+      state.currentPopupRegenerate = null;
     }
     if (state.elements.popupArrow) {
       state.elements.popupArrow.style.display = "none";
@@ -2479,6 +2756,16 @@
     if (tabBtn) {
       tabBtn.classList.add("active");
     }
+  }
+
+  function toggleRegenerateMenu(forceOpen) {
+    const menu = state.elements.popup?.querySelector("#lw-regenerate-menu");
+    if (!menu) {
+      return;
+    }
+
+    const shouldOpen = typeof forceOpen === "boolean" ? forceOpen : menu.hidden;
+    menu.hidden = !shouldOpen;
   }
 
   function handleWordHover(event) {
@@ -2642,8 +2929,7 @@
     left = Math.max(minLeft, Math.min(left, maxLeft));
     top = Math.max(minTop, Math.min(top, maxTop));
 
-    tooltip.style.left = `${left}px`;
-    tooltip.style.top = `${top}px`;
+    setFloatingElementPosition(tooltip, left, top);
   }
 
   function positionLineHoverTooltip(tooltip, lineRect, anchorPoint) {
@@ -2678,8 +2964,7 @@
     left = Math.max(minLeft, Math.min(left, maxLeft));
     top = Math.max(minTop, Math.min(top, maxTop));
 
-    tooltip.style.left = `${left}px`;
-    tooltip.style.top = `${top}px`;
+    setFloatingElementPosition(tooltip, left, top);
   }
 
   function getHoverPhraseCandidates(wordEl) {
@@ -2907,8 +3192,12 @@
         aiExplanation: ai.aiExplanation || "",
         usageContext: ai.usageContext || "",
         somaliMeaning: ai.somaliMeaning || "",
+        partOfSpeech: ai.partOfSpeech || "",
         somaliExplanation: ai.somaliExplanation || "",
         somaliSentence: ai.somaliSentence || "",
+        somaliSentenceTranslation: ai.somaliSentenceTranslation || ai.sentenceTranslation || "",
+        usageNote: ai.usageNote || "",
+        contextNote: ai.contextNote || "",
         commonMistake: ai.commonMistake || "",
         pronunciationText: ai.pronunciationText || "",
         relatedPhrases: ai.relatedPhrases || [],
@@ -2918,6 +3207,7 @@
         phraseId,
         exampleText: ex.text,
         exampleType: ex.type,
+        translationText: ex.translation || "",
       })),
     };
 
@@ -2962,16 +3252,34 @@
     }
   }
 
-  async function getAIWordData(word, sentenceContext) {
+  async function getAIWordData(word, sentenceContext, preferredProvider, strictProvider = false) {
     return withTimeout(
       fetch("http://127.0.0.1:3001/api/ai/explain", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phraseText: word, sentenceContext }),
+        body: JSON.stringify({ phraseText: word, sentenceContext, preferredProvider, strictProvider }),
       })
         .then(r => r.ok ? r.json() : null)
         .catch(() => null),
-      8000,
+      POPUP_AI_TIMEOUT_MS,
+      null
+    );
+  }
+
+  async function getSomaliSupportData(word, sentenceContext, preferredProvider, strictProvider = false) {
+    return withTimeout(
+      fetch("http://127.0.0.1:3001/api/extension/somali-support", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ word, sentenceContext, preferredProvider, strictProvider }),
+      })
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (!data || (!data.somaliMeaning && !data.somaliExplanation && !data.somaliSentence && !data.contextNote)) return null;
+          return data;
+        })
+        .catch(() => null),
+      POPUP_SOMALI_TIMEOUT_MS,
       null
     );
   }
@@ -3176,7 +3484,8 @@
         text: key,
         target: "so",
       });
-      const translation = response?.translation?.trim() || fallback || "";
+      const rawTranslation = response?.translation?.trim() || "";
+      const translation = isMyMemoryWarning(rawTranslation) ? "" : rawTranslation || fallback || "";
       if (translation) {
         state.translationCache[key] = translation;
       }
@@ -3184,6 +3493,10 @@
     } catch (_error) {
       return fallback || "";
     }
+  }
+
+  function isMyMemoryWarning(value) {
+    return String(value || "").trim().toUpperCase().startsWith("MYMEMORY WARNING");
   }
 
   async function saveWord(word, translation) {

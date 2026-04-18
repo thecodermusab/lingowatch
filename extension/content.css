@@ -356,6 +356,14 @@
 
 /* Subtitle overlay is now rendered by the React subtitle.js content script */
 
+#lw-player-ui-root {
+  position: absolute;
+  inset: 0;
+  z-index: 2147483647;
+  pointer-events: none;
+  overflow: visible;
+}
+
 /* ── Hover tooltip ───────────────────────────────────────────── */
 #lw-hover-tooltip {
   position: fixed;
@@ -370,6 +378,10 @@
   box-shadow: 0 0 0 1px rgba(0, 210, 180, 0.12), 0 8px 40px rgba(0, 0, 0, 0.8), 0 0 24px rgba(0, 210, 180, 0.06);
   display: none;
   pointer-events: none;
+}
+
+#lw-player-ui-root #lw-hover-tooltip {
+  position: absolute;
 }
 
 .lw-hover-tooltip-compact {
@@ -498,6 +510,15 @@
   transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1), top 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+#lw-player-ui-root #lw-popup-arrow,
+#lw-player-ui-root #lw-word-popup {
+  position: absolute;
+}
+
+#lw-player-ui-root #lw-word-popup {
+  pointer-events: auto;
+}
+
 .lw-popup-loading {
   padding: 20px;
   color: #666;
@@ -539,6 +560,7 @@
 }
 
 .lw-popup-speak,
+.lw-popup-regenerate,
 .lw-popup-close {
   display: inline-flex;
   align-items: center;
@@ -556,11 +578,57 @@
 }
 
 .lw-popup-speak:hover,
+.lw-popup-regenerate:hover,
 .lw-popup-close:hover {
   background: rgba(94, 234, 212, 0.08);
   border-color: rgba(94, 234, 212, 0.2);
   color: #ecfeff;
   transform: translateY(-1px);
+}
+
+.lw-regenerate-wrap {
+  position: relative;
+}
+
+.lw-regenerate-menu {
+  position: absolute;
+  right: 0;
+  top: 42px;
+  width: 176px;
+  padding: 8px;
+  background: #12171c;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 10px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.42);
+  z-index: 2147483647;
+}
+
+.lw-regenerate-menu-title {
+  padding: 4px 8px 8px;
+  color: #8e98a6;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.lw-regenerate-option {
+  display: block;
+  width: 100%;
+  padding: 8px 9px;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  color: #dbe4ef;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.lw-regenerate-option:hover {
+  background: rgba(94, 234, 212, 0.1);
+  color: #ecfeff;
 }
 
 .lw-popup-tabs {
@@ -661,6 +729,29 @@
   font-size: 13px;
   color: #7b8492;
   padding: 8px 0;
+}
+
+.lw-inline-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0 8px;
+  color: #9ca3af;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.lw-inline-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(148, 163, 184, 0.2);
+  border-top-color: #5eead4;
+  border-radius: 999px;
+  animation: lw-spin 0.8s linear infinite;
+}
+
+@keyframes lw-spin {
+  to { transform: rotate(360deg); }
 }
 
 .lw-popup-grammar-pos {
@@ -1543,6 +1634,13 @@
   font-style: italic;
 }
 
+.lw-example-translation {
+  flex: 1;
+  color: #8e98a6;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .lw-word-highlight {
   background: transparent;
   color: #f3f4f6;
@@ -1629,6 +1727,15 @@
   color: #d7dce2;
   font-style: italic;
   line-height: 1.55;
+}
+
+.lw-example-row-translation {
+  display: block;
+  margin-top: 4px;
+  color: #8e98a6;
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1.45;
 }
 
 /* ── Learn tab ─────────────────────────────────────────────────── */
