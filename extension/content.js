@@ -2217,6 +2217,16 @@
     return state.frequencyData[word.toLowerCase()] || 9999;
   }
 
+  function getRecommendedPopupProvider(word) {
+    const normalized = String(word || "").trim().toLowerCase();
+    const rank = getRank(normalized);
+    const looksLikePhrase = /\s/.test(normalized) || normalized.includes("-");
+    const isHard = looksLikePhrase || rank > 6000;
+    return isHard
+      ? { value: "gemini", label: "Gemini", reason: "Recommended for hard words and phrases" }
+      : { value: "deepseek", label: "DeepSeek", reason: "Recommended for easy and medium words" };
+  }
+
   function getWordClass(word) {
     if (state.ignoredWords.has(word.toLowerCase())) {
       return "lw-word";
@@ -2374,10 +2384,12 @@
     const currentLine = state.subtitleClickContext || state.subtitles[state.currentIndex]?.text || "";
     const normalizedWord = word.trim().toLowerCase();
     const aiCacheKey = `${normalizedWord}::${currentLine}`;
+    const recommendedProvider = getRecommendedPopupProvider(normalizedWord);
     const regenerateSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-15.5 6.3"/><path d="M3 12A9 9 0 0 1 18.5 5.7"/><path d="M18 2v4h4"/><path d="M6 22v-4H2"/></svg>`;
     const regenerateOptions = POPUP_REGENERATE_PROVIDERS.map((provider) => `
-      <button type="button" class="lw-regenerate-option" data-popup-action="regenerate-word" data-provider="${escapeAttribute(provider.value)}">
-        ${escapeHtml(provider.label)}
+      <button type="button" class="lw-regenerate-option${provider.value === recommendedProvider.value ? " recommended" : ""}" data-popup-action="regenerate-word" data-provider="${escapeAttribute(provider.value)}">
+        <span>${escapeHtml(provider.label)}</span>
+        ${provider.value === recommendedProvider.value ? `<span class="lw-regenerate-badge">Recommended</span>` : ""}
       </button>
     `).join("");
 
@@ -2394,6 +2406,7 @@
             <button type="button" class="lw-popup-regenerate" data-popup-action="regenerate-menu" title="Regenerate with another AI">${regenerateSvg}</button>
             <div class="lw-regenerate-menu" id="lw-regenerate-menu" hidden>
               <div class="lw-regenerate-menu-title">Regenerate with</div>
+              <div class="lw-regenerate-recommended">${escapeHtml(recommendedProvider.reason)}</div>
               ${regenerateOptions}
             </div>
           </div>
@@ -2405,6 +2418,15 @@
           <button type="button" class="lw-popup-tab active" data-popup-action="tab" data-tab="learn">Learn</button>
           <button type="button" class="lw-popup-tab" data-popup-action="tab" data-tab="usage">Usage</button>
           <button type="button" class="lw-popup-tab" data-popup-action="tab" data-tab="somali">Somali</button>
+        </div>
+        <div class="lw-popup-model-picker">
+          <div class="lw-popup-model-picker-title">
+            <span>Regenerate model</span>
+            <span>Recommended: ${escapeHtml(recommendedProvider.label)}</span>
+          </div>
+          <div class="lw-popup-model-options">
+            ${regenerateOptions}
+          </div>
         </div>
         <div class="lw-popup-panel" id="lw-panel-learn"></div>
         <div class="lw-popup-panel" id="lw-panel-usage" style="display:none"></div>
@@ -2478,6 +2500,7 @@
       const contextNote = somaliData?.contextNote || aiData?.contextNote || "";
       const saveBtn = popup.querySelector("#lw-popup-save-btn");
       const activeLoadingLabel = regeneratingLabel ? `Regenerating with ${regeneratingLabel}` : "Loading AI explanation";
+      const answeredBy = aiData?.aiProviderLabel || somaliData?.aiProviderLabel || "";
 
       state.lastPopupAiData = Object.keys(mergedAiData).length ? mergedAiData : aiData;
       state.lastPopupSynonyms = synonyms;
@@ -2513,10 +2536,12 @@
           ${aiData?.aiExplanation ? `
             <div class="lw-popup-divider"></div>
             <div class="lw-section-label">AI Explanation</div>
+            ${answeredBy ? `<div class="lw-answered-by">Answered by ${escapeHtml(answeredBy)}</div>` : ""}
             <div class="lw-ai-explanation">${escapeHtml(aiData.aiExplanation)}</div>
           ` : aiLoading ? `
             <div class="lw-popup-divider"></div>
             <div class="lw-section-label">AI Explanation</div>
+            <div class="lw-answered-by">Recommended: ${escapeHtml(recommendedProvider.label)}</div>
             ${loadingSpinner(activeLoadingLabel)}
           ` : aiError ? `
             <div class="lw-popup-divider"></div>
@@ -2651,8 +2676,8 @@
       renderPanels();
 
       const [nextAiData, nextSomaliData] = await Promise.all([
-        getAIWordData(word, currentLine, provider, true),
-        getSomaliSupportData(word, currentLine, provider, true),
+        getAIWordData(word, "", provider, true),
+        getSomaliSupportData(word, "", provider, true),
       ]);
 
       if (requestId !== state.popupRequestId) return;
@@ -2687,7 +2712,7 @@
     }
 
     if (!state.wordAiCache.has(aiCacheKey)) {
-      void getAIWordData(word, currentLine).then((result) => {
+      void getAIWordData(word, currentLine, recommendedProvider.value).then((result) => {
         aiData = result;
         aiLoading = false;
         aiError = result ? "" : "The AI provider did not answer after 45 seconds. Try again or choose another model in settings.";
