@@ -2223,8 +2223,8 @@
     const looksLikePhrase = /\s/.test(normalized) || normalized.includes("-");
     const isHard = looksLikePhrase || rank > 6000;
     return isHard
-      ? { value: "gemini", label: "Gemini", reason: "Recommended for hard words and phrases" }
-      : { value: "deepseek", label: "DeepSeek", reason: "Recommended for easy and medium words" };
+      ? { value: "gemini", label: "Gemini" }
+      : { value: "deepseek", label: "DeepSeek" };
   }
 
   function getWordClass(word) {
@@ -2520,7 +2520,6 @@
           ` : aiLoading ? `
             <div class="lw-popup-divider"></div>
             <div class="lw-section-label">AI Explanation</div>
-            <div class="lw-answered-by">Recommended: ${escapeHtml(recommendedProvider.label)}</div>
             ${loadingSpinner(activeLoadingLabel)}
           ` : aiError ? `
             <div class="lw-popup-divider"></div>
