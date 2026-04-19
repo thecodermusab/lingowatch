@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LingoWatch FAQ</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400&family=DM+Sans:wght@400&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text-dark: #1a1a1a;
+            --text-muted: #666666;
+            --border: #e0ddd8;
+            --chevron: #1a1a1a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+        }
+
+        .faq-section {
+            background-color: var(--bg);
+            padding: 100px 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .faq-container {
+            width: 100%;
+            max-width: 820px;
+            /* Mobile padding default */
+            padding: 0 24px;
+        }
+
+        .faq-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 400;
+            font-size: 52px;
+            color: var(--text-dark);
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        /* --- Accordion Items --- */
+        .faq-item {
+            border-bottom: 1px solid var(--border);
+            padding: 28px 0;
+            background-color: transparent;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        /* Top border for the first item only as requested */
+        .faq-item:first-of-type {
+            border-top: 1px solid var(--border);
+        }
+
+        .faq-question-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 400;
+            font-size: 22px;
+            color: var(--text-dark);
+            padding-right: 20px;
+        }
+
+        .faq-chevron {
+            color: var(--chevron);
+            font-size: 20px; 
+            font-family: sans-serif;
+            font-weight: 300;
+            transition: transform 0.3s ease;
+            display: inline-block;
+            user-select: none;
+            /* A clean chevron character looking down */
+            transform: rotate(0deg);
+        }
+
+        /* Standard active rotation */
+        .faq-item.open .faq-chevron {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer-wrapper {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease;
+        }
+
+        .faq-answer {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 400;
+            font-size: 16px;
+            color: var(--text-muted);
+            padding-top: 16px;
+            max-width: 680px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 600px) {
+            .faq-title {
+                font-size: 36px;
+            }
+            .faq-question {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <section class="faq-section">
+        <div class="faq-container">
+            <h2 class="faq-title">Frequently asked questions</h2>
+
+            <!-- FAQ ITEM 1 -->
+            <div class="faq-item">
+                <div class="faq-question-row">
+                    <div class="faq-question">Is LingoWatch free to use?</div>
+                    <div class="faq-chevron">∨</div>
+                </div>
+                <div class="faq-answer-wrapper">
+                    <div class="faq-answer">Yes, LingoWatch is completely free to install and use. Simply add it to Chrome and it works instantly on any YouTube video that has subtitles — no account required.</div>
+                </div>
+            </div>
+
+            <!-- FAQ ITEM 2 -->
+            <div class="faq-item">
+                <div class="faq-question-row">
+                    <div class="faq-question">Which languages does LingoWatch support?</div>
+                    <div class="faq-chevron">∨</div>
+                </div>
+                <div class="faq-answer-wrapper">
+                    <div class="faq-answer">LingoWatch supports 50+ languages for translation including Somali, Arabic, Turkish, Chinese, Spanish, French, and many more. Somali is a core supported language with full translation and vocabulary features.</div>
+                </div>
+            </div>
+
+            <!-- FAQ ITEM 3 -->
+            <div class="faq-item">
+                <div class="faq-question-row">
+                    <div class="faq-question">Does it work on all YouTube videos?</div>
+                    <div class="faq-chevron">∨</div>
+                </div>
+                <div class="faq-answer-wrapper">
+                    <div class="faq-answer">LingoWatch works on any YouTube video that has subtitles or closed captions available — both auto-generated and manual captions. If a video has no subtitles, the extension will notify you.</div>
+                </div>
+            </div>
+
+            <!-- FAQ ITEM 4 -->
+            <div class="faq-item">
+                <div class="faq-question-row">
+                    <div class="faq-question">How does the word saving feature work?</div>
+                    <div class="faq-chevron">∨</div>
+                </div>
+                <div class="faq-answer-wrapper">
+                    <div class="faq-answer">When you click any word in the subtitle, a popup appears showing the definition, pronunciation, and example sentences. You can save the word to your personal vocabulary library with one click and review it later inside the LingoWatch dashboard.</div>
+                </div>
+            </div>
+
+            <!-- FAQ ITEM 5 -->
+            <div class="faq-item">
+                <div class="faq-question-row">
+                    <div class="faq-question">Is my vocabulary data private?</div>
+                    <div class="faq-chevron">∨</div>
+                </div>
+                <div class="faq-answer-wrapper">
+                    <div class="faq-answer">Yes. Your saved words and learning data are stored locally on your device and are never shared with third parties. Your privacy is fully protected.</div>
+                </div>
+            </div>
+
+            <!-- FAQ ITEM 6 -->
+            <div class="faq-item">
+                <div class="faq-question-row">
+                    <div class="faq-question">Does LingoWatch slow down YouTube?</div>
+                    <div class="faq-chevron">∨</div>
+                </div>
+                <div class="faq-answer-wrapper">
+                    <div class="faq-answer">No. LingoWatch is built to be extremely lightweight. It runs silently in the background and has no impact on video playback speed or quality.</div>
+                </div>
+            </div>
+
+            <!-- FAQ ITEM 7 -->
+            <div class="faq-item">
+                <div class="faq-question-row">
+                    <div class="faq-question">Can I use LingoWatch on other websites besides YouTube?</div>
+                    <div class="faq-chevron">∨</div>
+                </div>
+                <div class="faq-answer-wrapper">
+                    <div class="faq-answer">Currently LingoWatch is optimized for YouTube. Support for additional video platforms is on our roadmap and will be added in future updates.</div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const faqItems = document.querySelectorAll('.faq-item');
+
+            faqItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const isOpen = item.classList.contains('open');
+                    const answerWrapper = item.querySelector('.faq-answer-wrapper');
+                    
+                    // Close all other items before opening this one
+                    faqItems.forEach(otherItem => {
+                        otherItem.classList.remove('open');
+                        const otherWrapper = otherItem.querySelector('.faq-answer-wrapper');
+                        if (otherWrapper) {
+                            otherWrapper.style.maxHeight = null;
+                        }
+                    });
+
+                    // Toggle current item smoothly mapping to scrollHeight
+                    if (!isOpen) {
+                        item.classList.add('open');
+                        answerWrapper.style.maxHeight = answerWrapper.scrollHeight + "px";
+                    } else {
+                        item.classList.remove('open');
+                        answerWrapper.style.maxHeight = null;
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
