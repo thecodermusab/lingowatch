@@ -39,36 +39,40 @@ const pollyClient = (env.AWS_ACCESS_KEY_ID && env.AWS_SECRET_ACCESS_KEY)
 async function synthesizeWithPolly(text, includeTimings = false) {
   if (!pollyClient) return null;
   try {
-    // Audio stream
     const audioCmd = new SynthesizeSpeechCommand({
       Text: text, VoiceId: "Joanna", Engine: "standard", OutputFormat: "mp3",
     });
-    const audioRes = await pollyClient.send(audioCmd);
+    const marksCmd = new SynthesizeSpeechCommand({
+      Text: text, VoiceId: "Joanna", Engine: "standard",
+      OutputFormat: "json", SpeechMarkTypes: ["word"],
+    });
+
+    // Run audio + speech marks in parallel to halve latency
+    const [audioRes, marksRes] = await Promise.all([
+      pollyClient.send(audioCmd),
+      includeTimings ? pollyClient.send(marksCmd) : Promise.resolve(null),
+    ]);
+
     if (!audioRes.AudioStream) return null;
     const chunks = [];
     for await (const chunk of audioRes.AudioStream) chunks.push(chunk);
     const audioContent = Buffer.concat(chunks).toString("base64");
 
-    if (!includeTimings) return { audioContent, wordTimings: [] };
-
-    // Speech marks for word-level timing
-    const { SynthesizeSpeechCommand: SSC } = await import("@aws-sdk/client-polly");
-    const marksCmd = new SSC({
-      Text: text, VoiceId: "Joanna", Engine: "standard",
-      OutputFormat: "json", SpeechMarkTypes: ["word"],
-    });
-    const marksRes = await pollyClient.send(marksCmd);
-    const marksChunks = [];
-    for await (const chunk of marksRes.AudioStream) marksChunks.push(chunk);
-    const marksText = Buffer.concat(marksChunks).toString("utf8");
-    const marks = marksText.trim().split("\n").map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
-
-    const wordTimings = marks.map((m, i) => ({
-      index: i,
-      word: m.value,
-      startTime: m.time / 1000,
-      endTime: marks[i + 1] ? marks[i + 1].time / 1000 : m.time / 1000 + 0.4,
-    }));
+    let wordTimings = [];
+    if (includeTimings && marksRes?.AudioStream) {
+      const marksChunks = [];
+      for await (const chunk of marksRes.AudioStream) marksChunks.push(chunk);
+      const marks = Buffer.concat(marksChunks).toString("utf8")
+        .trim().split("\n")
+        .map(l => { try { return JSON.parse(l); } catch { return null; } })
+        .filter(Boolean);
+      wordTimings = marks.map((m, i) => ({
+        index: i,
+        word: m.value,
+        startTime: m.time / 1000,
+        endTime: marks[i + 1] ? marks[i + 1].time / 1000 : m.time / 1000 + 0.4,
+      }));
+    }
 
     return { audioContent, wordTimings };
   } catch {
@@ -429,27 +433,14 @@ createServer(async (req, res) => {
         phraseType: body.phraseType || "word",
         difficultyLevel: body.difficultyLevel || "intermediate",
       });
-      let aiResult = null;
-
-      try {
-        aiResult = await explainPhrase(phraseText, autoProvider, "", true);
-      } catch (error) {
-        console.warn("Extension save auto-enrichment failed:", error instanceof Error ? error.message : error);
-      }
 
       // Remove existing entry for same word (case-insensitive)
       const filtered = existing.filter(p => p.phraseText?.toLowerCase() !== phraseText.toLowerCase());
-      const explanation = aiResult
-        ? buildPhraseExplanationFromAiResult(aiResult, id, body.explanation)
-        : body.explanation || null;
-      const examples = aiResult
-        ? buildPhraseExamplesFromAiResult(aiResult, id)
-        : body.examples || [];
 
       const phrase = {
         id,
         phraseText,
-        phraseType: aiResult?.phraseType || body.phraseType || "word",
+        phraseType: body.phraseType || "word",
         category: body.category || "YouTube",
         notes: body.notes || "",
         isFavorite: false,
@@ -458,15 +449,16 @@ createServer(async (req, res) => {
         difficultyLevel: body.difficultyLevel || "intermediate",
         createdAt: now,
         updatedAt: now,
-        explanation,
-        examples,
+        explanation: body.explanation || null,
+        examples: body.examples || [],
         review: { id: crypto.randomUUID(), phraseId: id, reviewCount: 0, nextReviewAt: now, confidenceScore: 0 },
       };
 
       filtered.unshift(phrase);
       if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
       writeFileSync(EXT_PHRASES_FILE, JSON.stringify(filtered, null, 2));
-      sendJson(res, 200, { ok: true, phrase });
+      sendJson(res, 200, { ok: true, phrase, enrichment: { status: "queued", provider: autoProvider } });
+      void enrichSavedExtensionPhrase({ phraseId: id, phraseText, provider: autoProvider, previousExplanation: body.explanation });
     } catch (err) {
       sendJson(res, 500, { error: String(err) });
     }
@@ -2437,6 +2429,33 @@ function buildPhraseExamplesFromAiResult(aiResult, phraseId) {
     exampleType: normalizeExampleType(example.type),
     translationText: example.translation || "",
   }));
+}
+
+async function enrichSavedExtensionPhrase({ phraseId, phraseText, provider, previousExplanation }) {
+  try {
+    const aiResult = await explainPhrase(phraseText, provider, "", true);
+    const existing = existsSync(EXT_PHRASES_FILE)
+      ? JSON.parse(readFileSync(EXT_PHRASES_FILE, "utf8"))
+      : [];
+    const index = existing.findIndex((phrase) => phrase?.id === phraseId);
+    if (index === -1) {
+      return;
+    }
+
+    const phrase = existing[index];
+    const updatedPhrase = {
+      ...phrase,
+      phraseType: aiResult?.phraseType || phrase.phraseType || "word",
+      explanation: buildPhraseExplanationFromAiResult(aiResult, phraseId, previousExplanation || phrase.explanation),
+      examples: buildPhraseExamplesFromAiResult(aiResult, phraseId),
+      updatedAt: new Date().toISOString(),
+    };
+
+    existing[index] = updatedPhrase;
+    writeFileSync(EXT_PHRASES_FILE, JSON.stringify(existing, null, 2));
+  } catch (error) {
+    console.warn("Extension save background enrichment failed:", error instanceof Error ? error.message : error);
+  }
 }
 
 function buildWordPrompt(word, sentenceContext = "") {

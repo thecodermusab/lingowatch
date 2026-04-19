@@ -1123,17 +1123,9 @@
       return;
     }
 
-    const wordTarget = event.target.closest(".lw-word, .lw-word-chip");
-    if (wordTarget) {
-      event.preventDefault();
-      event.stopPropagation();
-      pauseCurrentVideo();
-      openWordPopupFromTarget(wordTarget);
-      return;
-    }
-
     const lineActionBtn = event.target.closest("[data-line-action]");
     if (lineActionBtn) {
+      event.preventDefault();
       event.stopPropagation();
       const lineEl = lineActionBtn.closest(".lw-line");
       const index = lineEl ? Number(lineEl.dataset.index) : -1;
@@ -1154,6 +1146,15 @@
           lineActionBtn.textContent = "★";
         }
       }
+      return;
+    }
+
+    const wordTarget = event.target.closest(".lw-word, .lw-word-chip");
+    if (wordTarget) {
+      event.preventDefault();
+      event.stopPropagation();
+      pauseCurrentVideo();
+      openWordPopupFromTarget(wordTarget);
       return;
     }
 
@@ -1246,19 +1247,30 @@
   }
 
   function jumpToLine(startTime) {
-    const video = state.currentVideo;
+    const video = state.currentVideo || document.querySelector("video");
     if (!video) {
+      showToast("Video player is not ready yet.");
       return;
     }
 
+    state.currentVideo = video;
+    const targetTime = Math.max(0, Number(startTime) || 0);
     state.currentIndex = -1;
-    video.currentTime = startTime;
-    video.play().catch(() => {});
+    video.currentTime = targetTime;
+    video.play().catch(() => {
+      showToast("Tap the video once, then try the line again.");
+    });
+    const lineIndex = state.subtitles.findIndex((s) => Math.abs(Number(s.start) - targetTime) < 0.05);
+    if (lineIndex >= 0) {
+      state.currentIndex = lineIndex;
+      highlightSidebarLine(lineIndex);
+      updateOverlay(state.subtitles[lineIndex]);
+    }
 
     if (state.autoPause) {
-      const line = state.subtitles.find((s) => s.start === startTime);
+      const line = state.subtitles.find((s) => Math.abs(Number(s.start) - targetTime) < 0.05);
       if (line) {
-        const endTime = startTime + line.duration;
+        const endTime = targetTime + line.duration;
         const pauseHandler = () => {
           if (video.currentTime >= endTime) {
             video.pause();
