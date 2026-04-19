@@ -128,7 +128,13 @@ export default function ReviewPage() {
 
   function speakCurrentPrompt() {
     if (!currentPhrase) return;
-    speakText(currentPhrase.phraseText);
+    void speakText(currentPhrase.phraseText).catch(() => {
+      toast({
+        title: "Could not play audio",
+        description: "This audio file could not be played right now.",
+        variant: "destructive",
+      });
+    });
   }
 
   const buildExplanation = (phrase: Phrase, result: AIGenerationResult) => ({

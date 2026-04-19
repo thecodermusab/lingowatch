@@ -2,7 +2,9 @@ import { Link } from "react-router-dom";
 import { BookOpen } from "lucide-react";
 import { BOOK_ITEMS, BookItem } from "./bookData";
 
-function BookCard({ book }: { book: BookItem }) {
+function BookCard({ book, index }: { book: BookItem; index: number }) {
+  const loadImmediately = index < 8;
+
   return (
     <Link to={`/read/${book.id}`} className="block">
       <article className="group flex max-w-5xl cursor-pointer gap-6 border-b border-border px-6 py-6 transition-colors hover:bg-secondary/35">
@@ -10,7 +12,14 @@ function BookCard({ book }: { book: BookItem }) {
         {/* Cover */}
         <div className="relative flex h-[150px] w-[100px] shrink-0 items-center justify-center overflow-hidden rounded-md bg-secondary shadow-lg">
           {book.coverUrl ? (
-            <img src={book.coverUrl} alt={book.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+            <img
+              src={book.coverUrl}
+              alt={book.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              loading={loadImmediately ? "eager" : "lazy"}
+              decoding="async"
+              fetchPriority={loadImmediately ? "high" : "auto"}
+            />
           ) : (
             <>
               <div className="absolute inset-0 z-0 bg-cover bg-center blur-sm opacity-50" style={{ backgroundColor: book.coverColor }}></div>
@@ -51,8 +60,8 @@ export function BooksFeed() {
   return (
     <section className="flex flex-col flex-1 bg-background min-h-0 overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent">
       <div className="py-2 px-4 sm:px-8">
-        {BOOK_ITEMS.map((book) => (
-          <BookCard key={book.id} book={book} />
+        {BOOK_ITEMS.map((book, index) => (
+          <BookCard key={book.id} book={book} index={index} />
         ))}
       </div>
     </section>

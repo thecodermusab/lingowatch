@@ -20,7 +20,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 6,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/335.jpg"
+    "coverUrl": "/world-stories/covers/335.jpg"
   },
   {
     "id": "281",
@@ -31,7 +31,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/281.jpg"
+    "coverUrl": "/world-stories/covers/281.jpg"
   },
   {
     "id": "329",
@@ -42,7 +42,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 10,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/329.jpg"
+    "coverUrl": "/world-stories/covers/329.jpg"
   },
   {
     "id": "239",
@@ -53,7 +53,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 15,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/239.jpg"
+    "coverUrl": "/world-stories/covers/239.jpg"
   },
   {
     "id": "240",
@@ -64,7 +64,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 10,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/240.jpg"
+    "coverUrl": "/world-stories/covers/240.jpg"
   },
   {
     "id": "322",
@@ -75,7 +75,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 7,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/322.jpg"
+    "coverUrl": "/world-stories/covers/322.jpg"
   },
   {
     "id": "822",
@@ -86,7 +86,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/822.jpg"
+    "coverUrl": "/world-stories/covers/822.jpg"
   },
   {
     "id": "823",
@@ -97,7 +97,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 11,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/823.jpg"
+    "coverUrl": "/world-stories/covers/823.jpg"
   },
   {
     "id": "451",
@@ -108,7 +108,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 6,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/451.jpg"
+    "coverUrl": "/world-stories/covers/451.jpg"
   },
   {
     "id": "375",
@@ -119,7 +119,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/375.jpg"
+    "coverUrl": "/world-stories/covers/375.jpg"
   },
   {
     "id": "392",
@@ -130,7 +130,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 6,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/392.jpg"
+    "coverUrl": "/world-stories/covers/392.jpg"
   },
   {
     "id": "832",
@@ -141,7 +141,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/832.jpg"
+    "coverUrl": "/world-stories/covers/832.jpg"
   },
   {
     "id": "1144",
@@ -152,7 +152,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 9,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/1144.jpg"
+    "coverUrl": "/world-stories/covers/1144.jpg"
   },
   {
     "id": "827",
@@ -163,7 +163,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/827.jpg"
+    "coverUrl": "/world-stories/covers/827.jpg"
   },
   {
     "id": "826",
@@ -174,7 +174,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 1,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/826.jpg"
+    "coverUrl": "/world-stories/covers/826.jpg"
   },
   {
     "id": "665",
@@ -185,7 +185,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 1,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/665.jpg"
+    "coverUrl": "/world-stories/covers/665.jpg"
   },
   {
     "id": "346",
@@ -196,7 +196,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 7,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/346.jpg"
+    "coverUrl": "/world-stories/covers/346.jpg"
   },
   {
     "id": "877",
@@ -207,7 +207,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 5,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/877.jpg"
+    "coverUrl": "/world-stories/covers/877.jpg"
   },
   {
     "id": "666",
@@ -218,7 +218,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/666.jpg"
+    "coverUrl": "/world-stories/covers/666.jpg"
   },
   {
     "id": "667",
@@ -229,7 +229,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/667.jpg"
+    "coverUrl": "/world-stories/covers/667.jpg"
   },
   {
     "id": "278",
@@ -240,7 +240,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/278.jpg"
+    "coverUrl": "/world-stories/covers/278.jpg"
   },
   {
     "id": "242",
@@ -251,7 +251,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/242.jpg"
+    "coverUrl": "/world-stories/covers/242.jpg"
   },
   {
     "id": "244",
@@ -262,7 +262,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/244.jpg"
+    "coverUrl": "/world-stories/covers/244.jpg"
   },
   {
     "id": "354",
@@ -273,7 +273,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/354.jpg"
+    "coverUrl": "/world-stories/covers/354.jpg"
   },
   {
     "id": "668",
@@ -284,7 +284,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/668.jpg"
+    "coverUrl": "/world-stories/covers/668.jpg"
   },
   {
     "id": "414",
@@ -295,7 +295,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/414.jpg"
+    "coverUrl": "/world-stories/covers/414.jpg"
   },
   {
     "id": "1037",
@@ -306,7 +306,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/1037.jpg"
+    "coverUrl": "/world-stories/covers/1037.jpg"
   },
   {
     "id": "245",
@@ -317,7 +317,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/245.jpg"
+    "coverUrl": "/world-stories/covers/245.jpg"
   },
   {
     "id": "355",
@@ -328,7 +328,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 5,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/355.jpg"
+    "coverUrl": "/world-stories/covers/355.jpg"
   },
   {
     "id": "345",
@@ -339,7 +339,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 10,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/345.jpg"
+    "coverUrl": "/world-stories/covers/345.jpg"
   },
   {
     "id": "999",
@@ -350,7 +350,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/999.jpg"
+    "coverUrl": "/world-stories/covers/999.jpg"
   },
   {
     "id": "428",
@@ -361,7 +361,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/428.jpg"
+    "coverUrl": "/world-stories/covers/428.jpg"
   },
   {
     "id": "895",
@@ -372,7 +372,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/895.jpg"
+    "coverUrl": "/world-stories/covers/895.jpg"
   },
   {
     "id": "669",
@@ -383,7 +383,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/669.jpg"
+    "coverUrl": "/world-stories/covers/669.jpg"
   },
   {
     "id": "415",
@@ -394,7 +394,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 10,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/415.jpg"
+    "coverUrl": "/world-stories/covers/415.jpg"
   },
   {
     "id": "670",
@@ -405,7 +405,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 6,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/670.jpg"
+    "coverUrl": "/world-stories/covers/670.jpg"
   },
   {
     "id": "1467",
@@ -416,7 +416,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/1467.jpg"
+    "coverUrl": "/world-stories/covers/1467.jpg"
   },
   {
     "id": "416",
@@ -427,7 +427,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/416.jpg"
+    "coverUrl": "/world-stories/covers/416.jpg"
   },
   {
     "id": "246",
@@ -438,7 +438,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 7,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/246.jpg"
+    "coverUrl": "/world-stories/covers/246.jpg"
   },
   {
     "id": "671",
@@ -449,7 +449,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 5,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/671.jpg"
+    "coverUrl": "/world-stories/covers/671.jpg"
   },
   {
     "id": "264",
@@ -460,7 +460,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/264.jpg"
+    "coverUrl": "/world-stories/covers/264.jpg"
   },
   {
     "id": "238",
@@ -471,7 +471,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/238.jpg"
+    "coverUrl": "/world-stories/covers/238.jpg"
   },
   {
     "id": "655",
@@ -482,7 +482,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/655.jpg"
+    "coverUrl": "/world-stories/covers/655.jpg"
   },
   {
     "id": "453",
@@ -493,7 +493,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 9,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/453.jpg"
+    "coverUrl": "/world-stories/covers/453.jpg"
   },
   {
     "id": "455",
@@ -504,7 +504,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 6,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/455.jpg"
+    "coverUrl": "/world-stories/covers/455.jpg"
   },
   {
     "id": "343",
@@ -515,7 +515,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 6,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/343.jpg"
+    "coverUrl": "/world-stories/covers/343.jpg"
   },
   {
     "id": "417",
@@ -526,7 +526,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/417.jpg"
+    "coverUrl": "/world-stories/covers/417.jpg"
   },
   {
     "id": "1145",
@@ -537,7 +537,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 7,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/1145.jpg"
+    "coverUrl": "/world-stories/covers/1145.jpg"
   },
   {
     "id": "353",
@@ -548,7 +548,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 1,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/353.jpg"
+    "coverUrl": "/world-stories/covers/353.jpg"
   },
   {
     "id": "418",
@@ -559,7 +559,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 11,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/418.jpg"
+    "coverUrl": "/world-stories/covers/418.jpg"
   },
   {
     "id": "896",
@@ -570,7 +570,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/896.jpg"
+    "coverUrl": "/world-stories/covers/896.jpg"
   },
   {
     "id": "1464",
@@ -581,7 +581,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/1464.jpg"
+    "coverUrl": "/world-stories/covers/1464.jpg"
   },
   {
     "id": "989",
@@ -592,7 +592,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/989.jpg"
+    "coverUrl": "/world-stories/covers/989.jpg"
   },
   {
     "id": "275",
@@ -603,7 +603,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/275.jpg"
+    "coverUrl": "/world-stories/covers/275.jpg"
   },
   {
     "id": "420",
@@ -614,7 +614,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 5,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/420.jpg"
+    "coverUrl": "/world-stories/covers/420.jpg"
   },
   {
     "id": "248",
@@ -625,7 +625,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/248.jpg"
+    "coverUrl": "/world-stories/covers/248.jpg"
   },
   {
     "id": "1003",
@@ -636,7 +636,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 1,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/1003.jpg"
+    "coverUrl": "/world-stories/covers/1003.jpg"
   },
   {
     "id": "1465",
@@ -647,7 +647,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/1465.jpg"
+    "coverUrl": "/world-stories/covers/1465.jpg"
   },
   {
     "id": "981",
@@ -658,7 +658,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 5,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/981.jpg"
+    "coverUrl": "/world-stories/covers/981.jpg"
   },
   {
     "id": "820",
@@ -669,7 +669,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 1,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/820.jpg"
+    "coverUrl": "/world-stories/covers/820.jpg"
   },
   {
     "id": "163",
@@ -680,7 +680,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 6,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/163.jpg"
+    "coverUrl": "/world-stories/covers/163.jpg"
   },
   {
     "id": "421",
@@ -691,7 +691,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 12,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/421.jpg"
+    "coverUrl": "/world-stories/covers/421.jpg"
   },
   {
     "id": "627",
@@ -702,7 +702,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/627.jpg"
+    "coverUrl": "/world-stories/covers/627.jpg"
   },
   {
     "id": "277",
@@ -713,7 +713,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 1,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/277.jpg"
+    "coverUrl": "/world-stories/covers/277.jpg"
   },
   {
     "id": "1466",
@@ -724,7 +724,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/1466.jpg"
+    "coverUrl": "/world-stories/covers/1466.jpg"
   },
   {
     "id": "249",
@@ -735,7 +735,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 10,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/249.jpg"
+    "coverUrl": "/world-stories/covers/249.jpg"
   },
   {
     "id": "422",
@@ -746,7 +746,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 6,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/422.jpg"
+    "coverUrl": "/world-stories/covers/422.jpg"
   },
   {
     "id": "423",
@@ -757,7 +757,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 10,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/423.jpg"
+    "coverUrl": "/world-stories/covers/423.jpg"
   },
   {
     "id": "341",
@@ -768,7 +768,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 8,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/341.jpg"
+    "coverUrl": "/world-stories/covers/341.jpg"
   },
   {
     "id": "348",
@@ -779,7 +779,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 13,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/348.jpg"
+    "coverUrl": "/world-stories/covers/348.jpg"
   },
   {
     "id": "424",
@@ -790,7 +790,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/424.jpg"
+    "coverUrl": "/world-stories/covers/424.jpg"
   },
   {
     "id": "1122",
@@ -801,7 +801,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 5,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/1122.jpg"
+    "coverUrl": "/world-stories/covers/1122.jpg"
   },
   {
     "id": "425",
@@ -812,7 +812,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 1,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/425.jpg"
+    "coverUrl": "/world-stories/covers/425.jpg"
   },
   {
     "id": "968",
@@ -823,7 +823,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/968.jpg"
+    "coverUrl": "/world-stories/covers/968.jpg"
   },
   {
     "id": "279",
@@ -834,7 +834,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/279.jpg"
+    "coverUrl": "/world-stories/covers/279.jpg"
   },
   {
     "id": "365",
@@ -845,7 +845,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 6,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/365.jpg"
+    "coverUrl": "/world-stories/covers/365.jpg"
   },
   {
     "id": "323",
@@ -856,7 +856,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/323.jpg"
+    "coverUrl": "/world-stories/covers/323.jpg"
   },
   {
     "id": "884",
@@ -867,7 +867,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/884.jpg"
+    "coverUrl": "/world-stories/covers/884.jpg"
   },
   {
     "id": "430",
@@ -878,7 +878,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/430.jpg"
+    "coverUrl": "/world-stories/covers/430.jpg"
   },
   {
     "id": "426",
@@ -889,7 +889,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 7,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/426.jpg"
+    "coverUrl": "/world-stories/covers/426.jpg"
   },
   {
     "id": "358",
@@ -900,7 +900,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 10,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/358.jpg"
+    "coverUrl": "/world-stories/covers/358.jpg"
   },
   {
     "id": "456",
@@ -911,7 +911,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/456.jpg"
+    "coverUrl": "/world-stories/covers/456.jpg"
   },
   {
     "id": "427",
@@ -922,7 +922,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 1,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/427.jpg"
+    "coverUrl": "/world-stories/covers/427.jpg"
   },
   {
     "id": "330",
@@ -933,7 +933,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/330.jpg"
+    "coverUrl": "/world-stories/covers/330.jpg"
   },
   {
     "id": "431",
@@ -944,7 +944,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/431.jpg"
+    "coverUrl": "/world-stories/covers/431.jpg"
   },
   {
     "id": "250",
@@ -955,7 +955,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/250.jpg"
+    "coverUrl": "/world-stories/covers/250.jpg"
   },
   {
     "id": "432",
@@ -966,7 +966,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/432.jpg"
+    "coverUrl": "/world-stories/covers/432.jpg"
   },
   {
     "id": "434",
@@ -977,7 +977,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/434.jpg"
+    "coverUrl": "/world-stories/covers/434.jpg"
   },
   {
     "id": "269",
@@ -988,7 +988,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 11,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/269.jpg"
+    "coverUrl": "/world-stories/covers/269.jpg"
   },
   {
     "id": "265",
@@ -999,7 +999,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/265.jpg"
+    "coverUrl": "/world-stories/covers/265.jpg"
   },
   {
     "id": "897",
@@ -1010,7 +1010,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/897.jpg"
+    "coverUrl": "/world-stories/covers/897.jpg"
   },
   {
     "id": "435",
@@ -1021,7 +1021,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/435.jpg"
+    "coverUrl": "/world-stories/covers/435.jpg"
   },
   {
     "id": "376",
@@ -1032,7 +1032,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 1,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/376.jpg"
+    "coverUrl": "/world-stories/covers/376.jpg"
   },
   {
     "id": "359",
@@ -1043,7 +1043,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 5,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/359.jpg"
+    "coverUrl": "/world-stories/covers/359.jpg"
   },
   {
     "id": "280",
@@ -1054,7 +1054,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/280.jpg"
+    "coverUrl": "/world-stories/covers/280.jpg"
   },
   {
     "id": "657",
@@ -1065,7 +1065,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 1,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/657.jpg"
+    "coverUrl": "/world-stories/covers/657.jpg"
   },
   {
     "id": "267",
@@ -1076,7 +1076,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/267.jpg"
+    "coverUrl": "/world-stories/covers/267.jpg"
   },
   {
     "id": "377",
@@ -1087,7 +1087,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 5,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/377.jpg"
+    "coverUrl": "/world-stories/covers/377.jpg"
   },
   {
     "id": "380",
@@ -1098,7 +1098,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 5,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/380.jpg"
+    "coverUrl": "/world-stories/covers/380.jpg"
   },
   {
     "id": "628",
@@ -1109,7 +1109,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/628.jpg"
+    "coverUrl": "/world-stories/covers/628.jpg"
   },
   {
     "id": "344",
@@ -1120,7 +1120,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 8,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/344.jpg"
+    "coverUrl": "/world-stories/covers/344.jpg"
   },
   {
     "id": "625",
@@ -1131,7 +1131,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/625.jpg"
+    "coverUrl": "/world-stories/covers/625.jpg"
   },
   {
     "id": "626",
@@ -1142,7 +1142,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 11,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/626.jpg"
+    "coverUrl": "/world-stories/covers/626.jpg"
   },
   {
     "id": "891",
@@ -1153,7 +1153,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/891.jpg"
+    "coverUrl": "/world-stories/covers/891.jpg"
   },
   {
     "id": "977",
@@ -1164,7 +1164,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/977.jpg"
+    "coverUrl": "/world-stories/covers/977.jpg"
   },
   {
     "id": "271",
@@ -1175,7 +1175,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/271.jpg"
+    "coverUrl": "/world-stories/covers/271.jpg"
   },
   {
     "id": "436",
@@ -1186,7 +1186,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/436.jpg"
+    "coverUrl": "/world-stories/covers/436.jpg"
   },
   {
     "id": "437",
@@ -1197,7 +1197,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/437.jpg"
+    "coverUrl": "/world-stories/covers/437.jpg"
   },
   {
     "id": "382",
@@ -1208,7 +1208,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/382.jpg"
+    "coverUrl": "/world-stories/covers/382.jpg"
   },
   {
     "id": "661",
@@ -1219,7 +1219,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 1,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/661.jpg"
+    "coverUrl": "/world-stories/covers/661.jpg"
   },
   {
     "id": "383",
@@ -1230,7 +1230,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/383.jpg"
+    "coverUrl": "/world-stories/covers/383.jpg"
   },
   {
     "id": "274",
@@ -1241,7 +1241,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/274.jpg"
+    "coverUrl": "/world-stories/covers/274.jpg"
   },
   {
     "id": "324",
@@ -1252,7 +1252,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 7,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/324.jpg"
+    "coverUrl": "/world-stories/covers/324.jpg"
   },
   {
     "id": "384",
@@ -1263,7 +1263,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/384.jpg"
+    "coverUrl": "/world-stories/covers/384.jpg"
   },
   {
     "id": "247",
@@ -1274,7 +1274,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 1,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/247.jpg"
+    "coverUrl": "/world-stories/covers/247.jpg"
   },
   {
     "id": "439",
@@ -1285,7 +1285,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/439.jpg"
+    "coverUrl": "/world-stories/covers/439.jpg"
   },
   {
     "id": "440",
@@ -1296,7 +1296,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 5,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/440.jpg"
+    "coverUrl": "/world-stories/covers/440.jpg"
   },
   {
     "id": "995",
@@ -1307,7 +1307,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 1,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/995.jpg"
+    "coverUrl": "/world-stories/covers/995.jpg"
   },
   {
     "id": "441",
@@ -1318,7 +1318,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/441.jpg"
+    "coverUrl": "/world-stories/covers/441.jpg"
   },
   {
     "id": "336",
@@ -1329,7 +1329,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 10,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/336.jpg"
+    "coverUrl": "/world-stories/covers/336.jpg"
   },
   {
     "id": "386",
@@ -1340,7 +1340,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 5,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/386.jpg"
+    "coverUrl": "/world-stories/covers/386.jpg"
   },
   {
     "id": "351",
@@ -1351,7 +1351,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/351.jpg"
+    "coverUrl": "/world-stories/covers/351.jpg"
   },
   {
     "id": "251",
@@ -1362,7 +1362,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/251.jpg"
+    "coverUrl": "/world-stories/covers/251.jpg"
   },
   {
     "id": "658",
@@ -1373,7 +1373,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 1,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/658.jpg"
+    "coverUrl": "/world-stories/covers/658.jpg"
   },
   {
     "id": "442",
@@ -1384,7 +1384,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/442.jpg"
+    "coverUrl": "/world-stories/covers/442.jpg"
   },
   {
     "id": "659",
@@ -1395,7 +1395,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 1,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/659.jpg"
+    "coverUrl": "/world-stories/covers/659.jpg"
   },
   {
     "id": "993",
@@ -1406,7 +1406,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/993.jpg"
+    "coverUrl": "/world-stories/covers/993.jpg"
   },
   {
     "id": "361",
@@ -1417,7 +1417,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 9,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/361.jpg"
+    "coverUrl": "/world-stories/covers/361.jpg"
   },
   {
     "id": "444",
@@ -1428,7 +1428,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 6,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/444.jpg"
+    "coverUrl": "/world-stories/covers/444.jpg"
   },
   {
     "id": "660",
@@ -1439,7 +1439,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/660.jpg"
+    "coverUrl": "/world-stories/covers/660.jpg"
   },
   {
     "id": "975",
@@ -1450,7 +1450,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 1,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/975.jpg"
+    "coverUrl": "/world-stories/covers/975.jpg"
   },
   {
     "id": "388",
@@ -1461,7 +1461,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/388.jpg"
+    "coverUrl": "/world-stories/covers/388.jpg"
   },
   {
     "id": "892",
@@ -1472,7 +1472,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/892.jpg"
+    "coverUrl": "/world-stories/covers/892.jpg"
   },
   {
     "id": "326",
@@ -1483,7 +1483,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/326.jpg"
+    "coverUrl": "/world-stories/covers/326.jpg"
   },
   {
     "id": "327",
@@ -1494,7 +1494,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 8,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/327.jpg"
+    "coverUrl": "/world-stories/covers/327.jpg"
   },
   {
     "id": "272",
@@ -1505,7 +1505,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/272.jpg"
+    "coverUrl": "/world-stories/covers/272.jpg"
   },
   {
     "id": "342",
@@ -1516,7 +1516,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 13,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/342.jpg"
+    "coverUrl": "/world-stories/covers/342.jpg"
   },
   {
     "id": "445",
@@ -1527,7 +1527,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 8,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/445.jpg"
+    "coverUrl": "/world-stories/covers/445.jpg"
   },
   {
     "id": "446",
@@ -1538,7 +1538,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/446.jpg"
+    "coverUrl": "/world-stories/covers/446.jpg"
   },
   {
     "id": "253",
@@ -1549,7 +1549,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/253.jpg"
+    "coverUrl": "/world-stories/covers/253.jpg"
   },
   {
     "id": "357",
@@ -1560,7 +1560,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 9,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/357.jpg"
+    "coverUrl": "/world-stories/covers/357.jpg"
   },
   {
     "id": "970",
@@ -1571,7 +1571,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 6,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/970.jpg"
+    "coverUrl": "/world-stories/covers/970.jpg"
   },
   {
     "id": "972",
@@ -1582,7 +1582,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/972.jpg"
+    "coverUrl": "/world-stories/covers/972.jpg"
   },
   {
     "id": "369",
@@ -1593,7 +1593,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/369.jpg"
+    "coverUrl": "/world-stories/covers/369.jpg"
   },
   {
     "id": "328",
@@ -1604,7 +1604,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/328.jpg"
+    "coverUrl": "/world-stories/covers/328.jpg"
   },
   {
     "id": "389",
@@ -1615,7 +1615,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/389.jpg"
+    "coverUrl": "/world-stories/covers/389.jpg"
   },
   {
     "id": "883",
@@ -1626,7 +1626,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/883.jpg"
+    "coverUrl": "/world-stories/covers/883.jpg"
   },
   {
     "id": "448",
@@ -1637,7 +1637,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 5,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/448.jpg"
+    "coverUrl": "/world-stories/covers/448.jpg"
   },
   {
     "id": "449",
@@ -1648,7 +1648,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/449.jpg"
+    "coverUrl": "/world-stories/covers/449.jpg"
   },
   {
     "id": "450",
@@ -1659,7 +1659,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 8,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/450.jpg"
+    "coverUrl": "/world-stories/covers/450.jpg"
   },
   {
     "id": "965",
@@ -1670,7 +1670,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 5,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/965.jpg"
+    "coverUrl": "/world-stories/covers/965.jpg"
   },
   {
     "id": "254",
@@ -1681,7 +1681,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/254.jpg"
+    "coverUrl": "/world-stories/covers/254.jpg"
   },
   {
     "id": "457",
@@ -1692,7 +1692,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 6,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/457.jpg"
+    "coverUrl": "/world-stories/covers/457.jpg"
   },
   {
     "id": "894",
@@ -1703,7 +1703,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 1,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/894.jpg"
+    "coverUrl": "/world-stories/covers/894.jpg"
   },
   {
     "id": "390",
@@ -1714,7 +1714,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 5,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/390.jpg"
+    "coverUrl": "/world-stories/covers/390.jpg"
   },
   {
     "id": "459",
@@ -1725,7 +1725,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/459.jpg"
+    "coverUrl": "/world-stories/covers/459.jpg"
   },
   {
     "id": "656",
@@ -1736,7 +1736,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 1,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/656.jpg"
+    "coverUrl": "/world-stories/covers/656.jpg"
   },
   {
     "id": "262",
@@ -1747,7 +1747,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/262.jpg"
+    "coverUrl": "/world-stories/covers/262.jpg"
   },
   {
     "id": "367",
@@ -1758,7 +1758,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 9,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/367.jpg"
+    "coverUrl": "/world-stories/covers/367.jpg"
   },
   {
     "id": "391",
@@ -1769,7 +1769,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/391.jpg"
+    "coverUrl": "/world-stories/covers/391.jpg"
   },
   {
     "id": "460",
@@ -1780,7 +1780,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 11,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/460.jpg"
+    "coverUrl": "/world-stories/covers/460.jpg"
   },
   {
     "id": "461",
@@ -1791,7 +1791,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/461.jpg"
+    "coverUrl": "/world-stories/covers/461.jpg"
   },
   {
     "id": "464",
@@ -1802,7 +1802,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/464.jpg"
+    "coverUrl": "/world-stories/covers/464.jpg"
   },
   {
     "id": "623",
@@ -1813,7 +1813,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/623.jpg"
+    "coverUrl": "/world-stories/covers/623.jpg"
   },
   {
     "id": "360",
@@ -1824,7 +1824,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/360.jpg"
+    "coverUrl": "/world-stories/covers/360.jpg"
   },
   {
     "id": "363",
@@ -1835,7 +1835,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 6,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/363.jpg"
+    "coverUrl": "/world-stories/covers/363.jpg"
   },
   {
     "id": "466",
@@ -1846,7 +1846,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/466.jpg"
+    "coverUrl": "/world-stories/covers/466.jpg"
   },
   {
     "id": "467",
@@ -1857,7 +1857,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/467.jpg"
+    "coverUrl": "/world-stories/covers/467.jpg"
   },
   {
     "id": "1048",
@@ -1868,7 +1868,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#4f46e5",
-    "coverUrl": "http://localhost:8080/world-stories/covers/1048.jpg"
+    "coverUrl": "/world-stories/covers/1048.jpg"
   },
   {
     "id": "468",
@@ -1879,7 +1879,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#6c8c36",
-    "coverUrl": "http://localhost:8080/world-stories/covers/468.jpg"
+    "coverUrl": "/world-stories/covers/468.jpg"
   },
   {
     "id": "255",
@@ -1890,7 +1890,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 4,
     "isSimplified": false,
     "coverColor": "#e6e0d4",
-    "coverUrl": "http://localhost:8080/world-stories/covers/255.jpg"
+    "coverUrl": "/world-stories/covers/255.jpg"
   },
   {
     "id": "266",
@@ -1901,7 +1901,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 5,
     "isSimplified": false,
     "coverColor": "#dc2626",
-    "coverUrl": "http://localhost:8080/world-stories/covers/266.jpg"
+    "coverUrl": "/world-stories/covers/266.jpg"
   },
   {
     "id": "880",
@@ -1912,7 +1912,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 3,
     "isSimplified": false,
     "coverColor": "#d97706",
-    "coverUrl": "http://localhost:8080/world-stories/covers/880.jpg"
+    "coverUrl": "/world-stories/covers/880.jpg"
   },
   {
     "id": "469",
@@ -1923,7 +1923,7 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 2,
     "isSimplified": false,
     "coverColor": "#2563eb",
-    "coverUrl": "http://localhost:8080/world-stories/covers/469.jpg"
+    "coverUrl": "/world-stories/covers/469.jpg"
   },
   {
     "id": "470",
@@ -1934,6 +1934,6 @@ export const BOOK_ITEMS: BookItem[] = [
     "pageCount": 1,
     "isSimplified": false,
     "coverColor": "#9333ea",
-    "coverUrl": "http://localhost:8080/world-stories/covers/470.jpg"
+    "coverUrl": "/world-stories/covers/470.jpg"
   }
 ];

@@ -73,6 +73,9 @@ export default function PhraseDetailPage() {
     if (!phrase) return;
     // Prefetch TTS so audio plays instantly when the icon is tapped
     void fetchTtsAudioContent(phrase.phraseText);
+    for (const example of phrase.examples?.slice(0, 4) || []) {
+      if (example.exampleText) void fetchTtsAudioContent(example.exampleText);
+    }
     setPhraseText(phrase.phraseText);
     setPhraseType(phrase.phraseType);
     setCategory(phrase.category);
@@ -273,7 +276,13 @@ export default function PhraseDetailPage() {
   };
 
   const handleSpeak = (text?: string) => {
-    speakText(text ?? phrase.phraseText);
+    void speakText(text ?? phrase.phraseText).catch(() => {
+      toast({
+        title: "Could not play audio",
+        description: "This audio file could not be played right now.",
+        variant: "destructive",
+      });
+    });
   };
 
   const handleSaveNotes = async () => {

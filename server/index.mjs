@@ -602,8 +602,10 @@ createServer(async (req, res) => {
       const languageCode = String(body?.languageCode || env.GOOGLE_TTS_LANGUAGE || "en-US");
       const speakingRate = Number(body?.speakingRate || env.GOOGLE_TTS_SPEAKING_RATE || 0.9);
       const includeWordTimings = Boolean(body?.includeWordTimings);
+      const forceRefresh = Boolean(body?.forceRefresh);
+      const preferProvider = String(body?.preferProvider || "").trim().toLowerCase();
       const cacheKey = createTtsCacheKey({ text, voiceName, languageCode, speakingRate, includeWordTimings });
-      const cachedAudio = await getCachedTtsAudio(cacheKey);
+      const cachedAudio = forceRefresh ? null : await getCachedTtsAudio(cacheKey);
       if (cachedAudio) {
         sendJson(res, 200, {
           audioUrl: cachedAudio.audio_url,
@@ -613,7 +615,7 @@ createServer(async (req, res) => {
         return;
       }
 
-      const generated = await synthesizeCloudTts({ text, voiceName, languageCode, speakingRate, includeWordTimings });
+      const generated = await synthesizeCloudTts({ text, voiceName, languageCode, speakingRate, includeWordTimings, preferProvider });
       const audioContent = generated?.audioContent || null;
       const wordTimings = generated?.wordTimings || [];
       const provider = generated?.provider || "";
@@ -2317,8 +2319,12 @@ async function recordTtsUsage(provider, text) {
   }
 }
 
-async function synthesizeCloudTts({ text, voiceName, languageCode, speakingRate, includeWordTimings }) {
-  const providers = ["google", "aws"];
+async function synthesizeCloudTts({ text, voiceName, languageCode, speakingRate, includeWordTimings, preferProvider = "" }) {
+  const providers = preferProvider === "aws"
+    ? ["aws", "google"]
+    : preferProvider === "google"
+      ? ["google", "aws"]
+      : ["google", "aws"];
   const errors = [];
 
   for (const provider of providers) {
@@ -2412,6 +2418,19 @@ function createTtsCacheKey({ text, voiceName, languageCode, speakingRate, includ
   }));
 }
 
+function createTtsObjectKey({ text, cacheKey, includeWordTimings }) {
+  const slug = String(text || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 64) || "audio";
+  const suffix = includeWordTimings ? "timed" : "plain";
+  return `tts/${slug}-${suffix}-${cacheKey.slice(0, 12)}.mp3`;
+}
+
 function getSpacesConfig() {
   const endpoint = String(env.DO_SPACES_ENDPOINT || "").replace(/\/+$/, "");
   const region = String(env.DO_SPACES_REGION || "").trim();
@@ -2461,7 +2480,7 @@ async function storeTtsAudio({ cacheKey, text, provider, audioContent, voiceName
   try {
     await ensureTtsAudioCacheSchema();
     const audioBuffer = Buffer.from(audioContent, "base64");
-    const objectKey = `tts/${cacheKey}.mp3`;
+    const objectKey = createTtsObjectKey({ text, cacheKey, includeWordTimings });
     const audioUrl = `${spaces.publicBaseUrl}/${objectKey}`;
 
     await uploadToSpaces({
@@ -2469,6 +2488,7 @@ async function storeTtsAudio({ cacheKey, text, provider, audioContent, voiceName
       objectKey,
       body: audioBuffer,
       contentType: "audio/mpeg",
+      cacheControl: "public, max-age=31536000, immutable",
     });
 
     await sql`
@@ -2514,7 +2534,7 @@ async function storeTtsAudio({ cacheKey, text, provider, audioContent, voiceName
   }
 }
 
-async function uploadToSpaces({ endpoint, region, bucket, accessKeyId, secretAccessKey, objectKey, body, contentType }) {
+async function uploadToSpaces({ endpoint, region, bucket, accessKeyId, secretAccessKey, objectKey, body, contentType, cacheControl = "" }) {
   const host = new URL(endpoint).host;
   const encodedKey = objectKey.split("/").map(encodeURIComponent).join("/");
   const url = `${endpoint}/${bucket}/${encodedKey}`;
@@ -2523,14 +2543,23 @@ async function uploadToSpaces({ endpoint, region, bucket, accessKeyId, secretAcc
   const dateStamp = amzDate.slice(0, 8);
   const payloadHash = sha256(body);
   const canonicalUri = `/${bucket}/${encodedKey}`;
-  const canonicalHeaders = [
+  const canonicalHeaderLines = [
+    ...(cacheControl ? [`cache-control:${cacheControl}`] : []),
     `content-type:${contentType}`,
     `host:${host}`,
     "x-amz-acl:public-read",
     `x-amz-content-sha256:${payloadHash}`,
     `x-amz-date:${amzDate}`,
-  ].join("\n") + "\n";
-  const signedHeaders = "content-type;host;x-amz-acl;x-amz-content-sha256;x-amz-date";
+  ];
+  const canonicalHeaders = canonicalHeaderLines.join("\n") + "\n";
+  const signedHeaders = [
+    ...(cacheControl ? ["cache-control"] : []),
+    "content-type",
+    "host",
+    "x-amz-acl",
+    "x-amz-content-sha256",
+    "x-amz-date",
+  ].join(";");
   const canonicalRequest = [
     "PUT",
     canonicalUri,
@@ -2557,6 +2586,7 @@ async function uploadToSpaces({ endpoint, region, bucket, accessKeyId, secretAcc
     method: "PUT",
     headers: {
       Authorization: authorization,
+      ...(cacheControl ? { "Cache-Control": cacheControl } : {}),
       "Content-Type": contentType,
       "x-amz-acl": "public-read",
       "x-amz-content-sha256": payloadHash,
