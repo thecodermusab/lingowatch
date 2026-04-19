@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign up - LingoWatch</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400&family=DM+Sans:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --page-bg: #1B202A;
+            --card-bg: #f5f5f5;
+            --text-dark: #0f0f0f;
+            --text-muted: #888888;
+            --input-border: #e0e0e0;
+            --input-focus: #1B202A;
+            --button-bg: #0f0f0f;
+            --error: #e53e3e;
+            --font-main: 'DM Sans', sans-serif;
+            --font-serif: 'Cormorant Garamond', serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--page-bg);
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding-left: 80px;
+            /* Small gap pushing off left physical browser edge */
+            font-family: var(--font-main);
+            overflow: hidden;
+            /* No scrolling */
+        }
+
+        .card {
+            background: var(--card-bg);
+            width: 510px;
+            height: 590px;
+            border-radius: 0;
+            padding: 40px 60px;
+            /* Scaled internal padding slightly for the wider footprint */
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+            border: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            background: var(--page-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .logo span {
+            color: #ffffff;
+            font-size: 20px;
+            font-family: var(--font-serif);
+        }
+
+        .headline {
+            font-weight: 500;
+            font-size: 22px;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .subtext {
+            font-weight: 400;
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .input-group {
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .input-group.mb-20 {
+            margin-bottom: 20px;
+        }
+
+        .input-field {
+            width: 100%;
+            height: 44px;
+            border: 1px solid var(--input-border);
+            border-radius: 6px;
+            padding: 0 14px;
+            font-family: var(--font-main);
+            font-size: 14px;
+            color: var(--text-dark);
+            background: var(--card-bg);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .input-field::placeholder {
+            color: #999999;
+        }
+
+        .input-field:focus {
+            border-color: var(--input-focus);
+            box-shadow: 0 0 0 3px rgba(26, 10, 46, 0.08);
+        }
+
+        .input-field.error {
+            border-color: var(--error);
+        }
+
+        .input-field.error:focus {
+            box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.15);
+        }
+
+        .error-msg {
+            display: none;
+            font-size: 12px;
+            color: var(--error);
+            margin-top: 4px;
+            padding-left: 2px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #aaaaaa;
+            background: none;
+            border: none;
+            padding: 4px;
+        }
+
+        .toggle-password:hover {
+            color: #666666;
+        }
+
+        .continue-btn {
+            width: 100%;
+            height: 46px;
+            background: var(--button-bg);
+            color: #ffffff;
+            font-family: var(--font-main);
+            font-weight: 500;
+            font-size: 15px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: background 0.2s ease;
+        }
+
+        .continue-btn:hover {
+            background: #2a2a2a;
+        }
+
+        .google-btn {
+            width: 100%;
+            height: 46px;
+            background: #ffffff;
+            color: var(--text-dark);
+            font-family: var(--font-main);
+            font-weight: 500;
+            font-size: 15px;
+            border-radius: 6px;
+            border: 1px solid var(--input-border);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .google-btn:hover {
+            background: #f9f9f9;
+            border-color: #cccccc;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--input-border);
+        }
+
+        .divider span {
+            padding: 0 10px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .login-link-wrapper {
+            font-size: 13px;
+        }
+
+        .login-text-prefix {
+            color: var(--text-muted);
+        }
+
+        .login-link {
+            color: var(--text-dark);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .login-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                width: calc(100vw - 48px);
+                padding: 32px 24px 40px 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <form id="signupForm" novalidate>
+            <div class="logo">
+                <span>L</span>
+            </div>
+
+            <h1 class="headline">Get started</h1>
+            <p class="subtext">Sign up to continue to LingoWatch</p>
+
+            <button type="button" class="google-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Continue with Google
+            </button>
+
+            <div class="divider">
+                <span>or</span>
+            </div>
+
+            <div class="input-group">
+                <input type="email" id="email" class="input-field" placeholder="Email address*" required>
+                <div class="error-msg" id="emailError">Please enter a valid email</div>
+            </div>
+
+            <div class="input-group mb-20">
+                <input type="password" id="password" class="input-field" placeholder="Password*" required>
+                <button type="button" class="toggle-password" id="togglePassword"
+                    aria-label="Toggle password visibility">
+                    <!-- Eye outline SVG -->
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                </button>
+                <div class="error-msg" id="passwordError">Password must be at least 8 characters</div>
+            </div>
+
+            <button type="submit" class="continue-btn">Continue</button>
+
+            <div class="login-link-wrapper">
+                <span class="login-text-prefix">Already have an account? </span>
+                <a href="/login.html" class="login-link">Log in</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const signupForm = document.getElementById('signupForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const emailError = document.getElementById('emailError');
+        const passwordError = document.getElementById('passwordError');
+        const togglePasswordBtn = document.getElementById('togglePassword');
+
+        // Toggle Password Visibility
+        togglePasswordBtn.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+
+            // Swap icon based on state
+            if (type === 'text') {
+                togglePasswordBtn.innerHTML = `
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                `;
+            } else {
+                togglePasswordBtn.innerHTML = `
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                `;
+            }
+        });
+
+        // Email Validation Regex
+        const validateEmail = (email) => {
+            return String(email)
+                .toLowerCase()
+                .match(
+                    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+                );
+        };
+
+        // Form Submit Handler
+        signupForm.addEventListener('submit', (e) => {
+            e.preventDefault(); // No page reload
+
+            let isValid = true;
+
+            // Reset errors
+            emailInput.classList.remove('error');
+            emailError.style.display = 'none';
+            passwordInput.classList.remove('error');
+            passwordError.style.display = 'none';
+
+            // Validate Email
+            if (!validateEmail(emailInput.value)) {
+                emailInput.classList.add('error');
+                emailError.style.display = 'block';
+                isValid = false;
+            }
+
+            // Validate Password
+            if (passwordInput.value.length < 8) {
+                passwordInput.classList.add('error');
+                passwordError.style.display = 'block';
+                isValid = false;
+            }
+
+            if (isValid) {
+                // Proceed with signup (mock logic)
+                console.log('Form validated successfully. Signing up...');
+                // Custom logic to handle API request goes here
+            }
+        });
+
+        // Clear error on input change
+        emailInput.addEventListener('input', () => {
+            if (emailInput.classList.contains('error')) {
+                emailInput.classList.remove('error');
+                emailError.style.display = 'none';
+            }
+        });
+
+        passwordInput.addEventListener('input', () => {
+            if (passwordInput.classList.contains('error')) {
+                passwordInput.classList.remove('error');
+                passwordError.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>
