@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LingoWatch Hero Reference</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lora:wght@400&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Retaining Custom Colors as requested */
+            --color-surface-base: #202531;
+            --color-surface-raised: #566484;
+            --color-text-inverse: #ffffff;
+            --color-text-muted: rgba(255,255,255,0.75);
+            --color-surface-strong: rgba(255,255,255,0.05);
+            
+            /* Typography scale */
+            --font-family-primary: 'Inter', sans-serif;
+            --font-size-md: 14px;
+            --font-size-lg: 16px;
+            --font-size-xl: 18px;
+            --font-size-2xl: 20px;
+            --font-size-3xl: 21px;
+            --font-size-4xl: 22px;
+            /* Display font mapping */
+            --font-size-display: 56px;
+            --font-size-logo: 28px;
+
+            /* Spacing scale */
+            --space-1: 1px;
+            --space-2: 6px;
+            --space-3: 10px;
+            --space-4: 12px;
+            --space-5: 16px;
+            --space-6: 20px;
+            --space-7: 24px;
+            --space-8: 36px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--color-surface-base);
+            color: var(--color-text-inverse);
+            font-family: var(--font-family-primary);
+            overflow-x: hidden;
+        }
+
+        /* --- Hero Section Background --- */
+        .hero-section {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            min-height: 800px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            /* Background image */
+            background-image: url('./public/hero-lingowatch.png');
+            background-size: cover;
+            background-position: center top;
+            background-repeat: no-repeat;
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-7) 48px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Thin horizontal divider line */
+        .navbar::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: var(--space-1);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .logo {
+            font-family: var(--font-family-primary);
+            font-size: var(--font-size-logo);
+            font-weight: 500;
+            color: var(--color-text-inverse);
+            text-decoration: none;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            color: var(--color-text-inverse);
+            text-decoration: none;
+            font-size: var(--font-size-md);
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+        /* --- Hero Text (Centered Upper Portion) --- */
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding-top: 12vh;
+        }
+
+        .headline {
+            font-family: 'Lora', 'Lora Placeholder', serif;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 64px;
+            line-height: 70px;
+            color: rgb(255, 255, 255);
+            margin-bottom: var(--space-6);
+            letter-spacing: -0.5px;
+            
+            /* Initial state for animation */
+            opacity: 0;
+            animation: fadeSlideUp 0.8s ease forwards;
+        }
+
+        .subtext {
+            font-family: 'Inter', 'Inter Placeholder', sans-serif;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 16px;
+            line-height: 26px;
+            color: rgb(249, 250, 249);
+            max-width: 600px;
+            margin-bottom: 32px;
+            
+            /* Animation */
+            opacity: 0;
+            animation: fadeSlideUp 0.8s ease 0.9s forwards;
+        }
+
+        /* --- CTA Buttons --- */
+        .cta-group {
+            display: flex;
+            gap: var(--space-5);
+            /* Animation */
+            opacity: 0;
+            animation: fadeSlideUp 0.8s ease 1.1s forwards;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 28px;
+            border-radius: 0;
+            font-size: var(--font-size-md);
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--color-surface-raised);
+            color: var(--color-text-inverse);
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background-color: #637396;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--color-text-inverse);
+            border: 1.5px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .btn-secondary:hover {
+            border-color: rgba(255, 255, 255, 0.8);
+            background-color: var(--color-surface-strong);
+        }
+
+        .btn-icon {
+            margin-left: var(--space-2);
+            font-size: var(--font-size-xl);
+            line-height: 1;
+        }
+
+        /* --- Keyframe Animations --- */
+        @keyframes fadeSlideUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: var(--space-5) var(--space-7);
+            }
+            .nav-links {
+                display: none; 
+            }
+            .headline {
+                font-size: 42px;
+                padding: 0 var(--space-6);
+            }
+            .subtext {
+                font-size: var(--font-size-md);
+                padding: 0 var(--space-7);
+                margin-bottom: var(--space-7);
+            }
+            .cta-group {
+                flex-direction: column;
+                width: 100%;
+                padding: 0 var(--space-7);
+                gap: var(--space-4);
+            }
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <section class="hero-section">
+        
+        <!-- ======================= -->
+        <!-- 1. NAVBAR               -->
+        <!-- ======================= -->
+        <nav class="navbar">
+            <a href="#" class="logo">LingoWatch</a>
+            <div class="nav-links">
+                <a href="#">Features</a>
+                <a href="#">Languages</a>
+                <a href="#">FAQ</a>
+            </div>
+        </nav>
+
+        <!-- ======================= -->
+        <!-- 3. HERO TEXT            -->
+        <!-- ======================= -->
+        <div class="hero-content">
+            <h1 class="headline">Learn While You Watch</h1>
+            <p class="subtext">
+                A Chrome extension that adds dual subtitles, word popups, and vocabulary 
+                tracking to any YouTube video — with full Somali language support.
+            </p>
+            
+            <!-- ======================= -->
+            <!-- 4. CTA BUTTONS          -->
+            <!-- ======================= -->
+            <div class="cta-group">
+                <a href="#" class="btn btn-primary">
+                    Add to Chrome <span class="btn-icon">›</span>
+                </a>
+                <a href="#" class="btn btn-secondary">
+                    See How It Works
+                </a>
+            </div>
+        </div>
+
+        <!-- Badges and person placeholder removed as requested -->
+        
+    </section>
+
+</body>
+</html>
