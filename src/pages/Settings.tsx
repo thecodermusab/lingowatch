@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePhraseStore } from "@/hooks/usePhraseStore";
 import { Button } from "@/components/ui/button";
@@ -9,13 +10,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { getAIHealth, getAllAIProviderStatuses, testAIConnection } from "@/lib/ai";
 import { loadImportedPhraseBank, phraseBank } from "@/lib/phraseBank";
-import { Download, Loader2, Upload } from "lucide-react";
+import { Download, Loader2, LogOut, Upload } from "lucide-react";
 import { Phrase, PhraseType, DifficultyLevel, UserProfile } from "@/types";
 
 type PreferredAiProvider = UserProfile["preferredAiProvider"];
 
 export default function SettingsPage() {
-  const { user, updateProfile } = useAuth();
+  const navigate = useNavigate();
+  const { user, updateProfile, signOut } = useAuth();
   const { phrases, exportBackup, importBackup } = usePhraseStore();
   const { toast } = useToast();
   const [aiProvider, setAiProvider] = useState("unknown");
@@ -43,8 +45,6 @@ export default function SettingsPage() {
     duplicateCount: number;
     newCount: number;
   } | null>(null);
-
-  if (!user) return null;
 
   useEffect(() => {
     let active = true;
@@ -106,6 +106,12 @@ export default function SettingsPage() {
 
   const handleSave = () => {
     toast({ title: "Settings saved!" });
+  };
+
+  const handleSignOut = () => {
+    signOut();
+    toast({ title: "Signed out" });
+    navigate("/");
   };
 
   const handleTestAI = async () => {
@@ -282,6 +288,8 @@ export default function SettingsPage() {
     antigravity: "Antigravity",
   };
 
+  if (!user) return null;
+
   return (
     <div className="app-page">
       <div className="page-stack max-w-5xl">
@@ -305,6 +313,9 @@ export default function SettingsPage() {
               <Label>Email</Label>
               <Input value={user.email} disabled className="mt-2 h-12 rounded-xl" />
             </div>
+            <Button onClick={handleSignOut} variant="outline" className="h-12 w-full rounded-xl text-destructive hover:text-destructive">
+              <LogOut className="h-4 w-4" /> Sign Out
+            </Button>
           </div>
 
           <div className="admin-panel admin-panel-body space-y-5">

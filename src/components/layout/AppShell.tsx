@@ -104,11 +104,10 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-40 border-b border-border/80 bg-background/80 backdrop-blur-xl lg:hidden">
         <div className="flex h-16 items-center justify-between px-4">
-          <Link to="/dashboard" className="flex min-w-0 items-center gap-2.5">
+          <Link to="/" className="flex min-w-0 items-center gap-2.5">
             <img src="/Logo.png" alt="Lingowatch logo" width="80" height="80" className="h-11 w-11 object-contain" />
             <div>
               <p className="text-base font-semibold text-foreground">Lingowatch</p>
-              <p className="text-xs text-muted-foreground">Watch, save, learn</p>
             </div>
           </Link>
 
@@ -127,14 +126,13 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="h-full py-3 pl-3 pr-2">
           <div className="flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-sidebar-border/90 bg-sidebar/95 text-sidebar-foreground shadow-[0_30px_64px_rgba(0,0,0,0.34)] backdrop-blur-xl">
             <div className="border-b border-sidebar-border/80 px-5 py-5">
-              <Link to="/dashboard" className="flex items-center gap-2.5 rounded-2xl">
+              <Link to="/" className="flex items-center gap-2.5 rounded-2xl">
                 <img src="/Logo.png" alt="Lingowatch logo" width="72" height="72" className="h-14 w-14 shrink-0 object-contain" />
                 <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-xl text-white" style={{ fontFamily: "Qurova, sans-serif", fontWeight: 600 }}>
                       Lingowatch
                     </p>
-                    <p className="mt-0.5 text-[11px] uppercase tracking-[0.16em] text-white/45">Fluent every day</p>
                   </div>
                   <button
                     type="button"
@@ -167,7 +165,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="absolute left-0 top-0 h-full w-[18rem] max-w-[90vw]">
             <div className="flex h-full flex-col rounded-r-[1.75rem] border-r border-sidebar-border bg-sidebar text-sidebar-foreground shadow-[0_24px_56px_rgba(0,0,0,0.36)]">
               <div className="flex items-center gap-2 px-5 py-5">
-                <Link to="/dashboard" className="flex items-center gap-2" onClick={() => setMobileOpen(false)}>
+                <Link to="/" className="flex items-center gap-2" onClick={() => setMobileOpen(false)}>
                   <img src="/Logo.png" alt="Lingowatch logo" width="56" height="56" className="h-12 w-12 object-contain" />
                   <span className="text-lg text-white" style={{ fontFamily: "Qurova, sans-serif", fontWeight: 600 }}>
                     Lingowatch

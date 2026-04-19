@@ -7,7 +7,7 @@ import * as YoutubeTranscriptModule from "youtube-transcript/dist/youtube-transc
 import { neon } from "@neondatabase/serverless";
 import { handlePodcastRoutes } from "./podcasts.mjs";
 import { handleImportedTextRoutes } from "./importedTexts.mjs";
-import { GoogleAuth } from "google-auth-library";
+import { GoogleAuth, OAuth2Client } from "google-auth-library";
 import { PollyClient, SynthesizeSpeechCommand } from "@aws-sdk/client-polly";
 
 const GCP_KEY_PATH = join(cwd(), "server", "gcp-tts-key.json");
@@ -98,9 +98,12 @@ const AI_REQUEST_TIMEOUT_MS = Number(env.AI_REQUEST_TIMEOUT_MS || 20000);
 const TTS_REQUEST_TIMEOUT_MS = Number(env.TTS_REQUEST_TIMEOUT_MS || 5000);
 
 const sql = env.DATABASE_URL ? neon(env.DATABASE_URL) : null;
+const googleOAuthClientId = env.GOOGLE_CLIENT_ID || env.VITE_GOOGLE_CLIENT_ID || "";
+const googleOAuthClient = googleOAuthClientId ? new OAuth2Client(googleOAuthClientId) : null;
 
 // Run schema migrations
 if (sql) {
+  void ensureAuthUsersSchema();
   void ensureSavedWordsSchema();
   void ensureTtsAudioCacheSchema();
 }
@@ -287,6 +290,91 @@ createServer(async (req, res) => {
     res.writeHead(204);
     res.end();
     return;
+  }
+
+  if (req.method === "POST" && pathname === "/api/auth/google") {
+    try {
+      if (!sql) {
+        sendJson(res, 503, { error: "Database not configured" });
+        return;
+      }
+
+      if (!googleOAuthClient || !googleOAuthClientId) {
+        sendJson(res, 503, { error: "Google auth is not configured" });
+        return;
+      }
+
+      await ensureAuthUsersSchema();
+      const body = await readJsonBody(req);
+      const credential = String(body?.credential || "").trim();
+
+      if (!credential) {
+        sendJson(res, 400, { error: "Google credential is required" });
+        return;
+      }
+
+      const ticket = await googleOAuthClient.verifyIdToken({
+        idToken: credential,
+        audience: googleOAuthClientId,
+      });
+      const payload = ticket.getPayload();
+      const googleSub = String(payload?.sub || "").trim();
+      const email = String(payload?.email || "").trim().toLowerCase();
+
+      if (!googleSub || !email || payload?.email_verified !== true) {
+        sendJson(res, 401, { error: "Google account could not be verified" });
+        return;
+      }
+
+      const fullName = String(payload?.name || email.split("@")[0] || "Learner").trim();
+      const pictureUrl = String(payload?.picture || "").trim();
+      const now = new Date().toISOString();
+      const profile = {
+        googleSub,
+        email,
+        fullName,
+        pictureUrl,
+        locale: payload?.locale || "",
+      };
+
+      const rows = await sql`
+        INSERT INTO auth_users (id, google_sub, email, full_name, picture_url, profile, login_count, first_login_at, last_login_at)
+        VALUES (${crypto.randomUUID()}, ${googleSub}, ${email}, ${fullName}, ${pictureUrl}, ${profile}, 1, ${now}, ${now})
+        ON CONFLICT (google_sub) DO UPDATE SET
+          email = EXCLUDED.email,
+          full_name = EXCLUDED.full_name,
+          picture_url = EXCLUDED.picture_url,
+          profile = EXCLUDED.profile,
+          login_count = auth_users.login_count + 1,
+          last_login_at = EXCLUDED.last_login_at
+        RETURNING id, email, full_name, picture_url, first_login_at, last_login_at, login_count
+      `;
+
+      const user = rows[0];
+      sendJson(res, 200, {
+        user: {
+          id: user.id,
+          fullName: user.full_name,
+          email: user.email,
+          pictureUrl: user.picture_url,
+          preferredLanguage: "somali",
+          englishLevel: "beginner",
+          somaliModeEnabled: true,
+          autoPlayAudioEnabled: false,
+          preferredAiProvider: "auto",
+          createdAt: new Date(user.first_login_at).toISOString(),
+        },
+        login: {
+          lastLoginAt: new Date(user.last_login_at).toISOString(),
+          loginCount: user.login_count,
+        },
+      });
+      return;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Google login failed";
+      sendJson(res, 401, { error: message });
+      return;
+    }
   }
 
   if (req.method === "POST" && pathname === "/api/ai/explain") {
@@ -1998,6 +2086,36 @@ async function ensureSavedWordsSchema() {
     await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS phrase_data JSONB`;
   } catch (error) {
     console.warn("Could not initialize saved_words schema:", error);
+  }
+}
+
+async function ensureAuthUsersSchema() {
+  if (!sql) return;
+
+  try {
+    await sql`
+      CREATE TABLE IF NOT EXISTS auth_users (
+        id TEXT PRIMARY KEY,
+        google_sub TEXT NOT NULL UNIQUE,
+        email TEXT NOT NULL,
+        full_name TEXT NOT NULL DEFAULT '',
+        picture_url TEXT NOT NULL DEFAULT '',
+        profile JSONB NOT NULL DEFAULT '{}'::jsonb,
+        login_count INTEGER NOT NULL DEFAULT 0,
+        first_login_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        last_login_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS picture_url TEXT NOT NULL DEFAULT ''`;
+    await sql`ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS profile JSONB NOT NULL DEFAULT '{}'::jsonb`;
+    await sql`ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS login_count INTEGER NOT NULL DEFAULT 0`;
+    await sql`ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS first_login_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`;
+    await sql`ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`;
+    await sql`CREATE UNIQUE INDEX IF NOT EXISTS auth_users_google_sub_idx ON auth_users (google_sub)`;
+    await sql`CREATE INDEX IF NOT EXISTS auth_users_email_idx ON auth_users (email)`;
+    await sql`CREATE INDEX IF NOT EXISTS auth_users_last_login_at_idx ON auth_users (last_login_at DESC)`;
+  } catch (error) {
+    console.warn("Could not initialize auth_users schema:", error);
   }
 }
 
