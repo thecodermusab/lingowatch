@@ -1,6 +1,232 @@
 {
   "texts": [
     {
+      "id": "fbea3d1a-331d-470c-95e6-eb66942775a0",
+      "userId": "local-user",
+      "title": "ChatGPT",
+      "sourceName": "Chatgpt",
+      "sourceUrl": "https://chatgpt.com/g/g-p-6845c39043f88191936390a160d0d972-musab/c/69e3624a-c84c-83ea-a2e0-6c815e5aef35",
+      "canonicalUrl": "https://chatgpt.com/g/g-p-6845c39043f88191936390a160d0d972-musab/c/69e3624a-c84c-83ea-a2e0-6c815e5aef35",
+      "author": "",
+      "publishedAt": "",
+      "importedAt": "2026-04-18T11:05:41.365Z",
+      "updatedAt": "2026-04-18T11:05:41.365Z",
+      "content": {
+        "sections": [
+          {
+            "id": "section-1",
+            "title": "ChatGPT",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "text": "I’ll separate the options into: truly free local voices, browser-built-in voices, and cloud APIs with free tiers. For your LingoWatch use case, the main issue is natural voice quality versus cost and latency. For LingoWatch, the best free TTS setup is:"
+              }
+            ],
+            "plainText": "I’ll separate the options into: truly free local voices, browser-built-in voices, and cloud APIs with free tiers. For your LingoWatch use case, the main issue is natural voice quality versus cost and latency. For LingoWatch, the best free TTS setup is:",
+            "wordCount": 41,
+            "estimatedReadingTime": 1
+          },
+          {
+            "id": "section-2",
+            "title": "Best choice for you",
+            "blocks": [
+              {
+                "type": "heading",
+                "text": "Best choice for you",
+                "level": 2
+              },
+              {
+                "type": "paragraph",
+                "text": "Use Web Speech API first + add local Kokoro/Piper later."
+              },
+              {
+                "type": "heading",
+                "text": "1. Web Speech API — easiest, 100% free",
+                "level": 3
+              },
+              {
+                "type": "paragraph",
+                "text": "This runs inside the user’s browser. No API key, no server, no Google billing."
+              },
+              {
+                "type": "list",
+                "items": [
+                  "“Read sentence”",
+                  "“Repeat subtitle”",
+                  "“Read selected word”",
+                  "Language-learning UI like Language Reactor",
+                  "Voice quality depends on the user’s device/browser",
+                  "You cannot reliably save audio as MP3",
+                  "Voices are different on Mac, Windows, iPhone, Android"
+                ]
+              },
+              {
+                "type": "paragraph",
+                "text": "MDN says Web Speech API includes SpeechSynthesis, which is browser text-to-speech. Example for your frontend:"
+              }
+            ],
+            "plainText": "Best choice for you\n\nUse Web Speech API first + add local Kokoro/Piper later.\n\n1. Web Speech API — easiest, 100% free\n\nThis runs inside the user’s browser. No API key, no server, no Google billing.\n\n“Read sentence”\n“Repeat subtitle”\n“Read selected word”\nLanguage-learning UI like Language Reactor\nVoice quality depends on the user’s device/browser\nYou cannot reliably save audio as MP3\nVoices are different on Mac, Windows, iPhone, Android\n\nMDN says Web Speech API includes SpeechSynthesis, which is browser text-to-speech. Example for your frontend:",
+            "wordCount": 85,
+            "estimatedReadingTime": 1
+          },
+          {
+            "id": "section-3",
+            "title": "Best free local AI voices",
+            "blocks": [
+              {
+                "type": "heading",
+                "text": "Best free local AI voices",
+                "level": 2
+              },
+              {
+                "type": "heading",
+                "text": "2. Kokoro TTS — best free local quality",
+                "level": 3
+              },
+              {
+                "type": "paragraph",
+                "text": "Kokoro is open-weight, small, fast, and Apache-2.0 licensed, so it is better for a real project than many random TTS models. It has an 82M parameter model and can be deployed locally or on your own server."
+              },
+              {
+                "type": "list",
+                "items": [
+                  "More natural voices",
+                  "Backend-generated audio",
+                  "Saving.wav files",
+                  "Production project"
+                ]
+              },
+              {
+                "type": "heading",
+                "text": "3. Piper TTS — fastest local offline option",
+                "level": 3
+              },
+              {
+                "type": "paragraph",
+                "text": "Piper is a fast local neural TTS system. The newer Piper repo says it can be installed with pip install piper-tts and includes command-line, web server, and Python API options."
+              },
+              {
+                "type": "list",
+                "items": [
+                  "Very fast local TTS",
+                  "Low server cost",
+                  "Offline usage",
+                  "Many voices",
+                  "Quality is usually less natural than Kokoro/ElevenLabs",
+                  "Newer Piper repo is GPL-3.0, so check license carefully before commercial release."
+                ]
+              }
+            ],
+            "plainText": "Best free local AI voices\n\n2. Kokoro TTS — best free local quality\n\nKokoro is open-weight, small, fast, and Apache-2.0 licensed, so it is better for a real project than many random TTS models. It has an 82M parameter model and can be deployed locally or on your own server.\n\nMore natural voices\nBackend-generated audio\nSaving.wav files\nProduction project\n\n3. Piper TTS — fastest local offline option\n\nPiper is a fast local neural TTS system. The newer Piper repo says it can be installed with pip install piper-tts and includes command-line, web server, and Python API options.\n\nVery fast local TTS\nLow server cost\nOffline usage\nMany voices\nQuality is usually less natural than Kokoro/ElevenLabs\nNewer Piper repo is GPL-3.0, so check license carefully before commercial release.",
+            "wordCount": 129,
+            "estimatedReadingTime": 1
+          },
+          {
+            "id": "section-4",
+            "title": "Free cloud API options",
+            "blocks": [
+              {
+                "type": "heading",
+                "text": "Free cloud API options",
+                "level": 2
+              },
+              {
+                "type": "heading",
+                "text": "4. Azure Speech — good free tier",
+                "level": 3
+              },
+              {
+                "type": "paragraph",
+                "text": "Azure Speech gives 0.5 million neural TTS characters free per month on the Free F0 tier."
+              },
+              {
+                "type": "list",
+                "items": [
+                  "Stable voices",
+                  "Easier than hosting your own model"
+                ]
+              },
+              {
+                "type": "heading",
+                "text": "5. Google Cloud Text-to-Speech — usable with your Google credit",
+                "level": 3
+              },
+              {
+                "type": "paragraph",
+                "text": "Google Cloud TTS requires billing to be enabled and charges by character, but free monthly character allowances may apply. Google says the $300 trial credit can be used for covered Google Cloud products, but after upgrading to paid billing, you can be charged for usage beyond free tier/credit. For your case: you can use your Google Cloud credit for Google Cloud Text-to-Speech, but watch billing limits carefully."
+              },
+              {
+                "type": "heading",
+                "text": "6. ElevenLabs — best quality, but free is tiny",
+                "level": 3
+              },
+              {
+                "type": "paragraph",
+                "text": "ElevenLabs has a free plan with 10k credits/month, but the Starter plan is where they list a commercial license. Good for testing only. Not best for your full LingoWatch app unless you pay."
+              }
+            ],
+            "plainText": "Free cloud API options\n\n4. Azure Speech — good free tier\n\nAzure Speech gives 0.5 million neural TTS characters free per month on the Free F0 tier.\n\nStable voices\nEasier than hosting your own model\n\n5. Google Cloud Text-to-Speech — usable with your Google credit\n\nGoogle Cloud TTS requires billing to be enabled and charges by character, but free monthly character allowances may apply. Google says the $300 trial credit can be used for covered Google Cloud products, but after upgrading to paid billing, you can be charged for usage beyond free tier/credit. For your case: you can use your Google Cloud credit for Google Cloud Text-to-Speech, but watch billing limits carefully.\n\n6. ElevenLabs — best quality, but free is tiny\n\nElevenLabs has a free plan with 10k credits/month, but the Starter plan is where they list a commercial license. Good for testing only. Not best for your full LingoWatch app unless you pay.",
+            "wordCount": 154,
+            "estimatedReadingTime": 1
+          },
+          {
+            "id": "section-5",
+            "title": "My recommendation for your project",
+            "blocks": [
+              {
+                "type": "heading",
+                "text": "My recommendation for your project",
+                "level": 2
+              },
+              {
+                "type": "list",
+                "items": [
+                  "Frontend Web Speech API for free instant TTS.",
+                  "Add Kokoro local backend for better AI voice.",
+                  "Cache generated audio so the same sentence is not generated again.",
+                  "Use Azure free tier or Google Cloud TTS only when you need higher-quality stable cloud voices."
+                ]
+              },
+              {
+                "type": "paragraph",
+                "text": "Your best architecture: Copy this prompt to your coding AI:"
+              },
+              {
+                "type": "quote",
+                "text": "I want to add free TTS to my LingoWatch project.Implement two TTS modes:1. Browser TTS mode using the Web Speech API:- Add a reusable speakText(text, lang, rate) function.- It should work for subtitle sentences, selected words, and repeat buttons.- Add play, stop, and replay controls.- Use SpeechSynthesisUtterance.- Auto-detect language when possible, otherwise allow lang like en-US, tr-TR, ar-SA.2. Local AI TTS backend mode:- Create an API route /api/tts.- Input: text, lang, voice, speed.- Generate audio using local Kokoro TTS or Piper TTS.- Cache audio by hashing text + voice + speed.- If cached audio exists, return it immediately.- Save generated audio in a public or storage folder.- Return JSON: { audioUrl, cached: true/false }.Default behavior:- Use Web Speech API first because it is free.- Allow user to switch to AI voice mode.- Add clean error handling when TTS is not supported.- Make it suitable for a language-learning app like Language Reactor."
+              },
+              {
+                "type": "paragraph",
+                "text": "For now, start with Web Speech API. It costs $0, works immediately, and is enough for your first LingoWatch version."
+              }
+            ],
+            "plainText": "My recommendation for your project\n\nFrontend Web Speech API for free instant TTS.\nAdd Kokoro local backend for better AI voice.\nCache generated audio so the same sentence is not generated again.\nUse Azure free tier or Google Cloud TTS only when you need higher-quality stable cloud voices.\n\nYour best architecture: Copy this prompt to your coding AI:\n\nI want to add free TTS to my LingoWatch project.Implement two TTS modes:1. Browser TTS mode using the Web Speech API:- Add a reusable speakText(text, lang, rate) function.- It should work for subtitle sentences, selected words, and repeat buttons.- Add play, stop, and replay controls.- Use SpeechSynthesisUtterance.- Auto-detect language when possible, otherwise allow lang like en-US, tr-TR, ar-SA.2. Local AI TTS backend mode:- Create an API route /api/tts.- Input: text, lang, voice, speed.- Generate audio using local Kokoro TTS or Piper TTS.- Cache audio by hashing text + voice + speed.- If cached audio exists, return it immediately.- Save generated audio in a public or storage folder.- Return JSON: { audioUrl, cached: true/false }.Default behavior:- Use Web Speech API first because it is free.- Allow user to switch to AI voice mode.- Add clean error handling when TTS is not supported.- Make it suitable for a language-learning app like Language Reactor.\n\nFor now, start with Web Speech API. It costs $0, works immediately, and is enough for your first LingoWatch version.",
+            "wordCount": 232,
+            "estimatedReadingTime": 2
+          }
+        ]
+      },
+      "plainText": "I’ll separate the options into: truly free local voices, browser-built-in voices, and cloud APIs with free tiers. For your LingoWatch use case, the main issue is natural voice quality versus cost and latency. For LingoWatch, the best free TTS setup is:\n\nBest choice for you\n\nUse Web Speech API first + add local Kokoro/Piper later.\n\n1. Web Speech API — easiest, 100% free\n\nThis runs inside the user’s browser. No API key, no server, no Google billing.\n\n“Read sentence”\n“Repeat subtitle”\n“Read selected word”\nLanguage-learning UI like Language Reactor\nVoice quality depends on the user’s device/browser\nYou cannot reliably save audio as MP3\nVoices are different on Mac, Windows, iPhone, Android\n\nMDN says Web Speech API includes SpeechSynthesis, which is browser text-to-speech. Example for your frontend:\n\nBest free local AI voices\n\n2. Kokoro TTS — best free local quality\n\nKokoro is open-weight, small, fast, and Apache-2.0 licensed, so it is better for a real project than many random TTS models. It has an 82M parameter model and can be deployed locally or on your own server.\n\nMore natural voices\nBackend-generated audio\nSaving.wav files\nProduction project\n\n3. Piper TTS — fastest local offline option\n\nPiper is a fast local neural TTS system. The newer Piper repo says it can be installed with pip install piper-tts and includes command-line, web server, and Python API options.\n\nVery fast local TTS\nLow server cost\nOffline usage\nMany voices\nQuality is usually less natural than Kokoro/ElevenLabs\nNewer Piper repo is GPL-3.0, so check license carefully before commercial release.\n\nFree cloud API options\n\n4. Azure Speech — good free tier\n\nAzure Speech gives 0.5 million neural TTS characters free per month on the Free F0 tier.\n\nStable voices\nEasier than hosting your own model\n\n5. Google Cloud Text-to-Speech — usable with your Google credit\n\nGoogle Cloud TTS requires billing to be enabled and charges by character, but free monthly character allowances may apply. Google says the $300 trial credit can be used for covered Google Cloud products, but after upgrading to paid billing, you can be charged for usage beyond free tier/credit. For your case: you can use your Google Cloud credit for Google Cloud Text-to-Speech, but watch billing limits carefully.\n\n6. ElevenLabs — best quality, but free is tiny\n\nElevenLabs has a free plan with 10k credits/month, but the Starter plan is where they list a commercial license. Good for testing only. Not best for your full LingoWatch app unless you pay.\n\nMy recommendation for your project\n\nFrontend Web Speech API for free instant TTS.\nAdd Kokoro local backend for better AI voice.\nCache generated audio so the same sentence is not generated again.\nUse Azure free tier or Google Cloud TTS only when you need higher-quality stable cloud voices.\n\nYour best architecture: Copy this prompt to your coding AI:\n\nI want to add free TTS to my LingoWatch project.Implement two TTS modes:1. Browser TTS mode using the Web Speech API:- Add a reusable speakText(text, lang, rate) function.- It should work for subtitle sentences, selected words, and repeat buttons.- Add play, stop, and replay controls.- Use SpeechSynthesisUtterance.- Auto-detect language when possible, otherwise allow lang like en-US, tr-TR, ar-SA.2. Local AI TTS backend mode:- Create an API route /api/tts.- Input: text, lang, voice, speed.- Generate audio using local Kokoro TTS or Piper TTS.- Cache audio by hashing text + voice + speed.- If cached audio exists, return it immediately.- Save generated audio in a public or storage folder.- Return JSON: { audioUrl, cached: true/false }.Default behavior:- Use Web Speech API first because it is free.- Allow user to switch to AI voice mode.- Add clean error handling when TTS is not supported.- Make it suitable for a language-learning app like Language Reactor.\n\nFor now, start with Web Speech API. It costs $0, works immediately, and is enough for your first LingoWatch version.",
+      "wordCount": 641,
+      "estimatedReadingTime": 3,
+      "sectionCount": 5,
+      "pageCount": 5,
+      "progress": {
+        "percent": 0,
+        "completedSectionIds": [],
+        "currentSectionId": "",
+        "lastOpenedAt": ""
+      },
+      "favIconUrl": "https://chatgpt.com/favicon.ico",
+      "thumbnailUrl": "https://cdn.openai.com/chatgpt/share-og.png",
+      "status": "ready",
+      "previewText": "I’ll separate the options into: truly free local voices, browser-built-in voices, and cloud APIs with free tiers. For your LingoWatch use case, the main issue is natural voice quality versus cost and latency. For LingoWatch, the best free T",
+      "language": "en-US",
+      "origin": "extension",
+      "contentHash": "08b72d0fdc5101cc4142df0dc362cea8843d4f7e5e80142e7f36a4daa05b4c22",
+      "failureReason": ""
+    },
+    {
       "id": "371d993f-493c-41aa-9918-f5095e8e3a71",
       "userId": "local-user",
       "title": "What to Know About the U.S.-Iran Cease-Fire",

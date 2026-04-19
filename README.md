@@ -7,3 +7,6 @@ Terminal 1 — Vite + Node server together:
 
 Terminal 2 — Python backend:  
  cd extension/backend && uvicorn main:app --host 0.0.0.0 --port 8000
+
+
+! pkill -f "node server" ; cd /Users/maahir/Downloads/Projects/lingowatch && node server/index.mjs
