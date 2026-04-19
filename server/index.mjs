@@ -391,7 +391,15 @@ createServer(async (req, res) => {
         return;
       }
 
-      await explainPhrase("break the ice", preferredProvider);
+      if (preferredProvider && preferredProvider !== "auto") {
+        await requestJsonFromSingleProvider({
+          provider: preferredProvider,
+          systemPrompt: SYSTEM_PROMPT,
+          userPrompt: "Phrase: break the ice",
+        });
+      } else {
+        await explainPhrase("break the ice", preferredProvider);
+      }
       sendJson(res, 200, {
         ok: true,
         provider: getAiHealth(preferredProvider).provider,
@@ -517,52 +525,16 @@ createServer(async (req, res) => {
         return;
       }
 
-      // 1. Try AWS Polly first
-      let pollyResult = await synthesizeWithPolly(text, includeWordTimings);
-      let audioContent = pollyResult?.audioContent || null;
-      let wordTimings = pollyResult?.wordTimings || [];
-
-      // 2. Fall back to Google Cloud TTS
-      if (!audioContent) {
-        const accessToken = await getTtsAccessToken();
-        const apiKey = env.GOOGLE_TTS_KEY || env.GOOGLE_CLOUD_TTS_KEY || env.VITE_GOOGLE_TTS_KEY;
-        if (!accessToken && !apiKey) { sendJson(res, 503, { error: "TTS not configured" }); return; }
-
-        const markedText = includeWordTimings ? buildTtsMarkedText(text) : null;
-        const ttsEndpointVersion = includeWordTimings ? "v1beta1" : "v1";
-        const ttsUrl = accessToken
-          ? `https://texttospeech.googleapis.com/${ttsEndpointVersion}/text:synthesize`
-          : `https://texttospeech.googleapis.com/${ttsEndpointVersion}/text:synthesize?key=${apiKey}`;
-        const ttsRes = await fetchWithTimeout(
-          ttsUrl,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-            },
-            body: JSON.stringify({
-              input: includeWordTimings && markedText ? { ssml: markedText.ssml } : { text },
-              voice: { languageCode, name: voiceName },
-              audioConfig: { audioEncoding: "MP3", speakingRate },
-              ...(includeWordTimings ? { enableTimePointing: ["SSML_MARK"] } : {}),
-            }),
-          },
-          TTS_REQUEST_TIMEOUT_MS
-        );
-        if (!ttsRes.ok) { sendJson(res, 500, await ttsRes.json()); return; }
-        const googleData = await ttsRes.json();
-        if (includeWordTimings && markedText) {
-          wordTimings = buildWordTimings(markedText.words, googleData.timepoints || []);
-        }
-        audioContent = googleData.audioContent || "";
-      }
+      const generated = await synthesizeCloudTts({ text, voiceName, languageCode, speakingRate, includeWordTimings });
+      const audioContent = generated?.audioContent || null;
+      const wordTimings = generated?.wordTimings || [];
+      const provider = generated?.provider || "";
 
       if (!audioContent) { sendJson(res, 500, { error: "All TTS providers failed" }); return; }
 
-      const data = { audioContent, wordTimings };
+      const data = { audioContent, wordTimings, provider };
       const storedAudio = await storeTtsAudio({
-        cacheKey, text, audioContent, voiceName, languageCode, speakingRate, includeWordTimings, wordTimings,
+        cacheKey, text, provider, audioContent, voiceName, languageCode, speakingRate, includeWordTimings, wordTimings,
       });
       if (storedAudio?.audioUrl) data.audioUrl = storedAudio.audioUrl;
       sendJson(res, 200, data);
@@ -2052,6 +2024,15 @@ async function ensureTtsAudioCacheSchema() {
     await sql`ALTER TABLE tts_audio_cache ADD COLUMN IF NOT EXISTS include_word_timings BOOLEAN NOT NULL DEFAULT FALSE`;
     await sql`ALTER TABLE tts_audio_cache ADD COLUMN IF NOT EXISTS word_timings JSONB NOT NULL DEFAULT '[]'::jsonb`;
     await sql`ALTER TABLE tts_audio_cache ADD COLUMN IF NOT EXISTS last_used_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`;
+    await sql`
+      CREATE TABLE IF NOT EXISTS tts_usage_monthly (
+        provider TEXT NOT NULL,
+        month_key TEXT NOT NULL,
+        characters_used INTEGER NOT NULL DEFAULT 0,
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        PRIMARY KEY (provider, month_key)
+      )
+    `;
   } catch (error) {
     console.warn("Could not initialize tts_audio_cache schema:", error);
   }
@@ -2162,6 +2143,138 @@ function buildWordTimings(words, timepoints) {
   });
 }
 
+function getCurrentMonthKey() {
+  return new Date().toISOString().slice(0, 7);
+}
+
+function getTtsCharacterCount(text) {
+  return String(text || "").trim().length;
+}
+
+function getTtsMonthlyCharacterCap(provider) {
+  const envKey = provider === "google" ? "GOOGLE_TTS_MONTHLY_CHAR_CAP" : "AWS_POLLY_MONTHLY_CHAR_CAP";
+  const value = Number(env[envKey] || 0);
+  return Number.isFinite(value) && value > 0 ? value : Infinity;
+}
+
+async function getTtsMonthlyUsage(provider) {
+  if (!sql) return 0;
+
+  try {
+    await ensureTtsAudioCacheSchema();
+    const rows = await sql`
+      SELECT characters_used
+      FROM tts_usage_monthly
+      WHERE provider = ${provider} AND month_key = ${getCurrentMonthKey()}
+      LIMIT 1
+    `;
+    return Number(rows[0]?.characters_used || 0);
+  } catch (error) {
+    console.warn("Could not read TTS usage:", error);
+    return 0;
+  }
+}
+
+async function canUseTtsProvider(provider, text) {
+  const cap = getTtsMonthlyCharacterCap(provider);
+  if (cap === Infinity) return true;
+  const used = await getTtsMonthlyUsage(provider);
+  return used + getTtsCharacterCount(text) <= cap;
+}
+
+async function recordTtsUsage(provider, text) {
+  if (!sql) return;
+
+  try {
+    await ensureTtsAudioCacheSchema();
+    await sql`
+      INSERT INTO tts_usage_monthly (provider, month_key, characters_used, updated_at)
+      VALUES (${provider}, ${getCurrentMonthKey()}, ${getTtsCharacterCount(text)}, NOW())
+      ON CONFLICT (provider, month_key) DO UPDATE SET
+        characters_used = tts_usage_monthly.characters_used + EXCLUDED.characters_used,
+        updated_at = NOW()
+    `;
+  } catch (error) {
+    console.warn("Could not record TTS usage:", error);
+  }
+}
+
+async function synthesizeCloudTts({ text, voiceName, languageCode, speakingRate, includeWordTimings }) {
+  const providers = ["google", "aws"];
+  const errors = [];
+
+  for (const provider of providers) {
+    if (!(await canUseTtsProvider(provider, text))) {
+      errors.push(`${provider} monthly cap reached`);
+      continue;
+    }
+
+    try {
+      const result = provider === "google"
+        ? await synthesizeWithGoogleTts({ text, voiceName, languageCode, speakingRate, includeWordTimings })
+        : await synthesizeWithPolly(text, includeWordTimings);
+
+      if (result?.audioContent) {
+        await recordTtsUsage(provider, text);
+        return { ...result, provider };
+      }
+    } catch (error) {
+      errors.push(error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  if (errors.length) {
+    console.warn("TTS providers failed:", errors.join(" | "));
+  }
+  return null;
+}
+
+async function synthesizeWithGoogleTts({ text, voiceName, languageCode, speakingRate, includeWordTimings }) {
+  const accessToken = await getTtsAccessToken();
+  const apiKey = env.GOOGLE_TTS_KEY || env.GOOGLE_CLOUD_TTS_KEY || env.VITE_GOOGLE_TTS_KEY;
+  if (!accessToken && !apiKey) return null;
+
+  const markedText = includeWordTimings ? buildTtsMarkedText(text) : null;
+  const ttsEndpointVersion = includeWordTimings ? "v1beta1" : "v1";
+  const ttsUrl = accessToken
+    ? `https://texttospeech.googleapis.com/${ttsEndpointVersion}/text:synthesize`
+    : `https://texttospeech.googleapis.com/${ttsEndpointVersion}/text:synthesize?key=${apiKey}`;
+
+  const ttsRes = await fetchWithTimeout(
+    ttsUrl,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      },
+      body: JSON.stringify({
+        input: includeWordTimings && markedText ? { ssml: markedText.ssml } : { text },
+        voice: { languageCode, name: voiceName },
+        audioConfig: { audioEncoding: "MP3", speakingRate },
+        ...(includeWordTimings ? { enableTimePointing: ["SSML_MARK"] } : {}),
+      }),
+    },
+    TTS_REQUEST_TIMEOUT_MS
+  );
+
+  if (!ttsRes.ok) {
+    const message = await ttsRes.text().catch(() => "");
+    throw new Error(`Google TTS failed (${ttsRes.status}): ${message.slice(0, 240)}`);
+  }
+
+  const googleData = await ttsRes.json();
+  const audioContent = googleData.audioContent || "";
+  if (!audioContent) return null;
+
+  return {
+    audioContent,
+    wordTimings: includeWordTimings && markedText
+      ? buildWordTimings(markedText.words, googleData.timepoints || [])
+      : [],
+  };
+}
+
 function sha256(value, encoding = "hex") {
   return createHash("sha256").update(value).digest(encoding);
 }
@@ -2172,7 +2285,7 @@ function hmac(key, value, encoding) {
 
 function createTtsCacheKey({ text, voiceName, languageCode, speakingRate, includeWordTimings }) {
   return sha256(JSON.stringify({
-    provider: "google",
+    provider: "cloud-tts",
     text: String(text || "").trim(),
     voiceName,
     languageCode,
@@ -2223,7 +2336,7 @@ async function getCachedTtsAudio(cacheKey) {
   }
 }
 
-async function storeTtsAudio({ cacheKey, text, audioContent, voiceName, languageCode, speakingRate, includeWordTimings, wordTimings }) {
+async function storeTtsAudio({ cacheKey, text, provider, audioContent, voiceName, languageCode, speakingRate, includeWordTimings, wordTimings }) {
   const spaces = getSpacesConfig();
   if (!sql || !spaces) return null;
 
@@ -2257,7 +2370,7 @@ async function storeTtsAudio({ cacheKey, text, audioContent, voiceName, language
       )
       VALUES (
         ${cacheKey},
-        ${"google"},
+        ${provider || "cloud"},
         ${voiceName},
         ${languageCode},
         ${String(speakingRate)},
@@ -2990,10 +3103,28 @@ function summarizeProviderError(provider, message) {
     lower.includes("quota") ||
     lower.includes("rate limit") ||
     lower.includes("rate-limit") ||
+    lower.includes("temporarily rate-limited upstream") ||
     lower.includes('"code":429') ||
     lower.includes("429")
   ) {
+    if (provider === "openrouter" && lower.includes("temporarily rate-limited upstream")) {
+      return `${providerLabel} free upstream model is rate-limited`;
+    }
     return `${providerLabel} quota reached`;
+  }
+
+  if (lower.includes("timed out")) {
+    return `${providerLabel} timed out`;
+  }
+
+  if (
+    lower.includes("doesn't have any credits") ||
+    lower.includes("does not have any credits") ||
+    lower.includes("no credits") ||
+    lower.includes("credits or licenses") ||
+    lower.includes("purchase those")
+  ) {
+    return `${providerLabel} needs credits or a license`;
   }
 
   if (

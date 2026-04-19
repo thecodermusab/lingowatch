@@ -123,8 +123,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <aside className="fixed inset-y-0 left-0 hidden w-[19.5rem] bg-background lg:block">
-        <div className="h-full py-4 pl-4 pr-5">
+      <aside className="fixed inset-y-0 left-0 hidden w-[18.5rem] bg-background lg:block">
+        <div className="h-full py-3 pl-3 pr-2">
           <div className="flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-sidebar-border/90 bg-sidebar/95 text-sidebar-foreground shadow-[0_30px_64px_rgba(0,0,0,0.34)] backdrop-blur-xl">
             <div className="border-b border-sidebar-border/80 px-5 py-5">
               <Link to="/dashboard" className="flex items-center gap-2.5 rounded-2xl">
@@ -191,7 +191,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       ) : null}
 
-      <main ref={mainRef} className="min-h-screen bg-transparent lg:pl-[19.5rem]">
+      <main ref={mainRef} className="min-h-screen bg-transparent lg:pl-[18.5rem]">
         {children}
       </main>
       {location.pathname !== "/random-phrases" ? <SelectionLearningOverlay containerRef={mainRef} /> : null}

@@ -16,6 +16,7 @@
   const YOUTUBE_HOST_PATTERN = /(^|\.)youtube\.com$/i;
   const POPUP_AI_TIMEOUT_MS = 45000;
   const POPUP_SOMALI_TIMEOUT_MS = 30000;
+  const POPUP_FIRST_PROVIDER_FALLBACK_MS = 16000;
   const POPUP_REGENERATE_PROVIDERS = [
     { value: "deepseek", label: "DeepSeek" },
     { value: "gemini-lite", label: "Gemini Lite" },
@@ -59,6 +60,7 @@
     lastPopupSynonyms: [],
     lastPopupAntonyms: [],
     currentPopupRegenerate: null,
+    currentPopupLine: null,
     playerUiHost: null,
     elements: {}
   };
@@ -209,9 +211,7 @@
       if (event.key === "a" || event.key === "A") {
         const current = state.subtitles[state.currentIndex];
         if (current) {
-          state.currentIndex = -1;
-          video.currentTime = current.start;
-          video.play().catch(() => {});
+          jumpToLine(current.start);
         }
       }
 
@@ -851,6 +851,7 @@
     pauseCurrentVideo();
 
     if (subtitleContext) state.subtitleClickContext = subtitleContext;
+    state.currentPopupLine = findSubtitleForPopupContext(subtitleContext);
 
     const popupWidth = 380;
     const wordCenterX = rect.left + rect.width / 2;
@@ -1162,9 +1163,7 @@
     if (line && state.currentVideo) {
       const subtitle = state.subtitles[Number(line.dataset.index)];
       if (subtitle) {
-        state.currentIndex = -1;
-        state.currentVideo.currentTime = subtitle.start;
-        state.currentVideo.play().catch(() => {});
+        jumpToLine(subtitle.start);
       }
     }
   }
@@ -1179,7 +1178,11 @@
     const word = button.dataset.word || "";
 
     if (action === "close") { closeWordPopup(); return; }
-    if (action === "speak") { pronounce(word); return; }
+    if (action === "speak") {
+      pronounce(word);
+      return;
+    }
+    if (action === "replay-current-line") { replayCurrentPopupLine(); return; }
     if (action === "regenerate-menu") { toggleRegenerateMenu(); return; }
     if (action === "regenerate-word") {
       const provider = button.dataset.provider || "auto";
@@ -1280,6 +1283,72 @@
         video.addEventListener("timeupdate", pauseHandler);
       }
     }
+  }
+
+  function replayVideoSegment(startTime, duration = 0) {
+    const video = state.currentVideo || document.querySelector("video");
+    if (!video) {
+      showToast("Video player is not ready yet.");
+      return false;
+    }
+
+    state.currentVideo = video;
+    const targetTime = Math.max(0, Number(startTime) || 0);
+    const segmentDuration = Math.max(0.7, Number(duration) || 2.5);
+    const endTime = targetTime + segmentDuration;
+    state.currentIndex = -1;
+    video.currentTime = targetTime;
+    video.play().catch(() => {
+      showToast("Tap the video once, then try replay again.");
+    });
+
+    const lineIndex = state.subtitles.findIndex((s) => Math.abs(Number(s.start) - targetTime) < 0.05);
+    if (lineIndex >= 0) {
+      state.currentIndex = lineIndex;
+      highlightSidebarLine(lineIndex);
+      updateOverlay(state.subtitles[lineIndex]);
+    }
+
+    const stopHandler = () => {
+      if (video.currentTime >= endTime) {
+        video.pause();
+        video.removeEventListener("timeupdate", stopHandler);
+      }
+    };
+    video.addEventListener("timeupdate", stopHandler);
+    return true;
+  }
+
+  function replayCurrentPopupLine() {
+    const line = state.currentPopupLine;
+    if (!line) return false;
+    return replayVideoSegment(line.start, line.duration);
+  }
+
+  function findSubtitleForPopupTarget(target) {
+    const lineEl = target.closest?.(".lw-line");
+    if (lineEl) {
+      const index = Number(lineEl.dataset.index);
+      if (Number.isFinite(index) && state.subtitles[index]) {
+        return state.subtitles[index];
+      }
+      const start = Number(lineEl.dataset.start);
+      if (Number.isFinite(start)) {
+        const byStart = state.subtitles.find((subtitle) => Math.abs(Number(subtitle.start) - start) < 0.05);
+        if (byStart) return byStart;
+      }
+    }
+
+    const context = target.dataset?.context || state.subtitleClickContext || "";
+    return findSubtitleForPopupContext(context);
+  }
+
+  function findSubtitleForPopupContext(context) {
+    const text = String(context || "").trim();
+    const current = state.subtitles[state.currentIndex];
+    if (current && (!text || current.text === text)) return current;
+    if (!text) return current || null;
+    return state.subtitles.find((subtitle) => subtitle.text === text) || current || null;
   }
 
   async function loadFrequencyData() {
@@ -1992,13 +2061,10 @@
       return;
     }
 
-    const playSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM10.6219 8.41459C10.5562 8.37078 10.479 8.34741 10.4 8.34741C10.1791 8.34741 10 8.52649 10 8.74741V15.2526C10 15.3316 10.0234 15.4088 10.0672 15.4745C10.1897 15.6583 10.4381 15.708 10.6219 15.5854L15.5008 12.3328C15.5447 12.3035 15.5824 12.2658 15.6117 12.2219C15.7343 12.0381 15.6846 11.7897 15.5008 11.6672L10.6219 8.41459Z"></path></svg>`;
-
     state.elements.subtitleList.innerHTML = state.subtitles.map((subtitle) => {
       const starred = state.starredLines.has(subtitle.index);
       return `
         <div class="lw-line" data-index="${subtitle.index}" data-start="${subtitle.start}">
-          <button type="button" class="lw-play-btn" data-line-action="play" title="Replay this line">${playSVG}</button>
           <span class="lw-timestamp" data-line-action="play" title="Jump to this line">${formatTime(subtitle.start)}</span>
           <div class="lw-line-content">${wrapWordsInLine(subtitle.text)}</div>
           <button type="button" class="lw-star-btn${starred ? " starred" : ""}" data-line-action="star">${starred ? "★" : "☆"}</button>
@@ -2261,6 +2327,7 @@
     }
 
     closeHoverTooltip();
+    state.currentPopupLine = findSubtitleForPopupTarget(target);
 
     const sidebar = state.elements.sidebar;
     const popupWidth = 380;
@@ -2397,6 +2464,7 @@
     const normalizedWord = word.trim().toLowerCase();
     const aiCacheKey = `${normalizedWord}::general`;
     const recommendedProvider = getRecommendedPopupProvider(normalizedWord);
+    const speakTitle = "Listen";
     const regenerateSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-15.5 6.3"/><path d="M3 12A9 9 0 0 1 18.5 5.7"/><path d="M18 2v4h4"/><path d="M6 22v-4H2"/></svg>`;
     const regenerateOptions = POPUP_REGENERATE_PROVIDERS.map((provider) => `
       <button type="button" class="lw-regenerate-option${provider.value === recommendedProvider.value ? " recommended" : ""}" data-popup-action="regenerate-word" data-provider="${escapeAttribute(provider.value)}">
@@ -2413,7 +2481,7 @@
           <div class="lw-popup-translation-main" id="lw-popup-translation-el">Finding meaning...</div>
         </div>
         <div class="lw-popup-header-right">
-          <button type="button" class="lw-popup-speak" data-popup-action="speak" data-word="${escapeAttribute(word)}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/></svg></button>
+          <button type="button" class="lw-popup-speak" data-popup-action="speak" data-word="${escapeAttribute(word)}" title="${escapeAttribute(speakTitle)}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/></svg></button>
           <div class="lw-regenerate-wrap">
             <button type="button" class="lw-popup-regenerate" data-popup-action="regenerate-menu" title="Regenerate with another AI">${regenerateSvg}</button>
             <div class="lw-regenerate-menu" id="lw-regenerate-menu" hidden>
@@ -2453,13 +2521,15 @@
     popup.style.display = "flex";
     if (!positionPopup(popup, rect)) return;
 
-    // Prefetch TTS audio for the word immediately so it's ready when the icon is tapped
     prefetchTts(word);
 
     // Helpers
     const audioSvg = (size) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/></svg>`;
     function audioBtn(text, small = false) {
       return `<button type="button" class="lw-example-audio-btn${small ? " small" : ""}" data-popup-action="pronounce-sentence" data-text="${escapeAttribute(text)}" title="Listen">${audioSvg(small ? 12 : 14)}</button>`;
+    }
+    function youtubeAudioBtn(small = false) {
+      return `<button type="button" class="lw-example-audio-btn${small ? " small" : ""} youtube" data-popup-action="replay-current-line" title="Replay YouTube audio">${audioSvg(small ? 12 : 14)}</button>`;
     }
     function chips(list, cls = "", clickable = true) {
       return list.map((s) => {
@@ -2506,6 +2576,14 @@
       const saveBtn = popup.querySelector("#lw-popup-save-btn");
       const activeLoadingLabel = regeneratingLabel ? `Regenerating with ${regeneratingLabel}` : "Loading AI explanation";
       const answeredBy = aiData?.aiProviderLabel || somaliData?.aiProviderLabel || "";
+      const youtubeLine = state.currentPopupLine;
+      const youtubeExampleHtml = youtubeLine ? `
+                <div class="lw-example-row lw-example-row-youtube">
+                  <span class="lw-example-type-tag lw-example-type-tag-current">YouTube</span>
+                  <span class="lw-example-row-text">${highlightWordInText(escapeHtml(youtubeLine.text || currentLine), word)}<span class="lw-example-row-translation">Original audio from this subtitle line</span></span>
+                  ${youtubeAudioBtn(true)}
+                </div>
+              ` : "";
 
       state.lastPopupAiData = Object.keys(mergedAiData).length ? mergedAiData : aiData;
       state.lastPopupSynonyms = synonyms;
@@ -2541,10 +2619,11 @@
             <div class="lw-section-label">AI Explanation</div>
             <div class="lw-popup-empty">${escapeHtml(aiError)}</div>
           ` : ""}
-          ${examples.length || tatoebaExamples?.length ? `
+          ${youtubeLine || examples.length || tatoebaExamples?.length ? `
             <div class="lw-popup-divider"></div>
             <div class="lw-section-label">Example Sentences</div>
             <div class="lw-examples-list">
+              ${youtubeExampleHtml}
               ${examples.map((ex) => `
                 <div class="lw-example-row">
                   ${ex.type ? `<span class="lw-example-type-tag">${escapeHtml(ex.type.toUpperCase())}</span>` : ""}
@@ -2662,8 +2741,8 @@
       renderPanels();
 
       const [nextAiData, nextSomaliData] = await Promise.all([
-        getAIWordData(word, "", provider, true),
-        getSomaliSupportData(word, "", provider, true),
+        getAIWordDataWithFallback(word, "", provider, true),
+        getSomaliSupportDataWithFallback(word, "", provider, true),
       ]);
 
       if (requestId !== state.popupRequestId) return;
@@ -2698,7 +2777,7 @@
     }
 
     if (!state.wordAiCache.has(aiCacheKey)) {
-      void getAIWordData(word, "", recommendedProvider.value).then((result) => {
+      void getAIWordDataWithFallback(word, "", recommendedProvider.value).then((result) => {
         aiData = result;
         aiLoading = false;
         aiError = result ? "" : "The AI provider did not answer after 45 seconds. Try again or choose another model in settings.";
@@ -2712,7 +2791,7 @@
     }
 
     if (!state.wordSomaliCache.has(aiCacheKey)) {
-      void getSomaliSupportData(word, "").then((result) => {
+      void getSomaliSupportDataWithFallback(word, "", "deepseek").then((result) => {
         somaliData = result;
         somaliLoading = false;
         somaliError = result ? "" : "DeepSeek Somali support did not answer after 30 seconds.";
@@ -2727,6 +2806,7 @@
       state.elements.popup.style.display = "none";
       state.popupRequestId++;
       state.currentPopupRegenerate = null;
+      state.currentPopupLine = null;
     }
     if (state.elements.popupArrow) {
       state.elements.popupArrow.style.display = "none";
@@ -3268,7 +3348,7 @@
     }
   }
 
-  async function getAIWordData(word, sentenceContext, preferredProvider, strictProvider = false) {
+  async function getAIWordData(word, sentenceContext, preferredProvider, strictProvider = false, timeoutMs = POPUP_AI_TIMEOUT_MS) {
     return withTimeout(
       fetch("http://127.0.0.1:3001/api/ai/explain", {
         method: "POST",
@@ -3277,12 +3357,27 @@
       })
         .then(r => r.ok ? r.json() : null)
         .catch(() => null),
-      POPUP_AI_TIMEOUT_MS,
+      timeoutMs,
       null
     );
   }
 
-  async function getSomaliSupportData(word, sentenceContext, preferredProvider, strictProvider = false) {
+  async function getAIWordDataWithFallback(word, sentenceContext, preferredProvider, strictProvider = false) {
+    const firstTimeout = strictProvider || ["glm4", "grok", "openrouter"].includes(preferredProvider)
+      ? POPUP_FIRST_PROVIDER_FALLBACK_MS
+      : POPUP_AI_TIMEOUT_MS;
+    const first = await getAIWordData(word, sentenceContext, preferredProvider, strictProvider, firstTimeout);
+    if (first) return first;
+
+    const fallbackProviders = ["deepseek", "gemini-lite", "cerebras"].filter((provider) => provider !== preferredProvider);
+    for (const provider of fallbackProviders) {
+      const result = await getAIWordData(word, sentenceContext, provider, false);
+      if (result) return result;
+    }
+    return null;
+  }
+
+  async function getSomaliSupportData(word, sentenceContext, preferredProvider, strictProvider = false, timeoutMs = POPUP_SOMALI_TIMEOUT_MS) {
     return withTimeout(
       fetch("http://127.0.0.1:3001/api/extension/somali-support", {
         method: "POST",
@@ -3295,9 +3390,24 @@
           return data;
         })
         .catch(() => null),
-      POPUP_SOMALI_TIMEOUT_MS,
+      timeoutMs,
       null
     );
+  }
+
+  async function getSomaliSupportDataWithFallback(word, sentenceContext, preferredProvider, strictProvider = false) {
+    const firstTimeout = strictProvider || ["glm4", "grok", "openrouter"].includes(preferredProvider)
+      ? POPUP_FIRST_PROVIDER_FALLBACK_MS
+      : POPUP_SOMALI_TIMEOUT_MS;
+    const first = await getSomaliSupportData(word, sentenceContext, preferredProvider, strictProvider, firstTimeout);
+    if (first) return first;
+
+    const fallbackProviders = ["deepseek", "gemini-lite"].filter((provider) => provider !== preferredProvider);
+    for (const provider of fallbackProviders) {
+      const result = await getSomaliSupportData(word, sentenceContext, provider, false);
+      if (result) return result;
+    }
+    return null;
   }
 
   async function getFastWordData(word) {
@@ -3479,19 +3589,6 @@
     } catch (_e) {}
 
     return false;
-  }
-
-  function speakWithBrowser(text) {
-    if (!window.speechSynthesis) {
-      return false;
-    }
-
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "en-US";
-    utterance.rate = 0.85;
-    window.speechSynthesis.speak(utterance);
-    return true;
   }
 
   async function translateToSomali(text, fallback) {
