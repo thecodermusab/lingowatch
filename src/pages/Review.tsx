@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { getReviewStage, getReviewTimingPreview } from "@/lib/review";
-import { speakText } from "@/lib/tts";
+import { speakText, fetchTtsAudioContent } from "@/lib/tts";
 import { generateAIExplanation, getAiProviderLabel, getSavedWordRegenerationProvider, SAVED_WORD_REGENERATION_OPTIONS } from "@/lib/ai";
 import { translateText } from "@/lib/googleTranslate";
 import { useToast } from "@/hooks/use-toast";
@@ -120,6 +120,11 @@ export default function ReviewPage() {
   useEffect(() => {
     setReExplainProvider(recommendedReExplainProvider);
   }, [recommendedReExplainProvider]);
+
+  // Prefetch TTS for current card so audio is instant when icon is tapped
+  useEffect(() => {
+    if (currentPhrase?.phraseText) void fetchTtsAudioContent(currentPhrase.phraseText);
+  }, [currentPhrase?.phraseText]);
 
   function speakCurrentPrompt() {
     if (!currentPhrase) return;

@@ -112,11 +112,13 @@ function ReadingView({ story, onBack, onDelete }: { story: StoryEntry; onBack: (
   const [activeWordIndex, setActiveWordIndex] = useState<number | null>(null);
 
   useEffect(() => {
+    // Prefetch TTS as soon as the story opens so Play is instant
+    void fetchTimedTtsAudio(story.content.replace(/\*\*/g, ""));
     return () => {
       audioRef.current?.pause();
       audioRef.current = null;
     };
-  }, []);
+  }, [story.id]);
 
   const stopListening = () => {
     audioRef.current?.pause();

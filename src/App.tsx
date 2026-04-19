@@ -19,7 +19,6 @@ import StoriesPage from "./pages/Stories";
 // Less-visited pages — lazy loaded
 const RandomPhrasesPage = lazy(() => import("./pages/RandomPhrases"));
 const AddPhrasePage = lazy(() => import("./pages/AddPhrase"));
-const InboxPage = lazy(() => import("./pages/Inbox"));
 const ReviewPage = lazy(() => import("./pages/Review"));
 const ProgressPage = lazy(() => import("./pages/Progress"));
 const SettingsPage = lazy(() => import("./pages/Settings"));
@@ -64,7 +63,6 @@ function AppRoutes() {
         <Route path="/random-phrases" element={<RandomPhrasesPage />} />
         <Route path="/add-phrase" element={<AddPhrasePage />} />
         <Route path="/library" element={<LibraryPage />} />
-        <Route path="/inbox" element={<InboxPage />} />
         <Route path="/phrase/:id" element={<PhraseDetailPage />} />
         <Route path="/review" element={<ReviewPage />} />
         <Route path="/progress" element={<ProgressPage />} />

@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Star, Trash2, ArrowLeft, RotateCcw, CheckCircle2, Volume2, Globe, BookOpen, Lightbulb, MessageCircle, AlertTriangle, Edit, Loader2, Save, X, Sparkles } from "lucide-react";
 import { generateAIExplanation, getAiProviderLabel, getSavedWordRegenerationProvider, SAVED_WORD_REGENERATION_OPTIONS } from "@/lib/ai";
-import { speakText } from "@/lib/tts";
+import { speakText, fetchTtsAudioContent } from "@/lib/tts";
 import { translateText } from "@/lib/googleTranslate";
 import { useToast } from "@/hooks/use-toast";
 import { categories } from "@/lib/mockData";
@@ -71,6 +71,8 @@ export default function PhraseDetailPage() {
 
   useEffect(() => {
     if (!phrase) return;
+    // Prefetch TTS so audio plays instantly when the icon is tapped
+    void fetchTtsAudioContent(phrase.phraseText);
     setPhraseText(phrase.phraseText);
     setPhraseType(phrase.phraseType);
     setCategory(phrase.category);

@@ -75,6 +75,11 @@ export default function ImportedTextReaderPage() {
     }
   }, [id]);
 
+  // Prefetch TTS for first 5 sentences so audio is instant
+  useEffect(() => {
+    allSentences.slice(0, 5).forEach(s => void fetchTimedTtsAudio(s.eng));
+  }, [id]);
+
   useEffect(() => {
     return () => {
       audioRef.current?.pause();

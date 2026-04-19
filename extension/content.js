@@ -2441,6 +2441,9 @@
     popup.style.display = "flex";
     if (!positionPopup(popup, rect)) return;
 
+    // Prefetch TTS audio for the word immediately so it's ready when the icon is tapped
+    prefetchTts(word);
+
     // Helpers
     const audioSvg = (size) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/></svg>`;
     function audioBtn(text, small = false) {
@@ -2687,7 +2690,11 @@
         aiData = result;
         aiLoading = false;
         aiError = result ? "" : "The AI provider did not answer after 45 seconds. Try again or choose another model in settings.";
-        if (result) setLimitedCache(state.wordAiCache, aiCacheKey, result);
+        if (result) {
+          setLimitedCache(state.wordAiCache, aiCacheKey, result);
+          // Prefetch TTS for all example sentences so they're ready instantly
+          (result.examples || []).forEach(ex => { if (ex.text) prefetchTts(ex.text); });
+        }
         renderPanels();
       });
     }
@@ -3409,6 +3416,21 @@
     return escapedHtml.replace(re, '<mark class="lw-word-highlight">$1</mark>');
   }
 
+  function prefetchTts(text) {
+    if (!text) return;
+    const key = text.trim();
+    if (state.ttsAudioCache.has(key)) return;
+    fetch("http://127.0.0.1:3001/api/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: key }),
+    }).then(r => r.ok ? r.json() : null).then(data => {
+      if (!data) return;
+      const audioSrc = data.audioUrl || (data.audioContent ? `data:audio/mpeg;base64,${data.audioContent}` : null);
+      if (audioSrc) setLimitedCache(state.ttsAudioCache, key, audioSrc, 120);
+    }).catch(() => {});
+  }
+
   async function pronounceSentence(text) {
     if (!text) return;
     const cacheKey = text.trim();
@@ -3417,12 +3439,12 @@
     try {
       const cachedAudio = state.ttsAudioCache.get(cacheKey);
       if (cachedAudio) {
-        await new Audio(`data:audio/mp3;base64,${cachedAudio}`).play();
+        await new Audio(cachedAudio).play();
         return true;
       }
 
       const controller = new AbortController();
-      const ttsTimeout = setTimeout(() => controller.abort(), 3000);
+      const ttsTimeout = setTimeout(() => controller.abort(), 10000);
       try {
         const res = await fetch("http://127.0.0.1:3001/api/tts", {
           method: "POST",
@@ -3432,9 +3454,10 @@
         });
         if (res.ok) {
           const data = await res.json();
-          if (data.audioContent) {
-            setLimitedCache(state.ttsAudioCache, cacheKey, data.audioContent, 120);
-            await new Audio(`data:audio/mp3;base64,${data.audioContent}`).play();
+          const audioSrc = data.audioUrl || (data.audioContent ? `data:audio/mpeg;base64,${data.audioContent}` : null);
+          if (audioSrc) {
+            setLimitedCache(state.ttsAudioCache, cacheKey, audioSrc, 120);
+            await new Audio(audioSrc).play();
             return true;
           }
         }
@@ -3443,12 +3466,6 @@
       }
     } catch (_e) {}
 
-    // Last resort: browser built-in speech synthesis
-    if (speakWithBrowser(text)) {
-      return true;
-    }
-
-    showToast("This audio file could not be played right now.");
     return false;
   }
 

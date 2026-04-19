@@ -30,3 +30,4 @@ server/data/world-stories.json
 *.njsproj
 *.sln
 *.sw?
+gcp-tts-key.json

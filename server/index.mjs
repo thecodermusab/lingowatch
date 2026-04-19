@@ -7,6 +7,74 @@ import * as YoutubeTranscriptModule from "youtube-transcript/dist/youtube-transc
 import { neon } from "@neondatabase/serverless";
 import { handlePodcastRoutes } from "./podcasts.mjs";
 import { handleImportedTextRoutes } from "./importedTexts.mjs";
+import { GoogleAuth } from "google-auth-library";
+import { PollyClient, SynthesizeSpeechCommand } from "@aws-sdk/client-polly";
+
+const GCP_KEY_PATH = join(cwd(), "server", "gcp-tts-key.json");
+const gcpAuth = existsSync(GCP_KEY_PATH)
+  ? new GoogleAuth({ keyFile: GCP_KEY_PATH, scopes: ["https://www.googleapis.com/auth/cloud-platform"] })
+  : null;
+
+async function getTtsAccessToken() {
+  if (!gcpAuth) return null;
+  try {
+    const client = await gcpAuth.getClient();
+    const token = await client.getAccessToken();
+    return token?.token ?? null;
+  } catch {
+    return null;
+  }
+}
+
+const pollyClient = (env.AWS_ACCESS_KEY_ID && env.AWS_SECRET_ACCESS_KEY)
+  ? new PollyClient({
+      region: env.AWS_REGION || "us-east-1",
+      credentials: {
+        accessKeyId: env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+      },
+    })
+  : null;
+
+async function synthesizeWithPolly(text, includeTimings = false) {
+  if (!pollyClient) return null;
+  try {
+    // Audio stream
+    const audioCmd = new SynthesizeSpeechCommand({
+      Text: text, VoiceId: "Joanna", Engine: "standard", OutputFormat: "mp3",
+    });
+    const audioRes = await pollyClient.send(audioCmd);
+    if (!audioRes.AudioStream) return null;
+    const chunks = [];
+    for await (const chunk of audioRes.AudioStream) chunks.push(chunk);
+    const audioContent = Buffer.concat(chunks).toString("base64");
+
+    if (!includeTimings) return { audioContent, wordTimings: [] };
+
+    // Speech marks for word-level timing
+    const { SynthesizeSpeechCommand: SSC } = await import("@aws-sdk/client-polly");
+    const marksCmd = new SSC({
+      Text: text, VoiceId: "Joanna", Engine: "standard",
+      OutputFormat: "json", SpeechMarkTypes: ["word"],
+    });
+    const marksRes = await pollyClient.send(marksCmd);
+    const marksChunks = [];
+    for await (const chunk of marksRes.AudioStream) marksChunks.push(chunk);
+    const marksText = Buffer.concat(marksChunks).toString("utf8");
+    const marks = marksText.trim().split("\n").map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+
+    const wordTimings = marks.map((m, i) => ({
+      index: i,
+      word: m.value,
+      startTime: m.time / 1000,
+      endTime: marks[i + 1] ? marks[i + 1].time / 1000 : m.time / 1000 + 0.4,
+    }));
+
+    return { audioContent, wordTimings };
+  } catch {
+    return null;
+  }
+}
 
 const PORT = Number(env.PORT || 3001);
 const HOST = env.HOST || "127.0.0.1";
@@ -442,8 +510,6 @@ createServer(async (req, res) => {
       const body = await readJsonBody(req);
       const text = String(body?.text || "").trim();
       if (!text) { sendJson(res, 400, { error: "text is required" }); return; }
-      const apiKey = env.GOOGLE_TTS_KEY || env.GOOGLE_CLOUD_TTS_KEY || env.VITE_GOOGLE_TTS_KEY;
-      if (!apiKey) { sendJson(res, 503, { error: "TTS not configured" }); return; }
       const voiceName = String(body?.voiceName || env.GOOGLE_TTS_VOICE || "en-US-Neural2-J");
       const languageCode = String(body?.languageCode || env.GOOGLE_TTS_LANGUAGE || "en-US");
       const speakingRate = Number(body?.speakingRate || env.GOOGLE_TTS_SPEAKING_RATE || 0.9);
@@ -459,43 +525,55 @@ createServer(async (req, res) => {
         return;
       }
 
-      const markedText = includeWordTimings ? buildTtsMarkedText(text) : null;
-      const ttsEndpointVersion = includeWordTimings ? "v1beta1" : "v1";
-      const ttsRes = await fetchWithTimeout(
-        `https://texttospeech.googleapis.com/${ttsEndpointVersion}/text:synthesize?key=${apiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            input: includeWordTimings && markedText ? { ssml: markedText.ssml } : { text },
-            voice: { languageCode, name: voiceName },
-            audioConfig: { audioEncoding: "MP3", speakingRate },
-            ...(includeWordTimings ? { enableTimePointing: ["SSML_MARK"] } : {}),
-          }),
-        },
-        TTS_REQUEST_TIMEOUT_MS
-      );
-      const data = await ttsRes.json();
-      if (ttsRes.ok && includeWordTimings && markedText) {
-        data.wordTimings = buildWordTimings(markedText.words, data.timepoints || []);
-      }
-      if (ttsRes.ok && typeof data?.audioContent === "string" && data.audioContent) {
-        const storedAudio = await storeTtsAudio({
-          cacheKey,
-          text,
-          audioContent: data.audioContent,
-          voiceName,
-          languageCode,
-          speakingRate,
-          includeWordTimings,
-          wordTimings: data.wordTimings || [],
-        });
-        if (storedAudio?.audioUrl) {
-          data.audioUrl = storedAudio.audioUrl;
-          data.cached = false;
+      // 1. Try AWS Polly first
+      let pollyResult = await synthesizeWithPolly(text, includeWordTimings);
+      let audioContent = pollyResult?.audioContent || null;
+      let wordTimings = pollyResult?.wordTimings || [];
+
+      // 2. Fall back to Google Cloud TTS
+      if (!audioContent) {
+        const accessToken = await getTtsAccessToken();
+        const apiKey = env.GOOGLE_TTS_KEY || env.GOOGLE_CLOUD_TTS_KEY || env.VITE_GOOGLE_TTS_KEY;
+        if (!accessToken && !apiKey) { sendJson(res, 503, { error: "TTS not configured" }); return; }
+
+        const markedText = includeWordTimings ? buildTtsMarkedText(text) : null;
+        const ttsEndpointVersion = includeWordTimings ? "v1beta1" : "v1";
+        const ttsUrl = accessToken
+          ? `https://texttospeech.googleapis.com/${ttsEndpointVersion}/text:synthesize`
+          : `https://texttospeech.googleapis.com/${ttsEndpointVersion}/text:synthesize?key=${apiKey}`;
+        const ttsRes = await fetchWithTimeout(
+          ttsUrl,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+            },
+            body: JSON.stringify({
+              input: includeWordTimings && markedText ? { ssml: markedText.ssml } : { text },
+              voice: { languageCode, name: voiceName },
+              audioConfig: { audioEncoding: "MP3", speakingRate },
+              ...(includeWordTimings ? { enableTimePointing: ["SSML_MARK"] } : {}),
+            }),
+          },
+          TTS_REQUEST_TIMEOUT_MS
+        );
+        if (!ttsRes.ok) { sendJson(res, 500, await ttsRes.json()); return; }
+        const googleData = await ttsRes.json();
+        if (includeWordTimings && markedText) {
+          wordTimings = buildWordTimings(markedText.words, googleData.timepoints || []);
         }
+        audioContent = googleData.audioContent || "";
       }
-      sendJson(res, ttsRes.ok ? 200 : 500, data);
+
+      if (!audioContent) { sendJson(res, 500, { error: "All TTS providers failed" }); return; }
+
+      const data = { audioContent, wordTimings };
+      const storedAudio = await storeTtsAudio({
+        cacheKey, text, audioContent, voiceName, languageCode, speakingRate, includeWordTimings, wordTimings,
+      });
+      if (storedAudio?.audioUrl) data.audioUrl = storedAudio.audioUrl;
+      sendJson(res, 200, data);
     } catch (err) { sendJson(res, 500, { error: String(err) }); }
     return;
   }

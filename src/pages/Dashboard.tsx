@@ -1,9 +1,11 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePhraseStore } from "@/hooks/usePhraseStore";
 import { BookMarked, BookOpen, Star, PlusCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { fetchTtsAudioContent } from "@/lib/tts";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
@@ -76,6 +78,10 @@ export default function DashboardPage() {
   const stats = getStats();
   const dueForReview = getDueForReview();
   const recentPhrases = [...phrases].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5);
+
+  useEffect(() => {
+    recentPhrases.forEach(p => void fetchTtsAudioContent(p.phraseText));
+  }, [recentPhrases.map(p => p.id).join(",")]);
 
   return (
     <div className="app-page">

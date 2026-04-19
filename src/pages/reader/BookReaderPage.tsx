@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ChevronLeft, Info, Play, Pause, BookMarked, X, Loader2 } from "lucide-react";
+import { ChevronLeft, Play, Pause, BookMarked, X, Loader2 } from "lucide-react";
 import { MOCK_READER_DICTIONARY } from "./mockReaderData";
 import { translateText } from "@/lib/googleTranslate";
 import { BOOK_ITEMS } from "../media/bookData";
@@ -80,6 +80,11 @@ export default function BookReaderPage() {
     } catch {
       setTranslatedRows({});
     }
+  }, [id]);
+
+  // Prefetch TTS for first 5 rows so audio is instant on first tap
+  useEffect(() => {
+    readerRows.slice(0, 5).forEach(row => void fetchTimedTtsAudio(row.source));
   }, [id]);
 
   const persistVocab = (bookId: string, data: Record<string, SavedEntry>) => {
@@ -277,7 +282,8 @@ export default function BookReaderPage() {
         setActiveTtsWordIndex(getActiveWordIndex(audio.currentTime, activeWordStartsRef.current));
       };
       audio.onended = () => {
-        setActiveTtsRowId(null);
+        // Don't clear activeTtsRowId during auto-play — toggleAutoPlay manages it
+        if (!isAutoPlayingRef.current) setActiveTtsRowId(null);
         setActiveTtsWordIndex(null);
         resolve();
       };
@@ -286,7 +292,7 @@ export default function BookReaderPage() {
         resolve();
       };
       audio.onerror = () => {
-        setActiveTtsRowId(null);
+        if (!isAutoPlayingRef.current) setActiveTtsRowId(null);
         setActiveTtsWordIndex(null);
         resolve();
       };
@@ -415,21 +421,10 @@ export default function BookReaderPage() {
             </Link>
 
             <div className="hidden items-center gap-1 text-white/50 md:flex">
-              <button className="p-1 hover:text-white transition-colors">
-                <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                  <path d="M4 4h2v16H4V4zm14 0L8 12l10 8V4z" />
-                </svg>
-              </button>
-              <button className="p-1 hover:text-white transition-colors">
-                <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                  <path d="M6 12l10-8v16L6 12zm12-8h2v16h-2V4z" />
-                </svg>
-              </button>
             </div>
 
             <div className="flex items-center gap-1.5 text-[14px]">
               <span className="text-white/90 truncate max-w-[250px]">{bookData.title}</span>
-              <Info className="h-3.5 w-3.5 text-white/40" />
             </div>
           </div>
 

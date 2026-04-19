@@ -15,7 +15,7 @@ const audioCache = new Map<string, string>();
 const timedAudioCache = new Map<string, TtsAudioResult>();
 const audioPromises = new Map<string, Promise<string | null>>();
 const timedAudioPromises = new Map<string, Promise<TtsAudioResult | null>>();
-const TTS_TIMEOUT_MS = 3500;
+const TTS_TIMEOUT_MS = 10000;
 
 function cacheKey(text: string) {
   return text.trim();
@@ -67,7 +67,17 @@ export async function fetchTtsAudioContent(text: string): Promise<string | null>
       const audioUrl = typeof data?.audioUrl === "string" ? data.audioUrl : "";
       if (!audioContent && !audioUrl) return null;
 
-      const source = audioUrl || `data:audio/mp3;base64,${audioContent}`;
+      if (audioContent) {
+        const source = `data:audio/mpeg;base64,${audioContent}`;
+        audioCache.set(key, source);
+        return source;
+      }
+
+      // Cached response — audioUrl only. Fetch as blob to avoid any CORS issues.
+      const blobRes = await fetch(audioUrl);
+      if (!blobRes.ok) return null;
+      const blob = await blobRes.blob();
+      const source = URL.createObjectURL(blob);
       audioCache.set(key, source);
       return source;
     } catch {
@@ -113,15 +123,26 @@ export async function fetchTimedTtsAudio(text: string): Promise<TtsAudioResult |
       const data = await response.json();
       const audioContent = typeof data?.audioContent === "string" ? data.audioContent : "";
       const audioUrl = typeof data?.audioUrl === "string" ? data.audioUrl : "";
+      const wordTimings = Array.isArray(data?.wordTimings) ? data.wordTimings : [];
       if (!audioContent && !audioUrl) return null;
+
+      // Prefer base64 data URL for reliable browser playback; for cached (audioUrl only), fetch as blob
+      let playableUrl: string;
+      if (audioContent) {
+        playableUrl = `data:audio/mpeg;base64,${audioContent}`;
+      } else {
+        const blobRes = await fetch(audioUrl);
+        if (!blobRes.ok) return null;
+        playableUrl = URL.createObjectURL(await blobRes.blob());
+      }
 
       const result: TtsAudioResult = {
         audioContent,
-        audioUrl: audioUrl || `data:audio/mp3;base64,${audioContent}`,
-        wordTimings: Array.isArray(data?.wordTimings) ? data.wordTimings : [],
+        audioUrl: playableUrl,
+        wordTimings,
       };
 
-      audioCache.set(key, result.audioUrl);
+      audioCache.set(key, playableUrl);
       timedAudioCache.set(key, result);
       return result;
     } catch {
@@ -136,15 +157,17 @@ export async function fetchTimedTtsAudio(text: string): Promise<TtsAudioResult |
   return promise;
 }
 
+let _activeTtsAudio: HTMLAudioElement | null = null;
+
 export async function speakText(text: string): Promise<void> {
   const key = cacheKey(text);
   if (!key) return;
 
   const dataUrl = await getTtsAudioDataUrl(key);
-  if (!dataUrl) {
-    await fallbackSpeak(key);
-    return;
-  }
+  if (!dataUrl) return;
 
-  await new Audio(dataUrl).play().catch(() => fallbackSpeak(key));
+  _activeTtsAudio?.pause();
+  const audio = new Audio(dataUrl);
+  _activeTtsAudio = audio;
+  await audio.play().catch(() => {});
 }

@@ -14,7 +14,6 @@ import {
   Film,
   Sun,
   Moon,
-  Inbox,
 } from "lucide-react";
 import { SelectionLearningOverlay } from "@/components/learning/SelectionLearningOverlay";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -26,7 +25,6 @@ const navGroups = [
       { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
       { to: "/random-phrases", label: "Random", icon: Shuffle },
       { to: "/add-phrase", label: "Add Phrase", icon: PlusCircle },
-      { to: "/inbox", label: "Inbox", icon: Inbox },
     ],
   },
   {
@@ -98,7 +96,6 @@ function SidebarLinks({ onNavigate }: { onNavigate?: () => void }) {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
-  const isMediaRoute = location.pathname.startsWith("/media");
   const [mobileOpen, setMobileOpen] = useState(false);
   const mainRef = useRef<HTMLElement | null>(null);
   const { isDark, toggleTheme } = useTheme();
@@ -127,12 +124,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       </header>
 
       <aside className="fixed inset-y-0 left-0 hidden w-[19.5rem] bg-background lg:block">
-        <div className={`h-full py-4 pl-4 ${isMediaRoute ? "pr-0" : "pr-5"}`}>
-          <div
-            className={`flex h-full flex-col overflow-hidden border border-sidebar-border/90 bg-sidebar/95 text-sidebar-foreground shadow-[0_30px_64px_rgba(0,0,0,0.34)] backdrop-blur-xl ${
-              isMediaRoute ? "rounded-l-none rounded-r-none" : "rounded-[1.75rem]"
-            }`}
-          >
+        <div className="h-full py-4 pl-4 pr-5">
+          <div className="flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-sidebar-border/90 bg-sidebar/95 text-sidebar-foreground shadow-[0_30px_64px_rgba(0,0,0,0.34)] backdrop-blur-xl">
             <div className="border-b border-sidebar-border/80 px-5 py-5">
               <Link to="/dashboard" className="flex items-center gap-2.5 rounded-2xl">
                 <img src="/Logo.png" alt="Lingowatch logo" width="72" height="72" className="h-14 w-14 shrink-0 object-contain" />
