@@ -1,3 +1,5 @@
+import { useMemo, useState } from "react";
+
 type BrandLogoProps = {
   className?: string;
   alt?: string;
@@ -5,17 +7,27 @@ type BrandLogoProps = {
   height?: number;
 };
 
+const LOGO_SRC = "/Logo.png";
+const LOGO_FALLBACK_SRC = "/logo-mark.svg";
+
 export function BrandLogo({ className, alt = "Lingowatch logo", width = 72, height = 72 }: BrandLogoProps) {
+  const [attempt, setAttempt] = useState(0);
+
+  const src = useMemo(() => {
+    if (attempt === 0) return LOGO_SRC;
+    if (attempt === 1) return `${LOGO_SRC}?reload=${Date.now()}`;
+    return LOGO_FALLBACK_SRC;
+  }, [attempt]);
+
   return (
     <img
-      src="/Logo.png"
+      src={src}
       alt={alt}
       width={width}
       height={height}
-      decoding="sync"
-      loading="eager"
+      decoding="async"
       className={className}
-      onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/logo-mark.svg"; }}
+      onError={() => setAttempt((current) => Math.min(current + 1, 2))}
     />
   );
 }
