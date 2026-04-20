@@ -281,15 +281,16 @@
   }
 
   function watchPageChanges() {
-    // Track the last video ID we initialized for — prevents resetSubtitleState
-    // being called multiple times when YouTube fires pushState/replaceState for
-    // minor URL updates (timestamps, playlist params, etc.) on the same video.
-    let _lastVideoId = "";
+    // _lastBoundVideoId: set only when bindVideo actually runs (used by interval).
+    // _lastResetVideoId: set by onUrlChange to prevent duplicate resets for the
+    //   same video when YouTube fires pushState/replaceState multiple times.
+    let _lastBoundVideoId = "";
+    let _lastResetVideoId = "";
 
     function onUrlChange() {
       const videoId = getCurrentVideoId();
-      if (!videoId || videoId === _lastVideoId) return;
-      _lastVideoId = videoId;
+      if (!videoId || videoId === _lastResetVideoId) return;
+      _lastResetVideoId = videoId;
       resetSubtitleState();
       clearTimeout(state.attachVideoTimer);
       state.attachVideoTimer = setTimeout(() => attemptAttachVideo(true), 800);
@@ -309,28 +310,27 @@
     window.addEventListener("popstate", () => onUrlChange());
 
     window.addEventListener("yt-navigate-start", () => {
-      _lastVideoId = "";        // force re-check on finish
+      _lastBoundVideoId = "";
+      _lastResetVideoId = "";
       resetSubtitleState();
     });
 
     window.addEventListener("yt-navigate-finish", () => {
       clearTimeout(state.attachVideoTimer);
-      // Don't set _lastVideoId here — let the interval do it when bindVideo runs.
-      // Setting it prematurely causes the interval to skip the new video.
       state.attachVideoTimer = setTimeout(() => attemptAttachVideo(true), 800);
     });
 
     // Reliable fallback: poll every second for a video that hasn't been bound.
-    // This catches new-tab → click-video where yt-navigate-finish fires before
-    // the player element exists, and same-element video swaps (YouTube reuses
-    // the <video> element when navigating between videos).
+    // Uses _lastBoundVideoId (only set when bindVideo actually runs) so it
+    // correctly detects cases where the video appeared after the navigation
+    // events fired and attemptAttachVideo found nothing.
     setInterval(() => {
       const video = findBestVideo();
       if (!video) return;
       const videoId = getCurrentVideoId();
       if (!videoId) return;
-      if (video !== state.currentVideo || videoId !== _lastVideoId) {
-        _lastVideoId = videoId;
+      if (video !== state.currentVideo || videoId !== _lastBoundVideoId) {
+        _lastBoundVideoId = videoId;
         clearTimeout(state.attachVideoTimer);
         bindVideo(video, true);
       }
