@@ -16,9 +16,8 @@ function BookCard({ book, index }: { book: BookItem; index: number }) {
               src={book.coverUrl}
               alt={book.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              loading={loadImmediately ? "eager" : "lazy"}
-              decoding="async"
-              fetchPriority={loadImmediately ? "high" : "auto"}
+              loading="eager"
+              decoding="sync"
             />
           ) : (
             <>
