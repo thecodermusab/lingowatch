@@ -87,7 +87,15 @@ export default function LandingPage() {
 
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+
+    // Set body background to fix overscroll white flash
+    const originalBg = document.body.style.backgroundColor;
+    document.body.style.backgroundColor = '#1B202A';
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      document.body.style.backgroundColor = originalBg;
+    };
   }, []);
 
   useEffect(() => {
@@ -158,7 +166,7 @@ export default function LandingPage() {
       }}>
         <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '180px', background: 'linear-gradient(to bottom, transparent, #1B202A)', pointerEvents: 'none', zIndex: 2 }} />
 
-        <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', paddingTop: '170px' }}>
+        <div className="lw-hero-container" style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
           <h1 className="lw-headline lw-headline-el" style={{ fontFamily: "'Lora', serif", fontWeight: 400, fontSize: '64px', lineHeight: '70px', color: '#fff', marginBottom: '20px', letterSpacing: '-0.5px', opacity: 0 }}>
             Learn While You Watch
           </h1>
@@ -255,7 +263,7 @@ export default function LandingPage() {
       </section>
 
       {/* ===== CTA SECTION ===== */}
-      <section className="lw-fade-in" style={{ position: 'relative', width: '100vw', height: '480px', overflow: 'hidden', backgroundColor: 'transparent', display: 'flex', alignItems: 'center' }}>
+      <section className="lw-fade-in lw-cta-section" style={{ position: 'relative', width: '100vw', height: '480px', overflow: 'hidden', backgroundColor: 'transparent', display: 'flex', alignItems: 'center' }}>
         <img
           src="/CTA.png"
           alt="Start learning instantly"

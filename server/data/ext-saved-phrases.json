@@ -1,5 +1,349 @@
 [
   {
+    "id": "4263405b-820b-4b97-8e81-df69293ab6a1",
+    "userEmail": "maahir.engineer@gmail.com",
+    "phraseText": "bell",
+    "phraseType": "word",
+    "category": "YouTube",
+    "notes": "",
+    "isFavorite": false,
+    "isLearned": false,
+    "tags": [
+      "youtube"
+    ],
+    "difficultyLevel": "intermediate",
+    "createdAt": "2026-04-20T07:18:11.949Z",
+    "updatedAt": "2026-04-20T07:18:46.258Z",
+    "explanation": {
+      "id": "5affeea7-07de-4083-8c61-4ee78b0395b5",
+      "phraseId": "4263405b-820b-4b97-8e81-df69293ab6a1",
+      "standardMeaning": "A hollow metal object, typically cup-shaped, that makes a ringing sound when struck or shaken.",
+      "easyMeaning": "A thing that rings or dings when you hit it or shake it.",
+      "aiExplanation": "A bell is a common object that makes a sound. You often see bells on doors, in schools, or in churches. People ring a bell to get attention or to signal that something is starting or ending.",
+      "usageContext": "The word 'bell' is used in everyday, neutral contexts. It is commonly used to describe the object itself, the sound it makes, or as part of common phrases like 'ring a bell' (to sound familiar). You might use it when talking about a doorbell, a school bell, or a bell on a bicycle.",
+      "somaliMeaning": "dawacad",
+      "partOfSpeech": "noun",
+      "somaliExplanation": "'Bell' waa dawacad. Waxaa loo isticmaalaa in lagu sheego qalab sida dawacadda albaabka ama dawacadda iskuulka. Codkeedu waa 'ding-dong' ama 'ring-ring'. Ereygan waa magac (noun).",
+      "somaliSentence": "Dawacadda baaskiilka ayaa jiritaanka gaariga u sheegaysa.",
+      "somaliSentenceTranslation": "The bell on the bicycle alerts cars to its presence.",
+      "usageNote": "Ereyga 'bell' waa erey caadi ah oo loo isticmaalo maalin kasta.",
+      "contextNote": "This is a very common, concrete noun. You'll hear it a lot when talking about time signals, alarms, or notifications. Remember, it's the object that makes the ringing sound.",
+      "commonMistake": "Some learners might confuse 'bell' with 'alarm' or 'clock'. A bell is specifically the physical object that rings. For example, don't say 'The phone bell is ringing' for a modern mobile phone; say 'The phone is ringing' or 'My alarm is going off'.",
+      "pronunciationText": "BEL",
+      "relatedPhrases": [
+        "ring",
+        "chime",
+        "doorbell"
+      ],
+      "aiProvider": "deepseek",
+      "aiProviderLabel": "DeepSeek V3.2",
+      "aiModel": "deepseek-chat"
+    },
+    "examples": [
+      {
+        "id": "5437ef42-28ec-4cf6-961d-55c67eb3b7af",
+        "phraseId": "4263405b-820b-4b97-8e81-df69293ab6a1",
+        "exampleText": "The school bell rings at 3 PM.",
+        "exampleType": "simple",
+        "translationText": "Dawacaddu waxay garaacdaa 3 PM."
+      },
+      {
+        "id": "a88cd738-3204-4122-a329-566f0c8e420c",
+        "phraseId": "4263405b-820b-4b97-8e81-df69293ab6a1",
+        "exampleText": "Please ring the bell if you need service.",
+        "exampleType": "daily",
+        "translationText": "Fadlan garaac dawacadda haddii aad u baahan tahay adeeg."
+      },
+      {
+        "id": "762aa093-d4e9-4ea1-93a9-5499ba66fd2c",
+        "phraseId": "4263405b-820b-4b97-8e81-df69293ab6a1",
+        "exampleText": "The meeting will start when the bell sounds.",
+        "exampleType": "work",
+        "translationText": "Shirku wuxuu bilaaban doonaa marka dawacaddu dhaco."
+      },
+      {
+        "id": "8abd43b0-2e33-4154-957a-811fbc5a9ae3",
+        "phraseId": "4263405b-820b-4b97-8e81-df69293ab6a1",
+        "exampleText": "The sound of church bells filled the quiet morning.",
+        "exampleType": "extra",
+        "translationText": "Codka dawacadaha kaniisaddu waxay buuxiyeen subaxda aamusnaa."
+      },
+      {
+        "id": "b8f826b2-db84-4597-87ad-054b7f08a03b",
+        "phraseId": "4263405b-820b-4b97-8e81-df69293ab6a1",
+        "exampleText": "Dawacadda albaabka ayaan garaacay.",
+        "exampleType": "somali",
+        "translationText": "I rang the doorbell."
+      }
+    ],
+    "review": {
+      "id": "0f856f55-1cbd-4536-aa2a-5d3ef4fe1b9e",
+      "phraseId": "4263405b-820b-4b97-8e81-df69293ab6a1",
+      "reviewCount": 0,
+      "nextReviewAt": "2026-04-20T07:18:11.949Z",
+      "confidenceScore": 0
+    }
+  },
+  {
+    "id": "440470a1-2212-492e-8ee2-6c1f628b30b4",
+    "userEmail": "maahir.engineer@gmail.com",
+    "phraseText": "validate",
+    "phraseType": "word",
+    "category": "YouTube",
+    "notes": "",
+    "isFavorite": false,
+    "isLearned": false,
+    "tags": [
+      "youtube"
+    ],
+    "difficultyLevel": "intermediate",
+    "createdAt": "2026-04-20T07:03:14.175Z",
+    "updatedAt": "2026-04-20T07:03:51.447Z",
+    "explanation": {
+      "id": "5b7350a4-2488-49e9-beeb-9a04bef0f128",
+      "phraseId": "440470a1-2212-492e-8ee2-6c1f628b30b4",
+      "standardMeaning": "To check or prove that something is true, correct, or acceptable according to established standards or rules.",
+      "easyMeaning": "To make sure something is right or real.",
+      "aiExplanation": "When you validate something, you are confirming that it is correct or legitimate. For example, a teacher validates your answer by checking it against the answer key. A computer system might validate your password to make sure it matches the one on file. It's about giving official approval or proof that something meets the required conditions.",
+      "usageContext": "This word is commonly used in formal, technical, or official situations. You might hear it in workplaces, schools, or when dealing with computer systems. For instance, a manager might validate an employee's report, or a website might validate your email address by sending a confirmation link. The tone is neutral to formal.",
+      "somaliMeaning": "xaqiijin",
+      "partOfSpeech": "verb",
+      "somaliExplanation": "'Validate' waxaa loola jeedaa inaad xaqiijiso ama caddayso in wax run ama sax yahay. Waxaa lagu isticmaalaa marka la rabo in la ogaado in shuruudaha la fuliyay. Tusaale ahaan, markaad diiwaan geliso website, waxay kuu soo dirayaan email si aad xaqiijiso in email-kaaga sax yahay. Ereygani waa ficil (verb).",
+      "somaliSentence": "Maamuluhu wuxuu xaqiijinayaa in warbixintu sax tahay.",
+      "somaliSentenceTranslation": "The manager will validate that the report is correct.",
+      "usageNote": "Ereygani waxaa inta badan lagu isticmaalaa qoraal ama hadal rasmi ah.",
+      "contextNote": "Think of 'validate' as the official stamp of approval. It's not just checking casually; it's about confirming something meets specific rules or standards. You'll often use it when talking about tickets, passwords, information, or feelings.",
+      "commonMistake": "A common mistake is confusing 'validate' with 'verify'. While similar, 'verify' is more about checking if facts are true, and 'validate' is about confirming something is acceptable or meets standards. Another error is using it in very casual conversation where 'check' or 'confirm' would sound more natural. For example, say 'Let me check the time' not 'Let me validate the time'.",
+      "pronunciationText": "VAL-ih-dayt",
+      "relatedPhrases": [
+        "confirm",
+        "verify",
+        "authenticate"
+      ],
+      "aiProvider": "deepseek",
+      "aiProviderLabel": "DeepSeek V3.2",
+      "aiModel": "deepseek-chat"
+    },
+    "examples": [
+      {
+        "id": "5e92b789-779e-452b-b0c1-b783d64c8358",
+        "phraseId": "440470a1-2212-492e-8ee2-6c1f628b30b4",
+        "exampleText": "Please validate your ticket before boarding the train.",
+        "exampleType": "simple",
+        "translationText": "Fadlan ticket-kaaga xaqiiji ka hor intaadan buugsiin."
+      },
+      {
+        "id": "45eae1e8-d9be-4756-ac62-13a164ecbab7",
+        "phraseId": "440470a1-2212-492e-8ee2-6c1f628b30b4",
+        "exampleText": "The software will validate the data you enter.",
+        "exampleType": "work",
+        "translationText": "Software-ku waxa uu xaqiijin doonaa xogta aad geliso."
+      },
+      {
+        "id": "702cbe27-83b1-49c7-9183-96e52c21ab95",
+        "phraseId": "440470a1-2212-492e-8ee2-6c1f628b30b4",
+        "exampleText": "I need to validate my parking ticket at the front desk.",
+        "exampleType": "daily",
+        "translationText": "Waxaan u baahanahay inaan ticket-ka garaashka aan xaqiijiyo qeybta hore."
+      },
+      {
+        "id": "b3f223c6-91e4-4905-b109-b7e4bba5f938",
+        "phraseId": "440470a1-2212-492e-8ee2-6c1f628b30b4",
+        "exampleText": "Waxaan u baahanahay inaan xaqiijiyo in email-kaaga sax yahay.",
+        "exampleType": "somali",
+        "translationText": "I need to validate that your email is correct."
+      }
+    ],
+    "review": {
+      "id": "01eba9b8-f7d1-4de3-934b-51c824df572b",
+      "phraseId": "440470a1-2212-492e-8ee2-6c1f628b30b4",
+      "reviewCount": 0,
+      "nextReviewAt": "2026-04-20T07:03:14.175Z",
+      "confidenceScore": 0
+    }
+  },
+  {
+    "id": "06b34919-9bff-47ad-992f-f47030c7b661",
+    "userEmail": "maahir.engineer@gmail.com",
+    "phraseText": "intimidating",
+    "phraseType": "word",
+    "category": "YouTube",
+    "notes": "",
+    "isFavorite": false,
+    "isLearned": false,
+    "tags": [
+      "youtube"
+    ],
+    "difficultyLevel": "intermediate",
+    "createdAt": "2026-04-20T06:51:04.882Z",
+    "updatedAt": "2026-04-20T06:51:04.882Z",
+    "explanation": null,
+    "examples": [],
+    "review": {
+      "id": "625a5040-9203-494c-b363-362817ce6191",
+      "phraseId": "06b34919-9bff-47ad-992f-f47030c7b661",
+      "reviewCount": 0,
+      "nextReviewAt": "2026-04-20T06:51:04.882Z",
+      "confidenceScore": 0
+    }
+  },
+  {
+    "id": "62517f7d-5653-4d6e-8bb3-4e93047361e9",
+    "userEmail": "maahir.engineer@gmail.com",
+    "phraseText": "subtract",
+    "phraseType": "word",
+    "category": "YouTube",
+    "notes": "",
+    "isFavorite": false,
+    "isLearned": false,
+    "tags": [
+      "youtube"
+    ],
+    "difficultyLevel": "intermediate",
+    "createdAt": "2026-04-20T06:30:12.306Z",
+    "updatedAt": "2026-04-20T06:30:46.435Z",
+    "explanation": {
+      "id": "32ed0734-1fbc-4712-b480-bc2fc0e52760",
+      "phraseId": "62517f7d-5653-4d6e-8bb3-4e93047361e9",
+      "standardMeaning": "To take one number or quantity away from another; to perform the mathematical operation of subtraction.",
+      "easyMeaning": "It means to take something away from a number to make it smaller.",
+      "aiExplanation": "Subtract is a math word. It's the opposite of adding. When you subtract, you find the difference between two numbers. For example, if you have 10 apples and you subtract 3, you have 7 apples left.",
+      "usageContext": "This word is most commonly used in mathematical, financial, or quantitative contexts. It has a neutral, factual tone. You would use it when doing calculations, checking a bill, or measuring how much of something is left after some is taken away.",
+      "somaliMeaning": "ka jarid",
+      "partOfSpeech": "verb",
+      "somaliExplanation": "'Subtract' waa erey xisaabeed oo macnaheedu yahay 'ka jarid'. Waxaad isticmaashaa markaad rabto inaad tiro ka dhigtid tiro kale oo aad u heshid waxa soo hadhay. Tusaale ahaan, haddii aad leedahay 8 oo aad ka jartid 3, waxaad helaysaa 5.",
+      "somaliSentence": "Macaamilka xisaabta, marka hore waxaad u baahan tahay inaad ka jartid kharashyada.",
+      "somaliSentenceTranslation": "In business math, you first need to subtract the expenses.",
+      "usageNote": "Waa erey caadi ah oo loo isticmaalo xisaabta iyo ganacsiga.",
+      "contextNote": "Remember, 'subtract' is specifically for numbers and quantities. It's different from 'remove' or 'take away' in everyday talk, which are more general. In math class or when doing a budget, 'subtract' is the perfect word to use.",
+      "commonMistake": "A common mistake is confusing 'subtract' with 'extract' or using 'minus' as a verb incorrectly. For example, saying \"I will minus the cost\" sounds unnatural. Instead, you should say \"I will subtract the cost\" or use 'minus' as a preposition: \"Ten minus five is five.\"",
+      "pronunciationText": "suhb-TRAKT",
+      "relatedPhrases": [
+        "minus",
+        "deduct",
+        "take away"
+      ],
+      "aiProvider": "deepseek",
+      "aiProviderLabel": "DeepSeek V3.2",
+      "aiModel": "deepseek-chat"
+    },
+    "examples": [
+      {
+        "id": "178c51d4-0889-4c5c-8d18-23a5ba10d89b",
+        "phraseId": "62517f7d-5653-4d6e-8bb3-4e93047361e9",
+        "exampleText": "Subtract five from ten.",
+        "exampleType": "simple",
+        "translationText": "Laga jar shan tobanka."
+      },
+      {
+        "id": "227908e1-6dfa-416c-88fc-0bc87256aff1",
+        "phraseId": "62517f7d-5653-4d6e-8bb3-4e93047361e9",
+        "exampleText": "Don't forget to subtract the discount from the total price.",
+        "exampleType": "daily",
+        "translationText": "Ha iloobin inaad laga jartid qiimaha dhimista qiimaha guud."
+      },
+      {
+        "id": "5521cb78-77f8-4558-b829-b571f4623a11",
+        "phraseId": "62517f7d-5653-4d6e-8bb3-4e93047361e9",
+        "exampleText": "We need to subtract the expenses to see the net profit.",
+        "exampleType": "work",
+        "translationText": "Waxaan u baahanahay inaan laga jarno kharashyada si aan u aragno faa'iidada safka ah."
+      },
+      {
+        "id": "33790156-0082-4eb6-9e1b-720f26416998",
+        "phraseId": "62517f7d-5653-4d6e-8bb3-4e93047361e9",
+        "exampleText": "Waxaan ka jarayaa labo qof oo ka mid ah kooxda.",
+        "exampleType": "somali",
+        "translationText": "I am subtracting two people from the team."
+      }
+    ],
+    "review": {
+      "id": "63d973fb-36ba-4ac6-aa56-b461c287728c",
+      "phraseId": "62517f7d-5653-4d6e-8bb3-4e93047361e9",
+      "reviewCount": 0,
+      "nextReviewAt": "2026-04-20T06:30:12.306Z",
+      "confidenceScore": 0
+    }
+  },
+  {
+    "id": "ddc3c01d-b229-4a45-925c-041cc5b5eba9",
+    "userEmail": "local@phrasepal.app",
+    "phraseText": "concepts",
+    "phraseType": "word",
+    "category": "YouTube",
+    "notes": "",
+    "isFavorite": false,
+    "isLearned": false,
+    "tags": [
+      "youtube"
+    ],
+    "difficultyLevel": "intermediate",
+    "createdAt": "2026-04-20T05:55:41.161Z",
+    "updatedAt": "2026-04-20T05:56:20.559Z",
+    "explanation": {
+      "id": "e8bd45d7-c880-4943-8e3a-35997d130556",
+      "phraseId": "ddc3c01d-b229-4a45-925c-041cc5b5eba9",
+      "standardMeaning": "An abstract idea or general notion that represents something in the mind.",
+      "easyMeaning": "A big idea or thought in your head about how something works or what it is.",
+      "aiExplanation": "A concept is like a mental building block. It's not a physical thing you can touch, but an idea you understand. For example, 'love,' 'time,' and 'justice' are all concepts. We use concepts to organize our thoughts and talk about complicated things in a simpler way.",
+      "usageContext": "This word is commonly used in academic, professional, and thoughtful discussions. It has a formal tone and is often used when explaining theories, plans, or abstract topics. You would naturally use it in a classroom, a business meeting, or when having a deep conversation about ideas.",
+      "somaliMeaning": "fikrad, mabda'",
+      "partOfSpeech": "noun",
+      "somaliExplanation": "'Concepts' waa erey Ingiriis ah oo macnaheedu yahay fikrad ama mabda'. Waxaa loo isticmaalaa marka la ka hadlayo aragtiyo ama fikrado guud oo aan la taaban karin. Tusaale ahaan, 'concept of freedom' waa fikradda xorriyadda. Ereygan inta badan wuxuu ka mid yahay erayada la isticmaalo waxbarasho iyo shaqo.",
+      "somaliSentence": "Ardaydu waxay barteen mabda'iyada aasaasiga ah ee fiisigiska.",
+      "somaliSentenceTranslation": "The students learned the basic concepts of physics.",
+      "usageNote": "Ereygan wuxuu leeyahay heer rasmi ah oo badan.",
+      "contextNote": "Remember, 'concepts' is the plural form. The singular is 'concept'. You use this word when talking about ideas, especially in school or work. It sounds more formal than just saying 'ideas'.",
+      "commonMistake": "A common mistake is confusing 'concept' with 'idea'. While similar, 'concept' is often a more formal, structured, or fundamental idea, especially in academic or technical contexts. Saying 'I have a concept for what to eat' sounds unnatural. Instead, say 'I have an idea for what to eat' for everyday plans. Use 'concept' for bigger, more abstract thoughts like 'the concept of democracy'.",
+      "pronunciationText": "KON-septs",
+      "relatedPhrases": [
+        "idea",
+        "notion",
+        "principle"
+      ],
+      "aiProvider": "deepseek",
+      "aiProviderLabel": "DeepSeek V3.2",
+      "aiModel": "deepseek-chat"
+    },
+    "examples": [
+      {
+        "id": "f66dbf0f-7a56-4983-8044-0642cb1c20c2",
+        "phraseId": "ddc3c01d-b229-4a45-925c-041cc5b5eba9",
+        "exampleText": "The basic concepts of math include addition and subtraction.",
+        "exampleType": "simple",
+        "translationText": "Mabda'iyada aasaasiga ah ee xisaabta waxaa ka mid ah isku-darka iyo ka-jarida."
+      },
+      {
+        "id": "bda90968-ff5c-4223-ba67-d7c794fb03db",
+        "phraseId": "ddc3c01d-b229-4a45-925c-041cc5b5eba9",
+        "exampleText": "I love the concept of that new restaurant—you cook your own food at the table.",
+        "exampleType": "daily",
+        "translationText": "Waxaan jeclahay fikradda maqaayadda cusub—aad ayaad miiska ku kari kartaa cuntadaada."
+      },
+      {
+        "id": "e12af0f4-d967-42bc-bca0-8359dc67b6f0",
+        "phraseId": "ddc3c01d-b229-4a45-925c-041cc5b5eba9",
+        "exampleText": "We need to present the core concepts of our marketing plan to the team.",
+        "exampleType": "work",
+        "translationText": "Waxaan u baahanahay inaan u soo bandhigno mabda'iyada aasaasiga ah ee qorsheena suuq-geynta kooxda."
+      },
+      {
+        "id": "de6e3790-3bf0-4e85-be05-07a7a2735655",
+        "phraseId": "ddc3c01d-b229-4a45-925c-041cc5b5eba9",
+        "exampleText": "Fikradda horumarinta waddanku waa mid aad u muhiim ah.",
+        "exampleType": "somali",
+        "translationText": "The concept of the country's development is very important."
+      }
+    ],
+    "review": {
+      "id": "c170d31b-5e88-40a4-b1ca-947545edfbf1",
+      "phraseId": "ddc3c01d-b229-4a45-925c-041cc5b5eba9",
+      "reviewCount": 0,
+      "nextReviewAt": "2026-04-20T05:55:41.161Z",
+      "confidenceScore": 0
+    }
+  },
+  {
     "id": "297deec0-1edc-406b-9eca-0963f2de37d0",
     "phraseText": "population",
     "phraseType": "word",

@@ -32,6 +32,9 @@ export default function LoginPage() {
   const [googleError, setGoogleError] = useState('');
 
   useEffect(() => {
+    const originalBg = document.body.style.backgroundColor;
+    document.body.style.backgroundColor = '#1B202A';
+
     const scriptId = 'google-gsi';
     if (!document.getElementById(scriptId)) {
       const script = document.createElement('script');
@@ -44,6 +47,10 @@ export default function LoginPage() {
     } else {
       initGoogle();
     }
+
+    return () => {
+      document.body.style.backgroundColor = originalBg;
+    };
   }, []);
 
   function initGoogle() {
@@ -91,11 +98,13 @@ export default function LoginPage() {
   });
 
   return (
-    <div style={{ width: '100vw', height: '100vh', backgroundColor: '#1B202A', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', paddingLeft: '80px', fontFamily: "'DM Sans', sans-serif", overflow: 'hidden' }}>
-      <div style={{ background: '#f5f5f5', width: '510px', minHeight: '590px', borderRadius: 0, padding: '40px 60px', boxShadow: '0 8px 40px rgba(0,0,0,0.3)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+    <div className="flex h-screen w-screen items-center justify-center overflow-hidden bg-[#1B202A] font-['DM_Sans',sans-serif] lg:justify-start lg:pl-[80px]">
+      <div className="flex min-h-[590px] w-[90%] max-w-[510px] flex-col justify-center bg-[#f5f5f5] px-6 py-10 shadow-[0_8px_40px_rgba(0,0,0,0.3)] sm:px-[60px] md:w-full">
         <form onSubmit={handleSubmit} noValidate>
 
-          <img src="/Logo.png" alt="LingoWatch" style={{ height: '60px', width: '60px', objectFit: 'contain', marginBottom: '24px' }} />
+          <Link to="/">
+            <img src="/Logo.png" alt="LingoWatch" style={{ height: '60px', width: '60px', objectFit: 'contain', marginBottom: '24px' }} />
+          </Link>
 
           <h1 style={{ fontWeight: 500, fontSize: '22px', color: '#0f0f0f', marginBottom: '6px' }}>Welcome back</h1>
           <p style={{ fontWeight: 400, fontSize: '14px', color: '#888', marginBottom: '24px' }}>Log in to continue to LingoWatch</p>

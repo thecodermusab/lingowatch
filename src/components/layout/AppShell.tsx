@@ -69,18 +69,16 @@ function SidebarLinks({ onNavigate }: { onNavigate?: () => void }) {
                   key={item.to}
                   to={item.to}
                   onClick={onNavigate}
-                  className={`group flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-medium transition-all ${
-                    active
+                  className={`group flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-medium transition-all ${active
                       ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_14px_34px_rgba(0,0,0,0.26)]"
                       : "text-sidebar-foreground/72 hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
-                  }`}
+                    }`}
                 >
                   <span
-                    className={`flex h-9 w-9 items-center justify-center rounded-xl transition-colors ${
-                      active
+                    className={`flex h-9 w-9 items-center justify-center rounded-xl transition-colors ${active
                         ? "bg-primary/20 text-primary"
                         : "bg-white/[0.06] text-sidebar-foreground/74 group-hover:bg-white/[0.11] group-hover:text-sidebar-foreground"
-                    }`}
+                      }`}
                   >
                     <item.icon className="h-4 w-4" />
                   </span>
