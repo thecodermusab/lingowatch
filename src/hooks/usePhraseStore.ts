@@ -221,15 +221,22 @@ export function usePhraseStore() {
   const { user } = useAuth();
   const userEmail = normalizeOwnerEmail(user?.email);
   const [phrases, setPhrases] = useState<Phrase[]>(() => {
-    return [];
+    // Load from localStorage immediately so the first render never shows an empty state.
+    try {
+      const stored = localStorage.getItem("lingowatch_user");
+      if (!stored) return [];
+      const u = JSON.parse(stored) as { email?: string };
+      const email = normalizeOwnerEmail(u?.email);
+      if (!email) return [];
+      return loadPhrases(email);
+    } catch {
+      return [];
+    }
   });
   const [isLoading, setIsLoading] = useState(false);
 
   const syncExternalPhrases = useCallback(async () => {
-    if (!userEmail) {
-      setPhrases([]);
-      return;
-    }
+    if (!userEmail) return;
 
     const userParam = `userEmail=${encodeURIComponent(userEmail)}`;
     const [neonWords, extPhrases] = await Promise.all([
@@ -292,7 +299,6 @@ export function usePhraseStore() {
 
   useEffect(() => {
     if (!userEmail) {
-      setPhrases([]);
       setIsLoading(false);
       return;
     }

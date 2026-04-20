@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { usePhraseStore } from "@/hooks/usePhraseStore";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,14 @@ export default function LibraryPage() {
   const { toast } = useToast();
   const userEmail = normalizeOwnerEmail(user?.email);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => setDebouncedSearch(search), 150);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [search]);
   const [makingStory, setMakingStory] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState<"all" | PhraseType>("all");
@@ -41,8 +49,8 @@ export default function LibraryPage() {
   const filtered = useMemo(() => {
     let result = [...phrases];
 
-    if (search) {
-      const q = search.toLowerCase();
+    if (debouncedSearch) {
+      const q = debouncedSearch.toLowerCase();
       result = result.filter(
         (p) =>
           p.phraseText.toLowerCase().includes(q) ||
@@ -75,7 +83,7 @@ export default function LibraryPage() {
     });
 
     return result;
-  }, [phrases, search, categoryFilter, typeFilter, statusFilter, sortBy]);
+  }, [phrases, debouncedSearch, categoryFilter, typeFilter, statusFilter, sortBy]);
 
   const allVisibleSelected = filtered.length > 0 && filtered.every((phrase) => selectedIds.includes(phrase.id));
   const selectedCount = selectedIds.length;
@@ -243,15 +251,17 @@ export default function LibraryPage() {
           </div>
 
           {filtered.length === 0 ? (
-            <div className="p-10 text-center">
-              <BookOpen className="mx-auto h-10 w-10 text-muted-foreground" />
-              <h3 className="mt-3 font-semibold text-foreground">
-                {phrases.length === 0 ? "No phrases yet" : "No phrases match your filters"}
-              </h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {phrases.length === 0 ? "Add your first phrase to get started." : "Try adjusting your filters."}
-              </p>
-            </div>
+            debouncedSearch ? null : (
+              <div className="p-10 text-center">
+                <BookOpen className="mx-auto h-10 w-10 text-muted-foreground" />
+                <h3 className="mt-3 font-semibold text-foreground">
+                  {phrases.length === 0 ? "No phrases yet" : "No phrases match your filters"}
+                </h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {phrases.length === 0 ? "Add your first phrase to get started." : "Try adjusting your filters."}
+                </p>
+              </div>
+            )
           ) : (
             <div>
               <div className="workspace-table-head hidden lg:grid lg:grid-cols-[40px_minmax(0,1.5fr)_140px_120px_140px]">

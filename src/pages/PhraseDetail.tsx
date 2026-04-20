@@ -117,6 +117,9 @@ export default function PhraseDetailPage() {
   }, [phrase?.id, phrase?.phraseType, phrase?.difficultyLevel, phrase?.review?.difficultyRating]);
 
   if (!phrase) {
+    // Show nothing while phrases are still loading from the store.
+    // Only show "not found" if we have phrases loaded but this ID isn't among them.
+    if (phrases.length === 0) return null;
     return (
       <div className="app-page max-w-4xl py-16 text-center">
         <BookOpen className="mx-auto h-12 w-12 text-muted-foreground" />
