@@ -12,7 +12,7 @@
   window.__lingoWatchLoaded = true;
   console.log("LingoWatch loaded");
 
-  const BACKEND_BASE_URL = "http://127.0.0.1:8000";
+  const APP_API_BASE_URL = "http://127.0.0.1:3001";
   const YOUTUBE_HOST_PATTERN = /(^|\.)youtube\.com$/i;
   const POPUP_AI_TIMEOUT_MS = 45000;
   const POPUP_SOMALI_TIMEOUT_MS = 30000;
@@ -38,6 +38,7 @@
     subtitleSource: "",
     subtitleSessionId: 0,
     ignoreLiveCaptionUntil: 0,
+    liveCaptionLastText: "",
     translationCache: Object.create(null),
     frequencyData: {},
     ignoredWords: new Set(),
@@ -52,6 +53,7 @@
     noSubtitleTimer: null,
     wordInputTimer: null,
     attachVideoTimer: null,
+    subtitleLoadController: null,
     videoSyncCleanup: null,
     sidebarLayoutCleanup: null,
     trackObserverCleanup: null,
@@ -64,6 +66,45 @@
     playerUiHost: null,
     elements: {}
   };
+
+  function normalizeOwnerEmail(value) {
+    return String(value || "").trim().toLowerCase();
+  }
+
+  let _sessionCache = null;
+
+  async function getAccountSession() {
+    const response = await safeRuntimeSendMessageAsync({ type: "GET_IMPORT_SESSION" });
+    const session = response?.session || null;
+    const email = normalizeOwnerEmail(session?.user?.email || session?.email);
+    if (!session?.apiBaseUrl || !email) {
+      _sessionCache = null;
+      return null;
+    }
+
+    const resolved = {
+      ...session,
+      userEmail: email,
+      apiBaseUrl: String(session.apiBaseUrl || APP_API_BASE_URL).replace(/\/$/, ""),
+      appBaseUrl: String(session.appBaseUrl || "http://127.0.0.1:8080").replace(/\/$/, ""),
+    };
+    _sessionCache = resolved;
+    return resolved;
+  }
+
+  function renderSavedSignInState() {
+    if (!state.elements.savedList) return;
+    state.elements.savedList.innerHTML = `
+      <div class="lw-saved-auth-empty">
+        <div class="lw-saved-auth-card">
+          <div class="lw-saved-auth-kicker">Saved words</div>
+          <div class="lw-saved-auth-title">Sign in to save words</div>
+          <p class="lw-saved-auth-copy">Your vocabulary is private to your Lingowatch account.</p>
+          <button type="button" class="lw-saved-auth-button" data-action="open-login">Sign in</button>
+        </div>
+      </div>
+    `;
+  }
 
   const groupLabels = [
     "Rank 1-1000",
@@ -230,49 +271,54 @@
     });
   }
 
-  function watchPageChanges() {
-    const observer = new MutationObserver(() => {
-      clearTimeout(state.attachVideoTimer);
-      state.attachVideoTimer = setTimeout(() => {
-        attemptAttachVideo();
-      }, 150);
-    });
+  // Returns the "v" param from the current URL (empty string on non-watch pages)
+  function getCurrentVideoId() {
+    try {
+      return new URLSearchParams(window.location.search).get("v") || "";
+    } catch (_e) {
+      return "";
+    }
+  }
 
-    observer.observe(document.documentElement, {
-      childList: true,
-      subtree: true
-    });
+  function watchPageChanges() {
+    // Track the last video ID we initialized for — prevents resetSubtitleState
+    // being called multiple times when YouTube fires pushState/replaceState for
+    // minor URL updates (timestamps, playlist params, etc.) on the same video.
+    let _lastVideoId = "";
+
+    function onUrlChange() {
+      const videoId = getCurrentVideoId();
+      if (!videoId || videoId === _lastVideoId) return;
+      _lastVideoId = videoId;
+      resetSubtitleState();
+      clearTimeout(state.attachVideoTimer);
+      state.attachVideoTimer = setTimeout(() => attemptAttachVideo(true), 800);
+    }
 
     const wrapHistoryMethod = (method) => {
       const original = history[method];
       history[method] = function wrappedHistoryMethod(...args) {
-        resetSubtitleState();
         const result = original.apply(this, args);
-        setTimeout(() => {
-          attemptAttachVideo(true);
-        }, 300);
+        onUrlChange();
         return result;
       };
     };
 
     wrapHistoryMethod("pushState");
     wrapHistoryMethod("replaceState");
-    window.addEventListener("popstate", () => {
-      resetSubtitleState();
-      setTimeout(() => {
-        attemptAttachVideo(true);
-      }, 300);
-    });
+    window.addEventListener("popstate", () => onUrlChange());
 
     window.addEventListener("yt-navigate-start", () => {
+      _lastVideoId = "";        // force re-check on finish
       resetSubtitleState();
     });
 
     window.addEventListener("yt-navigate-finish", () => {
       clearTimeout(state.attachVideoTimer);
       state.attachVideoTimer = setTimeout(() => {
+        _lastVideoId = getCurrentVideoId();
         attemptAttachVideo(true);
-      }, 150);
+      }, 800);
     });
 
     // YouTube fires this after it updates ytInitialPlayerResponse for the new
@@ -299,22 +345,39 @@
 
   function resetSubtitleState() {
     clearTimeout(state.noSubtitleTimer);
+    state.subtitleLoadController?.abort();
+    state.subtitleLoadController = null;
+    state.videoSyncCleanup?.();
+    state.videoSyncCleanup = null;
     state.currentSubtitleKey = "";
     state.currentSubtitleUrl = "";
     state.subtitleSource = "";
     state.subtitles = [];
     state.currentIndex = -1;
+    state.liveCaptionLastText = "";
     state.subtitleSessionId += 1;
     state.ignoreLiveCaptionUntil = Date.now() + 1500;
     clearOverlay();
+    updateLButton();
+    if (state.elements.subtitleList) {
+      renderSubtitleStatus(isYouTubePage() ? "Loading subtitles..." : "Looking for subtitles...");
+    }
+    if (state.elements.wordsPanel) {
+      state.elements.wordsPanel.innerHTML = '<p class="lw-empty">Load subtitles to see the vocabulary grouped by frequency.</p>';
+    }
   }
 
-  function attemptAttachVideo(forceReload = false) {
+  function attemptAttachVideo(forceReload = false, retries = 10) {
     const bestVideo = findBestVideo();
     if (!bestVideo) {
+      if (retries > 0) {
+        state.attachVideoTimer = setTimeout(
+          () => attemptAttachVideo(forceReload, retries - 1),
+          400
+        );
+      }
       return;
     }
-
     bindVideo(bestVideo, forceReload);
   }
 
@@ -367,8 +430,10 @@
 
   function bindVideoSync(video) {
     state.videoSyncCleanup?.();
+    const observerSessionId = state.subtitleSessionId;
 
     const sync = () => {
+      if (observerSessionId !== state.subtitleSessionId) return;
       syncCurrentSubtitle();
     };
 
@@ -377,25 +442,41 @@
       video.addEventListener(eventName, sync);
     });
 
-    // Fallback: read YouTube's live caption DOM when VTT subtitles aren't loaded
+    // Fallback: read YouTube's live caption DOM when transcript APIs are slow or blocked.
     let liveCaptionObserver = null;
-    function startLiveCaptionObserver() {
-      const container = document.querySelector(".ytp-caption-window-container");
-      if (!container || liveCaptionObserver) return;
-      liveCaptionObserver = new MutationObserver(() => {
-        if (state.subtitles.length) return; // VTT subtitles loaded — no need
-        if (Date.now() < state.ignoreLiveCaptionUntil) return;
-        const segments = container.querySelectorAll(".ytp-caption-segment");
-        const text = Array.from(segments).map(s => s.textContent || "").join(" ").replace(/\s+/g, " ").trim();
-        if (!text) return; // don't clear — keep last subtitle visible
-        dispatchSubtitle(text, "");
-      });
-      liveCaptionObserver.observe(container, { childList: true, subtree: true, characterData: true });
+    let liveCaptionContainer = null;
+    function readLiveCaptionFromContainer(container) {
+      if (observerSessionId !== state.subtitleSessionId) return;
+      if (state.subtitles.length && state.subtitleSource !== "live-caption") return;
+      if (Date.now() < state.ignoreLiveCaptionUntil) return;
+      const segments = container.querySelectorAll(".ytp-caption-segment");
+      const text = Array.from(segments).map(s => s.textContent || "").join(" ").replace(/\s+/g, " ").trim();
+      if (!text) return;
+      handleLiveCaptionText(text, observerSessionId);
     }
 
-    // Try immediately, and also after a short delay for late-loading CC
+    function startLiveCaptionObserver() {
+      const container = document.querySelector(".ytp-caption-window-container");
+      if (!container) return;
+      if (liveCaptionObserver && liveCaptionContainer === container) {
+        readLiveCaptionFromContainer(container);
+        return;
+      }
+
+      liveCaptionObserver?.disconnect();
+      liveCaptionContainer = container;
+      liveCaptionObserver = new MutationObserver(() => {
+        readLiveCaptionFromContainer(container);
+      });
+      liveCaptionObserver.observe(container, { childList: true, subtree: true, characterData: true });
+      readLiveCaptionFromContainer(container);
+    }
+
+    // Try repeatedly because YouTube creates the caption container only after captions appear.
     startLiveCaptionObserver();
-    const liveObserverTimer = setTimeout(startLiveCaptionObserver, 3000);
+    const liveObserverTimer = setInterval(() => {
+      startLiveCaptionObserver();
+    }, 1000);
 
     state.videoSyncCleanup = () => {
       eventNames.forEach((eventName) => {
@@ -403,10 +484,60 @@
       });
       liveCaptionObserver?.disconnect();
       liveCaptionObserver = null;
-      clearTimeout(liveObserverTimer);
+      liveCaptionContainer = null;
+      clearInterval(liveObserverTimer);
     };
 
     sync();
+  }
+
+  function handleLiveCaptionText(text, sessionId = state.subtitleSessionId) {
+    if (sessionId !== state.subtitleSessionId) return;
+    const normalizedText = String(text || "").replace(/\s+/g, " ").trim();
+    if (!normalizedText) return;
+
+    dispatchSubtitle(normalizedText, "");
+
+    if (state.subtitles.length && state.subtitleSource !== "live-caption") {
+      return;
+    }
+
+    if (normalizedText === state.liveCaptionLastText) {
+      return;
+    }
+
+    const video = state.currentVideo;
+    const currentTime = Number(video?.currentTime) || 0;
+    const previous = state.subtitles[state.subtitles.length - 1];
+    const nextSubtitles = state.subtitles.slice(-59);
+
+    if (previous && previous.text === normalizedText) {
+      return;
+    }
+
+    if (nextSubtitles.length) {
+      const lastIndex = nextSubtitles.length - 1;
+      const last = nextSubtitles[lastIndex];
+      nextSubtitles[lastIndex] = {
+        ...last,
+        duration: Math.max(currentTime - last.start, 0.75),
+        end: Math.max(currentTime, last.start + 0.75),
+      };
+    }
+
+    nextSubtitles.push({
+      index: nextSubtitles.length,
+      text: normalizedText,
+      translation: "",
+      start: currentTime,
+      duration: 4,
+      end: currentTime + 4,
+    });
+
+    state.liveCaptionLastText = normalizedText;
+    state.subtitleSource = "live-caption";
+    clearTimeout(state.noSubtitleTimer);
+    setSubtitles(nextSubtitles, sessionId);
   }
 
   function bindSidebarLayout(video) {
@@ -1084,13 +1215,30 @@
       source: window.location.hostname,
     };
 
-    saveWordToDb(entry).then(async () => {
-      const savedWords = await getSavedWords();
-      const alreadyExisted = savedWords.some((w) => w.word === word.toLowerCase());
-      showToast(alreadyExisted ? `"${word}" updated ✓` : `"${word}" saved ✓`);
-      renderSavedTab();
+    getAccountSession().then((session) => {
+      if (!session) {
+        renderSavedSignInState();
+        showLoginToast();
+        return null;
+      }
+
+      return saveWordToDb(entry, session).then(async () => {
+        const savedWords = await getSavedWords(session);
+        const alreadyExisted = savedWords.some((w) => w.word === word.toLowerCase());
+        showToast(alreadyExisted ? `"${word}" updated ✓` : `"${word}" saved ✓`);
+        renderSavedTab();
+      });
     });
     closeQuickSaveModal();
+  }
+
+  function ensureSignedInForSave() {
+    return getAccountSession().then((session) => {
+      if (session) return session;
+      renderSavedSignInState();
+      showLoginToast();
+      return null;
+    });
   }
 
   function handleSidebarClick(event) {
@@ -1102,6 +1250,10 @@
 
       if (actionButton.dataset.action === "settings") {
         showToast("Shortcuts: A replay, D next, S auto-pause");
+      }
+
+      if (actionButton.dataset.action === "open-login") {
+        window.open("http://127.0.0.1:8080/login", "_blank", "noopener,noreferrer");
       }
       return;
     }
@@ -1375,8 +1527,6 @@
 
   async function loadSubtitlesForCurrentPage(forceReload = false) {
     ensureInterface();
-    renderSubtitleStatus("Loading subtitles...");
-    const sessionId = state.subtitleSessionId;
 
     const youTubeVideoId = getYouTubeVideoId();
     const subtitleKey = youTubeVideoId ? `youtube:${youTubeVideoId}` : `page:${window.location.href}`;
@@ -1385,11 +1535,24 @@
       return;
     }
 
+    const keyChanged = subtitleKey !== state.currentSubtitleKey;
+    if (keyChanged || forceReload) {
+      clearTimeout(state.noSubtitleTimer);
+      state.subtitleLoadController?.abort();
+      state.subtitleLoadController = null;
+      state.subtitleSessionId += 1;
+      state.subtitles = [];
+      state.subtitleSource = "";
+      state.currentIndex = -1;
+      state.liveCaptionLastText = "";
+      state.ignoreLiveCaptionUntil = Date.now() + 600;
+      clearOverlay();
+    }
+
+    const sessionId = state.subtitleSessionId;
+    renderSubtitleStatus("Loading subtitles...");
     state.currentSubtitleKey = subtitleKey;
     state.currentSubtitleUrl = "";
-    state.subtitleSource = "";
-    state.currentIndex = -1;
-    clearOverlay();
 
     if (youTubeVideoId) {
       const loadedFromYoutubeTrack = await fetchYouTubeCaptionTrack(sessionId);
@@ -1802,7 +1965,17 @@
     }
 
     try {
-      const response = await fetch(`${BACKEND_BASE_URL}/transcript/${encodeURIComponent(videoId)}?lang=en`);
+      state.subtitleLoadController?.abort();
+      const controller = new AbortController();
+      state.subtitleLoadController = controller;
+      const timeout = setTimeout(() => controller.abort(), 12000);
+      const response = await fetch(`${APP_API_BASE_URL}/api/transcript/${encodeURIComponent(videoId)}?lang=en`, {
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+      if (state.subtitleLoadController === controller) {
+        state.subtitleLoadController = null;
+      }
       const data = await response.json().catch(() => ({}));
       if (sessionId !== state.subtitleSessionId) {
         return;
@@ -1810,15 +1983,24 @@
       const backendMessage = typeof data.detail === "string" ? data.detail : "";
 
       if (!response.ok || !Array.isArray(data.transcript)) {
+        if (state.subtitleSource === "live-caption" && state.subtitles.length) {
+          return;
+        }
         setSubtitles([], sessionId);
-        renderSubtitleStatus(backendMessage || "Could not load YouTube subtitles. Start the FastAPI backend at http://localhost:8000 and try again.");
+        renderSubtitleStatus(backendMessage || "Could not load YouTube subtitles. Run `npm run server` or `npm run dev`, then try again.");
         return;
       }
 
       const raw = data.transcript.map((entry, index) => {
         const start = Number(entry.start) || 0;
         const duration = Number(entry.duration) || 0;
-        return { index, text: String(entry.text || "").replace(/\n/g, " ").trim(), start, duration };
+        return {
+          index,
+          text: String(entry.text || "").replace(/\n/g, " ").trim(),
+          translation: String(entry.translation || entry.translatedText || entry.somaliTranslation || entry.somali || "").replace(/\n/g, " ").trim(),
+          start,
+          duration,
+        };
       }).filter((entry) => entry.text);
 
       // Compute end times without merging lines
@@ -1830,9 +2012,67 @@
       clearTimeout(state.noSubtitleTimer);
       state.subtitleSource = "backend";
       setSubtitles(entries, sessionId);
+
+      void fillMissingSomaliTranslations(entries).then((translatedEntries) => {
+        if (sessionId !== state.subtitleSessionId || state.subtitleSource !== "backend") {
+          return;
+        }
+
+        state.subtitles = normalizeSubtitles(translatedEntries);
+        renderSubtitleList();
+        renderWordsTab();
+        syncCurrentSubtitle();
+      });
     } catch (_error) {
+      if (state.subtitleLoadController?.signal?.aborted) {
+        state.subtitleLoadController = null;
+      }
+      if (sessionId !== state.subtitleSessionId) {
+        return;
+      }
+      if (state.subtitleSource === "live-caption" && state.subtitles.length) {
+        return;
+      }
       setSubtitles([], sessionId);
-      renderSubtitleStatus("Could not reach the local transcript backend. Run `uvicorn main:app --host 0.0.0.0 --port 8000` inside backend/.");
+      renderSubtitleStatus("Could not reach the Lingowatch backend. Run `npm run server` or `npm run dev`, then try again.");
+    }
+  }
+
+  async function fillMissingSomaliTranslations(subtitles) {
+    const missing = subtitles
+      .map((subtitle, index) => ({ subtitle, index }))
+      .filter(({ subtitle }) => subtitle.text && !subtitle.translation);
+
+    if (!missing.length) {
+      return subtitles;
+    }
+
+    try {
+      const response = await fetch(`${APP_API_BASE_URL}/api/translate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          texts: missing.map(({ subtitle }) => subtitle.text),
+          source: "en",
+          target: "so",
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+      const translations = Array.isArray(data?.translations) ? data.translations : [];
+      if (!response.ok || !translations.length) {
+        return subtitles;
+      }
+
+      const next = subtitles.slice();
+      missing.forEach(({ index }, missingIndex) => {
+        const translation = String(translations[missingIndex] || "").replace(/\n/g, " ").trim();
+        if (translation && !isMyMemoryWarning(translation)) {
+          next[index] = { ...next[index], translation };
+        }
+      });
+      return next;
+    } catch (_error) {
+      return subtitles;
     }
   }
 
@@ -1938,6 +2178,7 @@
     const cleaned = subtitles
       .map((subtitle) => ({
         text: String(subtitle.text || "").replace(/\s+/g, " ").trim(),
+        translation: String(subtitle.translation || "").replace(/\s+/g, " ").trim(),
         start: Number(subtitle.start) || 0,
         duration: Math.max(Number(subtitle.duration) || 0, 0)
       }))
@@ -1954,6 +2195,7 @@
       return {
         index,
         text: subtitle.text,
+        translation: subtitle.translation,
         start: subtitle.start,
         duration: Math.max(end - subtitle.start, 0.25),
         end: Math.max(end, subtitle.start + 0.25)
@@ -1979,6 +2221,7 @@
 
       if (shouldMergeSubtitles(buffer, subtitle)) {
         buffer.text = `${buffer.text} ${subtitle.text}`.replace(/\s+/g, " ").trim();
+        buffer.translation = [buffer.translation, subtitle.translation].filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
         buffer.duration = subtitle.end - buffer.start;
         buffer.end = subtitle.end;
         return;
@@ -2038,7 +2281,17 @@
     }
 
     clearTimeout(state.noSubtitleTimer);
-    state.subtitles = normalizeSubtitles(nextSubtitles);
+    state.subtitles = state.subtitleSource === "live-caption"
+      ? nextSubtitles.map((subtitle, index) => ({
+          ...subtitle,
+          index,
+          text: String(subtitle.text || "").replace(/\s+/g, " ").trim(),
+          translation: String(subtitle.translation || "").replace(/\s+/g, " ").trim(),
+          start: Number(subtitle.start) || 0,
+          duration: Math.max(Number(subtitle.duration) || 0, 0.75),
+          end: Math.max(Number(subtitle.end) || 0, (Number(subtitle.start) || 0) + Math.max(Number(subtitle.duration) || 0, 0.75)),
+        })).filter((subtitle) => subtitle.text)
+      : normalizeSubtitles(nextSubtitles);
     updateLButton();
     state.currentIndex = -1;
     renderSubtitleList();
@@ -2066,7 +2319,9 @@
       return `
         <div class="lw-line" data-index="${subtitle.index}" data-start="${subtitle.start}">
           <span class="lw-timestamp" data-line-action="play" title="Jump to this line">${formatTime(subtitle.start)}</span>
-          <div class="lw-line-content">${wrapWordsInLine(subtitle.text)}</div>
+          <div class="lw-line-content">
+            <div>${wrapWordsInLine(subtitle.text)}</div>
+          </div>
           <button type="button" class="lw-star-btn${starred ? " starred" : ""}" data-line-action="star">${starred ? "★" : "☆"}</button>
         </div>
       `;
@@ -2135,7 +2390,15 @@
       return;
     }
 
-    const savedWords = await getSavedWords();
+    // Use cached session synchronously to avoid sign-in flash on every render.
+    // If no cache yet, fetch and only show sign-in state if truly not logged in.
+    const session = _sessionCache || await getAccountSession();
+    if (!session) {
+      renderSavedSignInState();
+      return;
+    }
+
+    const savedWords = await getSavedWords(session);
     if (!savedWords.length) {
       state.elements.savedList.innerHTML = '<p class="lw-empty">No saved words yet. Click any word to save it.</p>';
       return;
@@ -2206,7 +2469,7 @@
     const currentSubtitle = state.subtitles[nextIndex];
     highlightSidebarLine(nextIndex);
     scrollSidebarToLine(nextIndex);
-    updateOverlay(currentSubtitle.text);
+    updateOverlay(currentSubtitle);
 
     if (state.autoPause) {
       video.pause();
@@ -2257,13 +2520,34 @@
     }
   }
 
-  function updateOverlay(text) {
+  function getSubtitleText(value) {
+    if (!value) return "";
+    if (typeof value === "string") return value;
+    return String(value.text || "").trim();
+  }
+
+  function getSubtitleTranslation(value) {
+    if (!value || typeof value === "string") return "";
+    return String(value.translation || "").trim();
+  }
+
+  function updateOverlay(subtitle) {
+    const text = getSubtitleText(subtitle);
     if (!text) {
       clearOverlay();
       return;
     }
 
-    dispatchSubtitle(text, "");
+    const existingTranslation = getSubtitleTranslation(subtitle);
+    dispatchSubtitle(text, existingTranslation);
+
+    if (!existingTranslation) {
+      void translateToSomali(text, "").then((translation) => {
+        if (translation && getSubtitleText(state.subtitles[state.currentIndex]) === text) {
+          dispatchSubtitle(text, translation);
+        }
+      });
+    }
   }
 
   function wrapWordsInLine(text) {
@@ -3252,20 +3536,27 @@
       return;
     }
 
-    saveWordToDb({
-      word: word.toLowerCase(),
-      displayWord: word,
-      translation: customTranslation,
-      isCustomTranslation: true,
-      source: window.location.hostname,
-    }).then(() => {
-      renderSavedTab();
-      showToast("Word saved ✓");
-      closeWordPopup();
+    ensureSignedInForSave().then((session) => {
+      if (!session) return;
+
+      return saveWordToDb({
+        word: word.toLowerCase(),
+        displayWord: word,
+        translation: customTranslation,
+        isCustomTranslation: true,
+        source: window.location.hostname,
+      }, session).then(() => {
+        renderSavedTab();
+        showToast("Word saved ✓");
+        closeWordPopup();
+      });
     });
   }
 
   async function saveWordToLibrary(word) {
+    const session = await ensureSignedInForSave();
+    if (!session) return;
+
     const ai = state.lastPopupAiData;
     const btn = document.getElementById("lw-popup-save-btn");
     if (btn) { btn.disabled = true; btn.textContent = "Saving..."; }
@@ -3275,6 +3566,7 @@
 
     const payload = {
       id: phraseId,
+      userEmail: session.userEmail,
       phraseText: word,
       phraseType: ai?.phraseType || "word",
       category: "YouTube",
@@ -3308,15 +3600,14 @@
     };
 
     try {
-      await fetch("http://127.0.0.1:3001/api/extension/save-phrase", {
+      await fetch(`${session.apiBaseUrl}/api/extension/save-phrase`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
     } catch (_e) {}
 
-    // Save to Neon
-    await saveWordToDb({ word: word.toLowerCase(), displayWord: word, translation: ai?.somaliMeaning || "", source: window.location.hostname });
+    await saveWordToDb({ word: word.toLowerCase(), displayWord: word, translation: ai?.somaliMeaning || "", source: window.location.hostname }, session);
     renderSavedTab();
 
     if (btn) {
@@ -3623,12 +3914,15 @@
   }
 
   async function saveWord(word, translation) {
-    const savedWords = await getSavedWords();
+    const session = await ensureSignedInForSave();
+    if (!session) return;
+
+    const savedWords = await getSavedWords(session);
     if (savedWords.some((entry) => entry.word === word)) {
       showToast("Already saved");
       return;
     }
-    await saveWordToDb({ word: word.toLowerCase(), displayWord: word, translation, source: window.location.hostname });
+    await saveWordToDb({ word: word.toLowerCase(), displayWord: word, translation, source: window.location.hostname }, session);
     await renderSavedTab();
     showToast("Word saved! ✓");
   }
@@ -3644,10 +3938,7 @@
 
   function showToast(message) {
     const existing = document.getElementById("lw-toast");
-    if (existing) {
-      existing.remove();
-    }
-
+    if (existing) existing.remove();
     const toast = document.createElement("div");
     toast.id = "lw-toast";
     toast.className = "lw-toast";
@@ -3656,9 +3947,24 @@
     setTimeout(() => toast.remove(), 2000);
   }
 
-  async function getSavedWords() {
+  function showLoginToast() {
+    const existing = document.getElementById("lw-toast-login");
+    if (existing) existing.remove();
+    const toast = document.createElement("div");
+    toast.id = "lw-toast-login";
+    toast.className = "lw-toast-login";
+    toast.textContent = "Please log in to save words";
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2500);
+  }
+
+  async function getSavedWords(session) {
+    if (!session?.userEmail) {
+      return [];
+    }
+
     try {
-      const res = await fetch("http://127.0.0.1:3001/api/words");
+      const res = await fetch(`${session.apiBaseUrl}/api/words?userEmail=${encodeURIComponent(session.userEmail)}`);
       if (!res.ok) return [];
       const rows = await res.json();
       return rows.map((r) => ({
@@ -3674,19 +3980,26 @@
     } catch { return []; }
   }
 
-  async function saveWordToDb(entry) {
+  async function saveWordToDb(entry, session) {
+    if (!session?.userEmail) {
+      return;
+    }
+
     try {
-      await fetch("http://127.0.0.1:3001/api/words", {
+      await fetch(`${session.apiBaseUrl}/api/words`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(entry),
+        body: JSON.stringify({ ...entry, userEmail: session.userEmail }),
       });
     } catch { /* ignore */ }
   }
 
   async function deleteWordFromDb(word) {
+    const session = await ensureSignedInForSave();
+    if (!session) return;
+
     try {
-      await fetch(`http://127.0.0.1:3001/api/words/${encodeURIComponent(word)}`, { method: "DELETE" });
+      await fetch(`${session.apiBaseUrl}/api/words/${encodeURIComponent(word)}?userEmail=${encodeURIComponent(session.userEmail)}`, { method: "DELETE" });
     } catch { /* ignore */ }
   }
 

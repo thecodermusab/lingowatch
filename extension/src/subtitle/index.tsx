@@ -4,10 +4,6 @@ import { SubtitleOverlay } from "./SubtitleOverlay";
 
 const HOST_ID = "lw-subtitle-root";
 
-// Seed build-time keys into chrome.storage so content.js can read them
-const GEMINI_KEY = import.meta.env.VITE_GEMINI_KEY as string | undefined;
-if (GEMINI_KEY) chrome.storage.local.set({ geminiApiKey: GEMINI_KEY });
-
 function findPlayer(): HTMLElement | null {
   return (
     document.querySelector<HTMLElement>("#movie_player") ??
@@ -58,13 +54,18 @@ function tryMount(retries = 20) {
   if (retries > 0) setTimeout(() => tryMount(retries - 1), 300);
 }
 
-// On SPA navigation: move the existing overlay to the new player immediately
+// On SPA navigation: clear and re-mount overlay to the new player
 window.addEventListener("yt-navigate-start", () => {
   clearOverlay();
 });
 
 window.addEventListener("yt-navigate-finish", () => {
-  if (!ensureOverlay()) setTimeout(() => tryMount(), 300);
+  tryMount();
+  setTimeout(() => tryMount(), 500);
+});
+
+window.addEventListener("yt-page-data-updated", () => {
+  tryMount();
 });
 
 tryMount();

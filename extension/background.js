@@ -80,6 +80,15 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 
+  if (msg.type === "GET_IMPORT_SESSION") {
+    chrome.storage.local.get(["importSession"], (result) => {
+      const session = normalizeImportSession(result.importSession);
+      const expired = !session || (session.expiresAt && new Date(session.expiresAt).getTime() <= Date.now());
+      sendResponse({ session: expired ? null : session });
+    });
+    return true;
+  }
+
   if (msg.type === "FETCH_TATOEBA") {
     const word = String(msg.word || "").trim();
     if (!word) { sendResponse({ results: [] }); return true; }
