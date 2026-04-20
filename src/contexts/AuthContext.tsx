@@ -12,6 +12,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 const STORAGE_KEY = "lingowatch_user";
 const LEGACY_STORAGE_KEY = "phrasepal_user";
+const LOCAL_API_BASE_URL = "http://127.0.0.1:3001";
 
 function createDefaultProfile(): UserProfile {
   return {
@@ -25,6 +26,41 @@ function createDefaultProfile(): UserProfile {
     preferredAiProvider: "auto",
     createdAt: new Date().toISOString(),
   };
+}
+
+async function syncExtensionSession(user: UserProfile | null) {
+  if (typeof window === "undefined") return;
+
+  if (!user) {
+    window.postMessage({ type: "LINGOWATCH_EXTENSION_SESSION", payload: null }, "*");
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/imported-texts/session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: user.id,
+        email: user.email,
+        fullName: user.fullName,
+      }),
+    });
+
+    const session = await response.json().catch(() => null);
+    if (!response.ok || !session?.token) return;
+
+    window.postMessage({
+      type: "LINGOWATCH_EXTENSION_SESSION",
+      payload: {
+        ...session,
+        apiBaseUrl: LOCAL_API_BASE_URL,
+        appBaseUrl: window.location.origin,
+      },
+    }, "*");
+  } catch {
+    // The extension bridge is optional; website auth should not fail if it is absent.
+  }
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -58,6 +94,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     setIsLoading(false);
   }, []);
+
+  useEffect(() => {
+    if (isLoading) return;
+    void syncExtensionSession(user);
+  }, [isLoading, user]);
 
   const updateProfile = useCallback((updates: Partial<UserProfile>) => {
     setUser((prev) => {

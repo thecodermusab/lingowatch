@@ -91,6 +91,7 @@ const WORLD_STORIES_FILE = join(DATA_DIR, "world-stories.json");
 const YOUTUBE_CHANNEL_SEEDS_FILE = join(DATA_DIR, "youtube-channel-seeds.txt");
 const CHANNEL_THUMBNAILS_FILE = join(DATA_DIR, "channel-thumbnails.json");
 const CHANNEL_THUMBNAIL_TTL_MS = 20 * 24 * 60 * 60 * 1000; // 20 days
+const LEGACY_OWNER_EMAIL = "maahir.engineer@gmail.com";
 
 loadEnvFile();
 
@@ -505,8 +506,12 @@ createServer(async (req, res) => {
   // Extension → save a word directly into the website's phrase library
   if (req.method === "GET" && pathname === "/api/extension/saved-phrases") {
     try {
+      const userEmail = normalizeOwnerEmail(url.searchParams.get("userEmail") || url.searchParams.get("email"));
       const data = existsSync(EXT_PHRASES_FILE) ? JSON.parse(readFileSync(EXT_PHRASES_FILE, "utf8")) : [];
-      sendJson(res, 200, data);
+      const filtered = userEmail
+        ? data.filter((phrase) => normalizeOwnerEmail(phrase?.userEmail || phrase?.email || LEGACY_OWNER_EMAIL) === userEmail)
+        : [];
+      sendJson(res, 200, filtered);
     } catch { sendJson(res, 200, []); }
     return;
   }
@@ -523,6 +528,7 @@ createServer(async (req, res) => {
       const now = new Date().toISOString();
       const id = body.id || crypto.randomUUID();
       const phraseText = String(body.phraseText).trim();
+      const userEmail = normalizeOwnerEmail(body?.userEmail || body?.email || LEGACY_OWNER_EMAIL);
       const requestedProvider = normalizePreferredProvider(body?.preferredProvider);
       const autoProvider = requestedProvider || getRecommendedProviderForSavedPhrase({
         phraseText,
@@ -531,10 +537,14 @@ createServer(async (req, res) => {
       });
 
       // Remove existing entry for same word (case-insensitive)
-      const filtered = existing.filter(p => p.phraseText?.toLowerCase() !== phraseText.toLowerCase());
+      const filtered = existing.filter((p) => {
+        const phraseOwner = normalizeOwnerEmail(p?.userEmail || p?.email || LEGACY_OWNER_EMAIL);
+        return !(phraseOwner === userEmail && p.phraseText?.toLowerCase() === phraseText.toLowerCase());
+      });
 
       const phrase = {
         id,
+        userEmail,
         phraseText,
         phraseType: body.phraseType || "word",
         category: body.category || "YouTube",
@@ -564,6 +574,7 @@ createServer(async (req, res) => {
   if (req.method === "DELETE" && pathname.startsWith("/api/extension/saved-phrases/")) {
     try {
       const entryId = decodeURIComponent(pathname.slice("/api/extension/saved-phrases/".length)).trim();
+      const userEmail = normalizeOwnerEmail(url.searchParams.get("userEmail") || url.searchParams.get("email"));
 
       if (!entryId) {
         sendJson(res, 400, { error: "entry id is required" });
@@ -575,7 +586,12 @@ createServer(async (req, res) => {
         : [];
 
       const updated = existing.filter(
-        (phrase) => phrase?.id !== entryId && String(phrase?.phraseText || "").trim().toLowerCase() !== entryId.toLowerCase()
+        (phrase) => {
+          const phraseOwner = normalizeOwnerEmail(phrase?.userEmail || phrase?.email || LEGACY_OWNER_EMAIL);
+          const ownerMatches = userEmail ? phraseOwner === userEmail : false;
+          const entryMatches = phrase?.id === entryId || String(phrase?.phraseText || "").trim().toLowerCase() === entryId.toLowerCase();
+          return !(ownerMatches && entryMatches);
+        }
       );
 
       if (updated.length === existing.length) {
@@ -683,7 +699,8 @@ createServer(async (req, res) => {
     try {
       if (!sql) { sendJson(res, 200, []); return; }
       await ensureSavedWordsSchema();
-      const rows = await sql`SELECT * FROM saved_words ORDER BY saved_at DESC`;
+      const userEmail = normalizeOwnerEmail(url.searchParams.get("userEmail") || url.searchParams.get("email") || LEGACY_OWNER_EMAIL);
+      const rows = await sql`SELECT * FROM saved_words WHERE user_email = ${userEmail} ORDER BY saved_at DESC`;
       sendJson(res, 200, rows);
     } catch (err) { sendJson(res, 500, { error: String(err) }); }
     return;
@@ -694,13 +711,14 @@ createServer(async (req, res) => {
       if (!sql) { sendJson(res, 503, { error: "Database not configured" }); return; }
       await ensureSavedWordsSchema();
       const body = await readJsonBody(req);
+      const userEmail = normalizeOwnerEmail(body?.userEmail || body?.email || LEGACY_OWNER_EMAIL);
       const word = String(body?.word || "").trim().toLowerCase();
       if (!word) { sendJson(res, 400, { error: "word is required" }); return; }
       const phraseData = body.phrase_data ?? null;
       const rows = await sql`
-        INSERT INTO saved_words (word, display_word, translation, note, source, is_manual, is_custom_translation, phrase_data)
-        VALUES (${word}, ${body.displayWord || body.display_word || word}, ${body.translation || ""}, ${body.note || ""}, ${body.source || ""}, ${body.isManual || false}, ${body.isCustomTranslation || false}, ${phraseData})
-        ON CONFLICT (word) DO UPDATE SET
+        INSERT INTO saved_words (user_email, word, display_word, translation, note, source, is_manual, is_custom_translation, phrase_data)
+        VALUES (${userEmail}, ${word}, ${body.displayWord || body.display_word || word}, ${body.translation || ""}, ${body.note || ""}, ${body.source || ""}, ${body.isManual || false}, ${body.isCustomTranslation || false}, ${phraseData})
+        ON CONFLICT (user_email, word) DO UPDATE SET
           display_word = EXCLUDED.display_word,
           translation = EXCLUDED.translation,
           note = EXCLUDED.note,
@@ -720,8 +738,9 @@ createServer(async (req, res) => {
     try {
       if (!sql) { sendJson(res, 503, { error: "Database not configured" }); return; }
       await ensureSavedWordsSchema();
+      const userEmail = normalizeOwnerEmail(url.searchParams.get("userEmail") || url.searchParams.get("email") || LEGACY_OWNER_EMAIL);
       const word = decodeURIComponent(pathname.slice("/api/words/".length));
-      await sql`DELETE FROM saved_words WHERE word = ${word}`;
+      await sql`DELETE FROM saved_words WHERE user_email = ${userEmail} AND word = ${word}`;
       sendJson(res, 200, { ok: true });
     } catch (err) { sendJson(res, 500, { error: String(err) }); }
     return;
@@ -2061,13 +2080,18 @@ function saveInboxCaptures(captures) {
   writeFileSync(INBOX_FILE, `${JSON.stringify(captures, null, 2)}\n`, "utf8");
 }
 
+function normalizeOwnerEmail(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
 async function ensureSavedWordsSchema() {
   if (!sql) return;
 
   try {
     await sql`
       CREATE TABLE IF NOT EXISTS saved_words (
-        word TEXT PRIMARY KEY,
+        user_email TEXT NOT NULL DEFAULT 'maahir.engineer@gmail.com',
+        word TEXT NOT NULL,
         display_word TEXT NOT NULL DEFAULT '',
         translation TEXT NOT NULL DEFAULT '',
         note TEXT NOT NULL DEFAULT '',
@@ -2078,6 +2102,7 @@ async function ensureSavedWordsSchema() {
         phrase_data JSONB
       )
     `;
+    await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS user_email TEXT NOT NULL DEFAULT 'maahir.engineer@gmail.com'`;
     await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS display_word TEXT NOT NULL DEFAULT ''`;
     await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS translation TEXT NOT NULL DEFAULT ''`;
     await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS note TEXT NOT NULL DEFAULT ''`;
@@ -2086,6 +2111,22 @@ async function ensureSavedWordsSchema() {
     await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS is_custom_translation BOOLEAN NOT NULL DEFAULT FALSE`;
     await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS saved_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`;
     await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS phrase_data JSONB`;
+    await sql`UPDATE saved_words SET user_email = ${LEGACY_OWNER_EMAIL} WHERE user_email IS NULL OR user_email = ''`;
+    await sql`
+      DO $$
+      BEGIN
+        IF EXISTS (
+          SELECT 1
+          FROM pg_constraint
+          WHERE conname = 'saved_words_pkey'
+            AND conrelid = 'saved_words'::regclass
+        ) THEN
+          ALTER TABLE saved_words DROP CONSTRAINT saved_words_pkey;
+        END IF;
+      END $$;
+    `;
+    await sql`CREATE UNIQUE INDEX IF NOT EXISTS saved_words_user_email_word_idx ON saved_words (user_email, word)`;
+    await sql`CREATE INDEX IF NOT EXISTS saved_words_user_email_saved_at_idx ON saved_words (user_email, saved_at DESC)`;
   } catch (error) {
     console.warn("Could not initialize saved_words schema:", error);
   }

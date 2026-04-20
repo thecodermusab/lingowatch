@@ -1,4 +1,3 @@
-const API_KEY = import.meta.env.VITE_GOOGLE_TRANSLATE_KEY as string | undefined;
 const cache = new Map<string, string>();
 
 function isMyMemoryWarning(text: string): boolean {
@@ -31,6 +30,37 @@ async function tryMyMemory(key: string, target: string): Promise<string> {
   return text;
 }
 
+async function getStoredGoogleApiKey(): Promise<string> {
+  return new Promise((resolve) => {
+    try {
+      chrome.storage.local.get(["googleApiKey"], (result) => {
+        resolve(String(result.googleApiKey || "").trim());
+      });
+    } catch {
+      resolve("");
+    }
+  });
+}
+
+async function tryStoredGoogleKey(key: string, target: string): Promise<string> {
+  const apiKey = await getStoredGoogleApiKey();
+  if (!apiKey) return "";
+
+  const resp = await fetch(
+    `https://translation.googleapis.com/language/translate/v2?key=${encodeURIComponent(apiKey)}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ q: key, target, format: "text" }),
+    }
+  );
+  if (!resp.ok) return "";
+
+  const data = await resp.json();
+  const text = data.data?.translations?.[0]?.translatedText?.trim() ?? "";
+  return text && !isMyMemoryWarning(text) ? text : "";
+}
+
 export async function translate(text: string, target = "so"): Promise<string> {
   const key = text.trim();
   if (!key) return "";
@@ -43,22 +73,12 @@ export async function translate(text: string, target = "so"): Promise<string> {
   try {
     result = await tryBackendGoogle(key, target);
   } catch {
-    // fall through to the bundled Google key, then MyMemory as a filtered last resort
+    // fall through to the user-saved Google key, then MyMemory as a filtered last resort
   }
 
-  if (!result && API_KEY) {
+  if (!result) {
     try {
-      const resp = await fetch(
-        `https://translation.googleapis.com/language/translate/v2?key=${API_KEY}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ q: key, target, format: "text" }),
-        }
-      );
-      const data = await resp.json();
-      result = data.data?.translations?.[0]?.translatedText?.trim() ?? "";
-      if (isMyMemoryWarning(result)) result = "";
+      result = await tryStoredGoogleKey(key, target);
     } catch {
       // fall through to MyMemory
     }

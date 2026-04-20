@@ -12,6 +12,8 @@ import { getReviewStage } from "@/lib/review";
 import { generateStory } from "@/lib/ai";
 import { useToast } from "@/hooks/use-toast";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
+import { useAuth } from "@/contexts/AuthContext";
+import { accountStorageKey, legacyOwnerEmail, normalizeOwnerEmail } from "@/lib/accountStorage";
 
 type SortOption = "newest" | "oldest" | "alphabetical" | "review_due" | "hardest";
 type FilterStatus = "all" | "learned" | "not_learned" | "favorite";
@@ -22,8 +24,10 @@ function storyWordsKey(words: string[]) {
 
 export default function LibraryPage() {
   const { phrases, bulkDeletePhrases, bulkUpdatePhrases } = usePhraseStore();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const userEmail = normalizeOwnerEmail(user?.email);
   const [search, setSearch] = useState("");
   const [makingStory, setMakingStory] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -118,7 +122,12 @@ export default function LibraryPage() {
     const requestedKey = storyWordsKey(words);
     setMakingStory(true);
     try {
-      const stored = JSON.parse(localStorage.getItem("lingowatch_stories") || "[]");
+      const storageKey = accountStorageKey("lingowatch_stories", userEmail);
+      let rawStories = localStorage.getItem(storageKey);
+      if (!rawStories && userEmail === legacyOwnerEmail()) {
+        rawStories = localStorage.getItem("lingowatch_stories");
+      }
+      const stored = JSON.parse(rawStories || "[]");
       const existing = stored.find((story: { words?: string[] }) => storyWordsKey(story.words || []) === requestedKey);
       if (existing?.id) {
         setSelectedIds([]);
@@ -128,7 +137,7 @@ export default function LibraryPage() {
 
       const { title, content } = await generateStory(words);
       const entry = { id: crypto.randomUUID(), title, words, content, createdAt: new Date().toISOString() };
-      localStorage.setItem("lingowatch_stories", JSON.stringify([entry, ...stored]));
+      localStorage.setItem(storageKey, JSON.stringify([entry, ...stored]));
       setSelectedIds([]);
       navigate("/stories");
     } catch (error) {

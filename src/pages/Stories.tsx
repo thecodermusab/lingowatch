@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { SyncedTtsText, getActiveWordIndex } from "@/components/reader/SyncedTtsText";
 import { fetchTimedTtsAudio, TtsWordTiming } from "@/lib/tts";
+import { useAuth } from "@/contexts/AuthContext";
+import { accountStorageKey, legacyOwnerEmail, normalizeOwnerEmail } from "@/lib/accountStorage";
 
 interface StoryEntry {
   id: string;
@@ -484,6 +486,8 @@ function WorldReadingView({ story, allStories, onBack, onSelect }: {
 export default function StoriesPage() {
   const { id, worldId } = useParams<{ id?: string; worldId?: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const userEmail = normalizeOwnerEmail(user?.email);
   const [stories, setStories] = useState<StoryEntry[]>([]);
   const [storyToDelete, setStoryToDelete] = useState<StoryEntry | null>(null);
   const [worldStories, setWorldStories] = useState<WorldStory[]>([]);
@@ -491,9 +495,21 @@ export default function StoriesPage() {
   const [activeTab, setActiveTab] = useState<"mine" | "browse">("mine");
 
   useEffect(() => {
-    const raw = localStorage.getItem("lingowatch_stories");
-    if (raw) setStories(JSON.parse(raw));
-  }, []);
+    if (!userEmail) {
+      setStories([]);
+      return;
+    }
+
+    const storageKey = accountStorageKey("lingowatch_stories", userEmail);
+    let raw = localStorage.getItem(storageKey);
+
+    if (!raw && userEmail === legacyOwnerEmail()) {
+      raw = localStorage.getItem("lingowatch_stories");
+      if (raw) localStorage.setItem(storageKey, raw);
+    }
+
+    setStories(raw ? JSON.parse(raw) : []);
+  }, [userEmail]);
 
   // Load world stories whenever we might need them
   useEffect(() => {
@@ -509,7 +525,9 @@ export default function StoriesPage() {
 
   const saveStories = (updated: StoryEntry[]) => {
     setStories(updated);
-    localStorage.setItem("lingowatch_stories", JSON.stringify(updated));
+    if (userEmail) {
+      localStorage.setItem(accountStorageKey("lingowatch_stories", userEmail), JSON.stringify(updated));
+    }
   };
 
   const handleDelete = (storyId: string) => {

@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { Phrase, PhraseType, DifficultyLevel, ReviewRating, DashboardStats } from "@/types";
 import { generateAIExplanation } from "@/lib/ai";
 import { buildNextReviewDate } from "@/lib/review";
+import { useAuth } from "@/contexts/AuthContext";
+import { accountStorageKey, legacyOwnerEmail, normalizeOwnerEmail } from "@/lib/accountStorage";
 
 const STORAGE_KEY = "lingowatch_phrases";
 const LEGACY_STORAGE_KEY = "phrasepal_phrases";
@@ -33,11 +35,23 @@ async function apiJson<T>(path: string, fallback: T): Promise<T> {
   }
 }
 
-function loadPhrases(): Phrase[] {
+function getPhraseStorageKey(userEmail?: string | null) {
+  return accountStorageKey(STORAGE_KEY, userEmail);
+}
+
+function getDeletedKeysStorageKey(userEmail?: string | null) {
+  return accountStorageKey(DELETED_KEYS_STORAGE_KEY, userEmail);
+}
+
+function loadPhrases(userEmail?: string | null): Phrase[] {
   try {
-    const data = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY);
-    if (data && !localStorage.getItem(STORAGE_KEY)) {
-      localStorage.setItem(STORAGE_KEY, data);
+    const storageKey = getPhraseStorageKey(userEmail);
+    let data = localStorage.getItem(storageKey);
+    if (!data && normalizeOwnerEmail(userEmail) === legacyOwnerEmail()) {
+      data = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY);
+      if (data) {
+        localStorage.setItem(storageKey, data);
+      }
     }
     return data ? JSON.parse(data) : [];
   } catch {
@@ -45,13 +59,20 @@ function loadPhrases(): Phrase[] {
   }
 }
 
-function savePhrases(phrases: Phrase[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(phrases));
+function savePhrases(phrases: Phrase[], userEmail?: string | null) {
+  localStorage.setItem(getPhraseStorageKey(userEmail), JSON.stringify(phrases));
 }
 
-function loadDeletedPhraseKeys(): string[] {
+function loadDeletedPhraseKeys(userEmail?: string | null): string[] {
   try {
-    const data = localStorage.getItem(DELETED_KEYS_STORAGE_KEY);
+    const storageKey = getDeletedKeysStorageKey(userEmail);
+    let data = localStorage.getItem(storageKey);
+    if (!data && normalizeOwnerEmail(userEmail) === legacyOwnerEmail()) {
+      data = localStorage.getItem(DELETED_KEYS_STORAGE_KEY);
+      if (data) {
+        localStorage.setItem(storageKey, data);
+      }
+    }
     const parsed = data ? JSON.parse(data) : [];
     return Array.isArray(parsed) ? parsed.filter((value): value is string => typeof value === "string") : [];
   } catch {
@@ -59,28 +80,28 @@ function loadDeletedPhraseKeys(): string[] {
   }
 }
 
-function saveDeletedPhraseKeys(keys: string[]) {
-  localStorage.setItem(DELETED_KEYS_STORAGE_KEY, JSON.stringify(Array.from(new Set(keys))));
+function saveDeletedPhraseKeys(keys: string[], userEmail?: string | null) {
+  localStorage.setItem(getDeletedKeysStorageKey(userEmail), JSON.stringify(Array.from(new Set(keys))));
 }
 
 function normalizePhraseKey(text: string) {
   return text.trim().toLowerCase();
 }
 
-function markPhraseKeysDeleted(phrases: Pick<Phrase, "phraseText">[]) {
-  const deleted = new Set(loadDeletedPhraseKeys());
+function markPhraseKeysDeleted(phrases: Pick<Phrase, "phraseText">[], userEmail?: string | null) {
+  const deleted = new Set(loadDeletedPhraseKeys(userEmail));
   for (const phrase of phrases) {
     const key = normalizePhraseKey(phrase.phraseText);
     if (key) deleted.add(key);
   }
-  saveDeletedPhraseKeys(Array.from(deleted));
+  saveDeletedPhraseKeys(Array.from(deleted), userEmail);
 }
 
-function clearDeletedPhraseKey(phraseText: string) {
+function clearDeletedPhraseKey(phraseText: string, userEmail?: string | null) {
   const key = normalizePhraseKey(phraseText);
   if (!key) return;
-  const deleted = loadDeletedPhraseKeys().filter((item) => item !== key);
-  saveDeletedPhraseKeys(deleted);
+  const deleted = loadDeletedPhraseKeys(userEmail).filter((item) => item !== key);
+  saveDeletedPhraseKeys(deleted, userEmail);
 }
 
 function isLegacyExtensionPhrase(phrase: Phrase) {
@@ -93,12 +114,16 @@ async function ensureDeleteResponse(response: Response) {
   }
 }
 
-async function syncPhraseToNeon(phrase: Phrase) {
+async function syncPhraseToNeon(phrase: Phrase, userEmail?: string | null) {
+  const ownerEmail = normalizeOwnerEmail(userEmail);
+  if (!ownerEmail) return;
+
   try {
     await apiFetch("/api/words", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        userEmail: ownerEmail,
         word: normalizePhraseKey(phrase.phraseText),
         displayWord: phrase.phraseText,
         translation: phrase.notes,
@@ -111,20 +136,23 @@ async function syncPhraseToNeon(phrase: Phrase) {
   }
 }
 
-async function syncPhrasesToNeon(phrases: Phrase[]) {
-  await Promise.allSettled(phrases.map((phrase) => syncPhraseToNeon(phrase)));
+async function syncPhrasesToNeon(phrases: Phrase[], userEmail?: string | null) {
+  await Promise.allSettled(phrases.map((phrase) => syncPhraseToNeon(phrase, userEmail)));
 }
 
-async function syncPhraseDeletion(phrase: Phrase) {
+async function syncPhraseDeletion(phrase: Phrase, userEmail?: string | null) {
+  const ownerEmail = normalizeOwnerEmail(userEmail);
+  if (!ownerEmail) return;
+
   const requests: Promise<void>[] = [
-    apiFetch(`/api/words/${encodeURIComponent(normalizePhraseKey(phrase.phraseText))}`, {
+    apiFetch(`/api/words/${encodeURIComponent(normalizePhraseKey(phrase.phraseText))}?userEmail=${encodeURIComponent(ownerEmail)}`, {
       method: "DELETE",
     }).then(ensureDeleteResponse).catch(() => {}),
   ];
 
   if (isLegacyExtensionPhrase(phrase)) {
     requests.push(
-      apiFetch(`/api/extension/saved-phrases/${encodeURIComponent(phrase.id)}`, {
+      apiFetch(`/api/extension/saved-phrases/${encodeURIComponent(phrase.id)}?userEmail=${encodeURIComponent(ownerEmail)}`, {
         method: "DELETE",
       }).then(ensureDeleteResponse).catch(() => {})
     );
@@ -190,19 +218,26 @@ function isPhraseLike(value: unknown): value is Phrase {
 }
 
 export function usePhraseStore() {
+  const { user } = useAuth();
+  const userEmail = normalizeOwnerEmail(user?.email);
   const [phrases, setPhrases] = useState<Phrase[]>(() => {
-    const deletedKeys = new Set(loadDeletedPhraseKeys());
-    return loadPhrases().filter((phrase) => !deletedKeys.has(normalizePhraseKey(phrase.phraseText)));
+    return [];
   });
   const [isLoading, setIsLoading] = useState(false);
 
   const syncExternalPhrases = useCallback(async () => {
+    if (!userEmail) {
+      setPhrases([]);
+      return;
+    }
+
+    const userParam = `userEmail=${encodeURIComponent(userEmail)}`;
     const [neonWords, extPhrases] = await Promise.all([
-      apiJson<unknown[]>("/api/words", []),
-      apiJson<Phrase[]>("/api/extension/saved-phrases", []),
+      apiJson<unknown[]>(`/api/words?${userParam}`, []),
+      apiJson<Phrase[]>(`/api/extension/saved-phrases?${userParam}`, []),
     ]);
-    const currentDeletedKeys = new Set(loadDeletedPhraseKeys());
-    const current = loadPhrases().filter((phrase) => !currentDeletedKeys.has(normalizePhraseKey(phrase.phraseText)));
+    const currentDeletedKeys = new Set(loadDeletedPhraseKeys(userEmail));
+    const current = loadPhrases(userEmail).filter((phrase) => !currentDeletedKeys.has(normalizePhraseKey(phrase.phraseText)));
     const map = new Map(current.map((phrase) => [normalizePhraseKey(phrase.phraseText), phrase]));
     let changed = false;
 
@@ -251,18 +286,24 @@ export function usePhraseStore() {
         (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
       );
       setPhrases(merged);
-      savePhrases(merged);
+      savePhrases(merged, userEmail);
     }
-  }, []);
+  }, [userEmail]);
 
   useEffect(() => {
-    const deletedKeys = new Set(loadDeletedPhraseKeys());
-    const local = loadPhrases().filter((phrase) => !deletedKeys.has(normalizePhraseKey(phrase.phraseText)));
+    if (!userEmail) {
+      setPhrases([]);
+      setIsLoading(false);
+      return;
+    }
+
+    const deletedKeys = new Set(loadDeletedPhraseKeys(userEmail));
+    const local = loadPhrases(userEmail).filter((phrase) => !deletedKeys.has(normalizePhraseKey(phrase.phraseText)));
     setPhrases(local);
     setIsLoading(false);
-    void syncPhrasesToNeon(local);
+    void syncPhrasesToNeon(local, userEmail);
     void syncExternalPhrases();
-  }, [syncExternalPhrases]);
+  }, [syncExternalPhrases, userEmail]);
 
   useEffect(() => {
     let stopped = false;
@@ -301,8 +342,8 @@ export function usePhraseStore() {
 
   const persist = useCallback((updated: Phrase[]) => {
     setPhrases(updated);
-    savePhrases(updated);
-  }, []);
+    savePhrases(updated, userEmail);
+  }, [userEmail]);
 
   const addPhrase = useCallback(
     async (
@@ -385,13 +426,13 @@ export function usePhraseStore() {
       };
 
       const updated = [...phrases, newPhrase];
-      clearDeletedPhraseKey(newPhrase.phraseText);
+      clearDeletedPhraseKey(newPhrase.phraseText, userEmail);
       persist(updated);
-      syncPhraseToNeon(newPhrase);
+      syncPhraseToNeon(newPhrase, userEmail);
       setIsLoading(false);
       return newPhrase;
     },
-    [phrases, persist]
+    [phrases, persist, userEmail]
   );
 
   const updatePhrase = useCallback(
@@ -401,9 +442,9 @@ export function usePhraseStore() {
       );
       persist(updated);
       const updatedPhrase = updated.find((p) => p.id === id);
-      if (updatedPhrase) syncPhraseToNeon(updatedPhrase);
+      if (updatedPhrase) syncPhraseToNeon(updatedPhrase, userEmail);
     },
-    [phrases, persist]
+    [phrases, persist, userEmail]
   );
 
   const deletePhrase = useCallback(
@@ -411,11 +452,11 @@ export function usePhraseStore() {
       const phrase = phrases.find((item) => item.id === id);
       if (!phrase) return;
 
-      markPhraseKeysDeleted([phrase]);
+      markPhraseKeysDeleted([phrase], userEmail);
       persist(phrases.filter((p) => p.id !== id));
-      await syncPhraseDeletion(phrase);
+      await syncPhraseDeletion(phrase, userEmail);
     },
-    [phrases, persist]
+    [phrases, persist, userEmail]
   );
 
   const bulkDeletePhrases = useCallback(
@@ -424,11 +465,11 @@ export function usePhraseStore() {
       const phrasesToDelete = phrases.filter((phrase) => idSet.has(phrase.id));
       if (!phrasesToDelete.length) return;
 
-      markPhraseKeysDeleted(phrasesToDelete);
+      markPhraseKeysDeleted(phrasesToDelete, userEmail);
       persist(phrases.filter((phrase) => !idSet.has(phrase.id)));
-      await Promise.all(phrasesToDelete.map(syncPhraseDeletion));
+      await Promise.all(phrasesToDelete.map((phrase) => syncPhraseDeletion(phrase, userEmail)));
     },
-    [phrases, persist]
+    [phrases, persist, userEmail]
   );
 
   const toggleFavorite = useCallback(
@@ -455,9 +496,9 @@ export function usePhraseStore() {
         idSet.has(phrase.id) ? { ...phrase, ...updates, updatedAt: now } : phrase
       );
       persist(updated);
-      void syncPhrasesToNeon(updated.filter((phrase) => idSet.has(phrase.id)));
+      void syncPhrasesToNeon(updated.filter((phrase) => idSet.has(phrase.id)), userEmail);
     },
-    [phrases, persist]
+    [phrases, persist, userEmail]
   );
 
   const reviewPhrase = useCallback(
@@ -578,20 +619,20 @@ export function usePhraseStore() {
           : item
       );
 
-      clearDeletedPhraseKey(trimmedPhraseText);
+      clearDeletedPhraseKey(trimmedPhraseText, userEmail);
       persist(updated);
       const savedPhrase = updated.find((item) => item.id === id) ?? null;
       if (savedPhrase) {
         // If word text changed, remove old key from Neon before upserting new
         if (trimmedPhraseText !== phrase.phraseText) {
-          apiFetch(`/api/words/${encodeURIComponent(normalizePhraseKey(phrase.phraseText))}`, { method: "DELETE" }).catch(() => {});
+          apiFetch(`/api/words/${encodeURIComponent(normalizePhraseKey(phrase.phraseText))}?userEmail=${encodeURIComponent(userEmail)}`, { method: "DELETE" }).catch(() => {});
         }
-        syncPhraseToNeon(savedPhrase);
+        syncPhraseToNeon(savedPhrase, userEmail);
       }
       setIsLoading(false);
       return savedPhrase;
     },
-    [phrases, persist]
+    [phrases, persist, userEmail]
   );
 
   const exportBackup = useCallback(() => {
@@ -612,7 +653,7 @@ export function usePhraseStore() {
 
       for (const phrase of sanitizedIncoming) {
         const key = normalizePhraseKey(phrase.phraseText);
-        clearDeletedPhraseKey(phrase.phraseText);
+        clearDeletedPhraseKey(phrase.phraseText, userEmail);
         if (mergedMap.has(key)) {
           replacedCount += 1;
         } else {
@@ -626,7 +667,7 @@ export function usePhraseStore() {
       );
 
       persist(merged);
-      void syncPhrasesToNeon(sanitizedIncoming);
+      void syncPhrasesToNeon(sanitizedIncoming, userEmail);
 
       return {
         importedCount,
@@ -634,7 +675,7 @@ export function usePhraseStore() {
         totalCount: merged.length,
       };
     },
-    [phrases, persist]
+    [phrases, persist, userEmail]
   );
 
   return {
