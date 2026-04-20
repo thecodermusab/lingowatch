@@ -321,6 +321,22 @@
       }, 800);
     });
 
+    // Lightweight fallback: poll every second for a video that hasn't been
+    // bound yet. Catches the new-tab → click-video case where yt-navigate-finish
+    // fires before the player element exists.
+    setInterval(() => {
+      const video = findBestVideo();
+      if (!video) return;
+      const videoId = getCurrentVideoId();
+      if (!videoId) return;
+      // Only act if this video or video ID is new
+      if (video !== state.currentVideo || videoId !== _lastVideoId) {
+        _lastVideoId = videoId;
+        clearTimeout(state.attachVideoTimer);
+        bindVideo(video, true);
+      }
+    }, 1000);
+
     // YouTube fires this after it updates ytInitialPlayerResponse for the new
     // video.  If the first load attempt ran while the response was stale (old
     // video data), we would have gotten no subtitles; retry here once the
