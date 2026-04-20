@@ -12,7 +12,6 @@ function findPlayer(): HTMLElement | null {
   );
 }
 
-// Single persistent host + root — never destroyed, just moved between players
 let hostEl: HTMLDivElement | null = null;
 
 function clearOverlay() {
@@ -23,7 +22,7 @@ function clearOverlay() {
   );
 }
 
-function ensureOverlay() {
+function ensureOverlay(): boolean {
   const player = findPlayer();
   if (!player) return false;
 
@@ -32,7 +31,6 @@ function ensureOverlay() {
   }
 
   if (!hostEl) {
-    // First time: create host and React root
     hostEl = document.createElement("div");
     hostEl.id = HOST_ID;
     hostEl.style.cssText =
@@ -41,7 +39,6 @@ function ensureOverlay() {
     root.render(<SubtitleOverlay />);
   }
 
-  // Move host to current player if it's detached or in a different player
   if (hostEl.parentElement !== player) {
     player.appendChild(hostEl);
   }
@@ -49,23 +46,33 @@ function ensureOverlay() {
   return true;
 }
 
-function tryMount(retries = 20) {
+function tryMount(retries = 15) {
   if (ensureOverlay()) return;
   if (retries > 0) setTimeout(() => tryMount(retries - 1), 300);
 }
 
-// On SPA navigation: clear and re-mount overlay to the new player
 window.addEventListener("yt-navigate-start", () => {
   clearOverlay();
 });
 
 window.addEventListener("yt-navigate-finish", () => {
   tryMount();
-  setTimeout(() => tryMount(), 500);
+  setTimeout(() => tryMount(), 600);
 });
 
 window.addEventListener("yt-page-data-updated", () => {
   tryMount();
 });
+
+// Reliable fallback: every second check if the overlay is attached to the
+// current player. Catches new-tab → click-video where events fire before
+// the player element exists.
+setInterval(() => {
+  const player = findPlayer();
+  if (!player) return;
+  if (!hostEl || hostEl.parentElement !== player) {
+    ensureOverlay();
+  }
+}, 1000);
 
 tryMount();

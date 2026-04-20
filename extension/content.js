@@ -315,21 +315,20 @@
 
     window.addEventListener("yt-navigate-finish", () => {
       clearTimeout(state.attachVideoTimer);
-      state.attachVideoTimer = setTimeout(() => {
-        _lastVideoId = getCurrentVideoId();
-        attemptAttachVideo(true);
-      }, 800);
+      // Don't set _lastVideoId here — let the interval do it when bindVideo runs.
+      // Setting it prematurely causes the interval to skip the new video.
+      state.attachVideoTimer = setTimeout(() => attemptAttachVideo(true), 800);
     });
 
-    // Lightweight fallback: poll every second for a video that hasn't been
-    // bound yet. Catches the new-tab → click-video case where yt-navigate-finish
-    // fires before the player element exists.
+    // Reliable fallback: poll every second for a video that hasn't been bound.
+    // This catches new-tab → click-video where yt-navigate-finish fires before
+    // the player element exists, and same-element video swaps (YouTube reuses
+    // the <video> element when navigating between videos).
     setInterval(() => {
       const video = findBestVideo();
       if (!video) return;
       const videoId = getCurrentVideoId();
       if (!videoId) return;
-      // Only act if this video or video ID is new
       if (video !== state.currentVideo || videoId !== _lastVideoId) {
         _lastVideoId = videoId;
         clearTimeout(state.attachVideoTimer);
