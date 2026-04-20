@@ -8,6 +8,10 @@ import { fetchTimedTtsAudio, TtsWordTiming } from "@/lib/tts";
 import { useAuth } from "@/contexts/AuthContext";
 import { accountStorageKey, legacyOwnerEmail, normalizeOwnerEmail } from "@/lib/accountStorage";
 
+// Module-level cache — survives re-renders, cleared only on page refresh
+let _worldStoriesCache: WorldStory[] = [];
+let _worldStoriesFetched = false;
+
 interface StoryEntry {
   id: string;
   title: string;
@@ -490,8 +494,8 @@ export default function StoriesPage() {
   const userEmail = normalizeOwnerEmail(user?.email);
   const [stories, setStories] = useState<StoryEntry[]>([]);
   const [storyToDelete, setStoryToDelete] = useState<StoryEntry | null>(null);
-  const [worldStories, setWorldStories] = useState<WorldStory[]>([]);
-  const [worldLoading, setWorldLoading] = useState(false);
+  const [worldStories, setWorldStories] = useState<WorldStory[]>(_worldStoriesCache);
+  const [worldLoading, setWorldLoading] = useState(_worldStoriesCache.length === 0);
   const [activeTab, setActiveTab] = useState<"mine" | "browse">("mine");
 
   useEffect(() => {
@@ -511,17 +515,21 @@ export default function StoriesPage() {
     setStories(raw ? JSON.parse(raw) : []);
   }, [userEmail]);
 
-  // Load world stories whenever we might need them
+  // Fetch world stories immediately on mount so Browse tab is instant.
   useEffect(() => {
-    if (worldStories.length > 0) return;
-    if (activeTab !== "browse" && !worldId) return;
+    if (_worldStoriesFetched) return;
+    _worldStoriesFetched = true;
     setWorldLoading(true);
     fetch("/api/world-stories")
       .then((r) => r.json())
-      .then((data) => setWorldStories(Array.isArray(data) ? data : []))
-      .catch(() => setWorldStories([]))
+      .then((data) => {
+        const stories = Array.isArray(data) ? data : [];
+        _worldStoriesCache = stories;
+        setWorldStories(stories);
+      })
+      .catch(() => {})
       .finally(() => setWorldLoading(false));
-  }, [activeTab, worldId, worldStories.length]);
+  }, []);
 
   const saveStories = (updated: StoryEntry[]) => {
     setStories(updated);
