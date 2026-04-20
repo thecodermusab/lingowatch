@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { BrandLogo } from '@/components/BrandLogo';
 import {
   consumeGoogleRedirectCredential,
   promptGoogleCredential,
@@ -89,7 +90,7 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} noValidate>
 
           <Link to="/" aria-label="Go to landing page" style={{ display: 'inline-flex', width: 'fit-content', marginBottom: '24px' }}>
-            <img src="/Logo.png" alt="LingoWatch" style={{ height: '60px', width: '60px', objectFit: 'contain' }} />
+            <BrandLogo alt="LingoWatch" width={60} height={60} className="h-[60px] w-[60px] object-contain" />
           </Link>
 
           <h1 style={{ fontWeight: 500, fontSize: '22px', color: '#0f0f0f', marginBottom: '6px' }}>Welcome back</h1>

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { BrandLogo } from '@/components/BrandLogo';
 import '../styles/landing.css';
 
 const FEATURE_TABS = [
@@ -112,7 +113,7 @@ export default function LandingPage() {
         {/* Left: logo */}
         <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
           <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-            <img src="/Logo.png" alt="LingoWatch" style={{ height: '60px', width: '60px', objectFit: 'contain' }} />
+            <BrandLogo alt="LingoWatch" width={60} height={60} className="h-[60px] w-[60px] object-contain" />
           </Link>
         </div>
 
