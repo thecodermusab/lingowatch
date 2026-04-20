@@ -207,6 +207,12 @@
 
   .lw-pill-navbar {
     min-width: calc(100vw - 32px) !important;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease !important;
+  }
+
+  .lw-pill-navbar-hidden {
+    transform: translateX(-50%) translateY(-200%) !important;
+    pointer-events: none !important;
   }
 }
 

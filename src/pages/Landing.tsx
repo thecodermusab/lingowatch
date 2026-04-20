@@ -67,7 +67,10 @@ export default function LandingPage() {
   const [activeTab, setActiveTab] = useState(0);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [scrolled, setScrolled] = useState(false);
+  const [hiddenNav, setHiddenNav] = useState(false);
   const scrolledRef = useRef(false);
+  const hiddenNavRef = useRef(false);
+  const lastScrollY = useRef(0);
 
   const scrollToSection = (id: string) => {
     const target = document.getElementById(id);
@@ -78,7 +81,23 @@ export default function LandingPage() {
 
   useEffect(() => {
     const onScroll = () => {
-      const nextScrolled = window.scrollY > 20;
+      const currentY = window.scrollY;
+      const nextScrolled = currentY > 20;
+
+      // Handle hide/show top nav smoothly
+      if (currentY > lastScrollY.current && currentY > 80) {
+        if (!hiddenNavRef.current) {
+          hiddenNavRef.current = true;
+          setHiddenNav(true);
+        }
+      } else if (currentY < lastScrollY.current) {
+        if (hiddenNavRef.current) {
+          hiddenNavRef.current = false;
+          setHiddenNav(false);
+        }
+      }
+      lastScrollY.current = currentY;
+
       if (scrolledRef.current === nextScrolled) return;
 
       scrolledRef.current = nextScrolled;
@@ -110,7 +129,7 @@ export default function LandingPage() {
 
       {/* ===== PILL NAVBAR ===== */}
       <nav
-        className={`lw-pill-navbar${scrolled ? ' lw-pill-navbar-scrolled' : ''}`}
+        className={`lw-pill-navbar${scrolled ? ' lw-pill-navbar-scrolled' : ''}${hiddenNav ? ' lw-pill-navbar-hidden' : ''}`}
         style={{
           position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
           zIndex: 1000, width: 'fit-content', minWidth: '680px', borderRadius: '20px',

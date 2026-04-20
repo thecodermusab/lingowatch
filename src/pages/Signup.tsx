@@ -92,7 +92,7 @@ export default function SignupPage() {
   const inputStyle = (err: boolean): React.CSSProperties => ({
     width: '100%', height: '44px', border: `1px solid ${err ? '#e53e3e' : '#e0e0e0'}`,
     borderRadius: '6px', padding: '0 14px', fontFamily: "'DM Sans', sans-serif",
-    fontSize: '14px', color: '#0f0f0f', background: '#f5f5f5', outline: 'none',
+    fontSize: '16px', color: '#0f0f0f', background: '#f5f5f5', outline: 'none',
     transition: 'all 0.2s ease',
     boxShadow: err ? '0 0 0 3px rgba(229,62,62,0.15)' : undefined,
   });
