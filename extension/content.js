@@ -281,59 +281,44 @@
   }
 
   function watchPageChanges() {
-    // Track the last video ID we initialized for — prevents resetSubtitleState
-    // being called multiple times when YouTube fires pushState/replaceState for
-    // minor URL updates (timestamps, playlist params, etc.) on the same video.
-    let _lastVideoId = "";
+    // The video ID of the last successfully bound video.
+    // Only updated inside the interval when bindVideo actually runs.
+    let _activeVideoId = "";
 
-    function onUrlChange() {
-      const videoId = getCurrentVideoId();
-      if (!videoId || videoId === _lastVideoId) return;
-      _lastVideoId = videoId;
-      resetSubtitleState();
-      clearTimeout(state.attachVideoTimer);
-      state.attachVideoTimer = setTimeout(() => attemptAttachVideo(true), 800);
-    }
-
-    const wrapHistoryMethod = (method) => {
-      const original = history[method];
-      history[method] = function wrappedHistoryMethod(...args) {
-        const result = original.apply(this, args);
-        onUrlChange();
-        return result;
-      };
-    };
-
-    wrapHistoryMethod("pushState");
-    wrapHistoryMethod("replaceState");
-    window.addEventListener("popstate", () => onUrlChange());
-
+    // Navigation start: clear state immediately for smooth visual transition.
     window.addEventListener("yt-navigate-start", () => {
-      _lastVideoId = "";        // force re-check on finish
+      _activeVideoId = "";
       resetSubtitleState();
     });
 
+    // Navigation finish: fast-path attempt in case the video is already ready.
     window.addEventListener("yt-navigate-finish", () => {
       clearTimeout(state.attachVideoTimer);
-      // Don't set _lastVideoId here — let the interval do it when bindVideo runs.
-      // Setting it prematurely causes the interval to skip the new video.
-      state.attachVideoTimer = setTimeout(() => attemptAttachVideo(true), 800);
+      state.attachVideoTimer = setTimeout(() => {
+        const video = findBestVideo();
+        const videoId = getCurrentVideoId();
+        if (!video || !videoId) return;
+        _activeVideoId = videoId;
+        bindVideo(video, true);
+      }, 600);
     });
 
-    // Reliable fallback: poll every second for a video that hasn't been bound.
-    // This catches new-tab → click-video where yt-navigate-finish fires before
-    // the player element exists, and same-element video swaps (YouTube reuses
-    // the <video> element when navigating between videos).
+    // PRIMARY binding mechanism: poll every second.
+    // This reliably catches:
+    //   - new tab → click video (video element not ready when events fired)
+    //   - same <video> element reused for a different video (YouTube behaviour)
+    //   - any case where yt-navigate-finish fired before the player existed
     setInterval(() => {
       const video = findBestVideo();
       if (!video) return;
       const videoId = getCurrentVideoId();
       if (!videoId) return;
-      if (video !== state.currentVideo || videoId !== _lastVideoId) {
-        _lastVideoId = videoId;
-        clearTimeout(state.attachVideoTimer);
-        bindVideo(video, true);
-      }
+      if (video === state.currentVideo && videoId === _activeVideoId) return;
+      const videoIdChanged = videoId !== _activeVideoId;
+      _activeVideoId = videoId;
+      clearTimeout(state.attachVideoTimer);
+      if (videoIdChanged) resetSubtitleState();
+      bindVideo(video, true);
     }, 1000);
 
     // YouTube fires this after it updates ytInitialPlayerResponse for the new
@@ -382,17 +367,9 @@
     }
   }
 
-  function attemptAttachVideo(forceReload = false, retries = 10) {
+  function attemptAttachVideo(forceReload = false) {
     const bestVideo = findBestVideo();
-    if (!bestVideo) {
-      if (retries > 0) {
-        state.attachVideoTimer = setTimeout(
-          () => attemptAttachVideo(forceReload, retries - 1),
-          400
-        );
-      }
-      return;
-    }
+    if (!bestVideo) return;
     bindVideo(bestVideo, forceReload);
   }
 
