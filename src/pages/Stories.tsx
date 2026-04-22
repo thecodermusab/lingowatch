@@ -15,7 +15,7 @@ import { usePhraseStore } from "@/hooks/usePhraseStore";
 
 // Module-level cache — survives re-renders, cleared only on page refresh
 let _worldStoriesCache: WorldStory[] = [];
-let _worldStoriesFetched = false;
+const WORLD_STORIES_STORAGE_KEY = "lingowatch_world_stories";
 
 interface WorldStory {
   id: string;
@@ -26,6 +26,32 @@ interface WorldStory {
   images: string[];
   source: string;
   sourceUrl: string;
+}
+
+function loadCachedWorldStories(): WorldStory[] {
+  if (_worldStoriesCache.length) return _worldStoriesCache;
+
+  try {
+    const raw = localStorage.getItem(WORLD_STORIES_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    if (Array.isArray(parsed)) {
+      _worldStoriesCache = parsed;
+      return parsed;
+    }
+  } catch {
+    // Ignore malformed cache and fall through to empty.
+  }
+
+  return [];
+}
+
+function saveCachedWorldStories(stories: WorldStory[]) {
+  _worldStoriesCache = stories;
+  try {
+    localStorage.setItem(WORLD_STORIES_STORAGE_KEY, JSON.stringify(stories));
+  } catch {
+    // Ignore cache write failures and keep the in-memory copy.
+  }
 }
 
 function normalizeStoryToken(token: string) {
@@ -732,8 +758,8 @@ export default function StoriesPage() {
   const userEmail = normalizeOwnerEmail(user?.email);
   const [stories, setStories] = useState<StoryEntry[]>([]);
   const [storyToDelete, setStoryToDelete] = useState<StoryEntry | null>(null);
-  const [worldStories, setWorldStories] = useState<WorldStory[]>(_worldStoriesCache);
-  const [worldLoading, setWorldLoading] = useState(_worldStoriesCache.length === 0);
+  const [worldStories, setWorldStories] = useState<WorldStory[]>(() => loadCachedWorldStories());
+  const [worldLoading, setWorldLoading] = useState(() => loadCachedWorldStories().length === 0);
   const [activeTab, setActiveTab] = useState<"mine" | "browse">("mine");
 
   useEffect(() => {
@@ -744,20 +770,29 @@ export default function StoriesPage() {
     setStories(loadStoredStories(userEmail));
   }, [userEmail]);
 
-  // Fetch world stories immediately on mount so Browse tab is instant.
+  // Render cached browse stories immediately, then refresh in the background.
   useEffect(() => {
-    if (_worldStoriesFetched) return;
-    _worldStoriesFetched = true;
-    setWorldLoading(true);
+    let cancelled = false;
+    setWorldLoading(worldStories.length === 0);
+
     fetch("/api/world-stories")
       .then((r) => r.json())
       .then((data) => {
         const stories = Array.isArray(data) ? data : [];
-        _worldStoriesCache = stories;
+        if (cancelled) return;
+        saveCachedWorldStories(stories);
         setWorldStories(stories);
       })
       .catch(() => {})
-      .finally(() => setWorldLoading(false));
+      .finally(() => {
+        if (!cancelled) {
+          setWorldLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const saveStories = (updated: StoryEntry[]) => {
@@ -928,8 +963,16 @@ export default function StoriesPage() {
         {/* Browse tab */}
         {activeTab === "browse" && (
           worldLoading ? (
-            <div className="flex min-h-[320px] items-center justify-center">
-              <p className="text-sm text-muted-foreground">Loading stories...</p>
+            <div className="flex flex-wrap gap-5">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm"
+                  style={{ width: 180, height: 240 }}
+                >
+                  <div className="h-full w-full animate-pulse bg-muted/70" />
+                </div>
+              ))}
             </div>
           ) : worldStories.length === 0 ? (
             <div className="admin-panel admin-panel-body flex min-h-[320px] flex-col items-center justify-center gap-3 text-center">
