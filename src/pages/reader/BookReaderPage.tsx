@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ChevronLeft, Play, Pause, BookMarked, X, Loader2 } from "lucide-react";
+import { ChevronLeft, Play, Pause, BookMarked, X } from "lucide-react";
 import { MOCK_READER_DICTIONARY } from "./mockReaderData";
 import { translateText } from "@/lib/googleTranslate";
 import { BOOK_ITEMS } from "../media/bookData";
@@ -9,6 +9,7 @@ import { AnnotationToolbar, HighlightColor, ExistingHighlight } from "@/componen
 import { HighlightableText, TextHighlight } from "@/components/reader/HighlightableText";
 import { SyncedTtsText, getActiveWordIndex } from "@/components/reader/SyncedTtsText";
 import { fetchTimedTtsAudio, TtsAudioResult } from "@/lib/tts";
+import { startUnlockedPlaybackSession } from "@/lib/audioPlayback";
 
 interface SavedEntry {
   translation: string;
@@ -240,8 +241,24 @@ export default function BookReaderPage() {
   const audioCache = useRef<Record<string, TtsAudioResult>>({});
   const audioPromises = useRef<Record<string, Promise<TtsAudioResult | null>>>({});
   const activeWordStartsRef = useRef<number[]>([]);
+  const playbackSessionRef = useRef(0);
   const [activeTtsRowId, setActiveTtsRowId] = useState<string | null>(null);
   const [activeTtsWordIndex, setActiveTtsWordIndex] = useState<number | null>(null);
+
+  const stopPlayback = useCallback(() => {
+    playbackSessionRef.current += 1;
+    isAutoPlayingRef.current = false;
+    setIsAutoPlaying(false);
+    setActiveTtsRowId(null);
+    setActiveTtsWordIndex(null);
+    activeWordStartsRef.current = [];
+
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = "";
+      audioRef.current = null;
+    }
+  }, []);
 
   const preloadAudio = (text: string): Promise<TtsAudioResult | null> => {
     if (!text) return Promise.resolve(null);
@@ -265,41 +282,83 @@ export default function BookReaderPage() {
     return promise;
   };
 
-  const playAudio = async (text: string) => {
+  const playAudio = async (
+    text: string,
+    sessionId = playbackSessionRef.current,
+    playbackAudio?: HTMLAudioElement | null
+  ) => {
     if (!text) return;
+    if (sessionId !== playbackSessionRef.current) return;
     if (audioRef.current) {
       audioRef.current.pause();
+      audioRef.current.src = "";
       audioRef.current = null;
     }
     setActiveTtsWordIndex(null);
     const result = await preloadAudio(text);
+    if (sessionId !== playbackSessionRef.current) return;
     if (!result) return Promise.resolve();
     return new Promise<void>((resolve) => {
-      const audio = new Audio(result.audioUrl);
+      const audio = playbackAudio || new Audio();
+      if (sessionId !== playbackSessionRef.current) {
+        audio.pause();
+        resolve();
+        return;
+      }
+      audio.src = result.audioUrl;
+      audio.preload = "auto";
       audioRef.current = audio;
       activeWordStartsRef.current = result.wordTimings.map((timing) => timing.startTime);
       audio.ontimeupdate = () => {
+        if (sessionId !== playbackSessionRef.current) return;
         setActiveTtsWordIndex(getActiveWordIndex(audio.currentTime, activeWordStartsRef.current));
       };
       audio.onended = () => {
+        if (sessionId !== playbackSessionRef.current) {
+          resolve();
+          return;
+        }
         // Don't clear activeTtsRowId during auto-play — toggleAutoPlay manages it
         if (!isAutoPlayingRef.current) setActiveTtsRowId(null);
         setActiveTtsWordIndex(null);
+        audioRef.current = null;
         resolve();
       };
       audio.onpause = () => {
+        if (sessionId !== playbackSessionRef.current) {
+          resolve();
+          return;
+        }
         setActiveTtsWordIndex(null);
+        if (audioRef.current === audio) {
+          audioRef.current = null;
+        }
         resolve();
       };
       audio.onerror = () => {
+        if (sessionId !== playbackSessionRef.current) {
+          resolve();
+          return;
+        }
         if (!isAutoPlayingRef.current) setActiveTtsRowId(null);
         setActiveTtsWordIndex(null);
+        if (audioRef.current === audio) {
+          audioRef.current = null;
+        }
         resolve();
       };
+      audio.load();
       audio.play().catch((e) => {
         console.error(e);
+        if (sessionId !== playbackSessionRef.current) {
+          resolve();
+          return;
+        }
         setActiveTtsRowId(null);
         setActiveTtsWordIndex(null);
+        if (audioRef.current === audio) {
+          audioRef.current = null;
+        }
         resolve();
       });
     });
@@ -307,19 +366,17 @@ export default function BookReaderPage() {
 
   const toggleAutoPlay = async () => {
     if (isAutoPlaying) {
-      setIsAutoPlaying(false);
-      isAutoPlayingRef.current = false;
-      if (audioRef.current) audioRef.current.pause();
-      setActiveTtsRowId(null);
-      setActiveTtsWordIndex(null);
+      stopPlayback();
       return;
     }
+    playbackSessionRef.current += 1;
+    const sessionId = playbackSessionRef.current;
     setIsAutoPlaying(true);
     isAutoPlayingRef.current = true;
     let currentIndex = readerRows.findIndex((r) => r.id === activeRowId);
     if (currentIndex === -1) currentIndex = 0;
     for (let i = currentIndex; i < readerRows.length; i++) {
-      if (!isAutoPlayingRef.current) break;
+      if (!isAutoPlayingRef.current || sessionId !== playbackSessionRef.current) break;
       const row = readerRows[i];
       setActiveRowId(row.id);
       setActiveTtsRowId(row.id);
@@ -327,12 +384,14 @@ export default function BookReaderPage() {
       if (rowElement) rowElement.scrollIntoView({ behavior: "smooth", block: "center" });
       const nextRow = readerRows[i + 1];
       if (nextRow) preloadAudio(nextRow.source);
-      await playAudio(row.source);
+      await playAudio(row.source, sessionId);
     }
-    setIsAutoPlaying(false);
-    isAutoPlayingRef.current = false;
-    setActiveTtsRowId(null);
-    setActiveTtsWordIndex(null);
+    if (sessionId === playbackSessionRef.current) {
+      setIsAutoPlaying(false);
+      isAutoPlayingRef.current = false;
+      setActiveTtsRowId(null);
+      setActiveTtsWordIndex(null);
+    }
   };
 
   useEffect(() => {
@@ -352,14 +411,16 @@ export default function BookReaderPage() {
     setActiveRowId(readerRows[0]?.id || "r1");
     setTranslatedRows({});
     setTranslatingRows({});
-    setIsAutoPlaying(false);
-    setActiveTtsRowId(null);
-    setActiveTtsWordIndex(null);
-    isAutoPlayingRef.current = false;
-    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+    stopPlayback();
     const mainContainer = document.getElementById("main-reader-scroll");
     if (mainContainer) mainContainer.scrollTo({ top: 0, behavior: "instant" });
-  }, [id, readerRows]);
+  }, [id, readerRows, stopPlayback]);
+
+  useEffect(() => {
+    return () => {
+      stopPlayback();
+    };
+  }, [stopPlayback]);
 
   const savedCount = Object.keys(savedWords).length;
 
@@ -478,11 +539,7 @@ export default function BookReaderPage() {
                 onMouseEnter={() => preloadAudio(row.source)}
                 onClick={() => {
                   if (isAutoPlayingRef.current) {
-                    setIsAutoPlaying(false);
-                    isAutoPlayingRef.current = false;
-                    if (audioRef.current) audioRef.current.pause();
-                    setActiveTtsRowId(null);
-                    setActiveTtsWordIndex(null);
+                    stopPlayback();
                   }
                   setActiveRowId(row.id);
                   if (
@@ -507,16 +564,30 @@ export default function BookReaderPage() {
                     }`}
                     onClick={(e) => {
                       e.stopPropagation();
+                      if (activeTtsRowId === row.id && audioRef.current) {
+                        stopPlayback();
+                        return;
+                      }
+                      playbackSessionRef.current += 1;
+                      const sessionId = playbackSessionRef.current;
+                      const unlockedAudio = startUnlockedPlaybackSession();
                       setActiveRowId(row.id);
                       setActiveTtsRowId(row.id);
-                      playAudio(row.source);
+                      void playAudio(row.source, sessionId, unlockedAudio);
                     }}
                   >
                     <div className="rounded-full bg-white/10 hover:bg-white/20 p-1.5 transition-colors">
-                      <Play
-                        fill="currentColor"
-                        className="w-[10px] h-[10px] text-white/80 ml-0.5"
-                      />
+                      {activeTtsRowId === row.id ? (
+                        <Pause
+                          fill="currentColor"
+                          className="h-[10px] w-[10px] text-[#ff5f7e]"
+                        />
+                      ) : (
+                        <Play
+                          fill="currentColor"
+                          className="ml-0.5 h-[10px] w-[10px] text-white/80"
+                        />
+                      )}
                     </div>
                   </div>
 
