@@ -8,10 +8,11 @@ import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { getReviewStage, getReviewTimingPreview } from "@/lib/review";
-import { speakText, fetchTtsAudioContent } from "@/lib/tts";
+import { primeAudioUrl } from "@/lib/audioPlayback";
 import { generateAIExplanation, getAiProviderLabel, getSavedWordRegenerationProvider, SAVED_WORD_REGENERATION_OPTIONS } from "@/lib/ai";
 import { translateText } from "@/lib/googleTranslate";
 import { useToast } from "@/hooks/use-toast";
+import { ensureRuntimeTtsAsset, getPlayableAudioUrl, playRuntimeTtsAsset } from "@/lib/ttsAssets";
 
 type ReviewMode = "phrase_to_meaning" | "meaning_to_phrase" | "somali_to_english";
 
@@ -121,14 +122,50 @@ export default function ReviewPage() {
     setReExplainProvider(recommendedReExplainProvider);
   }, [recommendedReExplainProvider]);
 
-  // Prefetch TTS for current card so audio is instant when icon is tapped
   useEffect(() => {
-    if (currentPhrase?.phraseText) void fetchTtsAudioContent(currentPhrase.phraseText);
-  }, [currentPhrase?.phraseText]);
+    if (!currentPhrase?.phraseText) return;
+
+    const existingUrl = getPlayableAudioUrl(currentPhrase.audio);
+    if (existingUrl) {
+      primeAudioUrl(existingUrl);
+      return;
+    }
+
+    let cancelled = false;
+    void ensureRuntimeTtsAsset({
+      key: currentPhrase.id,
+      text: currentPhrase.phraseText,
+      language: currentPhrase.audio?.language || "en-US",
+      voice: currentPhrase.audio?.voice,
+    }).then((asset) => {
+      if (cancelled || !asset) return;
+      const playableUrl = getPlayableAudioUrl(asset);
+      if (!playableUrl) return;
+      updatePhrase(currentPhrase.id, { audio: { ...asset, text: currentPhrase.phraseText } });
+      primeAudioUrl(playableUrl);
+    }).catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [currentPhrase?.id, currentPhrase?.phraseText, currentPhrase?.audio?.audioUrl, currentPhrase?.audio?.playbackUrl, currentPhrase?.audio?.voice, currentPhrase?.audio?.language, updatePhrase]);
 
   function speakCurrentPrompt() {
     if (!currentPhrase) return;
-    void speakText(currentPhrase.phraseText).catch(() => {
+    void playRuntimeTtsAsset(
+      {
+        key: currentPhrase.id,
+        text: currentPhrase.phraseText,
+        language: currentPhrase.audio?.language || "en-US",
+        voice: currentPhrase.audio?.voice,
+      },
+      currentPhrase.audio
+    ).then((asset) => {
+      if (!asset) {
+        throw new Error("missing-audio");
+      }
+      updatePhrase(currentPhrase.id, { audio: { ...asset, text: currentPhrase.phraseText } });
+    }).catch(() => {
       toast({
         title: "Could not play audio",
         description: "This audio file could not be played right now.",
@@ -165,7 +202,12 @@ export default function ReviewPage() {
     if (!currentPhrase) return;
     setIsReExplaining(true);
     try {
-      const result = await generateAIExplanation(currentPhrase.phraseText, reExplainProvider, true);
+      const result = await generateAIExplanation(
+        currentPhrase.phraseText,
+        reExplainProvider,
+        true,
+        googleTranslation || currentPhrase.explanation?.googleTranslation || ""
+      );
       updatePhrase(currentPhrase.id, {
         explanation: buildExplanation(currentPhrase, result),
         examples: result.examples?.map((example) => ({

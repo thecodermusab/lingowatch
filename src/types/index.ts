@@ -3,6 +3,17 @@ export type DifficultyLevel = "beginner" | "intermediate" | "advanced";
 export type ExampleType = "simple" | "daily" | "work" | "extra" | "somali";
 export type ReviewRating = "again" | "hard" | "good" | "easy";
 export type PreferredAiProvider = "auto" | "glm4" | "deepseek" | "gemini-lite" | "gemini" | "grok" | "openrouter" | "cerebras" | "antigravity";
+export type PhraseAudioStatus = "pending" | "ready" | "error";
+
+export interface PhraseAudioAsset {
+  text: string;
+  audioUrl?: string;
+  playbackUrl?: string;
+  audioStatus?: PhraseAudioStatus;
+  voice?: string;
+  language?: string;
+  ttsHash?: string;
+}
 
 export interface UserProfile {
   id: string;
@@ -30,6 +41,8 @@ export interface Phrase {
   sourceContext?: string;
   createdAt: string;
   updatedAt: string;
+  audioUrl?: string;
+  audio?: PhraseAudioAsset;
   explanation?: PhraseExplanation;
   examples?: PhraseExample[];
   review?: ReviewData;
@@ -54,6 +67,9 @@ export interface PhraseExplanation {
   relatedPhrases: string[];
   googleTranslation?: string;
   googleTranslationUpdatedAt?: string;
+  googleTranslationAudio?: PhraseAudioAsset;
+  somaliMeaningAudio?: PhraseAudioAsset;
+  somaliSentenceAudio?: PhraseAudioAsset;
   aiProvider?: PreferredAiProvider | string;
   aiProviderLabel?: string;
   aiModel?: string;
@@ -65,6 +81,8 @@ export interface PhraseExample {
   exampleText: string;
   exampleType: ExampleType;
   translationText?: string;
+  audio?: PhraseAudioAsset;
+  translationAudio?: PhraseAudioAsset;
 }
 
 export interface ReviewData {

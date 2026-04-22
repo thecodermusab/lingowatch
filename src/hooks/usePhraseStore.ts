@@ -4,6 +4,8 @@ import { generateAIExplanation } from "@/lib/ai";
 import { buildNextReviewDate } from "@/lib/review";
 import { useAuth } from "@/contexts/AuthContext";
 import { accountStorageKey, legacyOwnerEmail, normalizeOwnerEmail } from "@/lib/accountStorage";
+import { buildPhraseAudioRequests, mergePhraseAudioAssets, requestPhraseAudioAssets } from "@/lib/phraseAudio";
+import { translateText } from "@/lib/googleTranslate";
 
 const STORAGE_KEY = "lingowatch_phrases";
 const LEGACY_STORAGE_KEY = "phrasepal_phrases";
@@ -140,6 +142,38 @@ async function syncPhrasesToNeon(phrases: Phrase[], userEmail?: string | null) {
   await Promise.allSettled(phrases.map((phrase) => syncPhraseToNeon(phrase, userEmail)));
 }
 
+async function prewarmPhraseAudio(
+  phrase: Phrase,
+  userEmail: string | null | undefined,
+  persist: (updater: (current: Phrase[]) => Phrase[]) => void
+) {
+  const requestItems = buildPhraseAudioRequests(phrase, phrase.explanation?.googleTranslation || "");
+  if (!requestItems.length) return;
+
+  try {
+    const assetMap = await requestPhraseAudioAssets(requestItems);
+    if (!assetMap.size) return;
+
+    const warmedPhrase = sanitizePhrase(
+      mergePhraseAudioAssets(phrase, assetMap, phrase.explanation?.googleTranslation || "")
+    );
+
+    persist((current) => {
+      let changed = false;
+      const updated = current.map((item) => {
+        if (item.id !== warmedPhrase.id) return item;
+        changed = true;
+        return warmedPhrase;
+      });
+      return changed ? updated : current;
+    });
+
+    void syncPhraseToNeon(warmedPhrase, userEmail);
+  } catch {
+    // Audio prewarm is best-effort only.
+  }
+}
+
 async function syncPhraseDeletion(phrase: Phrase, userEmail?: string | null) {
   const ownerEmail = normalizeOwnerEmail(userEmail);
   if (!ownerEmail) return;
@@ -211,6 +245,50 @@ function sanitizePhrase(input: Phrase): Phrase {
   };
 }
 
+function clearPhraseAudioState(phrase: Phrase): Phrase {
+  return {
+    ...phrase,
+    audioUrl: undefined,
+    audio: undefined,
+    explanation: phrase.explanation
+      ? {
+          ...phrase.explanation,
+          googleTranslationAudio: undefined,
+          somaliMeaningAudio: undefined,
+          somaliSentenceAudio: undefined,
+        }
+      : undefined,
+    examples: Array.isArray(phrase.examples)
+      ? phrase.examples.map((example) => ({
+          ...example,
+          audio: undefined,
+          translationAudio: undefined,
+        }))
+      : [],
+  };
+}
+
+function shouldHydrateFallbackAiResult(
+  aiResultOverride?: {
+    aiProvider?: string;
+    aiProviderLabel?: string;
+    aiModel?: string;
+  }
+) {
+  if (!aiResultOverride) return false;
+
+  const provider = aiResultOverride.aiProvider?.trim().toLowerCase();
+  const providerLabel = aiResultOverride.aiProviderLabel?.trim().toLowerCase();
+  const model = aiResultOverride.aiModel?.trim().toLowerCase();
+
+  return (
+    !provider ||
+    provider === "fallback" ||
+    providerLabel === "local fallback" ||
+    model === "none"
+  );
+}
+
 function isPhraseLike(value: unknown): value is Phrase {
   if (!value || typeof value !== "object") return false;
   const candidate = value as Partial<Phrase>;
@@ -248,11 +326,12 @@ export function usePhraseStore() {
     const map = new Map(current.map((phrase) => [normalizePhraseKey(phrase.phraseText), phrase]));
     let changed = false;
 
-    for (const row of neonWords as Array<{ word: string; display_word: string; translation: string; saved_at: string; phrase_data?: Phrase }>) {
+    for (const row of neonWords as Array<{ word: string; display_word: string; translation: string; saved_at: string; audio_url?: string; phrase_data?: Phrase }>) {
       const key = normalizePhraseKey(row.display_word || row.word);
       if (!key || currentDeletedKeys.has(key)) continue;
+      const rowAudioUrl = row.audio_url || undefined;
       const neonPhrase = row.phrase_data
-        ? sanitizePhrase(row.phrase_data)
+        ? sanitizePhrase({ ...row.phrase_data, audioUrl: rowAudioUrl || row.phrase_data.audioUrl })
         : (() => {
             const now = row.saved_at ? new Date(row.saved_at).toISOString() : new Date().toISOString();
             return sanitizePhrase({
@@ -268,6 +347,7 @@ export function usePhraseStore() {
               createdAt: now,
               updatedAt: now,
               examples: [],
+              audioUrl: rowAudioUrl,
             });
           })();
       const existing = map.get(key);
@@ -351,6 +431,14 @@ export function usePhraseStore() {
     savePhrases(updated, userEmail);
   }, [userEmail]);
 
+  const persistWithUpdater = useCallback((updater: (current: Phrase[]) => Phrase[]) => {
+    setPhrases((current) => {
+      const updated = updater(current);
+      savePhrases(updated, userEmail);
+      return updated;
+    });
+  }, [userEmail]);
+
   const addPhrase = useCallback(
     async (
       data: { phraseText: string; phraseType: PhraseType; category: string; notes: string; difficultyLevel: DifficultyLevel },
@@ -377,8 +465,9 @@ export function usePhraseStore() {
       }
     ) => {
       setIsLoading(true);
-
-      const aiResult = aiResultOverride ?? await generateAIExplanation(data.phraseText);
+      const shouldHydrateAiInBackground = shouldHydrateFallbackAiResult(aiResultOverride);
+      const googleTranslation = aiResultOverride ? "" : await translateText(data.phraseText).catch(() => "");
+      const aiResult = aiResultOverride ?? await generateAIExplanation(data.phraseText, undefined, false, googleTranslation);
 
       const now = new Date().toISOString();
       const id = crypto.randomUUID();
@@ -411,6 +500,8 @@ export function usePhraseStore() {
           commonMistake: aiResult.commonMistake,
           pronunciationText: aiResult.pronunciationText,
           relatedPhrases: aiResult.relatedPhrases,
+          googleTranslation,
+          googleTranslationUpdatedAt: googleTranslation ? now : undefined,
           aiProvider: aiResult.aiProvider,
           aiProviderLabel: aiResult.aiProviderLabel,
           aiModel: aiResult.aiModel,
@@ -421,6 +512,8 @@ export function usePhraseStore() {
           exampleText: ex.text,
           exampleType: ex.type,
           translationText: ex.translation,
+          audio: undefined,
+          translationAudio: undefined,
         })),
         review: {
           id: crypto.randomUUID(),
@@ -435,10 +528,81 @@ export function usePhraseStore() {
       clearDeletedPhraseKey(newPhrase.phraseText, userEmail);
       persist(updated);
       syncPhraseToNeon(newPhrase, userEmail);
+      void prewarmPhraseAudio(newPhrase, userEmail, persistWithUpdater);
+      if (shouldHydrateAiInBackground) {
+        void (async () => {
+          try {
+            const hydratedGoogleTranslation = await translateText(data.phraseText).catch(() => "");
+            const hydratedAiResult = await generateAIExplanation(
+              data.phraseText,
+              undefined,
+              false,
+              hydratedGoogleTranslation
+            );
+            const hydratedAt = new Date().toISOString();
+
+            let refreshedPhrase: Phrase | null = null;
+            persistWithUpdater((current) =>
+              current.map((item) => {
+                if (item.id !== id) return item;
+
+                refreshedPhrase = sanitizePhrase(
+                  clearPhraseAudioState({
+                    ...item,
+                    phraseType: hydratedAiResult.phraseType || item.phraseType,
+                    updatedAt: hydratedAt,
+                    explanation: {
+                      id: item.explanation?.id ?? crypto.randomUUID(),
+                      phraseId: id,
+                      standardMeaning: hydratedAiResult.standardMeaning,
+                      easyMeaning: hydratedAiResult.easyMeaning,
+                      aiExplanation: hydratedAiResult.aiExplanation,
+                      usageContext: hydratedAiResult.usageContext,
+                      somaliMeaning: hydratedAiResult.somaliMeaning,
+                      partOfSpeech: hydratedAiResult.partOfSpeech,
+                      somaliExplanation: hydratedAiResult.somaliExplanation,
+                      somaliSentence: hydratedAiResult.somaliSentence,
+                      somaliSentenceTranslation: hydratedAiResult.somaliSentenceTranslation,
+                      usageNote: hydratedAiResult.usageNote,
+                      contextNote: hydratedAiResult.contextNote,
+                      commonMistake: hydratedAiResult.commonMistake,
+                      pronunciationText: hydratedAiResult.pronunciationText,
+                      relatedPhrases: hydratedAiResult.relatedPhrases,
+                      googleTranslation: hydratedGoogleTranslation || item.explanation?.googleTranslation,
+                      googleTranslationUpdatedAt: hydratedGoogleTranslation
+                        ? hydratedAt
+                        : item.explanation?.googleTranslationUpdatedAt,
+                      aiProvider: hydratedAiResult.aiProvider,
+                      aiProviderLabel: hydratedAiResult.aiProviderLabel,
+                      aiModel: hydratedAiResult.aiModel,
+                    },
+                    examples: hydratedAiResult.examples.map((example, index) => ({
+                      id: item.examples?.[index]?.id ?? crypto.randomUUID(),
+                      phraseId: id,
+                      exampleText: example.text,
+                      exampleType: example.type,
+                      translationText: example.translation,
+                    })),
+                  })
+                );
+
+                return refreshedPhrase;
+              })
+            );
+
+            if (refreshedPhrase) {
+              void syncPhraseToNeon(refreshedPhrase, userEmail);
+              void prewarmPhraseAudio(refreshedPhrase, userEmail, persistWithUpdater);
+            }
+          } catch {
+            // Keep the fallback explanation if background AI hydration fails.
+          }
+        })();
+      }
       setIsLoading(false);
       return newPhrase;
     },
-    [phrases, persist, userEmail]
+    [phrases, persist, persistWithUpdater, userEmail]
   );
 
   const updatePhrase = useCallback(
@@ -576,7 +740,8 @@ export function usePhraseStore() {
       let examples = phrase.examples;
 
       if (shouldRefreshAI) {
-        const aiResult = await generateAIExplanation(trimmedPhraseText);
+        const googleTranslation = await translateText(trimmedPhraseText).catch(() => "");
+        const aiResult = await generateAIExplanation(trimmedPhraseText, undefined, false, googleTranslation);
         explanation = {
           id: phrase.explanation?.id ?? crypto.randomUUID(),
           phraseId: id,
@@ -594,8 +759,8 @@ export function usePhraseStore() {
           commonMistake: aiResult.commonMistake,
           pronunciationText: aiResult.pronunciationText,
           relatedPhrases: aiResult.relatedPhrases,
-          googleTranslation: phrase.explanation?.googleTranslation,
-          googleTranslationUpdatedAt: phrase.explanation?.googleTranslationUpdatedAt,
+          googleTranslation: googleTranslation || phrase.explanation?.googleTranslation,
+          googleTranslationUpdatedAt: googleTranslation ? new Date().toISOString() : phrase.explanation?.googleTranslationUpdatedAt,
           aiProvider: aiResult.aiProvider,
           aiProviderLabel: aiResult.aiProviderLabel,
           aiModel: aiResult.aiModel,
@@ -611,7 +776,8 @@ export function usePhraseStore() {
 
       const updated = phrases.map((item) =>
         item.id === id
-          ? {
+          ? sanitizePhrase(shouldRefreshAI
+            ? clearPhraseAudioState({
               ...item,
               phraseText: trimmedPhraseText,
               phraseType: updates.phraseType,
@@ -621,7 +787,18 @@ export function usePhraseStore() {
               explanation,
               examples,
               updatedAt: new Date().toISOString(),
-            }
+            })
+            : {
+              ...item,
+              phraseText: trimmedPhraseText,
+              phraseType: updates.phraseType,
+              category: updates.category,
+              notes: updates.notes,
+              difficultyLevel: updates.difficultyLevel,
+              explanation,
+              examples,
+              updatedAt: new Date().toISOString(),
+            })
           : item
       );
 
@@ -634,11 +811,14 @@ export function usePhraseStore() {
           apiFetch(`/api/words/${encodeURIComponent(normalizePhraseKey(phrase.phraseText))}?userEmail=${encodeURIComponent(userEmail)}`, { method: "DELETE" }).catch(() => {});
         }
         syncPhraseToNeon(savedPhrase, userEmail);
+        if (shouldRefreshAI) {
+          void prewarmPhraseAudio(savedPhrase, userEmail, persistWithUpdater);
+        }
       }
       setIsLoading(false);
       return savedPhrase;
     },
-    [phrases, persist, userEmail]
+    [phrases, persist, persistWithUpdater, userEmail]
   );
 
   const exportBackup = useCallback(() => {

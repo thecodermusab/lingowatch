@@ -14,6 +14,9 @@ import { useToast } from "@/hooks/use-toast";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { accountStorageKey, legacyOwnerEmail, normalizeOwnerEmail } from "@/lib/accountStorage";
+import { getPlayableAudioUrl, rememberPlayableAsset, requestTtsAssets } from "@/lib/ttsAssets";
+import { primeAudioUrl } from "@/lib/audioPlayback";
+import { loadStoredStories, saveStoredStories, StoryEntry } from "@/lib/storyStorage";
 
 type SortOption = "newest" | "oldest" | "alphabetical" | "review_due" | "hardest";
 type FilterStatus = "all" | "learned" | "not_learned" | "favorite";
@@ -23,7 +26,7 @@ function storyWordsKey(words: string[]) {
 }
 
 export default function LibraryPage() {
-  const { phrases, bulkDeletePhrases, bulkUpdatePhrases } = usePhraseStore();
+  const { phrases, bulkDeletePhrases, bulkUpdatePhrases, updatePhrase } = usePhraseStore();
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -88,6 +91,57 @@ export default function LibraryPage() {
   const allVisibleSelected = filtered.length > 0 && filtered.every((phrase) => selectedIds.includes(phrase.id));
   const selectedCount = selectedIds.length;
 
+  useEffect(() => {
+    const visible = filtered.slice(0, 10);
+    const resolvePhraseAsset = (phrase: typeof visible[number]) =>
+      phrase.audio?.audioUrl || phrase.audio?.playbackUrl || phrase.audioUrl
+        ? {
+            text: phrase.phraseText,
+            audioUrl: phrase.audio?.audioUrl || phrase.audioUrl,
+            playbackUrl: phrase.audio?.playbackUrl,
+            audioStatus: phrase.audio?.audioStatus || (phrase.audioUrl ? "ready" : undefined),
+            voice: phrase.audio?.voice,
+            language: phrase.audio?.language,
+            ttsHash: phrase.audio?.ttsHash,
+          }
+        : phrase.audio;
+
+    const phrasesNeedingAudio = visible.filter((phrase) => !getPlayableAudioUrl(resolvePhraseAsset(phrase)));
+    visible.forEach((phrase) => {
+      const asset = resolvePhraseAsset(phrase);
+      const playableUrl = getPlayableAudioUrl(asset);
+      if (playableUrl) {
+        rememberPlayableAsset({ key: phrase.id, text: phrase.phraseText, language: asset?.language, voice: asset?.voice }, asset);
+        primeAudioUrl(playableUrl);
+      }
+    });
+    if (!phrasesNeedingAudio.length) return;
+
+    let cancelled = false;
+    void requestTtsAssets(
+      phrasesNeedingAudio.map((phrase) => ({
+        key: phrase.id,
+        text: phrase.phraseText,
+        language: phrase.audio?.language || "en-US",
+        voice: phrase.audio?.voice,
+      }))
+    ).then((assets) => {
+      if (cancelled) return;
+      for (const phrase of phrasesNeedingAudio) {
+        const asset = assets.get(phrase.id);
+        const playableUrl = getPlayableAudioUrl(asset);
+        if (!asset || !playableUrl) continue;
+        rememberPlayableAsset({ key: phrase.id, text: phrase.phraseText, language: asset.language, voice: asset.voice }, asset);
+        updatePhrase(phrase.id, { audio: { ...asset, text: phrase.phraseText } });
+        primeAudioUrl(playableUrl);
+      }
+    }).catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [filtered, updatePhrase]);
+
   const toggleSelection = (id: string) => {
     setSelectedIds((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
   };
@@ -130,12 +184,7 @@ export default function LibraryPage() {
     const requestedKey = storyWordsKey(words);
     setMakingStory(true);
     try {
-      const storageKey = accountStorageKey("lingowatch_stories", userEmail);
-      let rawStories = localStorage.getItem(storageKey);
-      if (!rawStories && userEmail === legacyOwnerEmail()) {
-        rawStories = localStorage.getItem("lingowatch_stories");
-      }
-      const stored = JSON.parse(rawStories || "[]");
+      const stored = loadStoredStories(userEmail);
       const existing = stored.find((story: { words?: string[] }) => storyWordsKey(story.words || []) === requestedKey);
       if (existing?.id) {
         setSelectedIds([]);
@@ -144,10 +193,11 @@ export default function LibraryPage() {
       }
 
       const { title, content } = await generateStory(words);
-      const entry = { id: crypto.randomUUID(), title, words, content, createdAt: new Date().toISOString() };
-      localStorage.setItem(storageKey, JSON.stringify([entry, ...stored]));
+      const entry: StoryEntry = { id: crypto.randomUUID(), title, words, content, createdAt: new Date().toISOString() };
+      const updatedStories = [entry, ...stored];
+      saveStoredStories(updatedStories, userEmail);
       setSelectedIds([]);
-      navigate("/stories");
+      navigate(`/stories/${entry.id}`);
     } catch (error) {
       toast({ title: "Could not generate story", description: error instanceof Error ? error.message : "Unknown error", variant: "destructive" });
     } finally {

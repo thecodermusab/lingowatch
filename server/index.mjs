@@ -101,6 +101,7 @@ const TTS_REQUEST_TIMEOUT_MS = Number(env.TTS_REQUEST_TIMEOUT_MS || 5000);
 const sql = env.DATABASE_URL ? neon(env.DATABASE_URL) : null;
 const googleOAuthClientId = env.GOOGLE_CLIENT_ID || env.VITE_GOOGLE_CLIENT_ID || "";
 const googleOAuthClient = googleOAuthClientId ? new OAuth2Client(googleOAuthClientId) : null;
+const ttsGenerationJobs = new Map();
 
 // Run schema migrations
 if (sql) {
@@ -142,9 +143,10 @@ Field rules:
 - aiExplanation: 3-4 learner-friendly sentences. If subtitle context is provided, explain that specific use. If no subtitle context is provided, explain the word/phrase generally and do not mention subtitles, videos, speakers, scenes, "here", or "in this sentence".
 - usageContext: 2-3 sentences describing when people commonly use this word/phrase, the tone/register, and a natural situation where it fits.
 - examples: 3 to 5 items. Each must have "type", "text", and "translation".
+- If a Google Somali translation hint is provided in the user prompt, treat it as a grounding hint for the intended Somali sense. Keep somaliMeaning and somaliExplanation aligned with that sense unless the hint is clearly wrong for the context.
 - For English examples, "translation" must be a natural Somali translation.
 - For type "somali", "text" must be a natural Somali sentence and "translation" must be the English meaning.
-- somaliMeaning: short natural Somali translation, 1-5 words. Prefer common everyday Somali over formal or Arabic-borrowed terms where both exist.
+- somaliMeaning: short natural Somali translation, 1-5 words. Prefer common everyday Somali over formal or Arabic-borrowed terms where both exist. If the word has a few very close everyday Somali meanings, you may return 2-4 short glosses separated by commas.
 - partOfSpeech: one of noun, verb, adjective, adverb, phrase, idiom, conjunction, preposition.
 - somaliExplanation: 2-3 sentences in simple Somali explaining the meaning, when to use it, and one grammar note if relevant.
 - somaliSentence: one natural Somali example sentence using the word in the same sense as the subtitle context.
@@ -383,6 +385,7 @@ createServer(async (req, res) => {
       const body = await readJsonBody(req);
       const phraseText = String(body?.phraseText || "").trim();
       const sentenceContext = String(body?.sentenceContext || "").trim();
+      const googleTranslation = String(body?.googleTranslation || "").trim();
       const preferredProvider = normalizePreferredProvider(body?.preferredProvider);
       const strictProvider = Boolean(body?.strictProvider);
 
@@ -391,8 +394,17 @@ createServer(async (req, res) => {
         return;
       }
 
-      const aiResult = await explainPhrase(phraseText, preferredProvider, sentenceContext, strictProvider);
+      const aiResult = await explainPhrase(phraseText, preferredProvider, sentenceContext, strictProvider, googleTranslation);
       sendJson(res, 200, aiResult);
+
+      // Pre-warm audio cache for the word itself and its 3 core example sentences
+      void getOrGenerateAudioUrl(phraseText).catch(() => {});
+      const coreTypes = new Set(["simple", "daily", "work"]);
+      for (const ex of (Array.isArray(aiResult?.examples) ? aiResult.examples : [])) {
+        if (coreTypes.has(ex?.type) && ex?.text) {
+          void getOrGenerateAudioUrl(ex.text).catch(() => {});
+        }
+      }
       return;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unexpected server error";
@@ -609,42 +621,178 @@ createServer(async (req, res) => {
   }
 
   // ── Google Cloud TTS proxy ──────────────────────────────────────
+  if (req.method === "POST" && pathname === "/api/tts/cache") {
+    try {
+      const body = await readJsonBody(req);
+      const items = Array.isArray(body?.items) ? body.items : [body];
+      const forceRefresh = Boolean(body?.forceRefresh);
+      const results = await Promise.all(items.map(async (item, index) => {
+        const request = {
+          text: item?.text,
+          languageCode: item?.language,
+          voiceName: item?.voice,
+          speakingRate: item?.speakingRate,
+          preferProvider: String(item?.preferProvider || "").trim().toLowerCase(),
+          forceRefresh,
+        };
+        let entry = await getExistingTtsCacheEntry(request);
+
+        if (!entry) {
+          scheduleTtsCacheGeneration(request);
+          entry = {
+            text: normalizeTtsText(item?.text),
+            language: normalizeLanguageCode(item?.language),
+            voice: normalizeVoiceName(item?.voice, item?.language),
+            ttsHash: createStableTtsHash({
+              text: item?.text,
+              languageCode: item?.language,
+              voiceName: item?.voice,
+            }),
+            audioUrl: "",
+            playbackUrl: "",
+            audioStatus: "pending",
+          };
+        }
+
+        return {
+          key: String(item?.key || index),
+          text: entry?.text || normalizeTtsText(item?.text),
+          language: entry?.language || normalizeLanguageCode(item?.language),
+          voice: entry?.voice || normalizeVoiceName(item?.voice, item?.language),
+          ttsHash: entry?.ttsHash || "",
+          audioUrl: entry?.audioUrl || "",
+          playbackUrl: entry?.playbackUrl || "",
+          audioStatus: entry?.audioStatus || "error",
+        };
+      }));
+
+      sendJson(res, 200, { items: results });
+    } catch (err) {
+      sendJson(res, 500, { error: String(err) });
+    }
+    return;
+  }
+
   if (req.method === "POST" && pathname === "/api/tts") {
     try {
       const body = await readJsonBody(req);
-      const text = String(body?.text || "").trim();
+      const text = normalizeTtsText(body?.text);
       if (!text) { sendJson(res, 400, { error: "text is required" }); return; }
-      const voiceName = String(body?.voiceName || env.GOOGLE_TTS_VOICE || "en-US-Neural2-J");
-      const languageCode = String(body?.languageCode || env.GOOGLE_TTS_LANGUAGE || "en-US");
+      const voiceName = normalizeVoiceName(body?.voiceName, body?.languageCode);
+      const languageCode = normalizeLanguageCode(body?.languageCode);
       const speakingRate = Number(body?.speakingRate || env.GOOGLE_TTS_SPEAKING_RATE || 0.9);
       const includeWordTimings = Boolean(body?.includeWordTimings);
       const forceRefresh = Boolean(body?.forceRefresh);
       const preferProvider = String(body?.preferProvider || "").trim().toLowerCase();
-      const cacheKey = createTtsCacheKey({ text, voiceName, languageCode, speakingRate, includeWordTimings });
-      const cachedAudio = forceRefresh ? null : await getCachedTtsAudio(cacheKey);
-      if (cachedAudio) {
+      const entry = await ensureTtsCacheEntry({
+        text,
+        voiceName,
+        languageCode,
+        speakingRate,
+        includeWordTimings,
+        forceRefresh,
+        preferProvider,
+      });
+
+      if (entry?.audioUrl && !forceRefresh) {
         sendJson(res, 200, {
-          audioUrl: cachedAudio.audio_url,
+          audioUrl: entry.audioUrl,
+          playbackUrl: entry.playbackUrl || "",
           cached: true,
-          wordTimings: cachedAudio.word_timings || [],
+          wordTimings: entry.wordTimings || [],
         });
         return;
       }
 
-      const generated = await synthesizeCloudTts({ text, voiceName, languageCode, speakingRate, includeWordTimings, preferProvider });
-      const audioContent = generated?.audioContent || null;
-      const wordTimings = generated?.wordTimings || [];
-      const provider = generated?.provider || "";
+      if (!entry?.audioUrl) {
+        sendJson(res, 500, { error: "All TTS providers failed" });
+        return;
+      }
 
-      if (!audioContent) { sendJson(res, 500, { error: "All TTS providers failed" }); return; }
-
-      const data = { audioContent, wordTimings, provider };
-      const storedAudio = await storeTtsAudio({
-        cacheKey, text, provider, audioContent, voiceName, languageCode, speakingRate, includeWordTimings, wordTimings,
+      sendJson(res, 200, {
+        audioUrl: entry.audioUrl,
+        playbackUrl: entry.playbackUrl || "",
+        wordTimings: entry.wordTimings || [],
+        provider: preferProvider || "auto",
       });
-      if (storedAudio?.audioUrl) data.audioUrl = storedAudio.audioUrl;
-      sendJson(res, 200, data);
     } catch (err) { sendJson(res, 500, { error: String(err) }); }
+    return;
+  }
+
+  if ((req.method === "GET" || req.method === "HEAD") && pathname === "/api/tts/file") {
+    const objectKey = String(url.searchParams.get("objectKey") || "").trim();
+    if (!objectKey) {
+      res.writeHead(400);
+      res.end();
+      return;
+    }
+    await streamSpacesObjectToResponse(req, res, objectKey);
+    return;
+  }
+
+  // ── Audio cache helpers ─────────────────────────────────────────
+  // GET /api/audio/url?text=...  → { url: "..." }  (checks cache, generates if missing)
+  if (req.method === "GET" && pathname === "/api/audio/url") {
+    try {
+      const text = url.searchParams.get("text") || "";
+      if (!text.trim()) { sendJson(res, 400, { error: "text is required" }); return; }
+      const audioUrl = await getOrGenerateAudioUrl(text);
+      if (!audioUrl) { sendJson(res, 503, { error: "Audio generation failed" }); return; }
+      sendJson(res, 200, { url: audioUrl });
+    } catch (err) { sendJson(res, 500, { error: String(err) }); }
+    return;
+  }
+
+  // GET /api/audio/stream?text=...  → streams MP3 bytes while caching to Spaces in background
+  if (req.method === "GET" && pathname === "/api/audio/stream") {
+    try {
+      const text = url.searchParams.get("text") || "";
+      if (!text.trim()) { res.writeHead(400); res.end("text is required"); return; }
+
+      const voiceName = env.GOOGLE_TTS_VOICE || "en-US-Neural2-J";
+      const languageCode = env.GOOGLE_TTS_LANGUAGE || "en-US";
+      const speakingRate = Number(env.GOOGLE_TTS_SPEAKING_RATE || 0.9);
+      const cacheKey = createTtsCacheKey({ text: text.trim(), voiceName, languageCode, speakingRate, includeWordTimings: false });
+
+      // If already cached, redirect to CDN — instant playback
+      const cached = await getCachedTtsAudio(cacheKey);
+      if (cached?.audio_url) {
+        res.writeHead(302, { Location: cached.audio_url, "Access-Control-Allow-Origin": "*" });
+        res.end();
+        return;
+      }
+
+      // Not cached: stream from Polly while uploading to Spaces in background
+      if (!pollyClient) { res.writeHead(503); res.end("Polly not configured"); return; }
+
+      const audioCmd = new SynthesizeSpeechCommand({ Text: text.trim(), VoiceId: "Joanna", Engine: "standard", OutputFormat: "mp3" });
+      const audioRes = await pollyClient.send(audioCmd);
+      if (!audioRes.AudioStream) { res.writeHead(500); res.end("No audio stream"); return; }
+
+      res.writeHead(200, {
+        "Content-Type": "audio/mpeg",
+        "Cache-Control": "public, max-age=3600",
+        "Access-Control-Allow-Origin": "*",
+        "Transfer-Encoding": "chunked",
+      });
+
+      const chunks = [];
+      for await (const chunk of audioRes.AudioStream) {
+        chunks.push(chunk);
+        res.write(chunk);
+      }
+      res.end();
+
+      // Background: upload concatenated buffer to Spaces and save to cache
+      const fullBuffer = Buffer.concat(chunks);
+      const audioContent = fullBuffer.toString("base64");
+      void storeTtsAudio({ cacheKey, text: text.trim(), provider: "aws", audioContent, voiceName, languageCode, speakingRate, includeWordTimings: false, wordTimings: [] }).catch(() => {});
+      void recordTtsUsage("aws", text).catch(() => {});
+    } catch (err) {
+      if (!res.headersSent) { res.writeHead(500); }
+      res.end();
+      console.warn("/api/audio/stream error:", err instanceof Error ? err.message : err);
+    }
     return;
   }
 
@@ -715,9 +863,14 @@ createServer(async (req, res) => {
       const word = String(body?.word || "").trim().toLowerCase();
       if (!word) { sendJson(res, 400, { error: "word is required" }); return; }
       const phraseData = body.phrase_data ?? null;
+      const existingAudioUrl = String(phraseData?.audioUrl || "").trim();
+      const existingAudioStatus = String(phraseData?.audio?.audioStatus || "").trim();
+      const existingVoiceName = String(phraseData?.audio?.voice || "").trim();
+      const existingLanguageCode = String(phraseData?.audio?.language || "").trim();
+      const existingTtsHash = String(phraseData?.audio?.ttsHash || "").trim();
       const rows = await sql`
-        INSERT INTO saved_words (user_email, word, display_word, translation, note, source, is_manual, is_custom_translation, phrase_data)
-        VALUES (${userEmail}, ${word}, ${body.displayWord || body.display_word || word}, ${body.translation || ""}, ${body.note || ""}, ${body.source || ""}, ${body.isManual || false}, ${body.isCustomTranslation || false}, ${phraseData})
+        INSERT INTO saved_words (user_email, word, display_word, translation, note, source, is_manual, is_custom_translation, phrase_data, audio_url, audio_status, voice_name, language_code, tts_hash)
+        VALUES (${userEmail}, ${word}, ${body.displayWord || body.display_word || word}, ${body.translation || ""}, ${body.note || ""}, ${body.source || ""}, ${body.isManual || false}, ${body.isCustomTranslation || false}, ${phraseData}, ${existingAudioUrl}, ${existingAudioStatus}, ${existingVoiceName}, ${existingLanguageCode}, ${existingTtsHash})
         ON CONFLICT (user_email, word) DO UPDATE SET
           display_word = EXCLUDED.display_word,
           translation = EXCLUDED.translation,
@@ -726,10 +879,18 @@ createServer(async (req, res) => {
           is_manual = EXCLUDED.is_manual,
           is_custom_translation = EXCLUDED.is_custom_translation,
           phrase_data = EXCLUDED.phrase_data,
+          audio_url = CASE WHEN EXCLUDED.audio_url != '' THEN EXCLUDED.audio_url ELSE saved_words.audio_url END,
+          audio_status = CASE WHEN EXCLUDED.audio_status != '' THEN EXCLUDED.audio_status ELSE saved_words.audio_status END,
+          voice_name = CASE WHEN EXCLUDED.voice_name != '' THEN EXCLUDED.voice_name ELSE saved_words.voice_name END,
+          language_code = CASE WHEN EXCLUDED.language_code != '' THEN EXCLUDED.language_code ELSE saved_words.language_code END,
+          tts_hash = CASE WHEN EXCLUDED.tts_hash != '' THEN EXCLUDED.tts_hash ELSE saved_words.tts_hash END,
           saved_at = NOW()
         RETURNING *
       `;
       sendJson(res, 200, rows[0]);
+      if (!rows[0]?.audio_url) {
+        void prewarmWordAudio(word, userEmail);
+      }
     } catch (err) { sendJson(res, 500, { error: String(err) }); }
     return;
   }
@@ -2099,7 +2260,12 @@ async function ensureSavedWordsSchema() {
         is_manual BOOLEAN NOT NULL DEFAULT FALSE,
         is_custom_translation BOOLEAN NOT NULL DEFAULT FALSE,
         saved_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        phrase_data JSONB
+        phrase_data JSONB,
+        audio_url TEXT NOT NULL DEFAULT '',
+        audio_status TEXT NOT NULL DEFAULT '',
+        voice_name TEXT NOT NULL DEFAULT '',
+        language_code TEXT NOT NULL DEFAULT '',
+        tts_hash TEXT NOT NULL DEFAULT ''
       )
     `;
     await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS user_email TEXT NOT NULL DEFAULT 'maahir.engineer@gmail.com'`;
@@ -2111,6 +2277,11 @@ async function ensureSavedWordsSchema() {
     await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS is_custom_translation BOOLEAN NOT NULL DEFAULT FALSE`;
     await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS saved_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`;
     await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS phrase_data JSONB`;
+    await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS audio_url TEXT NOT NULL DEFAULT ''`;
+    await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS audio_status TEXT NOT NULL DEFAULT ''`;
+    await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS voice_name TEXT NOT NULL DEFAULT ''`;
+    await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS language_code TEXT NOT NULL DEFAULT ''`;
+    await sql`ALTER TABLE saved_words ADD COLUMN IF NOT EXISTS tts_hash TEXT NOT NULL DEFAULT ''`;
     await sql`UPDATE saved_words SET user_email = ${LEGACY_OWNER_EMAIL} WHERE user_email IS NULL OR user_email = ''`;
     await sql`
       DO $$
@@ -2175,6 +2346,9 @@ async function ensureTtsAudioCacheSchema() {
         speaking_rate TEXT NOT NULL DEFAULT '',
         include_word_timings BOOLEAN NOT NULL DEFAULT FALSE,
         text_hash TEXT NOT NULL DEFAULT '',
+        tts_hash TEXT NOT NULL DEFAULT '',
+        normalized_text TEXT NOT NULL DEFAULT '',
+        audio_status TEXT NOT NULL DEFAULT 'ready',
         audio_url TEXT NOT NULL,
         audio_object_key TEXT NOT NULL,
         word_timings JSONB NOT NULL DEFAULT '[]'::jsonb,
@@ -2185,6 +2359,10 @@ async function ensureTtsAudioCacheSchema() {
     await sql`ALTER TABLE tts_audio_cache ADD COLUMN IF NOT EXISTS include_word_timings BOOLEAN NOT NULL DEFAULT FALSE`;
     await sql`ALTER TABLE tts_audio_cache ADD COLUMN IF NOT EXISTS word_timings JSONB NOT NULL DEFAULT '[]'::jsonb`;
     await sql`ALTER TABLE tts_audio_cache ADD COLUMN IF NOT EXISTS last_used_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`;
+    await sql`ALTER TABLE tts_audio_cache ADD COLUMN IF NOT EXISTS tts_hash TEXT NOT NULL DEFAULT ''`;
+    await sql`ALTER TABLE tts_audio_cache ADD COLUMN IF NOT EXISTS normalized_text TEXT NOT NULL DEFAULT ''`;
+    await sql`ALTER TABLE tts_audio_cache ADD COLUMN IF NOT EXISTS audio_status TEXT NOT NULL DEFAULT 'ready'`;
+    await sql`CREATE INDEX IF NOT EXISTS tts_audio_cache_signature_idx ON tts_audio_cache (tts_hash, language_code, voice_name, include_word_timings)`;
     await sql`
       CREATE TABLE IF NOT EXISTS tts_usage_monthly (
         provider TEXT NOT NULL,
@@ -2302,6 +2480,42 @@ function buildWordTimings(words, timepoints) {
       endTime: Number.isFinite(nextStart) ? nextStart : startTime + 0.45,
     };
   });
+}
+
+function normalizeTtsText(value) {
+  return String(value || "").normalize("NFKC").replace(/\s+/g, " ").trim();
+}
+
+function normalizeLanguageCode(value) {
+  return String(value || env.GOOGLE_TTS_LANGUAGE || "en-US").trim() || "en-US";
+}
+
+function normalizeVoiceName(value, languageCode = "en-US") {
+  const explicitVoice = String(value || "").trim();
+  if (explicitVoice) return explicitVoice;
+
+  if (languageCode.toLowerCase().startsWith("so")) {
+    return String(env.GOOGLE_TTS_SOMALI_VOICE || env.GOOGLE_TTS_SO_VOICE || "").trim();
+  }
+
+  return String(env.GOOGLE_TTS_VOICE || "en-US-Neural2-J").trim();
+}
+
+function sanitizeObjectSegment(value, fallback) {
+  const normalized = String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return normalized || fallback;
+}
+
+function createStableTtsHash({ text, languageCode, voiceName }) {
+  return sha256(JSON.stringify({
+    text: normalizeTtsText(text),
+    languageCode: normalizeLanguageCode(languageCode),
+    voiceName: normalizeVoiceName(voiceName, languageCode),
+  }));
 }
 
 function getCurrentMonthKey() {
@@ -2448,28 +2662,22 @@ function hmac(key, value, encoding) {
   return createHmac("sha256", key).update(value).digest(encoding);
 }
 
-function createTtsCacheKey({ text, voiceName, languageCode, speakingRate, includeWordTimings }) {
+function createTtsCacheKey({ text, voiceName, languageCode, includeWordTimings }) {
   return sha256(JSON.stringify({
     provider: "cloud-tts",
-    text: String(text || "").trim(),
-    voiceName,
-    languageCode,
-    speakingRate,
+    text: normalizeTtsText(text),
+    voiceName: normalizeVoiceName(voiceName, languageCode),
+    languageCode: normalizeLanguageCode(languageCode),
     includeWordTimings: Boolean(includeWordTimings),
   }));
 }
 
-function createTtsObjectKey({ text, cacheKey, includeWordTimings }) {
-  const slug = String(text || "")
-    .trim()
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 64) || "audio";
-  const suffix = includeWordTimings ? "timed" : "plain";
-  return `tts/${slug}-${suffix}-${cacheKey.slice(0, 12)}.mp3`;
+function createTtsObjectKey({ languageCode, voiceName, ttsHash }) {
+  return `tts/${sanitizeObjectSegment(languageCode, "lang")}/${sanitizeObjectSegment(voiceName, "voice")}/${ttsHash}.mp3`;
+}
+
+function createTtsPlaybackUrl(objectKey) {
+  return `/api/tts/file?objectKey=${encodeURIComponent(objectKey)}`;
 }
 
 function getSpacesConfig() {
@@ -2493,7 +2701,7 @@ async function getCachedTtsAudio(cacheKey) {
   try {
     await ensureTtsAudioCacheSchema();
     const rows = await sql`
-      SELECT audio_url, word_timings
+      SELECT audio_url, audio_object_key, word_timings
       FROM tts_audio_cache
       WHERE cache_key = ${cacheKey}
       LIMIT 1
@@ -2514,6 +2722,125 @@ async function getCachedTtsAudio(cacheKey) {
   }
 }
 
+async function streamSpacesObjectToResponse(req, res, objectKey) {
+  const spaces = getSpacesConfig();
+  if (!spaces || !objectKey) {
+    res.writeHead(404);
+    res.end();
+    return;
+  }
+
+  const encodedKey = String(objectKey).split("/").map(encodeURIComponent).join("/");
+  const sourceUrl = `${spaces.endpoint}/${spaces.bucket}/${encodedKey}`;
+  const rangeHeader = String(req.headers.range || "").trim();
+  const method = req.method === "HEAD" ? "HEAD" : "GET";
+  const upstreamHeaders = rangeHeader ? { Range: rangeHeader } : {};
+
+  try {
+    const upstream = await fetchWithTimeout(sourceUrl, { method, headers: upstreamHeaders }, 10000);
+    if (!upstream.ok || !upstream.body) {
+      if (method === "HEAD" && upstream.ok) {
+        res.writeHead(upstream.status || 200, {
+          "Content-Type": upstream.headers.get("content-type") || "audio/mpeg",
+          "Cache-Control": upstream.headers.get("cache-control") || "public, max-age=31536000, immutable",
+          "Access-Control-Allow-Origin": "*",
+          "Accept-Ranges": upstream.headers.get("accept-ranges") || "bytes",
+          ...(upstream.headers.get("content-length") ? { "Content-Length": upstream.headers.get("content-length") } : {}),
+          ...(upstream.headers.get("content-range") ? { "Content-Range": upstream.headers.get("content-range") } : {}),
+        });
+        res.end();
+        return;
+      }
+
+      res.writeHead(upstream.status || 502);
+      res.end();
+      return;
+    }
+
+    res.writeHead(upstream.status || 200, {
+      "Content-Type": upstream.headers.get("content-type") || "audio/mpeg",
+      "Cache-Control": upstream.headers.get("cache-control") || "public, max-age=31536000, immutable",
+      "Access-Control-Allow-Origin": "*",
+      "Accept-Ranges": upstream.headers.get("accept-ranges") || "bytes",
+      ...(upstream.headers.get("content-length") ? { "Content-Length": upstream.headers.get("content-length") } : {}),
+      ...(upstream.headers.get("content-range") ? { "Content-Range": upstream.headers.get("content-range") } : {}),
+    });
+
+    if (method === "HEAD") {
+      res.end();
+      return;
+    }
+
+    for await (const chunk of upstream.body) {
+      res.write(chunk);
+    }
+    res.end();
+  } catch {
+    res.writeHead(502);
+    res.end();
+  }
+}
+
+async function findTtsAudioBySignature({ ttsHash, languageCode, voiceName, includeWordTimings }) {
+  if (!sql) return null;
+
+  try {
+    await ensureTtsAudioCacheSchema();
+    const rows = await sql`
+      SELECT cache_key, audio_url, audio_object_key, word_timings, provider, voice_name, language_code, tts_hash
+      FROM tts_audio_cache
+      WHERE tts_hash = ${ttsHash}
+        AND language_code = ${languageCode}
+        AND voice_name = ${voiceName}
+        AND include_word_timings = ${Boolean(includeWordTimings)}
+      ORDER BY last_used_at DESC
+      LIMIT 1
+    `;
+
+    if (!rows.length) return null;
+    return rows[0];
+  } catch (error) {
+    console.warn("Could not look up TTS cache by signature:", error);
+    return null;
+  }
+}
+
+async function publicAudioObjectExists(audioUrl) {
+  const targetUrl = String(audioUrl || "").trim();
+  if (!targetUrl) return false;
+
+  try {
+    const response = await fetchWithTimeout(targetUrl, { method: "HEAD" }, 3000);
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+async function getOrGenerateAudioUrl(text) {
+  const entry = await ensureTtsCacheEntry({ text });
+  return entry?.audioUrl || null;
+}
+
+async function prewarmWordAudio(word, userEmail) {
+  try {
+    const audioUrl = await getOrGenerateAudioUrl(word);
+    if (!audioUrl || !sql) return;
+    await sql`
+      UPDATE saved_words
+      SET audio_url = ${audioUrl},
+          phrase_data = CASE
+            WHEN phrase_data IS NOT NULL
+            THEN jsonb_set(phrase_data, '{audioUrl}', ${JSON.stringify(audioUrl)}::jsonb)
+            ELSE phrase_data
+          END
+      WHERE user_email = ${userEmail} AND word = ${word}
+    `;
+  } catch (err) {
+    console.warn("prewarmWordAudio failed for", word, err instanceof Error ? err.message : err);
+  }
+}
+
 async function storeTtsAudio({ cacheKey, text, provider, audioContent, voiceName, languageCode, speakingRate, includeWordTimings, wordTimings }) {
   const spaces = getSpacesConfig();
   if (!sql || !spaces) return null;
@@ -2521,16 +2848,26 @@ async function storeTtsAudio({ cacheKey, text, provider, audioContent, voiceName
   try {
     await ensureTtsAudioCacheSchema();
     const audioBuffer = Buffer.from(audioContent, "base64");
-    const objectKey = createTtsObjectKey({ text, cacheKey, includeWordTimings });
+    const normalizedText = normalizeTtsText(text);
+    const normalizedLanguageCode = normalizeLanguageCode(languageCode);
+    const normalizedVoiceName = normalizeVoiceName(voiceName, normalizedLanguageCode);
+    const ttsHash = createStableTtsHash({
+      text: normalizedText,
+      languageCode: normalizedLanguageCode,
+      voiceName: normalizedVoiceName,
+    });
+    const objectKey = createTtsObjectKey({ languageCode: normalizedLanguageCode, voiceName: normalizedVoiceName, ttsHash });
     const audioUrl = `${spaces.publicBaseUrl}/${objectKey}`;
 
-    await uploadToSpaces({
-      ...spaces,
-      objectKey,
-      body: audioBuffer,
-      contentType: "audio/mpeg",
-      cacheControl: "public, max-age=31536000, immutable",
-    });
+    if (!(await publicAudioObjectExists(audioUrl))) {
+      await uploadToSpaces({
+        ...spaces,
+        objectKey,
+        body: audioBuffer,
+        contentType: "audio/mpeg",
+        cacheControl: "public, max-age=31536000, immutable",
+      });
+    }
 
     await sql`
       INSERT INTO tts_audio_cache (
@@ -2541,6 +2878,9 @@ async function storeTtsAudio({ cacheKey, text, provider, audioContent, voiceName
         speaking_rate,
         include_word_timings,
         text_hash,
+        tts_hash,
+        normalized_text,
+        audio_status,
         audio_url,
         audio_object_key,
         word_timings,
@@ -2550,11 +2890,14 @@ async function storeTtsAudio({ cacheKey, text, provider, audioContent, voiceName
       VALUES (
         ${cacheKey},
         ${provider || "cloud"},
-        ${voiceName},
-        ${languageCode},
+        ${normalizedVoiceName},
+        ${normalizedLanguageCode},
         ${String(speakingRate)},
         ${Boolean(includeWordTimings)},
-        ${sha256(String(text || "").trim())},
+        ${sha256(normalizedText)},
+        ${ttsHash},
+        ${normalizedText},
+        ${"ready"},
         ${audioUrl},
         ${objectKey},
         ${JSON.stringify(wordTimings || [])},
@@ -2562,17 +2905,355 @@ async function storeTtsAudio({ cacheKey, text, provider, audioContent, voiceName
         NOW()
       )
       ON CONFLICT (cache_key) DO UPDATE SET
+        provider = EXCLUDED.provider,
+        voice_name = EXCLUDED.voice_name,
+        language_code = EXCLUDED.language_code,
+        tts_hash = EXCLUDED.tts_hash,
+        normalized_text = EXCLUDED.normalized_text,
+        audio_status = EXCLUDED.audio_status,
         audio_url = EXCLUDED.audio_url,
         audio_object_key = EXCLUDED.audio_object_key,
         word_timings = EXCLUDED.word_timings,
         last_used_at = NOW()
     `;
 
-    return { audioUrl, objectKey };
+    return { audioUrl, objectKey, ttsHash, voiceName: normalizedVoiceName, languageCode: normalizedLanguageCode, audioStatus: "ready" };
   } catch (error) {
     console.warn("Could not store TTS audio cache:", error);
     return null;
   }
+}
+
+async function ensureTtsCacheEntry({
+  text,
+  languageCode,
+  voiceName,
+  speakingRate,
+  includeWordTimings = false,
+  preferProvider = "",
+  forceRefresh = false,
+}) {
+  const normalizedText = normalizeTtsText(text);
+  if (!normalizedText) return null;
+
+  const resolvedLanguageCode = normalizeLanguageCode(languageCode);
+  const resolvedVoiceName = normalizeVoiceName(voiceName, resolvedLanguageCode);
+  if (!resolvedVoiceName) {
+    return {
+      text: normalizedText,
+      language: resolvedLanguageCode,
+      voice: "",
+      ttsHash: "",
+      audioUrl: "",
+      audioStatus: "error",
+      wordTimings: [],
+    };
+  }
+
+  const resolvedSpeakingRate = Number(speakingRate || env.GOOGLE_TTS_SPEAKING_RATE || 0.9);
+  const cacheKey = createTtsCacheKey({
+    text: normalizedText,
+    voiceName: resolvedVoiceName,
+    languageCode: resolvedLanguageCode,
+    speakingRate: resolvedSpeakingRate,
+    includeWordTimings,
+  });
+  const ttsHash = createStableTtsHash({
+    text: normalizedText,
+    languageCode: resolvedLanguageCode,
+    voiceName: resolvedVoiceName,
+  });
+  const spaces = getSpacesConfig();
+  const objectKey = spaces
+    ? createTtsObjectKey({ languageCode: resolvedLanguageCode, voiceName: resolvedVoiceName, ttsHash })
+    : "";
+  const audioUrl = spaces ? `${spaces.publicBaseUrl}/${objectKey}` : "";
+
+  if (!forceRefresh) {
+    const cachedByKey = await getCachedTtsAudio(cacheKey);
+    if (cachedByKey?.audio_url) {
+      return {
+        text: normalizedText,
+        language: resolvedLanguageCode,
+        voice: resolvedVoiceName,
+        ttsHash,
+        audioUrl: cachedByKey.audio_url,
+        playbackUrl: cachedByKey.audio_object_key ? createTtsPlaybackUrl(cachedByKey.audio_object_key) : "",
+        audioStatus: "ready",
+        wordTimings: cachedByKey.word_timings || [],
+      };
+    }
+
+    const cachedBySignature = await findTtsAudioBySignature({
+      ttsHash,
+      languageCode: resolvedLanguageCode,
+      voiceName: resolvedVoiceName,
+      includeWordTimings,
+    });
+    if (cachedBySignature?.audio_url) {
+      return {
+        text: normalizedText,
+        language: resolvedLanguageCode,
+        voice: resolvedVoiceName,
+        ttsHash,
+        audioUrl: cachedBySignature.audio_url,
+        playbackUrl: cachedBySignature.audio_object_key ? createTtsPlaybackUrl(cachedBySignature.audio_object_key) : "",
+        audioStatus: "ready",
+        wordTimings: cachedBySignature.word_timings || [],
+      };
+    }
+
+    if (audioUrl && sql && await publicAudioObjectExists(audioUrl)) {
+      await sql`
+        INSERT INTO tts_audio_cache (
+          cache_key,
+          provider,
+          voice_name,
+          language_code,
+          speaking_rate,
+          include_word_timings,
+          text_hash,
+          tts_hash,
+          normalized_text,
+          audio_status,
+          audio_url,
+          audio_object_key,
+          word_timings,
+          created_at,
+          last_used_at
+        )
+        VALUES (
+          ${cacheKey},
+          ${"cdn"},
+          ${resolvedVoiceName},
+          ${resolvedLanguageCode},
+          ${String(resolvedSpeakingRate)},
+          ${Boolean(includeWordTimings)},
+          ${sha256(normalizedText)},
+          ${ttsHash},
+          ${normalizedText},
+          ${"ready"},
+          ${audioUrl},
+          ${objectKey},
+          ${JSON.stringify([])},
+          NOW(),
+          NOW()
+        )
+        ON CONFLICT (cache_key) DO UPDATE SET
+          audio_url = EXCLUDED.audio_url,
+          audio_object_key = EXCLUDED.audio_object_key,
+          tts_hash = EXCLUDED.tts_hash,
+          normalized_text = EXCLUDED.normalized_text,
+          audio_status = EXCLUDED.audio_status,
+          last_used_at = NOW()
+      `;
+
+      return {
+        text: normalizedText,
+        language: resolvedLanguageCode,
+        voice: resolvedVoiceName,
+        ttsHash,
+        audioUrl,
+        playbackUrl: createTtsPlaybackUrl(objectKey),
+        audioStatus: "ready",
+        wordTimings: [],
+      };
+    }
+  }
+
+  const generated = await synthesizeCloudTts({
+    text: normalizedText,
+    voiceName: resolvedVoiceName,
+    languageCode: resolvedLanguageCode,
+    speakingRate: resolvedSpeakingRate,
+    includeWordTimings,
+    preferProvider,
+  });
+
+  if (!generated?.audioContent) {
+    return {
+      text: normalizedText,
+      language: resolvedLanguageCode,
+      voice: resolvedVoiceName,
+      ttsHash,
+      audioUrl: "",
+      audioStatus: "error",
+      wordTimings: [],
+    };
+  }
+
+  const stored = await storeTtsAudio({
+    cacheKey,
+    text: normalizedText,
+    provider: generated.provider,
+    audioContent: generated.audioContent,
+    voiceName: resolvedVoiceName,
+    languageCode: resolvedLanguageCode,
+    speakingRate: resolvedSpeakingRate,
+    includeWordTimings,
+    wordTimings: generated.wordTimings || [],
+  });
+
+  return {
+    text: normalizedText,
+    language: stored?.languageCode || resolvedLanguageCode,
+    voice: stored?.voiceName || resolvedVoiceName,
+    ttsHash: stored?.ttsHash || ttsHash,
+    audioUrl: stored?.audioUrl || "",
+    playbackUrl: stored?.objectKey ? createTtsPlaybackUrl(stored.objectKey) : "",
+    audioStatus: stored?.audioUrl ? "ready" : "error",
+    wordTimings: generated.wordTimings || [],
+  };
+}
+
+async function getExistingTtsCacheEntry({
+  text,
+  languageCode,
+  voiceName,
+  speakingRate,
+  includeWordTimings = false,
+  forceRefresh = false,
+}) {
+  const normalizedText = normalizeTtsText(text);
+  if (!normalizedText) return null;
+
+  const resolvedLanguageCode = normalizeLanguageCode(languageCode);
+  const resolvedVoiceName = normalizeVoiceName(voiceName, resolvedLanguageCode);
+  if (!resolvedVoiceName) return null;
+
+  const resolvedSpeakingRate = Number(speakingRate || env.GOOGLE_TTS_SPEAKING_RATE || 0.9);
+  const cacheKey = createTtsCacheKey({
+    text: normalizedText,
+    voiceName: resolvedVoiceName,
+    languageCode: resolvedLanguageCode,
+    speakingRate: resolvedSpeakingRate,
+    includeWordTimings,
+  });
+  const ttsHash = createStableTtsHash({
+    text: normalizedText,
+    languageCode: resolvedLanguageCode,
+    voiceName: resolvedVoiceName,
+  });
+  const spaces = getSpacesConfig();
+  const objectKey = spaces
+    ? createTtsObjectKey({ languageCode: resolvedLanguageCode, voiceName: resolvedVoiceName, ttsHash })
+    : "";
+  const audioUrl = spaces ? `${spaces.publicBaseUrl}/${objectKey}` : "";
+
+  if (forceRefresh) return null;
+
+  const cachedByKey = await getCachedTtsAudio(cacheKey);
+  if (cachedByKey?.audio_url) {
+    return {
+      text: normalizedText,
+      language: resolvedLanguageCode,
+      voice: resolvedVoiceName,
+      ttsHash,
+      audioUrl: cachedByKey.audio_url,
+      playbackUrl: cachedByKey.audio_object_key ? createTtsPlaybackUrl(cachedByKey.audio_object_key) : "",
+      audioStatus: "ready",
+      wordTimings: cachedByKey.word_timings || [],
+    };
+  }
+
+  const cachedBySignature = await findTtsAudioBySignature({
+    ttsHash,
+    languageCode: resolvedLanguageCode,
+    voiceName: resolvedVoiceName,
+    includeWordTimings,
+  });
+  if (cachedBySignature?.audio_url) {
+    return {
+      text: normalizedText,
+      language: resolvedLanguageCode,
+      voice: resolvedVoiceName,
+      ttsHash,
+      audioUrl: cachedBySignature.audio_url,
+      playbackUrl: cachedBySignature.audio_object_key ? createTtsPlaybackUrl(cachedBySignature.audio_object_key) : "",
+      audioStatus: "ready",
+      wordTimings: cachedBySignature.word_timings || [],
+    };
+  }
+
+  if (audioUrl && sql && await publicAudioObjectExists(audioUrl)) {
+    await sql`
+      INSERT INTO tts_audio_cache (
+        cache_key,
+        provider,
+        voice_name,
+        language_code,
+        speaking_rate,
+        include_word_timings,
+        text_hash,
+        tts_hash,
+        normalized_text,
+        audio_status,
+        audio_url,
+        audio_object_key,
+        word_timings,
+        created_at,
+        last_used_at
+      )
+      VALUES (
+        ${cacheKey},
+        ${"cdn"},
+        ${resolvedVoiceName},
+        ${resolvedLanguageCode},
+        ${String(resolvedSpeakingRate)},
+        ${Boolean(includeWordTimings)},
+        ${sha256(normalizedText)},
+        ${ttsHash},
+        ${normalizedText},
+        ${"ready"},
+        ${audioUrl},
+        ${objectKey},
+        ${JSON.stringify([])},
+        NOW(),
+        NOW()
+      )
+      ON CONFLICT (cache_key) DO UPDATE SET
+        audio_url = EXCLUDED.audio_url,
+        audio_object_key = EXCLUDED.audio_object_key,
+        tts_hash = EXCLUDED.tts_hash,
+        normalized_text = EXCLUDED.normalized_text,
+        audio_status = EXCLUDED.audio_status,
+        last_used_at = NOW()
+    `;
+
+    return {
+      text: normalizedText,
+      language: resolvedLanguageCode,
+      voice: resolvedVoiceName,
+      ttsHash,
+      audioUrl,
+      playbackUrl: createTtsPlaybackUrl(objectKey),
+      audioStatus: "ready",
+      wordTimings: [],
+    };
+  }
+
+  return null;
+}
+
+function scheduleTtsCacheGeneration(params) {
+  const normalizedText = normalizeTtsText(params?.text);
+  if (!normalizedText) return;
+  const resolvedLanguageCode = normalizeLanguageCode(params?.languageCode);
+  const resolvedVoiceName = normalizeVoiceName(params?.voiceName, resolvedLanguageCode);
+  const jobKey = `${normalizedText}::${resolvedLanguageCode}::${resolvedVoiceName}::${Boolean(params?.includeWordTimings)}`;
+
+  if (ttsGenerationJobs.has(jobKey)) return;
+
+  const job = ensureTtsCacheEntry({
+    ...params,
+    text: normalizedText,
+    languageCode: resolvedLanguageCode,
+    voiceName: resolvedVoiceName,
+  }).catch(() => null).finally(() => {
+    ttsGenerationJobs.delete(jobKey);
+  });
+
+  ttsGenerationJobs.set(jobKey, job);
 }
 
 async function uploadToSpaces({ endpoint, region, bucket, accessKeyId, secretAccessKey, objectKey, body, contentType, cacheControl = "" }) {
@@ -2662,11 +3343,12 @@ function readJsonBody(req) {
   });
 }
 
-async function explainPhrase(phraseText, preferredProvider, sentenceContext = "", strictProvider = false) {
+async function explainPhrase(phraseText, preferredProvider, sentenceContext = "", strictProvider = false, googleTranslation = "") {
   const hasContext = Boolean(String(sentenceContext || "").trim());
+  const translationHint = String(googleTranslation || "").trim();
   const userPrompt = hasContext
-    ? `Phrase: ${phraseText}\nSubtitle context: ${sentenceContext}`
-    : `Phrase: ${phraseText}\nNo subtitle context is provided. Explain this word or phrase generally. Do not mention subtitle context, videos, speakers, scenes, "here", or "in this sentence".`;
+    ? `Phrase: ${phraseText}\nSubtitle context: ${sentenceContext}${translationHint ? `\nGoogle Somali translation hint: ${translationHint}\nUse this hint to stay aligned with the intended Somali meaning, but still explain the English word naturally.` : ""}`
+    : `Phrase: ${phraseText}\nNo subtitle context is provided. Explain this word or phrase generally. Do not mention subtitle context, videos, speakers, scenes, "here", or "in this sentence".${translationHint ? `\nGoogle Somali translation hint: ${translationHint}\nUse this hint to stay aligned with the intended Somali meaning, but still explain the English word naturally and include a few close Somali glosses when helpful.` : ""}`;
   const result = strictProvider && preferredProvider && preferredProvider !== "auto"
     ? {
         ...(await requestJsonFromSingleProvider({

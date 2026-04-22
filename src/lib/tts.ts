@@ -8,6 +8,7 @@ export interface TtsWordTiming {
 export interface TtsAudioResult {
   audioContent?: string;
   audioUrl: string;
+  playbackUrl?: string;
   wordTimings: TtsWordTiming[];
 }
 
@@ -16,7 +17,6 @@ const timedAudioCache = new Map<string, TtsAudioResult>();
 const audioPromises = new Map<string, Promise<string | null>>();
 const timedAudioPromises = new Map<string, Promise<TtsAudioResult | null>>();
 const TTS_TIMEOUT_MS = 15000;
-const REMOTE_AUDIO_PLAY_TIMEOUT_MS = 5000;
 const TTS_DB_NAME = "lingowatch-tts-cache";
 const TTS_DB_VERSION = 1;
 const TTS_STORE = "audio";
@@ -100,10 +100,6 @@ function blobToObjectUrl(blob: Blob) {
   return URL.createObjectURL(blob);
 }
 
-function isRemoteHttpUrl(source: string) {
-  return /^https?:\/\//i.test(source);
-}
-
 async function audioUrlToBlob(audioUrl: string, signal?: AbortSignal): Promise<Blob | null> {
   try {
     const blobRes = await fetch(audioUrl, { signal });
@@ -153,7 +149,9 @@ export async function fetchTtsAudioContent(text: string, options: FetchTtsOption
       const data = await response.json();
       const audioContent = typeof data?.audioContent === "string" ? data.audioContent : "";
       const audioUrl = typeof data?.audioUrl === "string" ? data.audioUrl : "";
-      if (!audioContent && !audioUrl) return null;
+      const playbackUrl = typeof data?.playbackUrl === "string" ? data.playbackUrl : "";
+      const resolvedUrl = playbackUrl || audioUrl;
+      if (!audioContent && !resolvedUrl) return null;
 
       if (audioContent) {
         const blob = base64ToBlob(audioContent);
@@ -163,11 +161,11 @@ export async function fetchTtsAudioContent(text: string, options: FetchTtsOption
         return source;
       }
 
-      audioCache.set(key, audioUrl);
-      void audioUrlToBlob(audioUrl).then((blob) => {
+      audioCache.set(key, resolvedUrl);
+      void audioUrlToBlob(resolvedUrl).then((blob) => {
         if (blob) void writeCachedBlob(idbKey("plain", key), blob);
       });
-      return audioUrl;
+      return resolvedUrl;
     } catch {
       return null;
     } finally {
@@ -228,8 +226,10 @@ export async function fetchTimedTtsAudio(text: string, options: FetchTtsOptions 
       const data = await response.json();
       const audioContent = typeof data?.audioContent === "string" ? data.audioContent : "";
       const audioUrl = typeof data?.audioUrl === "string" ? data.audioUrl : "";
+      const playbackUrl = typeof data?.playbackUrl === "string" ? data.playbackUrl : "";
       const wordTimings = Array.isArray(data?.wordTimings) ? data.wordTimings : [];
-      if (!audioContent && !audioUrl) return null;
+      const resolvedUrl = playbackUrl || audioUrl;
+      if (!audioContent && !resolvedUrl) return null;
 
       if (audioContent) {
         const blob = base64ToBlob(audioContent);
@@ -247,13 +247,14 @@ export async function fetchTimedTtsAudio(text: string, options: FetchTtsOptions 
       }
 
       const result: TtsAudioResult = {
-        audioUrl,
+        audioUrl: resolvedUrl,
+        playbackUrl,
         wordTimings,
       };
 
-      audioCache.set(key, audioUrl);
+      audioCache.set(key, resolvedUrl);
       timedAudioCache.set(key, result);
-      void audioUrlToBlob(audioUrl).then((blob) => {
+      void audioUrlToBlob(resolvedUrl).then((blob) => {
         if (blob) void writeCachedBlob(idbKey("timed", key), blob, wordTimings);
       });
       return result;
@@ -269,80 +270,78 @@ export async function fetchTimedTtsAudio(text: string, options: FetchTtsOptions 
   return promise;
 }
 
+// A 0.1s silent WAV used to unlock the audio context within the user gesture
+// before the real TTS fetch completes.
+const SILENT_WAV =
+  "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA";
+
 let _activeTtsAudio: HTMLAudioElement | null = null;
 
-async function playAudioSource(source: string): Promise<void> {
+export async function speakFromCdnUrl(cdnUrl: string): Promise<void> {
   _activeTtsAudio?.pause();
-  const audio = new Audio(source);
+  const audio = new Audio(cdnUrl);
   audio.preload = "auto";
   _activeTtsAudio = audio;
-
-  const playPromise = audio.play();
-  if (!isRemoteHttpUrl(source)) {
-    await playPromise;
-    return;
-  }
-
-  let timeoutId = 0;
   try {
-    await Promise.race([
-      playPromise,
-      new Promise<never>((_, reject) => {
-        timeoutId = window.setTimeout(() => reject(new Error("Remote audio timed out.")), REMOTE_AUDIO_PLAY_TIMEOUT_MS);
-      }),
-    ]);
-  } catch (error) {
-    audio.pause();
+    await audio.play();
+  } catch {
     if (_activeTtsAudio === audio) _activeTtsAudio = null;
-    throw error;
-  } finally {
-    window.clearTimeout(timeoutId);
+    throw new Error("CDN audio playback failed");
   }
-}
-
-async function regenerateAndPlay(key: string, originalError: unknown): Promise<void> {
-  audioCache.delete(key);
-
-  const googleFirstSource = await fetchTtsAudioContent(key, { forceRefresh: true });
-  if (googleFirstSource) {
-    try {
-      await playAudioSource(googleFirstSource);
-      return;
-    } catch {
-      audioCache.delete(key);
-    }
-  }
-
-  const awsSource = await fetchTtsAudioContent(key, { forceRefresh: true, preferProvider: "aws" });
-  if (!awsSource) throw originalError;
-
-  await playAudioSource(awsSource);
 }
 
 export async function speakText(text: string): Promise<void> {
   const key = cacheKey(text);
   if (!key) return;
 
+  _activeTtsAudio?.pause();
+  const audio = new Audio();
+  audio.preload = "auto";
+  _activeTtsAudio = audio;
+
+  // Memory-cached path: set src and play() synchronously within the user gesture.
   const cachedSource = audioCache.get(key);
   if (cachedSource) {
+    audio.src = cachedSource;
     try {
-      await playAudioSource(cachedSource);
+      await audio.play();
       return;
-    } catch (error) {
-      await regenerateAndPlay(key, error);
-      return;
+    } catch {
+      audioCache.delete(key);
     }
   }
 
-  const dataUrl = await getTtsAudioDataUrl(key);
-  if (!dataUrl) {
-    await regenerateAndPlay(key, new Error("This audio file could not be played right now."));
-    return;
+  // No memory cache — unlock the audio context immediately with a silent sound,
+  // then fetch the real audio. The browser keeps the element "activated" so the
+  // second play() call (with the real src) succeeds even though it's after an await.
+  audio.src = SILENT_WAV;
+  audio.play().catch(() => {});
+
+  let source = await getTtsAudioDataUrl(key);
+
+  if (_activeTtsAudio !== audio) return;
+
+  if (!source) {
+    audioCache.delete(key);
+    source = await fetchTtsAudioContent(key, { forceRefresh: true });
+    if (!source || _activeTtsAudio !== audio) {
+      if (_activeTtsAudio === audio) _activeTtsAudio = null;
+      throw new Error("This audio file could not be played right now.");
+    }
   }
 
+  audio.src = source;
   try {
-    await playAudioSource(dataUrl);
-  } catch (error) {
-    await regenerateAndPlay(key, error);
+    await audio.play();
+  } catch {
+    // Google TTS failed — retry with AWS
+    audioCache.delete(key);
+    const awsSource = await fetchTtsAudioContent(key, { forceRefresh: true, preferProvider: "aws" });
+    if (!awsSource || _activeTtsAudio !== audio) {
+      if (_activeTtsAudio === audio) _activeTtsAudio = null;
+      throw new Error("This audio file could not be played right now.");
+    }
+    audio.src = awsSource;
+    await audio.play();
   }
 }

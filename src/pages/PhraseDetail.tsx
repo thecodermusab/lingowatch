@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { ReactNode, ComponentType, useEffect, useRef, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { usePhraseStore } from "@/hooks/usePhraseStore";
 import { Button } from "@/components/ui/button";
@@ -8,13 +8,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Star, Trash2, ArrowLeft, RotateCcw, CheckCircle2, Volume2, Globe, BookOpen, Lightbulb, MessageCircle, AlertTriangle, Edit, Loader2, Save, X, Sparkles } from "lucide-react";
 import { generateAIExplanation, getAiProviderLabel, getSavedWordRegenerationProvider, SAVED_WORD_REGENERATION_OPTIONS } from "@/lib/ai";
-import { speakText, fetchTtsAudioContent } from "@/lib/tts";
 import { translateText } from "@/lib/googleTranslate";
 import { useToast } from "@/hooks/use-toast";
 import { categories } from "@/lib/mockData";
-import { DifficultyLevel, PhraseType, AIGenerationResult, PreferredAiProvider } from "@/types";
+import { DifficultyLevel, PhraseType, AIGenerationResult, PreferredAiProvider, PhraseAudioAsset } from "@/types";
 import { getReviewStage } from "@/lib/review";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
+import { playPreparedAudio, primeAudioUrl } from "@/lib/audioPlayback";
+import { buildPhraseAudioRequests, mergePhraseAudioAssets, requestPhraseAudioAssets, PhraseAudioRequestItem } from "@/lib/phraseAudio";
+import { ensureRuntimeTtsAsset, getPlayableAudioUrl, playRuntimeTtsAsset, rememberPlayableAsset } from "@/lib/ttsAssets";
 
 const phraseTypes: { value: PhraseType; label: string }[] = [
   { value: "word", label: "Word" },
@@ -30,7 +32,7 @@ const difficultyLevels: { value: DifficultyLevel; label: string }[] = [
   { value: "advanced", label: "Advanced" },
 ];
 
-function SectionCard({ icon: Icon, title, children, color = "bg-primary/10 text-primary" }: { icon: any; title: string; children: React.ReactNode; color?: string }) {
+function SectionCard({ icon: Icon, title, children, color = "bg-primary/10 text-primary" }: { icon: ComponentType<{ className?: string }>; title: string; children: ReactNode; color?: string }) {
   return (
     <div className="admin-panel admin-panel-body">
       <div className="flex items-center gap-2">
@@ -66,16 +68,14 @@ export default function PhraseDetailPage() {
   const [googleTranslationState, setGoogleTranslationState] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [reExplainProvider, setReExplainProvider] = useState<PreferredAiProvider>("deepseek");
   const [relatedPhraseLoading, setRelatedPhraseLoading] = useState("");
+  const [audioSyncing, setAudioSyncing] = useState(false);
+  const [preparingAudioKeys, setPreparingAudioKeys] = useState<string[]>([]);
+  const lastAudioSyncRef = useRef<Record<string, number>>({});
 
   const phrase = phrases.find((p) => p.id === id);
 
   useEffect(() => {
     if (!phrase) return;
-    // Prefetch TTS so audio plays instantly when the icon is tapped
-    void fetchTtsAudioContent(phrase.phraseText);
-    for (const example of phrase.examples?.slice(0, 4) || []) {
-      if (example.exampleText) void fetchTtsAudioContent(example.exampleText);
-    }
     setPhraseText(phrase.phraseText);
     setPhraseType(phrase.phraseType);
     setCategory(phrase.category);
@@ -109,12 +109,105 @@ export default function PhraseDetailPage() {
         setGoogleTranslation("");
         setGoogleTranslationState("error");
       });
-  }, [phrase?.id]);
+  }, [phrase, updatePhrase]);
+
+  useEffect(() => {
+    if (!phrase) return;
+
+    const assets: PhraseAudioAsset[] = [];
+
+    if (phrase.audio?.audioUrl || phrase.audio?.playbackUrl || phrase.audioUrl) {
+      assets.push({
+        text: phrase.phraseText,
+        audioUrl: phrase.audio?.audioUrl || phrase.audioUrl,
+        playbackUrl: phrase.audio?.playbackUrl,
+        audioStatus: phrase.audio?.audioStatus || (phrase.audioUrl ? "ready" : undefined),
+        voice: phrase.audio?.voice,
+        language: phrase.audio?.language,
+        ttsHash: phrase.audio?.ttsHash,
+      });
+    }
+
+    for (const example of phrase.examples || []) {
+      if (example.audio?.audioUrl || example.audio?.playbackUrl) {
+        assets.push({
+          text: example.exampleText,
+          audioUrl: example.audio.audioUrl,
+          playbackUrl: example.audio.playbackUrl,
+          audioStatus: example.audio.audioStatus,
+          voice: example.audio.voice,
+          language: example.audio.language,
+          ttsHash: example.audio.ttsHash,
+        });
+      }
+      if (example.translationAudio?.audioUrl || example.translationAudio?.playbackUrl) {
+        assets.push({
+          text: example.translationText || "",
+          audioUrl: example.translationAudio.audioUrl,
+          playbackUrl: example.translationAudio.playbackUrl,
+          audioStatus: example.translationAudio.audioStatus,
+          voice: example.translationAudio.voice,
+          language: example.translationAudio.language,
+          ttsHash: example.translationAudio.ttsHash,
+        });
+      }
+    }
+
+    if (phrase.explanation?.googleTranslationAudio) {
+      assets.push(phrase.explanation.googleTranslationAudio);
+    }
+    if (phrase.explanation?.somaliMeaningAudio) {
+      assets.push(phrase.explanation.somaliMeaningAudio);
+    }
+    if (phrase.explanation?.somaliSentenceAudio) {
+      assets.push(phrase.explanation.somaliSentenceAudio);
+    }
+
+    for (const asset of assets) {
+      const playableUrl = getPlayableAudioUrl(asset);
+      if (!playableUrl) continue;
+      rememberPlayableAsset(asset);
+      primeAudioUrl(playableUrl);
+    }
+  }, [phrase, googleTranslation]);
+
+  useEffect(() => {
+    if (!phrase || audioSyncing) return;
+
+    const requests = buildPhraseAudioRequests(phrase, googleTranslation);
+    if (!requests.length) return;
+
+    const syncFingerprint = `${phrase.id}:${googleTranslation}:${requests.map((request) => request.key).sort().join(",")}`;
+    const now = Date.now();
+    const lastSyncAt = lastAudioSyncRef.current[syncFingerprint] || 0;
+    if (now - lastSyncAt < 15000) return;
+
+    let active = true;
+    setAudioSyncing(true);
+    lastAudioSyncRef.current[syncFingerprint] = now;
+
+    void requestPhraseAudioAssets(requests)
+      .then((assetMap) => {
+        if (!active || !assetMap.size) return;
+        const nextPhrase = mergePhraseAudioAssets(phrase, assetMap, googleTranslation);
+        updatePhrase(phrase.id, nextPhrase);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (active) {
+          setAudioSyncing(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [phrase, googleTranslation, audioSyncing, updatePhrase]);
 
   useEffect(() => {
     if (!phrase) return;
     setReExplainProvider(getSavedWordRegenerationProvider(phrase));
-  }, [phrase?.id, phrase?.phraseType, phrase?.difficultyLevel, phrase?.review?.difficultyRating]);
+  }, [phrase]);
 
   if (!phrase) {
     // Show nothing while phrases are still loading from the store.
@@ -135,6 +228,7 @@ export default function PhraseDetailPage() {
   const explainedBy = getAiProviderLabel(ex?.aiProvider, ex?.aiProviderLabel);
   const explainedModel = ex?.aiModel ? ` · ${ex.aiModel}` : "";
   const recommendedReExplainProvider = getSavedWordRegenerationProvider(phrase);
+  const isPreparingAudio = (key: string) => preparingAudioKeys.includes(key);
 
   const buildExplanation = (result: AIGenerationResult) => ({
     id: phrase.explanation?.id ?? crypto.randomUUID(),
@@ -155,6 +249,9 @@ export default function PhraseDetailPage() {
     relatedPhrases: result.relatedPhrases,
     googleTranslation: phrase.explanation?.googleTranslation,
     googleTranslationUpdatedAt: phrase.explanation?.googleTranslationUpdatedAt,
+    googleTranslationAudio: phrase.explanation?.googleTranslationAudio,
+    somaliMeaningAudio: phrase.explanation?.somaliMeaningAudio,
+    somaliSentenceAudio: phrase.explanation?.somaliSentenceAudio,
     aiProvider: result.aiProvider,
     aiProviderLabel: result.aiProviderLabel,
     aiModel: result.aiModel,
@@ -163,15 +260,49 @@ export default function PhraseDetailPage() {
   const handleGenerateExplanation = async () => {
     setIsGenerating(true);
     try {
-      const result = await generateAIExplanation(phrase.phraseText, reExplainProvider, true);
+      const translationHint = googleTranslation || phrase.explanation?.googleTranslation || "";
+      let result: AIGenerationResult;
+
+      try {
+        result = await generateAIExplanation(phrase.phraseText, reExplainProvider, true, translationHint);
+      } catch (strictError) {
+        result = await generateAIExplanation(phrase.phraseText, "auto", false, translationHint);
+        toast({
+          title: "Used fallback AI",
+          description: strictError instanceof Error
+            ? `${getAiProviderLabel(reExplainProvider)} failed, so LingoWatch used the next available AI.`
+            : "Selected AI failed, so LingoWatch used the next available AI.",
+        });
+      }
+
+      const existingExamples = phrase.examples || [];
       updatePhrase(phrase.id, {
         explanation: buildExplanation(result),
-        examples: result.examples?.map((e: any) => ({
-          id: crypto.randomUUID(),
+        examples: result.examples?.map((example) => ({
+          ...(existingExamples.find((item) =>
+            item.exampleType === example.type &&
+            item.exampleText.trim() === example.text.trim() &&
+            (item.translationText || "").trim() === (example.translation || "").trim()
+          ) || {}),
+          id: existingExamples.find((item) =>
+            item.exampleType === example.type &&
+            item.exampleText.trim() === example.text.trim() &&
+            (item.translationText || "").trim() === (example.translation || "").trim()
+          )?.id ?? crypto.randomUUID(),
           phraseId: phrase.id,
-          exampleType: e.type,
-          exampleText: e.text,
-          translationText: e.translation,
+          exampleType: example.type,
+          exampleText: example.text,
+          translationText: example.translation,
+          audio: existingExamples.find((item) =>
+            item.exampleType === example.type &&
+            item.exampleText.trim() === example.text.trim() &&
+            (item.translationText || "").trim() === (example.translation || "").trim()
+          )?.audio,
+          translationAudio: existingExamples.find((item) =>
+            item.exampleType === example.type &&
+            item.exampleText.trim() === example.text.trim() &&
+            (item.translationText || "").trim() === (example.translation || "").trim()
+          )?.translationAudio,
         })) ?? [],
       });
       toast({ title: "Explanation generated", description: `Used ${getAiProviderLabel(result.aiProvider, result.aiProviderLabel)}.` });
@@ -200,7 +331,7 @@ export default function PhraseDetailPage() {
         difficultyLevel: "intermediate" as const,
       };
       const provider = getSavedWordRegenerationProvider(tempPhrase);
-      const result = await generateAIExplanation(text, provider, true);
+      const result = await generateAIExplanation(text, provider, true, googleTranslation || phrase.explanation?.googleTranslation || "");
       const saved = await addPhrase({
         phraseText: text,
         phraseType: result.phraseType || tempPhrase.phraseType,
@@ -279,13 +410,130 @@ export default function PhraseDetailPage() {
   };
 
   const handleSpeak = (text?: string) => {
-    void speakText(text ?? phrase.phraseText).catch(() => {
+    if (!text) {
+      const asset: PhraseAudioAsset | undefined = phrase.audio?.audioUrl || phrase.audioUrl
+        ? {
+            text: phrase.phraseText,
+            audioUrl: phrase.audio?.audioUrl || phrase.audioUrl,
+            playbackUrl: phrase.audio?.playbackUrl,
+            audioStatus: phrase.audio?.audioStatus || (phrase.audioUrl ? "ready" : undefined),
+            voice: phrase.audio?.voice,
+            language: phrase.audio?.language,
+            ttsHash: phrase.audio?.ttsHash,
+          }
+        : phrase.audio;
+      const requestItem: PhraseAudioRequestItem = {
+        key: "main",
+        text: phrase.phraseText,
+        language: phrase.audio?.language || "en-US",
+        voice: phrase.audio?.voice,
+      };
+      void ensurePhraseAudioAndPlay(requestItem, asset, "This phrase does not have a cached audio file yet.");
+      return;
+    }
+
+    const example = phrase.examples?.find((item) => item.exampleText === text);
+    if (!example) {
+      toast({
+        title: "Could not play audio",
+        description: "This example audio could not be found.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    void ensurePhraseAudioAndPlay(
+      {
+        key: `example:${example.id}`,
+        text: example.exampleText,
+        language: example.audio?.language || "en-US",
+        voice: example.audio?.voice,
+      },
+      example.audio,
+      "This example does not have a cached audio file yet."
+    );
+  };
+
+  const handlePlayAsset = (
+    asset?: PhraseAudioAsset,
+    loadingMessage = "This audio is still preparing.",
+    requestItem?: PhraseAudioRequestItem
+  ) => {
+    const playableUrl = getPlayableAudioUrl(asset);
+    if (!playableUrl) {
+      if (asset?.audioStatus === "error") {
+        toast({
+          title: "Audio is unavailable",
+          description: "This audio file could not be prepared. Tap again to retry.",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (requestItem) {
+        void ensurePhraseAudioAndPlay(requestItem, asset, loadingMessage);
+        return;
+      }
+      toast({
+        title: "Audio is still preparing",
+        description: loadingMessage,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    void playPreparedAudio(playableUrl).catch(() => {
       toast({
         title: "Could not play audio",
         description: "This audio file could not be played right now.",
         variant: "destructive",
       });
     });
+  };
+
+  const warmAsset = (asset?: PhraseAudioAsset) => {
+    const playableUrl = getPlayableAudioUrl(asset);
+    if (playableUrl) {
+      rememberPlayableAsset(asset);
+      primeAudioUrl(playableUrl);
+    }
+  };
+
+  const ensurePhraseAudioAndPlay = async (
+    requestItem: PhraseAudioRequestItem,
+    existingAsset?: PhraseAudioAsset,
+    loadingMessage = "This audio is still preparing."
+  ) => {
+    const existingUrl = getPlayableAudioUrl(existingAsset);
+    if (existingUrl) {
+      rememberPlayableAsset(requestItem, existingAsset);
+    }
+
+    try {
+      const runtimeAsset = await playRuntimeTtsAsset(requestItem, existingAsset);
+      if (runtimeAsset) {
+        if (runtimeAsset.audioStatus === "error" && !getPlayableAudioUrl(runtimeAsset)) {
+          throw new Error("audio-unavailable");
+        }
+        const persistedAsset = await ensureRuntimeTtsAsset(requestItem, existingAsset);
+        const nextAsset = persistedAsset || runtimeAsset;
+        const assetMap = new Map([[requestItem.key, { ...nextAsset, key: requestItem.key }]]);
+        const nextPhrase = mergePhraseAudioAssets(phrase, assetMap, googleTranslation);
+        updatePhrase(phrase.id, nextPhrase);
+        return;
+      }
+
+      toast({
+        title: "Audio is still preparing",
+        description: loadingMessage,
+        variant: "destructive",
+      });
+    } catch {
+      toast({
+        title: "Could not prepare audio",
+        description: "The audio file could not be generated right now. Tap again to retry.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSaveNotes = async () => {
@@ -372,10 +620,21 @@ export default function PhraseDetailPage() {
                 </span>
                 <div className="mt-3 flex items-center gap-2">
                   <h1 className="text-4xl font-semibold tracking-tight text-foreground">{phrase.phraseText}</h1>
-                  <button onClick={() => handleSpeak()} className="rounded-full p-1 text-primary hover:bg-primary/10" aria-label="Listen to phrase">
-                    <Volume2 className="h-5 w-5" />
+                  <button
+                    onClick={() => handleSpeak()}
+                    onMouseEnter={() => warmAsset(phrase.audio?.audioUrl ? phrase.audio : { text: phrase.phraseText, audioUrl: phrase.audioUrl })}
+                    onFocus={() => warmAsset(phrase.audio?.audioUrl ? phrase.audio : { text: phrase.phraseText, audioUrl: phrase.audioUrl })}
+                    onTouchStart={() => warmAsset(phrase.audio?.audioUrl ? phrase.audio : { text: phrase.phraseText, audioUrl: phrase.audioUrl })}
+                    disabled={isPreparingAudio("main")}
+                    className="rounded-full p-1 text-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-40"
+                    aria-label="Listen to phrase"
+                  >
+                    {isPreparingAudio("main") ? <Loader2 className="h-5 w-5 animate-spin" /> : <Volume2 className="h-5 w-5" />}
                   </button>
                 </div>
+                {isPreparingAudio("main") && (
+                  <p className="mt-2 text-xs text-muted-foreground">Preparing audio...</p>
+                )}
                 {ex?.pronunciationText && (
                   <p className="mt-1 text-sm text-muted-foreground">{ex.pronunciationText}</p>
                 )}
@@ -513,8 +772,15 @@ export default function PhraseDetailPage() {
                     <li key={i} className="flex items-start gap-2">
                       <span className="mt-1 rounded bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-secondary-foreground uppercase">{ex.exampleType}</span>
                       <p className="flex-1 text-sm italic text-foreground">"{ex.exampleText}"</p>
-                      <button onClick={() => handleSpeak(ex.exampleText)} className="mt-0.5 shrink-0 rounded-full p-1 text-muted-foreground hover:text-primary hover:bg-primary/10">
-                        <Volume2 className="h-3.5 w-3.5" />
+                      <button
+                        onClick={() => handleSpeak(ex.exampleText)}
+                        onMouseEnter={() => warmAsset(ex.audio)}
+                        onFocus={() => warmAsset(ex.audio)}
+                        onTouchStart={() => warmAsset(ex.audio)}
+                        disabled={isPreparingAudio(`example:${ex.id}`)}
+                        className="mt-0.5 shrink-0 rounded-full p-1 text-muted-foreground hover:text-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        {isPreparingAudio(`example:${ex.id}`) ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Volume2 className="h-3.5 w-3.5" />}
                       </button>
                     </li>
                   ))}

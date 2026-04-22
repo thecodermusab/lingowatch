@@ -89,14 +89,15 @@ function simplifyAiErrorMessage(message: string) {
 export async function generateAIExplanation(
   phraseText: string,
   preferredProvider: PreferredAiProvider | undefined = getPreferredAiProvider(),
-  strictProvider = false
+  strictProvider = false,
+  googleTranslation = "",
 ): Promise<AIGenerationResult> {
   const response = await fetch("/api/ai/explain", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ phraseText, preferredProvider, strictProvider }),
+    body: JSON.stringify({ phraseText, preferredProvider, strictProvider, googleTranslation }),
   });
 
   if (!response.ok) {

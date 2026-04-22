@@ -9,9 +9,22 @@ interface SyncedTtsTextProps {
   inactiveClassName?: string;
   activeStyle?: React.CSSProperties;
   inactiveStyle?: React.CSSProperties;
+  targetWords?: string[];
+  onTargetWordClick?: (word: string) => void;
+  targetWordClassName?: string;
+  targetActiveClassName?: string;
+  targetInactiveClassName?: string;
+  targetActiveStyle?: React.CSSProperties;
+  targetInactiveStyle?: React.CSSProperties;
 }
 
 const tokenPattern = /(\s+|\S+)/g;
+
+function normalizeToken(token: string) {
+  return token
+    .toLowerCase()
+    .replace(/^\W+|\W+$/g, "");
+}
 
 export function getActiveWordIndex(currentTime: number, starts: number[]): number | null {
   if (!starts.length) return null;
@@ -32,8 +45,16 @@ export function SyncedTtsText({
   inactiveClassName = "",
   activeStyle,
   inactiveStyle,
+  targetWords = [],
+  onTargetWordClick,
+  targetWordClassName = "",
+  targetActiveClassName = "",
+  targetInactiveClassName = "",
+  targetActiveStyle,
+  targetInactiveStyle,
 }: SyncedTtsTextProps) {
   const tokens = text.match(tokenPattern) || [];
+  const targetWordSet = new Set(targetWords.map((word) => normalizeToken(word)).filter(Boolean));
   let wordIndex = -1;
 
   return (
@@ -45,16 +66,34 @@ export function SyncedTtsText({
 
         wordIndex += 1;
         const isActive = activeWordIndex === wordIndex;
+        const normalizedToken = normalizeToken(token);
+        const isTargetWord = targetWordSet.has(normalizedToken);
+        const resolvedClassName = isTargetWord
+          ? `${wordClassName} ${targetWordClassName} ${isActive ? targetActiveClassName : targetInactiveClassName}`.trim()
+          : `${wordClassName} ${isActive ? activeClassName : inactiveClassName}`.trim();
+        const resolvedStyle = isTargetWord
+          ? isActive
+            ? (targetActiveStyle || activeStyle)
+            : (targetInactiveStyle || inactiveStyle)
+          : isActive
+            ? activeStyle
+            : inactiveStyle;
 
-        return (
-          <span
-            key={`word-${tokenIndex}`}
-            className={`word ${wordClassName} ${isActive ? activeClassName : inactiveClassName}`.trim()}
-            style={isActive ? activeStyle : inactiveStyle}
-          >
-            {token}
-          </span>
-        );
+        if (isTargetWord && onTargetWordClick) {
+          return (
+            <button
+              key={`word-${tokenIndex}`}
+              type="button"
+              onClick={() => onTargetWordClick(normalizedToken)}
+              className={`word inline cursor-pointer bg-transparent p-0 text-inherit ${resolvedClassName}`.trim()}
+              style={resolvedStyle}
+            >
+              {token}
+            </button>
+          );
+        }
+
+        return <span key={`word-${tokenIndex}`} className={`word ${resolvedClassName}`.trim()} style={resolvedStyle}>{token}</span>;
       })}
     </span>
   );

@@ -4,21 +4,18 @@ import { BookText, Trash2, ArrowLeft, Globe, ExternalLink, Loader2, Play, Square
 import { Button } from "@/components/ui/button";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { SyncedTtsText, getActiveWordIndex } from "@/components/reader/SyncedTtsText";
-import { fetchTimedTtsAudio, TtsWordTiming } from "@/lib/tts";
+import { TtsWordTiming } from "@/lib/tts";
 import { useAuth } from "@/contexts/AuthContext";
-import { accountStorageKey, legacyOwnerEmail, normalizeOwnerEmail } from "@/lib/accountStorage";
+import { normalizeOwnerEmail } from "@/lib/accountStorage";
+import { useToast } from "@/hooks/use-toast";
+import { getPlayableAudioUrl } from "@/lib/ttsAssets";
+import { primeAudioUrl } from "@/lib/audioPlayback";
+import { loadStoredStories, saveStoredStories, StoryEntry } from "@/lib/storyStorage";
+import { usePhraseStore } from "@/hooks/usePhraseStore";
 
 // Module-level cache — survives re-renders, cleared only on page refresh
 let _worldStoriesCache: WorldStory[] = [];
 let _worldStoriesFetched = false;
-
-interface StoryEntry {
-  id: string;
-  title: string;
-  words: string[];
-  content: string;
-  createdAt: string;
-}
 
 interface WorldStory {
   id: string;
@@ -31,15 +28,85 @@ interface WorldStory {
   sourceUrl: string;
 }
 
-function renderContent(content: string) {
+function normalizeStoryToken(token: string) {
+  return token.toLowerCase().replace(/^\W+|\W+$/g, "");
+}
+
+function renderContent(
+  content: string,
+  targetWords: string[] = [],
+  onTargetWordClick?: (word: string) => void
+) {
+  const targetWordSet = new Set(targetWords.map((word) => normalizeStoryToken(word)).filter(Boolean));
   const parts = content.split(/(\*\*[^*]+\*\*)/g);
   return parts.map((part, i) =>
     part.startsWith("**") && part.endsWith("**") ? (
-      <strong key={i} className="font-semibold text-primary">{part.slice(2, -2)}</strong>
+      (() => {
+        const word = part.slice(2, -2);
+        const normalizedWord = normalizeStoryToken(word);
+        if (targetWordSet.has(normalizedWord) && onTargetWordClick) {
+          return (
+            <button
+              key={i}
+              type="button"
+              onClick={() => onTargetWordClick(normalizedWord)}
+              className="inline cursor-pointer bg-transparent p-0 font-semibold text-primary underline-offset-4 hover:underline"
+            >
+              {word}
+            </button>
+          );
+        }
+        return <strong key={i} className="font-semibold text-primary">{word}</strong>;
+      })()
     ) : (
       <span key={i}>{part}</span>
     )
   );
+}
+
+async function ensureStoryAudioAsset(story: StoryEntry): Promise<StoryEntry | null> {
+  const existingUrl = getPlayableAudioUrl(story.audio);
+  if (existingUrl && Array.isArray(story.wordTimings) && story.wordTimings.length) {
+    return story;
+  }
+
+  const response = await fetch("/api/tts", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      text: story.content.replace(/\*\*/g, ""),
+      includeWordTimings: true,
+      languageCode: story.audio?.language || "en-US",
+      voiceName: story.audio?.voice,
+    }),
+  });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const data = await response.json();
+  const playableUrl = String(data?.playbackUrl || data?.audioUrl || "").trim();
+  if (!playableUrl) {
+    return null;
+  }
+
+  return {
+    ...story,
+    audio: {
+      text: story.content.replace(/\*\*/g, ""),
+      audioUrl: typeof data?.audioUrl === "string" ? data.audioUrl : "",
+      playbackUrl: typeof data?.playbackUrl === "string" ? data.playbackUrl : "",
+      audioStatus: "ready",
+      language: story.audio?.language || "en-US",
+      voice: story.audio?.voice,
+    },
+    wordTimings: Array.isArray(data?.wordTimings) ? data.wordTimings : [],
+  };
+}
+
+function isStoryAudioReady(story: StoryEntry) {
+  return Boolean(getPlayableAudioUrl(story.audio) && Array.isArray(story.wordTimings) && story.wordTimings.length);
 }
 
 function BookCard({ story, onClick, onDelete }: { story: StoryEntry; onClick: () => void; onDelete: (e: React.MouseEvent) => void }) {
@@ -110,23 +177,105 @@ function WorldBookCard({ story, onClick }: { story: WorldStory; onClick: () => v
   );
 }
 
-function ReadingView({ story, onBack, onDelete }: { story: StoryEntry; onBack: () => void; onDelete: () => void }) {
+function ReadingView({
+  story,
+  onBack,
+  onDelete,
+  onUpdateStory,
+}: {
+  story: StoryEntry;
+  onBack: () => void;
+  onDelete: () => void;
+  onUpdateStory: (story: StoryEntry) => void;
+}) {
+  const { phrases } = usePhraseStore();
+  const navigate = useNavigate();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const wordStartsRef = useRef<number[]>([]);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [activeWordIndex, setActiveWordIndex] = useState<number | null>(null);
+  const [isPreparingAudio, setIsPreparingAudio] = useState(!isStoryAudioReady(story));
+  const [resumeTime, setResumeTime] = useState<number>(Math.max(0, Number(story.playbackState?.currentTime || 0)));
+  const { toast } = useToast();
+  const targetWords = story.words || [];
+  const phraseByWord = new Map(
+    phrases.map((phrase) => [normalizeStoryToken(phrase.phraseText), phrase])
+  );
+
+  const handleTargetWordClick = (word: string) => {
+    if (audioRef.current) {
+      persistPlaybackState(audioRef.current.currentTime);
+      audioRef.current.pause();
+      audioRef.current = null;
+      setIsPlayingAudio(false);
+      setIsLoadingAudio(false);
+      setActiveWordIndex(null);
+    }
+    const matchingPhrase = phraseByWord.get(normalizeStoryToken(word));
+    if (!matchingPhrase) return;
+    navigate(`/phrase/${matchingPhrase.id}`, { state: { fromStoryId: story.id } });
+  };
+
+  const persistPlaybackState = (currentTime: number) => {
+    const safeTime = Math.max(0, Number(currentTime || 0));
+    setResumeTime(safeTime);
+    onUpdateStory({
+      ...story,
+      playbackState: {
+        currentTime: safeTime,
+        updatedAt: new Date().toISOString(),
+      },
+    });
+  };
+
+  const clearPlaybackState = () => {
+    setResumeTime(0);
+    onUpdateStory({
+      ...story,
+      playbackState: {
+        currentTime: 0,
+        updatedAt: new Date().toISOString(),
+      },
+    });
+  };
 
   useEffect(() => {
-    // Prefetch TTS as soon as the story opens so Play is instant
-    void fetchTimedTtsAudio(story.content.replace(/\*\*/g, ""));
+    setResumeTime(Math.max(0, Number(story.playbackState?.currentTime || 0)));
+    const existingUrl = getPlayableAudioUrl(story.audio);
+    if (existingUrl) {
+      primeAudioUrl(existingUrl);
+    }
+    setIsPreparingAudio(!isStoryAudioReady(story));
+
+    let cancelled = false;
+    void ensureStoryAudioAsset(story).then((nextStory) => {
+      if (cancelled || !nextStory) return;
+      const playableUrl = getPlayableAudioUrl(nextStory.audio);
+      if (playableUrl) primeAudioUrl(playableUrl);
+      setIsPreparingAudio(!isStoryAudioReady(nextStory));
+      if (
+        playableUrl !== existingUrl ||
+        (nextStory.wordTimings?.length || 0) !== (story.wordTimings?.length || 0)
+      ) {
+        onUpdateStory(nextStory);
+      }
+    }).catch(() => {});
+
     return () => {
+      cancelled = true;
+      if (audioRef.current) {
+        persistPlaybackState(audioRef.current.currentTime);
+      }
       audioRef.current?.pause();
       audioRef.current = null;
     };
-  }, [story.id]);
+  }, [onUpdateStory, story]);
 
   const stopListening = () => {
+    if (audioRef.current) {
+      persistPlaybackState(audioRef.current.currentTime);
+    }
     audioRef.current?.pause();
     audioRef.current = null;
     wordStartsRef.current = [];
@@ -135,35 +284,87 @@ function ReadingView({ story, onBack, onDelete }: { story: StoryEntry; onBack: (
     setActiveWordIndex(null);
   };
 
-  const playStory = async () => {
+  const playStory = async (startAt = 0) => {
     if (isPlayingAudio || isLoadingAudio) {
       stopListening();
       return;
     }
 
-    setIsLoadingAudio(true);
-    setActiveWordIndex(null);
-
-    const result = await fetchTimedTtsAudio(story.content.replace(/\*\*/g, ""));
-    if (!result) {
-      setIsLoadingAudio(false);
+    if (!isStoryAudioReady(story)) {
+      setIsPreparingAudio(true);
+      void ensureStoryAudioAsset(story).then((nextStory) => {
+        if (!nextStory) return;
+        onUpdateStory(nextStory);
+        setIsPreparingAudio(!isStoryAudioReady(nextStory));
+      }).catch(() => {}).finally(() => {
+        setIsLoadingAudio(false);
+      });
+      toast({
+        title: "Preparing audio",
+        description: "Story audio is being prepared. Tap listen again in a moment.",
+      });
       return;
     }
 
-    const timings: TtsWordTiming[] = result.wordTimings || [];
+    setIsLoadingAudio(true);
+    setActiveWordIndex(null);
+    const playableUrl = getPlayableAudioUrl(story.audio);
+    if (!playableUrl) {
+      setIsLoadingAudio(false);
+      toast({
+        title: "Playback failed",
+        description: "The cached story audio could not be found.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    primeAudioUrl(playableUrl);
+
+    const timings: TtsWordTiming[] = story.wordTimings || [];
     wordStartsRef.current = timings.map((timing) => timing.startTime);
 
-    const audio = new Audio(result.audioUrl);
+    const audio = new Audio(playableUrl);
+    audio.preload = "auto";
     audioRef.current = audio;
     audio.addEventListener("timeupdate", () => {
       setActiveWordIndex(getActiveWordIndex(audio.currentTime, wordStartsRef.current));
+      setResumeTime(audio.currentTime);
     });
-    audio.addEventListener("ended", stopListening);
-    audio.addEventListener("error", stopListening);
+    audio.addEventListener("ended", () => {
+      clearPlaybackState();
+      audioRef.current?.pause();
+      audioRef.current = null;
+      wordStartsRef.current = [];
+      setIsPlayingAudio(false);
+      setIsLoadingAudio(false);
+      setActiveWordIndex(null);
+    });
+    audio.addEventListener("error", () => {
+      stopListening();
+      toast({
+        title: "Playback failed",
+        description: "The cached story audio could not be played.",
+        variant: "destructive",
+      });
+    });
+
+    if (startAt > 0) {
+      audio.currentTime = startAt;
+      setActiveWordIndex(getActiveWordIndex(startAt, wordStartsRef.current));
+    }
 
     setIsLoadingAudio(false);
     setIsPlayingAudio(true);
-    await audio.play().catch(stopListening);
+    await audio.play().catch((error) => {
+      console.error("Story audio playback failed", { playableUrl, error });
+      stopListening();
+      toast({
+        title: "Playback failed",
+        description: "Story audio could not be played right now.",
+        variant: "destructive",
+      });
+    });
   };
 
   return (
@@ -171,7 +372,17 @@ function ReadingView({ story, onBack, onDelete }: { story: StoryEntry; onBack: (
       <div className="mx-auto max-w-2xl px-4 py-10">
         <button
           type="button"
-          onClick={onBack}
+          onClick={() => {
+            if (audioRef.current) {
+              persistPlaybackState(audioRef.current.currentTime);
+              audioRef.current.pause();
+              audioRef.current = null;
+              setIsPlayingAudio(false);
+              setIsLoadingAudio(false);
+              setActiveWordIndex(null);
+            }
+            onBack();
+          }}
           className="mb-8 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" /> Back to Stories
@@ -181,9 +392,14 @@ function ReadingView({ story, onBack, onDelete }: { story: StoryEntry; onBack: (
           <header className="mb-8 text-center">
             <div className="mb-3 flex flex-wrap justify-center gap-2">
               {story.words.map((w) => (
-                <span key={w} className="rounded-full bg-primary/10 px-3 py-0.5 text-xs font-medium text-primary">
+                <button
+                  key={w}
+                  type="button"
+                  onClick={() => handleTargetWordClick(w)}
+                  className="rounded-full bg-primary/10 px-3 py-0.5 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+                >
                   {w}
-                </span>
+                </button>
               ))}
             </div>
             <h1 className="text-3xl font-bold tracking-tight text-foreground">{story.title}</h1>
@@ -195,17 +411,29 @@ function ReadingView({ story, onBack, onDelete }: { story: StoryEntry; onBack: (
               size="sm"
               className="mt-5 gap-2"
               variant={isPlayingAudio ? "outline" : "default"}
-              onClick={playStory}
+              onClick={() => void playStory(0)}
             >
               {isLoadingAudio ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : isPreparingAudio ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : isPlayingAudio ? (
                 <Square className="h-4 w-4" fill="currentColor" />
               ) : (
                 <Play className="h-4 w-4" fill="currentColor" />
               )}
-              {isPlayingAudio ? "Stop listening" : "Listen"}
+              {isPlayingAudio ? "Stop listening" : isPreparingAudio ? "Preparing audio" : "Listen"}
             </Button>
+            {!isPlayingAudio && resumeTime > 1 ? (
+              <div className="mt-3 flex justify-center gap-2">
+                <Button type="button" size="sm" variant="outline" onClick={() => void playStory(resumeTime)}>
+                  Continue
+                </Button>
+                <Button type="button" size="sm" variant="ghost" onClick={clearPlaybackState}>
+                  Restart
+                </Button>
+              </div>
+            ) : null}
           </header>
 
           <div className="prose prose-lg mx-auto max-w-none text-center">
@@ -215,14 +443,24 @@ function ReadingView({ story, onBack, onDelete }: { story: StoryEntry; onBack: (
                   text={story.content.replace(/\*\*/g, "")}
                   activeWordIndex={activeWordIndex}
                   wordClassName="transition-colors duration-100"
+                  targetWords={targetWords}
+                  onTargetWordClick={handleTargetWordClick}
+                  targetWordClassName="font-semibold underline-offset-4 hover:underline"
                   inactiveStyle={{ color: "#888" }}
                   activeStyle={{
                     color: "#1F383C",
                     textShadow: "0 0 8px rgba(31, 56, 60, 0.85), 0 0 18px rgba(31, 56, 60, 0.45)",
                   }}
+                  targetInactiveStyle={{
+                    color: "#7C3AED",
+                  }}
+                  targetActiveStyle={{
+                    color: "#B45309",
+                    textShadow: "0 0 8px rgba(245, 158, 11, 0.9), 0 0 18px rgba(245, 158, 11, 0.45)",
+                  }}
                 />
               ) : (
-                renderContent(story.content)
+                renderContent(story.content, targetWords, handleTargetWordClick)
               )}
             </p>
           </div>
@@ -503,16 +741,7 @@ export default function StoriesPage() {
       setStories([]);
       return;
     }
-
-    const storageKey = accountStorageKey("lingowatch_stories", userEmail);
-    let raw = localStorage.getItem(storageKey);
-
-    if (!raw && userEmail === legacyOwnerEmail()) {
-      raw = localStorage.getItem("lingowatch_stories");
-      if (raw) localStorage.setItem(storageKey, raw);
-    }
-
-    setStories(raw ? JSON.parse(raw) : []);
+    setStories(loadStoredStories(userEmail));
   }, [userEmail]);
 
   // Fetch world stories immediately on mount so Browse tab is instant.
@@ -533,10 +762,39 @@ export default function StoriesPage() {
 
   const saveStories = (updated: StoryEntry[]) => {
     setStories(updated);
-    if (userEmail) {
-      localStorage.setItem(accountStorageKey("lingowatch_stories", userEmail), JSON.stringify(updated));
-    }
+    saveStoredStories(updated, userEmail);
   };
+
+  const upsertStory = (nextStory: StoryEntry) => {
+    setStories((current) => {
+      const updated = current.map((story) => (story.id === nextStory.id ? nextStory : story));
+      saveStoredStories(updated, userEmail);
+      return updated;
+    });
+  };
+
+  useEffect(() => {
+    const storiesNeedingAudio = stories.slice(0, 3).filter((story) => !getPlayableAudioUrl(story.audio) || !(story.wordTimings?.length));
+    stories.forEach((story) => {
+      const playableUrl = getPlayableAudioUrl(story.audio);
+      if (playableUrl) primeAudioUrl(playableUrl);
+    });
+    if (!storiesNeedingAudio.length) return;
+
+    let cancelled = false;
+    void Promise.all(storiesNeedingAudio.map((story) => ensureStoryAudioAsset(story))).then((resolvedStories) => {
+      if (cancelled) return;
+      const resolvedMap = new Map(
+        resolvedStories.filter((story): story is StoryEntry => Boolean(story)).map((story) => [story.id, story])
+      );
+      if (!resolvedMap.size) return;
+      saveStories(stories.map((story) => resolvedMap.get(story.id) || story));
+    }).catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [stories, userEmail]);
 
   const handleDelete = (storyId: string) => {
     saveStories(stories.filter((s) => s.id !== storyId));
@@ -584,6 +842,7 @@ export default function StoriesPage() {
           story={story}
           onBack={() => navigate("/stories")}
           onDelete={() => setStoryToDelete(story)}
+          onUpdateStory={upsertStory}
         />
       </>
     );

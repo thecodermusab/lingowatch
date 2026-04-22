@@ -5,7 +5,8 @@ import { usePhraseStore } from "@/hooks/usePhraseStore";
 import { BookMarked, BookOpen, Star, PlusCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { fetchTtsAudioContent } from "@/lib/tts";
+import { getPlayableAudioUrl, rememberPlayableAsset, requestTtsAssets } from "@/lib/ttsAssets";
+import { primeAudioUrl } from "@/lib/audioPlayback";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
@@ -52,7 +53,7 @@ function StatCard({
   valueClassName = "",
   labelClassName = "",
 }: {
-  icon: any;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   label: string;
   value: number;
   color: string;
@@ -74,14 +75,60 @@ function StatCard({
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const { phrases, getStats, getDueForReview } = usePhraseStore();
+  const { phrases, getStats, getDueForReview, updatePhrase } = usePhraseStore();
   const stats = getStats();
   const dueForReview = getDueForReview();
   const recentPhrases = [...phrases].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5);
 
   useEffect(() => {
-    recentPhrases.forEach(p => void fetchTtsAudioContent(p.phraseText));
-  }, [recentPhrases.map(p => p.id).join(",")]);
+    const resolvePhraseAsset = (phrase: typeof recentPhrases[number]) =>
+      phrase.audio?.audioUrl || phrase.audio?.playbackUrl || phrase.audioUrl
+        ? {
+            text: phrase.phraseText,
+            audioUrl: phrase.audio?.audioUrl || phrase.audioUrl,
+            playbackUrl: phrase.audio?.playbackUrl,
+            audioStatus: phrase.audio?.audioStatus || (phrase.audioUrl ? "ready" : undefined),
+            voice: phrase.audio?.voice,
+            language: phrase.audio?.language,
+            ttsHash: phrase.audio?.ttsHash,
+          }
+        : phrase.audio;
+
+    const phrasesNeedingAudio = recentPhrases.filter((phrase) => !getPlayableAudioUrl(resolvePhraseAsset(phrase)));
+    recentPhrases.forEach((phrase) => {
+      const asset = resolvePhraseAsset(phrase);
+      const playableUrl = getPlayableAudioUrl(asset);
+      if (playableUrl) {
+        rememberPlayableAsset({ key: phrase.id, text: phrase.phraseText, language: asset?.language, voice: asset?.voice }, asset);
+        primeAudioUrl(playableUrl);
+      }
+    });
+    if (!phrasesNeedingAudio.length) return;
+
+    let cancelled = false;
+    void requestTtsAssets(
+      phrasesNeedingAudio.map((phrase) => ({
+        key: phrase.id,
+        text: phrase.phraseText,
+        language: phrase.audio?.language || "en-US",
+        voice: phrase.audio?.voice,
+      }))
+    ).then((assets) => {
+      if (cancelled) return;
+      for (const phrase of phrasesNeedingAudio) {
+        const asset = assets.get(phrase.id);
+        const playableUrl = getPlayableAudioUrl(asset);
+        if (!asset || !playableUrl) continue;
+        rememberPlayableAsset({ key: phrase.id, text: phrase.phraseText, language: asset.language, voice: asset.voice }, asset);
+        updatePhrase(phrase.id, { audio: { ...asset, text: phrase.phraseText } });
+        primeAudioUrl(playableUrl);
+      }
+    }).catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [recentPhrases, updatePhrase]);
 
   return (
     <div className="app-page">

@@ -9,6 +9,9 @@ export interface PhraseBankEntry {
   sourceMeaning?: string;
   sourceExample?: string;
   source?: string;
+  sourceAudio?: string[];
+  sourceImages?: string[];
+  relatedPhrases?: string[];
 }
 
 export const phraseBank: PhraseBankEntry[] = [
