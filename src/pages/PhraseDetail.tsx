@@ -1,4 +1,4 @@
-import { ReactNode, ComponentType, useEffect, useRef, useState } from "react";
+import { ReactNode, ComponentType, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { usePhraseStore } from "@/hooks/usePhraseStore";
 import { Button } from "@/components/ui/button";
@@ -48,9 +48,9 @@ function SectionCard({ icon: Icon, title, children, color = "bg-primary/10 text-
 
 export default function PhraseDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { phrases, addPhrase, toggleFavorite, toggleLearned, deletePhrase, savePhraseEdits, updatePhrase } = usePhraseStore();
+  const { phrases, audioPrepByPhraseId, addPhrase, toggleFavorite, toggleLearned, deletePhrase, savePhraseEdits, updatePhrase } = usePhraseStore();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { toast, dismiss } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isEditingNotes, setIsEditingNotes] = useState(false);
@@ -69,8 +69,8 @@ export default function PhraseDetailPage() {
   const [reExplainProvider, setReExplainProvider] = useState<PreferredAiProvider>("deepseek");
   const [relatedPhraseLoading, setRelatedPhraseLoading] = useState("");
   const [audioSyncing, setAudioSyncing] = useState(false);
-  const [preparingAudioKeys, setPreparingAudioKeys] = useState<string[]>([]);
   const lastAudioSyncRef = useRef<Record<string, number>>({});
+  const audioPrepToastRef = useRef<string | null>(null);
 
   const phrase = phrases.find((p) => p.id === id);
 
@@ -228,7 +228,39 @@ export default function PhraseDetailPage() {
   const explainedBy = getAiProviderLabel(ex?.aiProvider, ex?.aiProviderLabel);
   const explainedModel = ex?.aiModel ? ` · ${ex.aiModel}` : "";
   const recommendedReExplainProvider = getSavedWordRegenerationProvider(phrase);
-  const isPreparingAudio = (key: string) => preparingAudioKeys.includes(key);
+  const audioPrep = audioPrepByPhraseId[phrase.id];
+  const audioProgressPercent = audioPrep?.total ? Math.round((audioPrep.ready / audioPrep.total) * 100) : 0;
+  const isAudioPreparing = Boolean(audioPrep?.pending);
+  const audioPrepLabel = useMemo(() => {
+    if (!audioPrep?.total) return null;
+    if (isAudioPreparing) return `${audioPrep.ready}/${audioPrep.total}`;
+    if (audioPrep.error) return `${audioPrep.ready}/${audioPrep.total}`;
+    return "Ready";
+  }, [audioPrep, isAudioPreparing]);
+
+  useEffect(() => {
+    if (!audioPrep?.total || !isAudioPreparing) {
+      if (audioPrepToastRef.current) {
+        dismiss(audioPrepToastRef.current);
+        audioPrepToastRef.current = null;
+      }
+      return;
+    }
+
+    if (!audioPrepToastRef.current) {
+      const toastHandle = toast({
+        title: "Preparing audio",
+        description: "Main word and example audio are finishing in the background.",
+      });
+      audioPrepToastRef.current = toastHandle.id;
+      window.setTimeout(() => {
+        toastHandle.dismiss();
+        if (audioPrepToastRef.current === toastHandle.id) {
+          audioPrepToastRef.current = null;
+        }
+      }, 10000);
+    }
+  }, [audioPrep?.total, isAudioPreparing, toast]);
 
   const buildExplanation = (result: AIGenerationResult) => ({
     id: phrase.explanation?.id ?? crypto.randomUUID(),
@@ -625,16 +657,24 @@ export default function PhraseDetailPage() {
                     onMouseEnter={() => warmAsset(phrase.audio?.audioUrl ? phrase.audio : { text: phrase.phraseText, audioUrl: phrase.audioUrl })}
                     onFocus={() => warmAsset(phrase.audio?.audioUrl ? phrase.audio : { text: phrase.phraseText, audioUrl: phrase.audioUrl })}
                     onTouchStart={() => warmAsset(phrase.audio?.audioUrl ? phrase.audio : { text: phrase.phraseText, audioUrl: phrase.audioUrl })}
-                    disabled={isPreparingAudio("main")}
-                    className="rounded-full p-1 text-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="rounded-full p-1 text-primary hover:bg-primary/10"
                     aria-label="Listen to phrase"
                   >
-                    {isPreparingAudio("main") ? <Loader2 className="h-5 w-5 animate-spin" /> : <Volume2 className="h-5 w-5" />}
+                    <Volume2 className="h-5 w-5" />
                   </button>
+                  {audioPrepLabel ? (
+                    <div className="flex items-center gap-2 rounded-full border border-border bg-secondary/45 px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                      {isAudioPreparing ? <Loader2 className="h-3 w-3 animate-spin text-primary" /> : null}
+                      <span>{audioPrepLabel}</span>
+                      <span className="h-1.5 w-14 overflow-hidden rounded-full bg-background/90">
+                        <span
+                          className={`block h-full rounded-full transition-all ${audioPrep?.error ? "bg-amber-500" : "bg-primary"}`}
+                          style={{ width: `${Math.max(audioProgressPercent, audioPrep?.ready ? 10 : 0)}%` }}
+                        />
+                      </span>
+                    </div>
+                  ) : null}
                 </div>
-                {isPreparingAudio("main") && (
-                  <p className="mt-2 text-xs text-muted-foreground">Preparing audio...</p>
-                )}
                 {ex?.pronunciationText && (
                   <p className="mt-1 text-sm text-muted-foreground">{ex.pronunciationText}</p>
                 )}
@@ -777,10 +817,9 @@ export default function PhraseDetailPage() {
                         onMouseEnter={() => warmAsset(ex.audio)}
                         onFocus={() => warmAsset(ex.audio)}
                         onTouchStart={() => warmAsset(ex.audio)}
-                        disabled={isPreparingAudio(`example:${ex.id}`)}
-                        className="mt-0.5 shrink-0 rounded-full p-1 text-muted-foreground hover:text-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-40"
+                        className="mt-0.5 shrink-0 rounded-full p-1 text-muted-foreground hover:text-primary hover:bg-primary/10"
                       >
-                        {isPreparingAudio(`example:${ex.id}`) ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Volume2 className="h-3.5 w-3.5" />}
+                        <Volume2 className="h-3.5 w-3.5" />
                       </button>
                     </li>
                   ))}

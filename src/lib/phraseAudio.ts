@@ -1,4 +1,4 @@
-import { Phrase, PhraseAudioAsset, PhraseAudioStatus } from "@/types";
+import { Phrase, PhraseAudioAsset, PhraseAudioPrepProgress, PhraseAudioStatus } from "@/types";
 
 export interface PhraseAudioRequestItem {
   key: string;
@@ -36,6 +36,105 @@ function buildAudioAsset(text: string, existing?: PhraseAudioAsset): PhraseAudio
 
 function getAudioStatus(existing?: PhraseAudioAsset): PhraseAudioStatus | undefined {
   return existing?.audioStatus;
+}
+
+function isAudioReady(existing?: PhraseAudioAsset) {
+  return Boolean(existing?.audioUrl || existing?.playbackUrl || existing?.audioStatus === "ready");
+}
+
+function isAudioError(existing?: PhraseAudioAsset) {
+  return existing?.audioStatus === "error";
+}
+
+function countAsset(
+  text: string,
+  asset: PhraseAudioAsset | undefined,
+  counters: {
+    total: number;
+    ready: number;
+    pending: number;
+    error: number;
+    mainReady: boolean;
+    exampleTotal: number;
+    exampleReady: number;
+  },
+  options?: { main?: boolean; example?: boolean }
+) {
+  if (!normalizeText(text)) return;
+
+  counters.total += 1;
+  if (options?.example) {
+    counters.exampleTotal += 1;
+  }
+
+  if (isAudioReady(asset)) {
+    counters.ready += 1;
+    if (options?.main) counters.mainReady = true;
+    if (options?.example) counters.exampleReady += 1;
+    return;
+  }
+
+  if (isAudioError(asset)) {
+    counters.error += 1;
+    return;
+  }
+
+  counters.pending += 1;
+}
+
+export function getPhraseAudioPrepProgress(phrase: Phrase, googleTranslation = ""): PhraseAudioPrepProgress {
+  const counters = {
+    total: 0,
+    ready: 0,
+    pending: 0,
+    error: 0,
+    mainReady: false,
+    exampleTotal: 0,
+    exampleReady: 0,
+  };
+
+  const mainAsset: PhraseAudioAsset | undefined = phrase.audio?.audioUrl || phrase.audio?.playbackUrl || phrase.audioUrl
+    ? {
+        text: phrase.phraseText,
+        audioUrl: phrase.audio?.audioUrl || phrase.audioUrl,
+        playbackUrl: phrase.audio?.playbackUrl,
+        audioStatus: phrase.audio?.audioStatus || (phrase.audioUrl ? "ready" : undefined),
+        voice: phrase.audio?.voice,
+        language: phrase.audio?.language,
+        ttsHash: phrase.audio?.ttsHash,
+      }
+    : phrase.audio;
+
+  countAsset(phrase.phraseText, mainAsset, counters, { main: true });
+
+  for (const example of phrase.examples || []) {
+    countAsset(example.exampleText, example.audio, counters, { example: true });
+  }
+
+  const state = counters.total === 0
+    ? "idle"
+    : counters.pending > 0
+      ? "preparing"
+      : counters.ready === counters.total
+        ? "ready"
+        : counters.ready > 0
+          ? "partial"
+          : counters.error > 0
+            ? "error"
+            : "idle";
+
+  return {
+    phraseId: phrase.id,
+    total: counters.total,
+    ready: counters.ready,
+    pending: counters.pending,
+    error: counters.error,
+    mainReady: counters.mainReady,
+    exampleTotal: counters.exampleTotal,
+    exampleReady: counters.exampleReady,
+    state,
+    updatedAt: new Date().toISOString(),
+  };
 }
 
 export function buildPhraseAudioRequests(phrase: Phrase, googleTranslation = ""): PhraseAudioRequestItem[] {

@@ -1,16 +1,18 @@
 import { useState, useEffect, useCallback } from "react";
-import { Phrase, PhraseType, DifficultyLevel, ReviewRating, DashboardStats } from "@/types";
+import { Phrase, PhraseAudioPrepProgress, PhraseType, DifficultyLevel, ReviewRating, DashboardStats } from "@/types";
 import { generateAIExplanation } from "@/lib/ai";
 import { buildNextReviewDate } from "@/lib/review";
 import { useAuth } from "@/contexts/AuthContext";
 import { accountStorageKey, legacyOwnerEmail, normalizeOwnerEmail } from "@/lib/accountStorage";
-import { buildPhraseAudioRequests, mergePhraseAudioAssets, requestPhraseAudioAssets } from "@/lib/phraseAudio";
+import { buildPhraseAudioRequests, getPhraseAudioPrepProgress, mergePhraseAudioAssets, requestPhraseAudioAssets } from "@/lib/phraseAudio";
 import { translateText } from "@/lib/googleTranslate";
 
 const STORAGE_KEY = "lingowatch_phrases";
 const LEGACY_STORAGE_KEY = "phrasepal_phrases";
 const DELETED_KEYS_STORAGE_KEY = "lingowatch_deleted_phrase_keys";
 const LOCAL_API_ORIGIN = "http://127.0.0.1:3001";
+const AUDIO_BACKFILL_CONCURRENCY = 2;
+const activeAudioBackfillJobs = new Map<string, Promise<void>>();
 
 function shouldTryLocalApiFallback() {
   if (typeof window === "undefined") return false;
@@ -145,17 +147,32 @@ async function syncPhrasesToNeon(phrases: Phrase[], userEmail?: string | null) {
 async function prewarmPhraseAudio(
   phrase: Phrase,
   userEmail: string | null | undefined,
-  persist: (updater: (current: Phrase[]) => Phrase[]) => void
+  persist: (updater: (current: Phrase[]) => Phrase[]) => void,
+  onProgress?: (progress: PhraseAudioPrepProgress) => void
 ) {
+  const googleTranslation = phrase.explanation?.googleTranslation || "";
   const requestItems = buildPhraseAudioRequests(phrase, phrase.explanation?.googleTranslation || "");
+  const initialProgress = getPhraseAudioPrepProgress(phrase, googleTranslation);
+  onProgress?.({
+    ...initialProgress,
+    state: requestItems.length ? "preparing" : initialProgress.state,
+    updatedAt: new Date().toISOString(),
+  });
   if (!requestItems.length) return;
 
   try {
     const assetMap = await requestPhraseAudioAssets(requestItems);
-    if (!assetMap.size) return;
+    if (!assetMap.size) {
+      onProgress?.({
+        ...initialProgress,
+        state: initialProgress.total ? "error" : initialProgress.state,
+        updatedAt: new Date().toISOString(),
+      });
+      return;
+    }
 
     const warmedPhrase = sanitizePhrase(
-      mergePhraseAudioAssets(phrase, assetMap, phrase.explanation?.googleTranslation || "")
+      mergePhraseAudioAssets(phrase, assetMap, googleTranslation)
     );
 
     persist((current) => {
@@ -169,8 +186,16 @@ async function prewarmPhraseAudio(
     });
 
     void syncPhraseToNeon(warmedPhrase, userEmail);
+    onProgress?.(getPhraseAudioPrepProgress(warmedPhrase, googleTranslation));
   } catch {
     // Audio prewarm is best-effort only.
+    onProgress?.({
+      ...initialProgress,
+      error: initialProgress.error + initialProgress.pending,
+      pending: 0,
+      state: initialProgress.total ? "error" : initialProgress.state,
+      updatedAt: new Date().toISOString(),
+    });
   }
 }
 
@@ -312,6 +337,7 @@ export function usePhraseStore() {
     }
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [audioPrepByPhraseId, setAudioPrepByPhraseId] = useState<Record<string, PhraseAudioPrepProgress>>({});
 
   const syncExternalPhrases = useCallback(async () => {
     if (!userEmail) return;
@@ -439,6 +465,74 @@ export function usePhraseStore() {
     });
   }, [userEmail]);
 
+  const updateAudioPrepProgress = useCallback((phraseId: string, progress: PhraseAudioPrepProgress) => {
+    setAudioPrepByPhraseId((current) => ({
+      ...current,
+      [phraseId]: progress,
+    }));
+  }, []);
+
+  useEffect(() => {
+    setAudioPrepByPhraseId((current) => {
+      const next: Record<string, PhraseAudioPrepProgress> = {};
+
+      for (const phrase of phrases) {
+        const derived = getPhraseAudioPrepProgress(phrase, phrase.explanation?.googleTranslation || "");
+        next[phrase.id] = activeAudioBackfillJobs.has(phrase.id)
+          ? {
+              ...derived,
+              state: derived.total ? "preparing" : derived.state,
+              updatedAt: new Date().toISOString(),
+            }
+          : derived;
+      }
+
+      const currentKeys = Object.keys(current);
+      const nextKeys = Object.keys(next);
+      const sameKeys = currentKeys.length === nextKeys.length && currentKeys.every((key) => key in next);
+      const sameValues = sameKeys && nextKeys.every((key) => {
+        const previous = current[key];
+        const value = next[key];
+        return previous
+          && previous.total === value.total
+          && previous.ready === value.ready
+          && previous.pending === value.pending
+          && previous.error === value.error
+          && previous.mainReady === value.mainReady
+          && previous.exampleTotal === value.exampleTotal
+          && previous.exampleReady === value.exampleReady
+          && previous.state === value.state;
+      });
+
+      return sameValues ? current : next;
+    });
+  }, [phrases]);
+
+  useEffect(() => {
+    if (!phrases.length) return;
+
+    const queue = phrases
+      .filter((phrase) => getPhraseAudioPrepProgress(phrase, phrase.explanation?.googleTranslation || "").pending > 0)
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+
+    if (!queue.length) return;
+
+    const availableSlots = Math.max(0, AUDIO_BACKFILL_CONCURRENCY - activeAudioBackfillJobs.size);
+    if (!availableSlots) return;
+
+    for (const phrase of queue.slice(0, availableSlots)) {
+      if (activeAudioBackfillJobs.has(phrase.id)) continue;
+
+      const job = prewarmPhraseAudio(phrase, userEmail, persistWithUpdater, (progress) => {
+        updateAudioPrepProgress(phrase.id, progress);
+      }).finally(() => {
+        activeAudioBackfillJobs.delete(phrase.id);
+      });
+
+      activeAudioBackfillJobs.set(phrase.id, job);
+    }
+  }, [phrases, persistWithUpdater, updateAudioPrepProgress, userEmail]);
+
   const addPhrase = useCallback(
     async (
       data: { phraseText: string; phraseType: PhraseType; category: string; notes: string; difficultyLevel: DifficultyLevel },
@@ -528,7 +622,9 @@ export function usePhraseStore() {
       clearDeletedPhraseKey(newPhrase.phraseText, userEmail);
       persist(updated);
       syncPhraseToNeon(newPhrase, userEmail);
-      void prewarmPhraseAudio(newPhrase, userEmail, persistWithUpdater);
+      void prewarmPhraseAudio(newPhrase, userEmail, persistWithUpdater, (progress) => {
+        updateAudioPrepProgress(newPhrase.id, progress);
+      });
       if (shouldHydrateAiInBackground) {
         void (async () => {
           try {
@@ -592,7 +688,9 @@ export function usePhraseStore() {
 
             if (refreshedPhrase) {
               void syncPhraseToNeon(refreshedPhrase, userEmail);
-              void prewarmPhraseAudio(refreshedPhrase, userEmail, persistWithUpdater);
+              void prewarmPhraseAudio(refreshedPhrase, userEmail, persistWithUpdater, (progress) => {
+                updateAudioPrepProgress(refreshedPhrase.id, progress);
+              });
             }
           } catch {
             // Keep the fallback explanation if background AI hydration fails.
@@ -602,7 +700,7 @@ export function usePhraseStore() {
       setIsLoading(false);
       return newPhrase;
     },
-    [phrases, persist, persistWithUpdater, userEmail]
+    [phrases, persist, persistWithUpdater, updateAudioPrepProgress, userEmail]
   );
 
   const updatePhrase = useCallback(
@@ -812,13 +910,15 @@ export function usePhraseStore() {
         }
         syncPhraseToNeon(savedPhrase, userEmail);
         if (shouldRefreshAI) {
-          void prewarmPhraseAudio(savedPhrase, userEmail, persistWithUpdater);
+          void prewarmPhraseAudio(savedPhrase, userEmail, persistWithUpdater, (progress) => {
+            updateAudioPrepProgress(savedPhrase.id, progress);
+          });
         }
       }
       setIsLoading(false);
       return savedPhrase;
     },
-    [phrases, persist, persistWithUpdater, userEmail]
+    [phrases, persist, persistWithUpdater, updateAudioPrepProgress, userEmail]
   );
 
   const exportBackup = useCallback(() => {
@@ -866,6 +966,7 @@ export function usePhraseStore() {
 
   return {
     phrases,
+    audioPrepByPhraseId,
     isLoading,
     addPhrase,
     updatePhrase,

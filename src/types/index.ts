@@ -4,6 +4,7 @@ export type ExampleType = "simple" | "daily" | "work" | "extra" | "somali";
 export type ReviewRating = "again" | "hard" | "good" | "easy";
 export type PreferredAiProvider = "auto" | "glm4" | "deepseek" | "gemini-lite" | "gemini" | "grok" | "openrouter" | "cerebras" | "antigravity";
 export type PhraseAudioStatus = "pending" | "ready" | "error";
+export type PhraseAudioPrepState = "idle" | "preparing" | "ready" | "partial" | "error";
 
 export interface PhraseAudioAsset {
   text: string;
@@ -13,6 +14,19 @@ export interface PhraseAudioAsset {
   voice?: string;
   language?: string;
   ttsHash?: string;
+}
+
+export interface PhraseAudioPrepProgress {
+  phraseId: string;
+  total: number;
+  ready: number;
+  pending: number;
+  error: number;
+  mainReady: boolean;
+  exampleTotal: number;
+  exampleReady: number;
+  state: PhraseAudioPrepState;
+  updatedAt: string;
 }
 
 export interface UserProfile {
