@@ -1,11 +1,25 @@
 const cache = new Map<string, string>();
+const DEFAULT_API_BASE_URL = "http://127.0.0.1:3001";
 
 function isMyMemoryWarning(text: string): boolean {
   return text.trim().toUpperCase().startsWith("MYMEMORY WARNING");
 }
 
+async function getConfiguredApiBaseUrl(): Promise<string> {
+  return new Promise((resolve) => {
+    try {
+      chrome.storage.local.get(["lingowatchApiBaseUrl"], (result) => {
+        resolve(String(result.lingowatchApiBaseUrl || "").trim().replace(/\/+$/, "") || DEFAULT_API_BASE_URL);
+      });
+    } catch {
+      resolve(DEFAULT_API_BASE_URL);
+    }
+  });
+}
+
 async function tryBackendGoogle(key: string, target: string): Promise<string> {
-  const resp = await fetch("http://127.0.0.1:3001/api/translate", {
+  const apiBaseUrl = await getConfiguredApiBaseUrl();
+  const resp = await fetch(`${apiBaseUrl}/api/translate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text: key, source: "en", target }),

@@ -13,6 +13,7 @@
   console.log("LingoWatch loaded");
 
   const APP_API_BASE_URL = "http://127.0.0.1:3001";
+  const APP_BASE_URL = "http://127.0.0.1:8080";
   const YOUTUBE_HOST_PATTERN = /(^|\.)youtube\.com$/i;
   const POPUP_AI_TIMEOUT_MS = 45000;
   const POPUP_SOMALI_TIMEOUT_MS = 30000;
@@ -72,8 +73,50 @@
   }
 
   let _sessionCache = null;
+  let _extensionConfigCache = null;
+
+  function normalizeBaseUrl(value, fallback) {
+    const normalized = String(value || "").trim().replace(/\/+$/, "");
+    return normalized || fallback;
+  }
+
+  async function getExtensionConfig(forceRefresh = false) {
+    if (_extensionConfigCache && !forceRefresh) {
+      return _extensionConfigCache;
+    }
+
+    return new Promise((resolve) => {
+      safeStorageLocalGet(["lingowatchApiBaseUrl", "lingowatchAppBaseUrl"], (result) => {
+        const config = {
+          apiBaseUrl: normalizeBaseUrl(result.lingowatchApiBaseUrl, APP_API_BASE_URL),
+          appBaseUrl: normalizeBaseUrl(result.lingowatchAppBaseUrl, APP_BASE_URL),
+        };
+        _extensionConfigCache = config;
+        resolve(config);
+      });
+    });
+  }
+
+  async function getRuntimeEndpoints() {
+    const session = await getAccountSession();
+    if (session) {
+      return {
+        apiBaseUrl: session.apiBaseUrl,
+        appBaseUrl: session.appBaseUrl,
+        session,
+      };
+    }
+
+    const config = await getExtensionConfig();
+    return {
+      apiBaseUrl: config.apiBaseUrl,
+      appBaseUrl: config.appBaseUrl,
+      session: null,
+    };
+  }
 
   async function getAccountSession() {
+    const config = await getExtensionConfig();
     const response = await safeRuntimeSendMessageAsync({ type: "GET_IMPORT_SESSION" });
     const session = response?.session || null;
     const email = normalizeOwnerEmail(session?.user?.email || session?.email);
@@ -85,8 +128,8 @@
     const resolved = {
       ...session,
       userEmail: email,
-      apiBaseUrl: String(session.apiBaseUrl || APP_API_BASE_URL).replace(/\/$/, ""),
-      appBaseUrl: String(session.appBaseUrl || "http://127.0.0.1:8080").replace(/\/$/, ""),
+      apiBaseUrl: normalizeBaseUrl(session.apiBaseUrl, config.apiBaseUrl),
+      appBaseUrl: normalizeBaseUrl(session.appBaseUrl, config.appBaseUrl),
     };
     _sessionCache = resolved;
     return resolved;
@@ -1245,7 +1288,9 @@
       }
 
       if (actionButton.dataset.action === "open-login") {
-        window.open("http://127.0.0.1:8080/login", "_blank", "noopener,noreferrer");
+        void getRuntimeEndpoints().then(({ appBaseUrl }) => {
+          window.open(`${appBaseUrl}/login`, "_blank", "noopener,noreferrer");
+        });
       }
       return;
     }
@@ -1957,11 +2002,12 @@
     }
 
     try {
+      const { apiBaseUrl } = await getRuntimeEndpoints();
       state.subtitleLoadController?.abort();
       const controller = new AbortController();
       state.subtitleLoadController = controller;
       const timeout = setTimeout(() => controller.abort(), 12000);
-      const response = await fetch(`${APP_API_BASE_URL}/api/transcript/${encodeURIComponent(videoId)}?lang=en`, {
+      const response = await fetch(`${apiBaseUrl}/api/transcript/${encodeURIComponent(videoId)}?lang=en`, {
         signal: controller.signal,
       });
       clearTimeout(timeout);
@@ -2040,7 +2086,8 @@
     }
 
     try {
-      const response = await fetch(`${APP_API_BASE_URL}/api/translate`, {
+      const { apiBaseUrl } = await getRuntimeEndpoints();
+      const response = await fetch(`${apiBaseUrl}/api/translate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -3632,8 +3679,9 @@
   }
 
   async function getAIWordData(word, sentenceContext, preferredProvider, strictProvider = false, timeoutMs = POPUP_AI_TIMEOUT_MS) {
+    const { apiBaseUrl } = await getRuntimeEndpoints();
     return withTimeout(
-      fetch("http://127.0.0.1:3001/api/ai/explain", {
+      fetch(`${apiBaseUrl}/api/ai/explain`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phraseText: word, sentenceContext, preferredProvider, strictProvider }),
@@ -3661,8 +3709,9 @@
   }
 
   async function getSomaliSupportData(word, sentenceContext, preferredProvider, strictProvider = false, timeoutMs = POPUP_SOMALI_TIMEOUT_MS) {
+    const { apiBaseUrl } = await getRuntimeEndpoints();
     return withTimeout(
-      fetch("http://127.0.0.1:3001/api/extension/somali-support", {
+      fetch(`${apiBaseUrl}/api/extension/somali-support`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ word, sentenceContext, preferredProvider, strictProvider }),
@@ -3825,15 +3874,17 @@
     if (!text) return;
     const key = text.trim();
     if (state.ttsAudioCache.has(key)) return;
-    fetch("http://127.0.0.1:3001/api/tts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: key }),
-    }).then(r => r.ok ? r.json() : null).then(data => {
-      if (!data) return;
-      const audioSrc = data.audioUrl || (data.audioContent ? `data:audio/mpeg;base64,${data.audioContent}` : null);
-      if (audioSrc) setLimitedCache(state.ttsAudioCache, key, audioSrc, 120);
-    }).catch(() => {});
+    void getRuntimeEndpoints().then(({ apiBaseUrl }) => {
+      fetch(`${apiBaseUrl}/api/tts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: key }),
+      }).then(r => r.ok ? r.json() : null).then(data => {
+        if (!data) return;
+        const audioSrc = data.audioUrl || (data.audioContent ? `data:audio/mpeg;base64,${data.audioContent}` : null);
+        if (audioSrc) setLimitedCache(state.ttsAudioCache, key, audioSrc, 120);
+      }).catch(() => {});
+    });
   }
 
   async function pronounceSentence(text) {
@@ -3851,7 +3902,8 @@
       const controller = new AbortController();
       const ttsTimeout = setTimeout(() => controller.abort(), 10000);
       try {
-        const res = await fetch("http://127.0.0.1:3001/api/tts", {
+        const { apiBaseUrl } = await getRuntimeEndpoints();
+        const res = await fetch(`${apiBaseUrl}/api/tts`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text: cacheKey }),

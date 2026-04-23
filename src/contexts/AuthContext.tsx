@@ -6,6 +6,9 @@ interface AuthContextType {
   isLoading: boolean;
   updateProfile: (updates: Partial<UserProfile>) => void;
   signInWithGoogleCredential: (credential: string) => Promise<UserProfile>;
+  signInWithEmail: (email: string, password: string) => Promise<UserProfile>;
+  signUpWithEmail: (email: string, password: string, fullName?: string) => Promise<UserProfile>;
+  completeOnboarding: (updates: Partial<UserProfile>) => Promise<UserProfile>;
   signOut: () => void;
 }
 
@@ -24,6 +27,8 @@ function createDefaultProfile(): UserProfile {
     somaliModeEnabled: true,
     autoPlayAudioEnabled: false,
     preferredAiProvider: "auto",
+    onboardingCompleted: true,
+    emailVerified: false,
     createdAt: new Date().toISOString(),
   };
 }
@@ -61,6 +66,29 @@ async function syncExtensionSession(user: UserProfile | null) {
   } catch {
     // The extension bridge is optional; website auth should not fail if it is absent.
   }
+}
+
+async function persistProfile(userId: string, fullName: string, updates: Partial<UserProfile>) {
+  const response = await fetch("/api/auth/profile", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      userId,
+      fullName,
+      onboardingCompleted: updates.onboardingCompleted,
+      updates,
+    }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || !data?.user) {
+    throw new Error(data?.error || "Could not update profile");
+  }
+  return { ...createDefaultProfile(), ...(data.user as UserProfile) };
+}
+
+function storeProfile(profile: UserProfile, setUser: React.Dispatch<React.SetStateAction<UserProfile | null>>) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+  setUser(profile);
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -105,6 +133,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!prev) return prev;
       const updated = { ...prev, ...updates };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      void persistProfile(prev.id, updated.fullName, updates)
+        .then((serverProfile) => {
+          storeProfile(serverProfile, setUser);
+        })
+        .catch(() => {});
       return updated;
     });
   }, []);
@@ -122,10 +155,56 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     const profile = { ...createDefaultProfile(), ...(data.user as UserProfile) };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
-    setUser(profile);
+    storeProfile(profile, setUser);
     return profile;
   }, []);
+
+  const signInWithEmail = useCallback(async (email: string, password: string) => {
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || !data?.user) {
+      throw new Error(data?.error || "Login failed");
+    }
+
+    const profile = { ...createDefaultProfile(), ...(data.user as UserProfile) };
+    storeProfile(profile, setUser);
+    return profile;
+  }, []);
+
+  const signUpWithEmail = useCallback(async (email: string, password: string, fullName = "") => {
+    const response = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, fullName }),
+    });
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || !data?.user) {
+      throw new Error(data?.error || "Sign up failed");
+    }
+
+    const profile = { ...createDefaultProfile(), ...(data.user as UserProfile) };
+    storeProfile(profile, setUser);
+    return profile;
+  }, []);
+
+  const completeOnboarding = useCallback(async (updates: Partial<UserProfile>) => {
+    if (!user) {
+      throw new Error("No active user");
+    }
+
+    const profile = await persistProfile(user.id, updates.fullName || user.fullName, {
+      ...updates,
+      onboardingCompleted: true,
+    });
+    storeProfile(profile, setUser);
+    return profile;
+  }, [user]);
 
   const signOut = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
@@ -134,7 +213,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, updateProfile, signInWithGoogleCredential, signOut }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        updateProfile,
+        signInWithGoogleCredential,
+        signInWithEmail,
+        signUpWithEmail,
+        completeOnboarding,
+        signOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

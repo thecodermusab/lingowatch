@@ -20,6 +20,10 @@ import SettingsPage from "./pages/Settings";
 import RandomPhrasesPage from "./pages/RandomPhrases";
 import LoginPage from "./pages/Login";
 import SignupPage from "./pages/Signup";
+import OnboardingPage from "./pages/Onboarding";
+import VerifyEmailPage from "./pages/VerifyEmail";
+import ForgotPasswordPage from "./pages/ForgotPassword";
+import AdminAnnouncementsPage from "./pages/AdminAnnouncements";
 import AddPhrasePage from "./pages/AddPhrase";
 import ReviewPage from "./pages/Review";
 import ProgressPage from "./pages/Progress";
@@ -60,12 +64,16 @@ function RequireAuth({ children }: { children: JSX.Element }) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
+  if (!user.onboardingCompleted && location.pathname !== "/onboarding") {
+    return <Navigate to="/onboarding" replace />;
+  }
+
   return children;
 }
 
 function AppRoutes() {
   const location = useLocation();
-  const noShellRoutes = ["/", "/login", "/signup"];
+  const noShellRoutes = ["/", "/login", "/signup", "/onboarding", "/verify-email", "/forgot-password"];
   const fullBleedRoutes = ["/watch", "/read", "/listen"];
   const isFullBleedRoute = noShellRoutes.includes(location.pathname) ||
     fullBleedRoutes.some((route) => location.pathname.startsWith(route));
@@ -77,6 +85,10 @@ function AppRoutes() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/onboarding" element={<RequireAuth><OnboardingPage /></RequireAuth>} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/admin/announcements" element={<RequireAuth><AdminAnnouncementsPage /></RequireAuth>} />
         <Route path="/dashboard" element={<RequireAuth><DashboardPage /></RequireAuth>} />
         <Route path="/random-phrases" element={<RequireAuth><RandomPhrasesPage /></RequireAuth>} />
         <Route path="/add-phrase" element={<RequireAuth><AddPhrasePage /></RequireAuth>} />

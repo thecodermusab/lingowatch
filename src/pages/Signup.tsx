@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const EMAIL_RE = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string;
@@ -12,7 +12,6 @@ declare global {
         id: {
           initialize: (config: object) => void;
           renderButton: (el: HTMLElement, config: object) => void;
-          prompt: () => void;
         };
       };
     };
@@ -20,26 +19,29 @@ declare global {
 }
 
 export default function SignupPage() {
-  const { signInWithGoogleCredential } = useAuth();
+  const { signInWithGoogleCredential, signUpWithEmail } = useAuth();
   const navigate = useNavigate();
   const googleBtnRef = useRef<HTMLDivElement>(null);
 
-  const [email, setEmail]       = useState('');
-  const [password, setPassword] = useState('');
-  const [showPw, setShowPw]     = useState(false);
-  const [emailErr, setEmailErr] = useState(false);
-  const [pwErr, setPwErr]       = useState(false);
-  const [googleError, setGoogleError] = useState('');
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPw, setShowPw] = useState(false);
+  const [emailErr, setEmailErr] = useState("");
+  const [pwErr, setPwErr] = useState("");
+  const [googleError, setGoogleError] = useState("");
+  const [formError, setFormError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const originalBg = document.body.style.backgroundColor;
-    document.body.style.backgroundColor = '#1B202A';
+    document.body.style.backgroundColor = "#1B202A";
 
-    const scriptId = 'google-gsi';
+    const scriptId = "google-gsi";
     if (!document.getElementById(scriptId)) {
-      const script = document.createElement('script');
+      const script = document.createElement("script");
       script.id = scriptId;
-      script.src = 'https://accounts.google.com/gsi/client';
+      script.src = "https://accounts.google.com/gsi/client";
       script.async = true;
       script.defer = true;
       script.onload = initGoogle;
@@ -54,93 +56,131 @@ export default function SignupPage() {
   }, []);
 
   function initGoogle() {
-    if (!window.google || !googleBtnRef.current) return;
+    if (!window.google || !googleBtnRef.current || !GOOGLE_CLIENT_ID) return;
     window.google.accounts.id.initialize({
       client_id: GOOGLE_CLIENT_ID,
       callback: handleGoogleCredential,
     });
+    googleBtnRef.current.innerHTML = "";
     window.google.accounts.id.renderButton(googleBtnRef.current, {
-      theme: 'outline',
-      size: 'large',
+      theme: "outline",
+      size: "large",
       width: googleBtnRef.current.offsetWidth || 390,
-      text: 'signup_with',
+      text: "signup_with",
     });
   }
 
   async function handleGoogleCredential(response: { credential: string }) {
     try {
-      setGoogleError('');
+      setIsSubmitting(true);
+      setGoogleError("");
       await signInWithGoogleCredential(response.credential);
-      navigate('/dashboard');
-    } catch {
-      setGoogleError('Google sign-in failed. Please try again.');
+      navigate("/onboarding", { replace: true });
+    } catch (error) {
+      setGoogleError(error instanceof Error ? error.message : "Google sign-in failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     let valid = true;
-    setEmailErr(false);
-    setPwErr(false);
-    if (!EMAIL_RE.test(email.toLowerCase())) { setEmailErr(true); valid = false; }
-    if (password.length < 8)                 { setPwErr(true);    valid = false; }
-    if (valid) {
-      console.log('Email/password signup not yet implemented');
+    setEmailErr("");
+    setPwErr("");
+    setFormError("");
+
+    if (!EMAIL_RE.test(email.toLowerCase())) {
+      setEmailErr("Please enter a valid email.");
+      valid = false;
+    }
+    if (password.length < 8) {
+      setPwErr("Password must be at least 8 characters.");
+      valid = false;
+    }
+    if (!valid) return;
+
+    try {
+      setIsSubmitting(true);
+      await signUpWithEmail(email, password, fullName);
+      navigate("/onboarding", { replace: true });
+    } catch (error) {
+      setFormError(error instanceof Error ? error.message : "Sign up failed");
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
   const inputStyle = (err: boolean): React.CSSProperties => ({
-    width: '100%', height: '44px', border: `1px solid ${err ? '#e53e3e' : '#e0e0e0'}`,
-    borderRadius: '6px', padding: '0 14px', fontFamily: "'DM Sans', sans-serif",
-    fontSize: '16px', color: '#0f0f0f', background: '#f5f5f5', outline: 'none',
-    transition: 'all 0.2s ease',
-    boxShadow: err ? '0 0 0 3px rgba(229,62,62,0.15)' : undefined,
+    width: "100%",
+    height: "44px",
+    border: `1px solid ${err ? "#e53e3e" : "#e0e0e0"}`,
+    borderRadius: "6px",
+    padding: "0 14px",
+    fontFamily: "'DM Sans', sans-serif",
+    fontSize: "16px",
+    color: "#0f0f0f",
+    background: "#f5f5f5",
+    outline: "none",
+    transition: "all 0.2s ease",
+    boxShadow: err ? "0 0 0 3px rgba(229,62,62,0.15)" : undefined,
   });
 
   return (
     <div className="flex h-screen w-screen items-center justify-center overflow-hidden bg-[#1B202A] font-['DM_Sans',sans-serif] lg:justify-start lg:pl-[80px]">
-      <div className="flex min-h-[590px] w-[90%] max-w-[510px] flex-col justify-center bg-[#f5f5f5] px-6 py-10 shadow-[0_8px_40px_rgba(0,0,0,0.3)] sm:px-[60px] md:w-full">
+      <div className="flex min-h-[650px] w-[90%] max-w-[510px] flex-col justify-center bg-[#f5f5f5] px-6 py-10 shadow-[0_8px_40px_rgba(0,0,0,0.3)] sm:px-[60px] md:w-full">
         <form onSubmit={handleSubmit} noValidate>
-
           <Link to="/">
-            <img src="/Logo.png" alt="LingoWatch" style={{ height: '60px', width: '60px', objectFit: 'contain', marginBottom: '24px' }} />
+            <img src="/Logo.png" alt="LingoWatch" style={{ height: "60px", width: "60px", objectFit: "contain", marginBottom: "24px" }} />
           </Link>
 
-          <h1 style={{ fontWeight: 500, fontSize: '22px', color: '#0f0f0f', marginBottom: '6px' }}>Get started</h1>
-          <p style={{ fontWeight: 400, fontSize: '14px', color: '#888', marginBottom: '24px' }}>Sign up to continue to LingoWatch</p>
+          <h1 style={{ fontWeight: 500, fontSize: "22px", color: "#0f0f0f", marginBottom: "6px" }}>Create your account</h1>
+          <p style={{ fontWeight: 400, fontSize: "14px", color: "#888", marginBottom: "20px" }}>
+            Start syncing saved words, stories, and audio across devices.
+          </p>
 
-          {/* Google Sign-In rendered button */}
-          <div ref={googleBtnRef} style={{ width: '100%', marginBottom: '20px' }} />
-          {googleError && <div style={{ fontSize: '12px', color: '#e53e3e', marginBottom: '12px' }}>{googleError}</div>}
+          <div style={{ marginBottom: "10px", display: "inline-flex", borderRadius: "999px", background: "#E8EEF8", color: "#1B202A", fontSize: "11px", fontWeight: 600, padding: "4px 10px" }}>
+            Recommended: Continue with Google
+          </div>
+          <div ref={googleBtnRef} style={{ width: "100%", marginBottom: "12px", opacity: isSubmitting ? 0.6 : 1, pointerEvents: isSubmitting ? "none" : "auto" }} />
+          {googleError && <div style={{ fontSize: "12px", color: "#e53e3e", marginBottom: "12px" }}>{googleError}</div>}
 
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
-            <div style={{ flex: 1, borderBottom: '1px solid #e0e0e0' }} />
-            <span style={{ padding: '0 10px', color: '#888', fontSize: '13px' }}>or</span>
-            <div style={{ flex: 1, borderBottom: '1px solid #e0e0e0' }} />
+          <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
+            <div style={{ flex: 1, borderBottom: "1px solid #e0e0e0" }} />
+            <span style={{ padding: "0 10px", color: "#888", fontSize: "13px" }}>or sign up with email</span>
+            <div style={{ flex: 1, borderBottom: "1px solid #e0e0e0" }} />
           </div>
 
-          <div style={{ marginBottom: '10px' }}>
-            <input type="email" placeholder="Email address*" value={email} onChange={e => { setEmail(e.target.value); setEmailErr(false); }} style={inputStyle(emailErr)} required />
-            {emailErr && <div style={{ fontSize: '12px', color: '#e53e3e', marginTop: '4px', paddingLeft: '2px' }}>Please enter a valid email</div>}
-          </div>
+          <label style={{ display: "block", marginBottom: "10px" }}>
+            <span style={{ display: "block", marginBottom: "6px", fontSize: "12px", fontWeight: 600, color: "#555" }}>Name</span>
+            <input type="text" placeholder="Your name" value={fullName} onChange={(e) => setFullName(e.target.value)} style={inputStyle(false)} />
+          </label>
 
-          <div style={{ marginBottom: '20px', position: 'relative' }}>
-            <input type={showPw ? 'text' : 'password'} placeholder="Password*" value={password} onChange={e => { setPassword(e.target.value); setPwErr(false); }} style={{ ...inputStyle(pwErr), paddingRight: '40px' }} required />
-            <button type="button" onClick={() => setShowPw(v => !v)} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#aaa', display: 'flex', alignItems: 'center', padding: '4px' }}>
+          <label style={{ display: "block", marginBottom: "10px" }}>
+            <span style={{ display: "block", marginBottom: "6px", fontSize: "12px", fontWeight: 600, color: "#555" }}>Email</span>
+            <input type="email" placeholder="name@example.com" value={email} onChange={(e) => { setEmail(e.target.value); setEmailErr(""); }} style={inputStyle(Boolean(emailErr))} required />
+            {emailErr && <div style={{ fontSize: "12px", color: "#e53e3e", marginTop: "4px", paddingLeft: "2px" }}>{emailErr}</div>}
+          </label>
+
+          <label style={{ display: "block", marginBottom: "20px", position: "relative" }}>
+            <span style={{ display: "block", marginBottom: "6px", fontSize: "12px", fontWeight: 600, color: "#555" }}>Password</span>
+            <input type={showPw ? "text" : "password"} placeholder="At least 8 characters" value={password} onChange={(e) => { setPassword(e.target.value); setPwErr(""); }} style={{ ...inputStyle(Boolean(pwErr)), paddingRight: "40px" }} required />
+            <button type="button" onClick={() => setShowPw((v) => !v)} style={{ position: "absolute", right: "12px", top: "39px", background: "none", border: "none", cursor: "pointer", color: "#aaa", display: "flex", alignItems: "center", padding: "4px" }}>
               {showPw ? <EyeOffIcon /> : <EyeIcon />}
             </button>
-            {pwErr && <div style={{ fontSize: '12px', color: '#e53e3e', marginTop: '4px', paddingLeft: '2px' }}>Password must be at least 8 characters</div>}
-          </div>
+            {pwErr && <div style={{ fontSize: "12px", color: "#e53e3e", marginTop: "4px", paddingLeft: "2px" }}>{pwErr}</div>}
+          </label>
 
-          <button type="submit" style={{ width: '100%', height: '46px', background: '#0f0f0f', color: '#fff', fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '15px', borderRadius: '6px', border: 'none', cursor: 'pointer', marginBottom: '20px', transition: 'background 0.2s ease' }}>
-            Continue
+          {formError ? <div style={{ fontSize: "12px", color: "#e53e3e", marginBottom: "12px" }}>{formError}</div> : null}
+
+          <button type="submit" disabled={isSubmitting} style={{ width: "100%", height: "46px", background: "#0f0f0f", color: "#fff", fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: "15px", borderRadius: "6px", border: "none", cursor: isSubmitting ? "default" : "pointer", marginBottom: "20px", opacity: isSubmitting ? 0.7 : 1 }}>
+            {isSubmitting ? "Creating account..." : "Create account"}
           </button>
 
-          <div style={{ fontSize: '13px' }}>
-            <span style={{ color: '#888' }}>Already have an account? </span>
-            <Link to="/login" style={{ color: '#0f0f0f', fontWeight: 600, textDecoration: 'none' }}>Log in</Link>
+          <div style={{ fontSize: "13px" }}>
+            <span style={{ color: "#888" }}>Already have an account? </span>
+            <Link to="/login" style={{ color: "#0f0f0f", fontWeight: 600, textDecoration: "none" }}>Log in</Link>
           </div>
-
         </form>
       </div>
     </div>

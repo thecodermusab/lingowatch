@@ -3,6 +3,10 @@ const toggleButton = document.getElementById("lw-popup-toggle");
 const saveButton = document.getElementById("lw-save-settings");
 const saveStatus = document.getElementById("lw-save-status");
 
+function normalizeBaseUrl(value) {
+  return String(value || "").trim().replace(/\/+$/, "");
+}
+
 // ── Range value display ──────────────────────────────────────────
 function bindRange(inputId, displayId, format) {
   const input = document.getElementById(inputId);
@@ -18,9 +22,11 @@ bindRange("lw-sub-offset",   "lw-sub-offset-val",   (v) => v);
 bindRange("lw-sub-opacity",  "lw-sub-opacity-val",  (v) => `${v}%`);
 
 // ── Load saved settings on open ──────────────────────────────────
-chrome.storage.local.get(["googleApiKey", "subtitleSettings"], (result) => {
+chrome.storage.local.get(["googleApiKey", "subtitleSettings", "lingowatchAppBaseUrl", "lingowatchApiBaseUrl"], (result) => {
   const apiKey = result.googleApiKey || "";
   document.getElementById("lw-api-key").value = apiKey;
+  document.getElementById("lw-app-base-url").value = result.lingowatchAppBaseUrl || "";
+  document.getElementById("lw-api-base-url").value = result.lingowatchApiBaseUrl || "";
 
   const s = result.subtitleSettings || {};
   if (s.enabled !== undefined) {
@@ -52,6 +58,8 @@ chrome.storage.local.get(["googleApiKey", "subtitleSettings"], (result) => {
 // ── Save settings ────────────────────────────────────────────────
 saveButton.addEventListener("click", () => {
   const apiKey = document.getElementById("lw-api-key").value.trim();
+  const appBaseUrl = normalizeBaseUrl(document.getElementById("lw-app-base-url").value);
+  const apiBaseUrl = normalizeBaseUrl(document.getElementById("lw-api-base-url").value);
 
   const subtitleSettings = {
     enabled: true,
@@ -63,7 +71,12 @@ saveButton.addEventListener("click", () => {
     lineSpacing: 6,
   };
 
-  chrome.storage.local.set({ googleApiKey: apiKey, subtitleSettings }, () => {
+  chrome.storage.local.set({
+    googleApiKey: apiKey,
+    subtitleSettings,
+    lingowatchAppBaseUrl: appBaseUrl,
+    lingowatchApiBaseUrl: apiBaseUrl,
+  }, () => {
     saveStatus.textContent = "Saved!";
     setTimeout(() => { saveStatus.textContent = ""; }, 2000);
   });

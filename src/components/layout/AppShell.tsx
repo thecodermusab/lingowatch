@@ -18,31 +18,9 @@ import {
 import { SelectionLearningOverlay } from "@/components/learning/SelectionLearningOverlay";
 import { BrandLogo } from "@/components/BrandLogo";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useAuth } from "@/contexts/AuthContext";
 
-const navGroups = [
-  {
-    label: "Learning",
-    links: [
-      { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-      { to: "/random-phrases", label: "Random", icon: Shuffle },
-      { to: "/add-phrase", label: "Add Phrase", icon: PlusCircle },
-    ],
-  },
-  {
-    label: "Workspace",
-    links: [
-      { to: "/library", label: "Library", icon: Library },
-      { to: "/stories", label: "Stories", icon: BookText },
-      { to: "/media", label: "Media", icon: Film },
-      { to: "/review", label: "Review", icon: RotateCcw },
-      { to: "/progress", label: "Progress", icon: BarChart3 },
-    ],
-  },
-  {
-    label: "System",
-    links: [{ to: "/settings", label: "Settings", icon: Settings }],
-  },
-];
+const ADMIN_EMAIL = "maahir.engineer@gmail.com";
 
 function isActiveRoute(pathname: string, target: string) {
   if (target === "/dashboard") {
@@ -53,6 +31,37 @@ function isActiveRoute(pathname: string, target: string) {
 
 function SidebarLinks({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation();
+  const { user } = useAuth();
+  const navGroups = [
+    {
+      label: "Learning",
+      links: [
+        { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+        { to: "/random-phrases", label: "Random", icon: Shuffle },
+        { to: "/add-phrase", label: "Add Phrase", icon: PlusCircle },
+      ],
+    },
+    {
+      label: "Workspace",
+      links: [
+        { to: "/library", label: "Library", icon: Library },
+        { to: "/stories", label: "Stories", icon: BookText },
+        { to: "/media", label: "Media", icon: Film },
+        { to: "/review", label: "Review", icon: RotateCcw },
+        { to: "/progress", label: "Progress", icon: BarChart3 },
+      ],
+    },
+    {
+      label: "System",
+      links: [{ to: "/settings", label: "Settings", icon: Settings }],
+    },
+    ...(user?.email?.toLowerCase() === ADMIN_EMAIL
+      ? [{
+          label: "Admin",
+          links: [{ to: "/admin/announcements", label: "Announcements", icon: BookText }],
+        }]
+      : []),
+  ];
 
   return (
     <div className="space-y-6">

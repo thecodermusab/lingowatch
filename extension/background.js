@@ -1,5 +1,6 @@
 const DEFAULT_API_BASE_URL = "http://127.0.0.1:3001";
 const DEFAULT_APP_BASE_URL = "http://127.0.0.1:8080";
+const EXTENSION_CONFIG_KEYS = ["lingowatchApiBaseUrl", "lingowatchAppBaseUrl"];
 const IMPORT_MENU_ID = "lingowatch-import-page";
 const IMPORT_MENU_ALT_ID = "lingowatch-import-page-alt";
 
@@ -72,19 +73,23 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 
   if (msg.type === "SET_IMPORT_SESSION") {
-    chrome.storage.local.set({
-      importSession: normalizeImportSession(msg.session),
-    }, () => {
-      sendResponse({ ok: true });
+    getStoredExtensionConfig().then((config) => {
+      chrome.storage.local.set({
+        importSession: normalizeImportSession(msg.session, config),
+      }, () => {
+        sendResponse({ ok: true });
+      });
     });
     return true;
   }
 
   if (msg.type === "GET_IMPORT_SESSION") {
-    chrome.storage.local.get(["importSession"], (result) => {
-      const session = normalizeImportSession(result.importSession);
-      const expired = !session || (session.expiresAt && new Date(session.expiresAt).getTime() <= Date.now());
-      sendResponse({ session: expired ? null : session });
+    getStoredExtensionConfig().then((config) => {
+      chrome.storage.local.get(["importSession"], (result) => {
+        const session = normalizeImportSession(result.importSession, config);
+        const expired = !session || (session.expiresAt && new Date(session.expiresAt).getTime() <= Date.now());
+        sendResponse({ session: expired ? null : session });
+      });
     });
     return true;
   }
@@ -114,11 +119,12 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     const text = msg.text || "";
     const target = msg.target || "so";
 
-    chrome.storage.local.get(["googleApiKey"], async (result) => {
+    chrome.storage.local.get(["googleApiKey", ...EXTENSION_CONFIG_KEYS], async (result) => {
       const apiKey = result.googleApiKey || "";
+      const apiBaseUrl = normalizeBaseUrl(result.lingowatchApiBaseUrl, DEFAULT_API_BASE_URL);
 
       try {
-        const resp = await fetch("http://127.0.0.1:3001/api/translate", {
+        const resp = await fetch(`${apiBaseUrl}/api/translate`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text, source: "en", target }),
@@ -168,6 +174,22 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 });
+
+function normalizeBaseUrl(value, fallback) {
+  const normalized = String(value || "").trim().replace(/\/+$/, "");
+  return normalized || fallback;
+}
+
+function getStoredExtensionConfig() {
+  return new Promise((resolve) => {
+    chrome.storage.local.get(EXTENSION_CONFIG_KEYS, (result) => {
+      resolve({
+        apiBaseUrl: normalizeBaseUrl(result.lingowatchApiBaseUrl, DEFAULT_API_BASE_URL),
+        appBaseUrl: normalizeBaseUrl(result.lingowatchAppBaseUrl, DEFAULT_APP_BASE_URL),
+      });
+    });
+  });
+}
 
 function isMyMemoryWarning(value) {
   return String(value || "").trim().toUpperCase().startsWith("MYMEMORY WARNING");
@@ -257,14 +279,16 @@ async function handleImportContextMenu(tab) {
 
 function getImportSession() {
   return new Promise((resolve) => {
-    chrome.storage.local.get(["importSession"], (result) => {
-      const session = normalizeImportSession(result.importSession);
-      const expired = !session || (session.expiresAt && new Date(session.expiresAt).getTime() <= Date.now());
-      if (expired) {
-        resolve(null);
-        return;
-      }
-      resolve(session);
+    getStoredExtensionConfig().then((config) => {
+      chrome.storage.local.get(["importSession"], (result) => {
+        const session = normalizeImportSession(result.importSession, config);
+        const expired = !session || (session.expiresAt && new Date(session.expiresAt).getTime() <= Date.now());
+        if (expired) {
+          resolve(null);
+          return;
+        }
+        resolve(session);
+      });
     });
   });
 }
@@ -276,14 +300,16 @@ function clearImportSession() {
 }
 
 async function openConnectFlow(appBaseUrl = DEFAULT_APP_BASE_URL) {
-  const discoveredBaseUrl = await findOpenAppBaseUrl();
-  const normalizedBase = String(discoveredBaseUrl || appBaseUrl || DEFAULT_APP_BASE_URL).replace(/\/$/, "");
+  const config = await getStoredExtensionConfig();
+  const fallbackBaseUrl = normalizeBaseUrl(appBaseUrl, config.appBaseUrl);
+  const discoveredBaseUrl = await findOpenAppBaseUrl(fallbackBaseUrl);
+  const normalizedBase = normalizeBaseUrl(discoveredBaseUrl, fallbackBaseUrl);
   await chrome.tabs.create({
     url: `${normalizedBase}/media?tab=my_texts&connect_extension=1`,
   });
 }
 
-function normalizeImportSession(session) {
+function normalizeImportSession(session, config = {}) {
   if (!session || typeof session !== "object") return null;
 
   const token = String(session.token || "").trim();
@@ -292,8 +318,8 @@ function normalizeImportSession(session) {
   return {
     token,
     expiresAt: String(session.expiresAt || "").trim(),
-    apiBaseUrl: String(session.apiBaseUrl || DEFAULT_API_BASE_URL).replace(/\/$/, ""),
-    appBaseUrl: String(session.appBaseUrl || DEFAULT_APP_BASE_URL).replace(/\/$/, ""),
+    apiBaseUrl: normalizeBaseUrl(session.apiBaseUrl, config.apiBaseUrl || DEFAULT_API_BASE_URL),
+    appBaseUrl: normalizeBaseUrl(session.appBaseUrl, config.appBaseUrl || DEFAULT_APP_BASE_URL),
     user: session.user || null,
   };
 }
@@ -310,9 +336,25 @@ async function showPageToast(tabId, message, tone) {
   }
 }
 
-function findOpenAppBaseUrl() {
+function findOpenAppBaseUrl(preferredBaseUrl = "") {
   return new Promise((resolve) => {
-    chrome.tabs.query({ url: ["http://127.0.0.1/*", "http://localhost/*"] }, (tabs) => {
+    chrome.tabs.query({ url: ["http://*/*", "https://*/*"] }, (tabs) => {
+      const preferredOrigin = normalizeBaseUrl(preferredBaseUrl, "");
+      if (preferredOrigin) {
+        const preferredTab = tabs.find((tab) => {
+          try {
+            return new URL(tab.url || "").origin === preferredOrigin;
+          } catch (_error) {
+            return false;
+          }
+        });
+
+        if (preferredTab?.url) {
+          resolve(preferredOrigin);
+          return;
+        }
+      }
+
       const appTab = tabs.find((tab) => {
         try {
           const url = new URL(tab.url || "");

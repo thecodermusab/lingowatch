@@ -11,8 +11,8 @@
   "content_scripts": [
     {
       "matches": [
-        "http://127.0.0.1/*",
-        "http://localhost/*"
+        "http://*/*",
+        "https://*/*"
       ],
       "js": ["app-bridge.js"],
       "run_at": "document_start"

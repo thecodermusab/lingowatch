@@ -39,6 +39,8 @@ export interface UserProfile {
   somaliModeEnabled: boolean;
   autoPlayAudioEnabled: boolean;
   preferredAiProvider: PreferredAiProvider;
+  onboardingCompleted?: boolean;
+  emailVerified?: boolean;
   createdAt: string;
 }
 

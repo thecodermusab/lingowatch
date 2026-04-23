@@ -1,8 +1,8 @@
 import { createServer } from "node:http";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { createReadStream, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { extname, join, resolve, sep } from "node:path";
 import { cwd, env } from "node:process";
-import { createHash, createHmac } from "node:crypto";
+import { createHash, createHmac, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import * as YoutubeTranscriptModule from "youtube-transcript/dist/youtube-transcript.esm.js";
 import { neon } from "@neondatabase/serverless";
 import { handlePodcastRoutes } from "./podcasts.mjs";
@@ -81,8 +81,10 @@ async function synthesizeWithPolly(text, includeTimings = false) {
 }
 
 const PORT = Number(env.PORT || 3001);
-const HOST = env.HOST || "127.0.0.1";
+const HOST = env.HOST || "0.0.0.0";
+const APP_BASE_URL = env.APP_BASE_URL || "http://localhost:8080";
 const ROOT_DIR = cwd();
+const DIST_DIR = join(ROOT_DIR, "dist");
 const ENV_FILES = [join(ROOT_DIR, ".env"), join(ROOT_DIR, ".env.local")];
 const DATA_DIR = join(ROOT_DIR, "server", "data");
 const INBOX_FILE = join(DATA_DIR, "inbox-captures.json");
@@ -92,6 +94,7 @@ const YOUTUBE_CHANNEL_SEEDS_FILE = join(DATA_DIR, "youtube-channel-seeds.txt");
 const CHANNEL_THUMBNAILS_FILE = join(DATA_DIR, "channel-thumbnails.json");
 const CHANNEL_THUMBNAIL_TTL_MS = 20 * 24 * 60 * 60 * 1000; // 20 days
 const LEGACY_OWNER_EMAIL = "maahir.engineer@gmail.com";
+const EMAIL_TEMPLATES_DIR = join(ROOT_DIR, "email-templates");
 
 loadEnvFile();
 
@@ -106,6 +109,8 @@ const ttsGenerationJobs = new Map();
 // Run schema migrations
 if (sql) {
   void ensureAuthUsersSchema();
+  void ensurePasswordResetTokensSchema();
+  void ensureEmailVerificationTokensSchema();
   void ensureSavedWordsSchema();
   void ensureTtsAudioCacheSchema();
 }
@@ -284,6 +289,326 @@ const defaultExamples = [
   { type: "work", text: "Here is a work example.", translation: "Waa tusaale shaqo ah." },
 ];
 
+function normalizeAuthEmail(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function normalizeFullName(value, email = "") {
+  const fallback = String(email || "").split("@")[0] || "Learner";
+  return String(value || "").trim() || fallback;
+}
+
+function defaultAuthProfile(overrides = {}) {
+  return {
+    preferredLanguage: "somali",
+    englishLevel: "beginner",
+    somaliModeEnabled: true,
+    autoPlayAudioEnabled: false,
+    preferredAiProvider: "auto",
+    onboardingCompleted: false,
+    ...overrides,
+  };
+}
+
+function escapeEmailHtml(value = "") {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function renderHtmlTemplateFromFile(fileName, replacements = {}) {
+  const filePath = join(EMAIL_TEMPLATES_DIR, fileName);
+  let html = readFileSync(filePath, "utf8");
+
+  for (const [key, rawValue] of Object.entries(replacements)) {
+    const value = String(rawValue ?? "");
+    html = html.replace(new RegExp(`{{\\s*${key}\\s*}}`, "g"), value);
+  }
+
+  return html;
+}
+
+function buildEmailTemplateHtml(kind, values = {}) {
+  if (kind === "reset") {
+    const resetUrl = String(values.resetUrl || `${APP_BASE_URL}/reset-password?token=preview-token`);
+    const supportEmail = String(values.supportEmail || "hello@finalproject.app");
+    return renderHtmlTemplateFromFile("forgot-password.html", {})
+      .replace(/Hello Katie,/g, `Hello ${escapeEmailHtml(values.recipientName || "LingoWatch learner")},`)
+      .replace(/href="#"/, `href="${escapeEmailHtml(resetUrl)}"`)
+      .replace(/href="#"/, `href="mailto:${escapeEmailHtml(supportEmail)}"`)
+      .replace(/href="#"/g, `href="${escapeEmailHtml(APP_BASE_URL)}"`)
+      .replace(/30 minutes/g, String(values.expiresInMinutes || 30))
+      .replace(/support team\./g, `support team.`)
+      .replace(/support<\/a>/g, `${escapeEmailHtml(supportEmail)}</a>`);
+  }
+
+  if (kind === "welcome") {
+    const dashboardUrl = String(values.ctaUrl || `${APP_BASE_URL}/dashboard`);
+    const supportEmail = String(values.supportEmail || "hello@finalproject.app");
+    return renderHtmlTemplateFromFile("welcome-email.html", {})
+      .replace(/Hello Katie,/g, `Hello ${escapeEmailHtml(values.recipientName || "LingoWatch learner")},`)
+      .replace(/href="#"/, `href="${escapeEmailHtml(dashboardUrl)}"`)
+      .replace(/support@lingowatch\.com/g, escapeEmailHtml(supportEmail))
+      .replace(/href="#"/g, `href="${escapeEmailHtml(APP_BASE_URL)}"`);
+  }
+
+  if (kind === "verify") {
+    const verifyUrl = String(values.verifyUrl || `${APP_BASE_URL}/verify-email?token=preview-token`);
+    const supportEmail = String(values.supportEmail || "hello@finalproject.app");
+    return renderHtmlTemplateFromFile("verify-email.html", {})
+      .replace(/Hello Katie,/g, `Hello ${escapeEmailHtml(values.recipientName || "LingoWatch learner")},`)
+      .replace(/Thank you for choosing LingoWatch, Katie!/g, `Thank you for choosing LingoWatch, ${escapeEmailHtml(values.recipientName || "LingoWatch learner")}!`)
+      .replace(/href="#"/, `href="${escapeEmailHtml(verifyUrl)}"`)
+      .replace(/support@lingowatch\.com/g, escapeEmailHtml(supportEmail))
+      .replace(/48 hours/g, String(values.expiresInHours || 48) + " hours")
+      .replace(/href="#"/g, `href="${escapeEmailHtml(APP_BASE_URL)}"`);
+  }
+
+  const ctaUrl = String(values.ctaUrl || `${APP_BASE_URL}/dashboard`);
+  const bullets = Array.isArray(values.bullets) ? values.bullets : [];
+  return renderHtmlTemplateFromFile("announcement-email.html", {})
+    .replace(/New learning features are here!/g, escapeEmailHtml(values.headline || "A better way to learn with LingoWatch"))
+    .replace(/Hi Katie,/g, `Hi ${escapeEmailHtml(values.recipientName || "LingoWatch learner")},`)
+    .replace(/We've been working hard to make your language learning journey even more effective\. Today, we're thrilled to announce a few exciting additions to your toolkit that will help you practice better\./g, escapeEmailHtml(values.intro || "We shipped a cleaner, faster experience for your saved words, stories, and listening tools."))
+    .replace(/Interactive Stories/g, escapeEmailHtml(bullets[0] || "Interactive Stories"))
+    .replace(/Enhanced Listening Mode/g, escapeEmailHtml(bullets[1] || "Enhanced Listening Mode"))
+    .replace(/Smarter Vocabulary Reviews/g, escapeEmailHtml(bullets[2] || "Smarter Vocabulary Reviews"))
+    .replace(/Dive into real-world conversations and build context naturally\./g, "")
+    .replace(/Fine-tune your ear with new audio exercises focused on tricky pronunciations\./g, "")
+    .replace(/Our spaced repetition system is now better at targeting words you struggle with\./g, "")
+    .replace(/CHECK IT OUT/g, escapeEmailHtml(values.ctaLabel || "Open LingoWatch"))
+    .replace(/href="#"/, `href="${escapeEmailHtml(ctaUrl)}"`)
+    .replace(/href="#"/g, `href="${escapeEmailHtml(APP_BASE_URL)}"`);
+}
+
+function getEmailConfig() {
+  const apiKey = String(env.RESEND_API_KEY || "").trim();
+  const fromDefault = String(env.EMAIL_FROM || "").trim();
+  const fromAuth = String(env.EMAIL_FROM_AUTH || fromDefault).trim();
+  const fromUpdates = String(env.EMAIL_FROM_UPDATES || fromDefault).trim();
+  const replyTo = String(env.EMAIL_REPLY_TO || "").trim();
+  const appBaseUrl = String(env.APP_BASE_URL || "http://localhost:8080").replace(/\/+$/, "");
+  const announcementAdminKey = String(env.ADMIN_ANNOUNCEMENT_KEY || "").trim();
+  const missing = [];
+  if (!apiKey) missing.push("RESEND_API_KEY");
+  if (!fromAuth) missing.push("EMAIL_FROM_AUTH or EMAIL_FROM");
+  if (!fromUpdates) missing.push("EMAIL_FROM_UPDATES or EMAIL_FROM");
+
+  if (missing.length) {
+    return { configured: false, missing, apiKey, fromDefault, fromAuth, fromUpdates, replyTo, appBaseUrl, announcementAdminKey };
+  }
+
+  return {
+    configured: true,
+    missing,
+    apiKey,
+    fromDefault,
+    fromAuth,
+    fromUpdates,
+    replyTo,
+    appBaseUrl,
+    announcementAdminKey,
+  };
+}
+
+async function sendResendEmail({ from, to, subject, html, replyTo = "", tags = [] }) {
+  const emailConfig = getEmailConfig();
+  if (!emailConfig.configured) {
+    throw new Error(`Email is not configured: ${emailConfig.missing.join(", ")}`);
+  }
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${emailConfig.apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from,
+      to: Array.isArray(to) ? to : [to],
+      subject,
+      html,
+      ...(replyTo ? { reply_to: replyTo } : {}),
+      ...(tags.length ? { tags } : {}),
+    }),
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data?.message || data?.error || `Resend send failed (${response.status})`);
+  }
+
+  return data;
+}
+
+async function sendPasswordResetEmail({ email, fullName, token }) {
+  const emailConfig = getEmailConfig();
+  if (!emailConfig.configured) throw new Error(`Email is not configured: ${emailConfig.missing.join(", ")}`);
+
+  const resetUrl = `${emailConfig.appBaseUrl}/reset-password?token=${encodeURIComponent(token)}`;
+  const html = buildEmailTemplateHtml("reset", {
+    recipientName: fullName || email,
+    resetUrl,
+    expiresInMinutes: 30,
+    supportEmail: emailConfig.replyTo || emailConfig.fromAuth.match(/<([^>]+)>/)?.[1] || "",
+  });
+
+  return sendResendEmail({
+    from: emailConfig.fromAuth,
+    to: email,
+    subject: "Reset your LingoWatch password",
+    html,
+    replyTo: emailConfig.replyTo,
+    tags: [
+      { name: "type", value: "password-reset" },
+    ],
+  });
+}
+
+async function sendWelcomeEmail({ email, fullName }) {
+  const emailConfig = getEmailConfig();
+  if (!emailConfig.configured) throw new Error(`Email is not configured: ${emailConfig.missing.join(", ")}`);
+
+  const html = buildEmailTemplateHtml("welcome", {
+    recipientName: fullName || email,
+    ctaUrl: `${emailConfig.appBaseUrl}/dashboard`,
+    supportEmail: emailConfig.replyTo || emailConfig.fromUpdates.match(/<([^>]+)>/)?.[1] || "",
+  });
+
+  return sendResendEmail({
+    from: emailConfig.fromUpdates,
+    to: email,
+    subject: "Welcome to LingoWatch",
+    html,
+    replyTo: emailConfig.replyTo,
+    tags: [
+      { name: "type", value: "welcome" },
+    ],
+  });
+}
+
+async function sendVerificationEmail({ email, fullName, token }) {
+  const emailConfig = getEmailConfig();
+  if (!emailConfig.configured) throw new Error(`Email is not configured: ${emailConfig.missing.join(", ")}`);
+
+  const verifyUrl = `${emailConfig.appBaseUrl}/verify-email?token=${encodeURIComponent(token)}`;
+  const html = buildEmailTemplateHtml("verify", {
+    recipientName: fullName || email,
+    verifyUrl,
+    expiresInHours: 48,
+    supportEmail: emailConfig.replyTo || emailConfig.fromAuth.match(/<([^>]+)>/)?.[1] || "",
+  });
+
+  return sendResendEmail({
+    from: emailConfig.fromAuth,
+    to: email,
+    subject: "Verify your LingoWatch email address",
+    html,
+    replyTo: emailConfig.replyTo,
+    tags: [
+      { name: "type", value: "email-verification" },
+    ],
+  });
+}
+
+async function sendAnnouncementEmails({ subject, headline, intro, bullets, ctaLabel, ctaUrl }) {
+  if (!sql) throw new Error("Database not configured");
+  const emailConfig = getEmailConfig();
+  if (!emailConfig.configured) throw new Error(`Email is not configured: ${emailConfig.missing.join(", ")}`);
+
+  const rows = await sql`
+    SELECT DISTINCT email, full_name
+    FROM auth_users
+    WHERE email IS NOT NULL AND email <> ''
+    ORDER BY email ASC
+  `;
+
+  const recipients = rows
+    .map((row) => ({ email: normalizeAuthEmail(row.email), fullName: row.full_name || "Learner" }))
+    .filter((row) => row.email);
+
+  const results = [];
+  for (const recipient of recipients) {
+    const html = buildEmailTemplateHtml("announcement", {
+      recipientName: recipient.fullName,
+      headline,
+      intro,
+      bullets,
+      ctaLabel,
+      ctaUrl,
+    });
+
+    results.push(
+      sendResendEmail({
+        from: emailConfig.fromUpdates,
+        to: recipient.email,
+        subject,
+        html,
+        replyTo: emailConfig.replyTo,
+        tags: [
+          { name: "type", value: "announcement" },
+        ],
+      })
+    );
+  }
+
+  const settled = await Promise.allSettled(results);
+  const sent = settled.filter((result) => result.status === "fulfilled").length;
+  const failed = settled.length - sent;
+  return { total: settled.length, sent, failed };
+}
+
+function createPasswordHash(password) {
+  const salt = randomBytes(16).toString("hex");
+  const hash = scryptSync(password, salt, 64).toString("hex");
+  return `${salt}:${hash}`;
+}
+
+function verifyPasswordHash(password, storedHash) {
+  const raw = String(storedHash || "");
+  const [salt, hash] = raw.split(":");
+  if (!salt || !hash) return false;
+
+  const derived = scryptSync(password, salt, 64);
+  const expected = Buffer.from(hash, "hex");
+  if (expected.length !== derived.length) return false;
+  return timingSafeEqual(expected, derived);
+}
+
+function buildAuthResponse(user) {
+  const profile = defaultAuthProfile(user?.profile || {});
+  const createdAt = user?.first_login_at
+    ? new Date(user.first_login_at).toISOString()
+    : new Date().toISOString();
+  const lastLoginAt = user?.last_login_at
+    ? new Date(user.last_login_at).toISOString()
+    : createdAt;
+
+  return {
+    user: {
+      id: user.id,
+      fullName: user.full_name || "Learner",
+      email: user.email,
+      pictureUrl: user.picture_url || "",
+      preferredLanguage: profile.preferredLanguage,
+      englishLevel: profile.englishLevel,
+      somaliModeEnabled: Boolean(profile.somaliModeEnabled),
+      autoPlayAudioEnabled: Boolean(profile.autoPlayAudioEnabled),
+      preferredAiProvider: profile.preferredAiProvider || "auto",
+      onboardingCompleted: Boolean(user.onboarding_completed ?? profile.onboardingCompleted),
+      emailVerified: Boolean(user.email_verified),
+      createdAt,
+    },
+    login: {
+      lastLoginAt,
+      loginCount: Number(user.login_count || 1),
+    },
+  };
+}
+
 createServer(async (req, res) => {
   setCorsHeaders(res);
   const url = new URL(req.url || "/", `http://${HOST}:${PORT}`);
@@ -308,6 +633,7 @@ createServer(async (req, res) => {
       }
 
       await ensureAuthUsersSchema();
+      await ensureEmailVerificationTokensSchema();
       const body = await readJsonBody(req);
       const credential = String(body?.credential || "").trim();
 
@@ -322,60 +648,547 @@ createServer(async (req, res) => {
       });
       const payload = ticket.getPayload();
       const googleSub = String(payload?.sub || "").trim();
-      const email = String(payload?.email || "").trim().toLowerCase();
+      const email = normalizeAuthEmail(payload?.email);
 
       if (!googleSub || !email || payload?.email_verified !== true) {
         sendJson(res, 401, { error: "Google account could not be verified" });
         return;
       }
 
-      const fullName = String(payload?.name || email.split("@")[0] || "Learner").trim();
+      const fullName = normalizeFullName(payload?.name, email);
       const pictureUrl = String(payload?.picture || "").trim();
       const now = new Date().toISOString();
-      const profile = {
+      const profile = defaultAuthProfile({
         googleSub,
-        email,
-        fullName,
-        pictureUrl,
         locale: payload?.locale || "",
-      };
+      });
 
       const rows = await sql`
-        INSERT INTO auth_users (id, google_sub, email, full_name, picture_url, profile, login_count, first_login_at, last_login_at)
-        VALUES (${crypto.randomUUID()}, ${googleSub}, ${email}, ${fullName}, ${pictureUrl}, ${profile}, 1, ${now}, ${now})
-        ON CONFLICT (google_sub) DO UPDATE SET
+        INSERT INTO auth_users (
+          id,
+          google_sub,
+          email,
+          full_name,
+          picture_url,
+          profile,
+          email_verified,
+          auth_provider,
+          onboarding_completed,
+          login_count,
+          first_login_at,
+          last_login_at
+        )
+        VALUES (
+          ${crypto.randomUUID()},
+          ${googleSub},
+          ${email},
+          ${fullName},
+          ${pictureUrl},
+          ${profile},
+          ${true},
+          ${"google"},
+          ${false},
+          1,
+          ${now},
+          ${now}
+        )
+        ON CONFLICT (email) DO UPDATE SET
+          google_sub = EXCLUDED.google_sub,
           email = EXCLUDED.email,
           full_name = EXCLUDED.full_name,
           picture_url = EXCLUDED.picture_url,
           profile = EXCLUDED.profile,
+          email_verified = TRUE,
+          auth_provider = CASE
+            WHEN auth_users.auth_provider = 'password' THEN 'google+password'
+            ELSE 'google'
+          END,
           login_count = auth_users.login_count + 1,
           last_login_at = EXCLUDED.last_login_at
-        RETURNING id, email, full_name, picture_url, first_login_at, last_login_at, login_count
+        RETURNING id, email, full_name, picture_url, profile, email_verified, onboarding_completed, first_login_at, last_login_at, login_count
       `;
 
       const user = rows[0];
-      sendJson(res, 200, {
-        user: {
-          id: user.id,
-          fullName: user.full_name,
-          email: user.email,
-          pictureUrl: user.picture_url,
-          preferredLanguage: "somali",
-          englishLevel: "beginner",
-          somaliModeEnabled: true,
-          autoPlayAudioEnabled: false,
-          preferredAiProvider: "auto",
-          createdAt: new Date(user.first_login_at).toISOString(),
-        },
-        login: {
-          lastLoginAt: new Date(user.last_login_at).toISOString(),
-          loginCount: user.login_count,
-        },
-      });
+      sendJson(res, 200, buildAuthResponse(user));
       return;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Google login failed";
       sendJson(res, 401, { error: message });
+      return;
+    }
+  }
+
+  if (req.method === "POST" && pathname === "/api/auth/signup") {
+    try {
+      if (!sql) {
+        sendJson(res, 503, { error: "Database not configured" });
+        return;
+      }
+
+      await ensureAuthUsersSchema();
+      const body = await readJsonBody(req);
+      const email = normalizeAuthEmail(body?.email);
+      const password = String(body?.password || "");
+      const fullName = normalizeFullName(body?.fullName, email);
+
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        sendJson(res, 400, { error: "Please enter a valid email address." });
+        return;
+      }
+
+      if (password.length < 8) {
+        sendJson(res, 400, { error: "Password must be at least 8 characters." });
+        return;
+      }
+
+      const existing = await sql`
+        SELECT id
+        FROM auth_users
+        WHERE email = ${email}
+        LIMIT 1
+      `;
+
+      if (existing.length) {
+        sendJson(res, 409, { error: "An account with this email already exists." });
+        return;
+      }
+
+      const now = new Date().toISOString();
+      const profile = defaultAuthProfile();
+      const passwordHash = createPasswordHash(password);
+      const rows = await sql`
+        INSERT INTO auth_users (
+          id,
+          google_sub,
+          email,
+          full_name,
+          picture_url,
+          profile,
+          password_hash,
+          email_verified,
+          auth_provider,
+          onboarding_completed,
+          login_count,
+          first_login_at,
+          last_login_at
+        )
+        VALUES (
+          ${crypto.randomUUID()},
+          ${null},
+          ${email},
+          ${fullName},
+          ${""},
+          ${profile},
+          ${passwordHash},
+          ${false},
+          ${"password"},
+          ${false},
+          1,
+          ${now},
+          ${now}
+        )
+        RETURNING id, email, full_name, picture_url, profile, email_verified, onboarding_completed, first_login_at, last_login_at, login_count
+      `;
+
+      const createdUser = rows[0];
+      const rawVerificationToken = randomBytes(32).toString("hex");
+      const verificationTokenHash = sha256(rawVerificationToken);
+      const verificationExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+
+      await sql`DELETE FROM email_verification_tokens WHERE user_id = ${createdUser.id} OR expires_at < NOW()`;
+      await sql`
+        INSERT INTO email_verification_tokens (id, user_id, token_hash, expires_at)
+        VALUES (${crypto.randomUUID()}, ${createdUser.id}, ${verificationTokenHash}, ${verificationExpiresAt})
+      `;
+
+      void Promise.allSettled([
+        sendWelcomeEmail({
+          email: createdUser.email,
+          fullName: createdUser.full_name,
+        }),
+        sendVerificationEmail({
+          email: createdUser.email,
+          fullName: createdUser.full_name,
+          token: rawVerificationToken,
+        }),
+      ]).then((results) => {
+        results.forEach((result) => {
+          if (result.status === "rejected") {
+            console.warn("Could not send signup email:", result.reason);
+          }
+        });
+      });
+
+      sendJson(res, 200, buildAuthResponse(createdUser));
+      return;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Sign up failed";
+      sendJson(res, 400, { error: message });
+      return;
+    }
+  }
+
+  if (req.method === "POST" && pathname === "/api/auth/login") {
+    try {
+      if (!sql) {
+        sendJson(res, 503, { error: "Database not configured" });
+        return;
+      }
+
+      await ensureAuthUsersSchema();
+      const body = await readJsonBody(req);
+      const email = normalizeAuthEmail(body?.email);
+      const password = String(body?.password || "");
+
+      if (!email || !password) {
+        sendJson(res, 400, { error: "Email and password are required." });
+        return;
+      }
+
+      const rows = await sql`
+        SELECT id, email, full_name, picture_url, profile, password_hash, email_verified, onboarding_completed, first_login_at, last_login_at, login_count
+        FROM auth_users
+        WHERE email = ${email}
+        LIMIT 1
+      `;
+
+      const user = rows[0];
+      if (!user?.password_hash || !verifyPasswordHash(password, user.password_hash)) {
+        sendJson(res, 401, { error: "Incorrect email or password." });
+        return;
+      }
+
+      const now = new Date().toISOString();
+      const updatedRows = await sql`
+        UPDATE auth_users
+        SET login_count = login_count + 1,
+            last_login_at = ${now}
+        WHERE id = ${user.id}
+        RETURNING id, email, full_name, picture_url, profile, email_verified, onboarding_completed, first_login_at, last_login_at, login_count
+      `;
+
+      sendJson(res, 200, buildAuthResponse(updatedRows[0]));
+      return;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Login failed";
+      sendJson(res, 400, { error: message });
+      return;
+    }
+  }
+
+  if (req.method === "PATCH" && pathname === "/api/auth/profile") {
+    try {
+      if (!sql) {
+        sendJson(res, 503, { error: "Database not configured" });
+        return;
+      }
+
+      await ensureAuthUsersSchema();
+      const body = await readJsonBody(req);
+      const userId = String(body?.userId || "").trim();
+      const fullName = String(body?.fullName || "").trim();
+      const updates = typeof body?.updates === "object" && body?.updates ? body.updates : {};
+
+      if (!userId) {
+        sendJson(res, 400, { error: "User id is required." });
+        return;
+      }
+
+      const rows = await sql`
+        SELECT id, email, full_name, picture_url, profile, email_verified, onboarding_completed, first_login_at, last_login_at, login_count
+        FROM auth_users
+        WHERE id = ${userId}
+        LIMIT 1
+      `;
+
+      const existing = rows[0];
+      if (!existing) {
+        sendJson(res, 404, { error: "User not found." });
+        return;
+      }
+
+      const nextProfile = {
+        ...defaultAuthProfile(existing.profile || {}),
+        ...updates,
+      };
+      const onboardingCompleted = Boolean(body?.onboardingCompleted ?? updates?.onboardingCompleted ?? existing.onboarding_completed);
+      const updated = await sql`
+        UPDATE auth_users
+        SET full_name = ${fullName || existing.full_name},
+            profile = ${nextProfile},
+            onboarding_completed = ${onboardingCompleted}
+        WHERE id = ${userId}
+        RETURNING id, email, full_name, picture_url, profile, email_verified, onboarding_completed, first_login_at, last_login_at, login_count
+      `;
+
+      sendJson(res, 200, buildAuthResponse(updated[0]));
+      return;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Profile update failed";
+      sendJson(res, 400, { error: message });
+      return;
+    }
+  }
+
+  if (req.method === "GET" && pathname === "/api/email-preview") {
+    const template = String(url.searchParams.get("template") || "reset").trim();
+    const html = buildEmailTemplateHtml(template, {
+      recipientName: "LingoWatch learner",
+      resetUrl: `${APP_BASE_URL}/reset-password?token=preview-token`,
+      verifyUrl: `${APP_BASE_URL}/verify-email?token=preview-token`,
+      expiresInMinutes: 30,
+      expiresInHours: 48,
+      ctaUrl: `${APP_BASE_URL}/dashboard`,
+      ctaLabel: "See what changed",
+      supportEmail: "hello@finalproject.app",
+      headline: "Your reading and audio experience just got smoother",
+      intro: "We redesigned several parts of LingoWatch so saved words, stories, and books feel faster and cleaner.",
+      bullets: [
+        "Saved word audio now prepares in the background",
+        "Stories reopen faster with cached browser cards",
+        "Book listening controls are more reliable row by row",
+      ],
+    });
+
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+    res.end(html);
+    return;
+  }
+
+  if (req.method === "GET" && pathname === "/api/admin/announcements/config") {
+    const emailConfig = getEmailConfig();
+    sendJson(res, 200, {
+      configured: Boolean(emailConfig.configured),
+      missing: emailConfig.missing || [],
+      defaultCtaUrl: `${emailConfig.appBaseUrl}/dashboard`,
+      adminEmail: LEGACY_OWNER_EMAIL,
+      requiresAdminKey: Boolean(emailConfig.announcementAdminKey),
+    });
+    return;
+  }
+
+  if (req.method === "POST" && pathname === "/api/auth/forgot-password") {
+    try {
+      if (!sql) {
+        sendJson(res, 503, { error: "Database not configured" });
+        return;
+      }
+
+      await ensureAuthUsersSchema();
+      await ensurePasswordResetTokensSchema();
+      const body = await readJsonBody(req);
+      const email = normalizeAuthEmail(body?.email);
+
+      if (!email) {
+        sendJson(res, 200, {
+          ok: true,
+          message: "If an account exists for that email, a reset link has been sent.",
+        });
+        return;
+      }
+
+      const rows = await sql`
+        SELECT id, email, full_name
+        FROM auth_users
+        WHERE email = ${email}
+        LIMIT 1
+      `;
+
+      const user = rows[0];
+      if (user) {
+        const rawToken = randomBytes(32).toString("hex");
+        const tokenHash = sha256(rawToken);
+        const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+
+        await sql`DELETE FROM password_reset_tokens WHERE user_id = ${user.id} OR expires_at < NOW()`;
+        await sql`
+          INSERT INTO password_reset_tokens (id, user_id, token_hash, expires_at)
+          VALUES (${crypto.randomUUID()}, ${user.id}, ${tokenHash}, ${expiresAt})
+        `;
+
+        await sendPasswordResetEmail({
+          email: user.email,
+          fullName: user.full_name,
+          token: rawToken,
+        });
+      }
+
+      sendJson(res, 200, {
+        ok: true,
+        message: "If an account exists for that email, a reset link has been sent.",
+      });
+      return;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Forgot password failed";
+      sendJson(res, 400, { error: message });
+      return;
+    }
+  }
+
+  if (req.method === "POST" && pathname === "/api/auth/reset-password") {
+    try {
+      if (!sql) {
+        sendJson(res, 503, { error: "Database not configured" });
+        return;
+      }
+
+      await ensureAuthUsersSchema();
+      await ensurePasswordResetTokensSchema();
+      const body = await readJsonBody(req);
+      const token = String(body?.token || "").trim();
+      const password = String(body?.password || "");
+
+      if (!token || password.length < 8) {
+        sendJson(res, 400, { error: "Token and a password of at least 8 characters are required." });
+        return;
+      }
+
+      const tokenHash = sha256(token);
+      const rows = await sql`
+        SELECT id, user_id
+        FROM password_reset_tokens
+        WHERE token_hash = ${tokenHash}
+          AND used_at IS NULL
+          AND expires_at > NOW()
+        LIMIT 1
+      `;
+
+      const resetToken = rows[0];
+      if (!resetToken) {
+        sendJson(res, 400, { error: "This reset link is invalid or has expired." });
+        return;
+      }
+
+      const passwordHash = createPasswordHash(password);
+      await sql`
+        UPDATE auth_users
+        SET password_hash = ${passwordHash},
+            auth_provider = CASE
+              WHEN auth_provider = 'google' THEN 'google+password'
+              ELSE 'password'
+            END
+        WHERE id = ${resetToken.user_id}
+      `;
+      await sql`
+        UPDATE password_reset_tokens
+        SET used_at = NOW()
+        WHERE id = ${resetToken.id}
+      `;
+
+      sendJson(res, 200, { ok: true });
+      return;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Password reset failed";
+      sendJson(res, 400, { error: message });
+      return;
+    }
+  }
+
+  if (req.method === "POST" && pathname === "/api/auth/verify-email") {
+    try {
+      if (!sql) {
+        sendJson(res, 503, { error: "Database not configured" });
+        return;
+      }
+
+      await ensureAuthUsersSchema();
+      await ensureEmailVerificationTokensSchema();
+      const body = await readJsonBody(req);
+      const token = String(body?.token || "").trim();
+
+      if (!token) {
+        sendJson(res, 400, { error: "Verification token is required." });
+        return;
+      }
+
+      const tokenHash = sha256(token);
+      const rows = await sql`
+        SELECT id, user_id, expires_at, used_at
+        FROM email_verification_tokens
+        WHERE token_hash = ${tokenHash}
+        LIMIT 1
+      `;
+
+      const verificationToken = rows[0];
+      if (!verificationToken || verificationToken.used_at || new Date(verificationToken.expires_at).getTime() < Date.now()) {
+        sendJson(res, 400, { error: "This verification link is invalid or has expired." });
+        return;
+      }
+
+      const updatedUsers = await sql`
+        UPDATE auth_users
+        SET email_verified = TRUE
+        WHERE id = ${verificationToken.user_id}
+        RETURNING id, email, full_name, picture_url, profile, email_verified, onboarding_completed, first_login_at, last_login_at, login_count
+      `;
+
+      await sql`
+        UPDATE email_verification_tokens
+        SET used_at = NOW()
+        WHERE id = ${verificationToken.id}
+      `;
+
+      sendJson(res, 200, {
+        ok: true,
+        user: buildAuthResponse(updatedUsers[0]).user,
+      });
+      return;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Email verification failed";
+      sendJson(res, 400, { error: message });
+      return;
+    }
+  }
+
+  if (req.method === "POST" && pathname === "/api/admin/announcements/send") {
+    try {
+      const emailConfig = getEmailConfig();
+      if (!emailConfig.configured) {
+        sendJson(res, 503, { error: `Announcement sending is not configured: ${emailConfig.missing.join(", ")}` });
+        return;
+      }
+
+      const body = await readJsonBody(req);
+      const adminKey = String(req.headers["x-admin-key"] || "").trim();
+      const requestedByEmail = normalizeAuthEmail(body?.requestedByEmail);
+      const adminAuthorizedByEmail = requestedByEmail === LEGACY_OWNER_EMAIL;
+      const adminAuthorizedByKey = emailConfig.announcementAdminKey
+        ? adminKey === emailConfig.announcementAdminKey
+        : false;
+
+      if (!adminAuthorizedByEmail && !adminAuthorizedByKey) {
+        sendJson(res, 403, { error: "Forbidden" });
+        return;
+      }
+
+      const subject = String(body?.subject || "").trim();
+      const headline = String(body?.headline || "").trim();
+      const intro = String(body?.intro || "").trim();
+      const ctaLabel = String(body?.ctaLabel || "Open LingoWatch").trim();
+      const ctaUrl = String(body?.ctaUrl || `${emailConfig.appBaseUrl}/dashboard`).trim();
+      const bullets = Array.isArray(body?.bullets)
+        ? body.bullets.map((item) => String(item || "").trim()).filter(Boolean)
+        : [];
+
+      if (!subject || !headline || !intro || !bullets.length) {
+        sendJson(res, 400, { error: "subject, headline, intro, and at least one bullet are required." });
+        return;
+      }
+
+      const result = await sendAnnouncementEmails({
+        subject,
+        headline,
+        intro,
+        bullets,
+        ctaLabel,
+        ctaUrl,
+      });
+
+      sendJson(res, 200, { ok: true, ...result });
+      return;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Announcement send failed";
+      sendJson(res, 400, { error: message });
       return;
     }
   }
@@ -1224,6 +2037,10 @@ createServer(async (req, res) => {
   }
 
   if (await handleImportedTextRoutes(req, res, pathname, url, sendJson, readJsonBody)) {
+    return;
+  }
+
+  if (!pathname.startsWith("/api/") && tryServeFrontend(req, res, pathname)) {
     return;
   }
 
@@ -2320,16 +3137,64 @@ async function ensureAuthUsersSchema() {
         last_login_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       )
     `;
+    await sql`ALTER TABLE auth_users ALTER COLUMN google_sub DROP NOT NULL`;
     await sql`ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS picture_url TEXT NOT NULL DEFAULT ''`;
     await sql`ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS profile JSONB NOT NULL DEFAULT '{}'::jsonb`;
+    await sql`ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS password_hash TEXT NOT NULL DEFAULT ''`;
+    await sql`ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS email_verified BOOLEAN NOT NULL DEFAULT FALSE`;
+    await sql`ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS auth_provider TEXT NOT NULL DEFAULT 'google'`;
+    await sql`ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN NOT NULL DEFAULT TRUE`;
     await sql`ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS login_count INTEGER NOT NULL DEFAULT 0`;
     await sql`ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS first_login_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`;
     await sql`ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`;
     await sql`CREATE UNIQUE INDEX IF NOT EXISTS auth_users_google_sub_idx ON auth_users (google_sub)`;
     await sql`CREATE INDEX IF NOT EXISTS auth_users_email_idx ON auth_users (email)`;
+    await sql`CREATE UNIQUE INDEX IF NOT EXISTS auth_users_email_unique_idx ON auth_users (email)`;
     await sql`CREATE INDEX IF NOT EXISTS auth_users_last_login_at_idx ON auth_users (last_login_at DESC)`;
   } catch (error) {
     console.warn("Could not initialize auth_users schema:", error);
+  }
+}
+
+async function ensurePasswordResetTokensSchema() {
+  if (!sql) return;
+
+  try {
+    await sql`
+      CREATE TABLE IF NOT EXISTS password_reset_tokens (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        token_hash TEXT NOT NULL UNIQUE,
+        expires_at TIMESTAMPTZ NOT NULL,
+        used_at TIMESTAMPTZ,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS password_reset_tokens_user_id_idx ON password_reset_tokens (user_id)`;
+    await sql`CREATE INDEX IF NOT EXISTS password_reset_tokens_expires_at_idx ON password_reset_tokens (expires_at DESC)`;
+  } catch (error) {
+    console.warn("Could not initialize password_reset_tokens schema:", error);
+  }
+}
+
+async function ensureEmailVerificationTokensSchema() {
+  if (!sql) return;
+
+  try {
+    await sql`
+      CREATE TABLE IF NOT EXISTS email_verification_tokens (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        token_hash TEXT NOT NULL UNIQUE,
+        expires_at TIMESTAMPTZ NOT NULL,
+        used_at TIMESTAMPTZ,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS email_verification_tokens_user_id_idx ON email_verification_tokens (user_id)`;
+    await sql`CREATE INDEX IF NOT EXISTS email_verification_tokens_expires_at_idx ON email_verification_tokens (expires_at DESC)`;
+  } catch (error) {
+    console.warn("Could not initialize email_verification_tokens schema:", error);
   }
 }
 
@@ -2420,6 +3285,81 @@ function setCorsHeaders(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+}
+
+function tryServeFrontend(req, res, pathname) {
+  if ((req.method !== "GET" && req.method !== "HEAD") || !existsSync(DIST_DIR)) {
+    return false;
+  }
+
+  const indexPath = join(DIST_DIR, "index.html");
+  if (!existsSync(indexPath)) {
+    return false;
+  }
+
+  const cleanedPath = decodeURIComponent(String(pathname || "/")).replace(/^\/+/, "");
+  if (cleanedPath) {
+    const candidatePath = resolve(DIST_DIR, cleanedPath);
+    const distRoot = `${resolve(DIST_DIR)}${sep}`;
+
+    if (candidatePath.startsWith(distRoot) && existsSync(candidatePath) && statSync(candidatePath).isFile()) {
+      serveStaticFile(req, res, candidatePath);
+      return true;
+    }
+
+    if (extname(cleanedPath)) {
+      return false;
+    }
+  }
+
+  serveStaticFile(req, res, indexPath);
+  return true;
+}
+
+function serveStaticFile(req, res, filePath) {
+  const extension = extname(filePath).toLowerCase();
+  const contentType = {
+    ".css": "text/css; charset=utf-8",
+    ".gif": "image/gif",
+    ".html": "text/html; charset=utf-8",
+    ".ico": "image/x-icon",
+    ".jpeg": "image/jpeg",
+    ".jpg": "image/jpeg",
+    ".js": "text/javascript; charset=utf-8",
+    ".json": "application/json; charset=utf-8",
+    ".map": "application/json; charset=utf-8",
+    ".mp4": "video/mp4",
+    ".mp3": "audio/mpeg",
+    ".otf": "font/otf",
+    ".png": "image/png",
+    ".svg": "image/svg+xml",
+    ".txt": "text/plain; charset=utf-8",
+    ".webmanifest": "application/manifest+json; charset=utf-8",
+    ".webp": "image/webp",
+    ".woff": "font/woff",
+    ".woff2": "font/woff2",
+  }[extension] || "application/octet-stream";
+
+  const isHtml = extension === ".html";
+  res.writeHead(200, {
+    "Content-Type": contentType,
+    "Cache-Control": isHtml ? "no-cache" : "public, max-age=31536000, immutable",
+  });
+
+  if (req.method === "HEAD") {
+    res.end();
+    return;
+  }
+
+  createReadStream(filePath)
+    .on("error", () => {
+      if (!res.headersSent) {
+        sendJson(res, 500, { error: "Could not read frontend asset" });
+        return;
+      }
+      res.destroy();
+    })
+    .pipe(res);
 }
 
 function sendJson(res, statusCode, data) {
