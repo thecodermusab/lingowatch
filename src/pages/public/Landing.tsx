@@ -4,6 +4,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { BrandLogo } from '@/components/shared/BrandLogo';
 import '../../styles/landing.css';
 
+// Paste your Chrome Web Store URL here once it's approved
+const CHROME_STORE_URL = "";
+
 const FEATURE_TABS = [
   {
     gif: '/media/features/feature1.gif',
@@ -193,9 +196,15 @@ export default function LandingPage() {
             A Chrome extension that adds dual subtitles, word popups, and vocabulary tracking to any YouTube video — with full Somali language support.
           </p>
           <div className="lw-cta-group lw-cta-group-el" style={{ display: 'flex', gap: '16px', opacity: 0 }}>
-            <a href="#" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '14px 28px', fontSize: '14px', fontWeight: 500, textDecoration: 'none', cursor: 'pointer', transition: 'all 0.2s ease', backgroundColor: '#566484', color: '#fff', border: 'none' }}>
-              Add to Chrome <span style={{ marginLeft: '6px', fontSize: '18px', lineHeight: 1 }}>›</span>
-            </a>
+            {CHROME_STORE_URL ? (
+              <a href={CHROME_STORE_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '14px 28px', fontSize: '14px', fontWeight: 500, textDecoration: 'none', cursor: 'pointer', transition: 'all 0.2s ease', backgroundColor: '#566484', color: '#fff', border: 'none' }}>
+                Add to Chrome <span style={{ marginLeft: '6px', fontSize: '18px', lineHeight: 1 }}>›</span>
+              </a>
+            ) : (
+              <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '14px 28px', fontSize: '14px', fontWeight: 500, backgroundColor: '#566484', color: 'rgba(255,255,255,0.55)', border: 'none', cursor: 'default', opacity: 0.7 }}>
+                Coming to Chrome Soon
+              </span>
+            )}
             <button type="button" onClick={() => scrollToSection('features')} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '14px 28px', fontSize: '14px', fontWeight: 500, textDecoration: 'none', cursor: 'pointer', transition: 'all 0.2s ease', backgroundColor: 'transparent', color: '#fff', border: '1.5px solid rgba(255,255,255,0.5)' }}>
               See How It Works
             </button>

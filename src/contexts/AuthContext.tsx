@@ -15,7 +15,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 const STORAGE_KEY = "lingowatch_user";
 const LEGACY_STORAGE_KEY = "phrasepal_user";
-const LOCAL_API_BASE_URL = "http://127.0.0.1:3001";
+const SESSION_TOKEN_KEY = "lingowatch_session_token";
 
 function createDefaultProfile(): UserProfile {
   return {
@@ -59,10 +59,10 @@ async function syncExtensionSession(user: UserProfile | null) {
       type: "LINGOWATCH_EXTENSION_SESSION",
       payload: {
         ...session,
-        apiBaseUrl: LOCAL_API_BASE_URL,
+        apiBaseUrl: window.location.origin,
         appBaseUrl: window.location.origin,
       },
-    }, "*");
+    }, window.location.origin);
   } catch {
     // The extension bridge is optional; website auth should not fail if it is absent.
   }
@@ -86,9 +86,14 @@ async function persistProfile(userId: string, fullName: string, updates: Partial
   return { ...createDefaultProfile(), ...(data.user as UserProfile) };
 }
 
-function storeProfile(profile: UserProfile, setUser: React.Dispatch<React.SetStateAction<UserProfile | null>>) {
+function storeProfile(profile: UserProfile, setUser: React.Dispatch<React.SetStateAction<UserProfile | null>>, sessionToken?: string) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+  if (sessionToken) localStorage.setItem(SESSION_TOKEN_KEY, sessionToken);
   setUser(profile);
+}
+
+export function getStoredSessionToken(): string {
+  return localStorage.getItem(SESSION_TOKEN_KEY) ?? "";
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -155,7 +160,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     const profile = { ...createDefaultProfile(), ...(data.user as UserProfile) };
-    storeProfile(profile, setUser);
+    storeProfile(profile, setUser, data.sessionToken);
     return profile;
   }, []);
 
@@ -172,7 +177,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     const profile = { ...createDefaultProfile(), ...(data.user as UserProfile) };
-    storeProfile(profile, setUser);
+    storeProfile(profile, setUser, data.sessionToken);
     return profile;
   }, []);
 
@@ -189,7 +194,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     const profile = { ...createDefaultProfile(), ...(data.user as UserProfile) };
-    storeProfile(profile, setUser);
+    storeProfile(profile, setUser, data.sessionToken);
     return profile;
   }, []);
 
@@ -209,6 +214,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(LEGACY_STORAGE_KEY);
+    localStorage.removeItem(SESSION_TOKEN_KEY);
     setUser(null);
   }, []);
 

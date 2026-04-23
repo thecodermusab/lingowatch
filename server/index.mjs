@@ -578,7 +578,7 @@ function verifyPasswordHash(password, storedHash) {
   return timingSafeEqual(expected, derived);
 }
 
-function buildAuthResponse(user) {
+function buildAuthResponse(user, sessionToken = "") {
   const profile = defaultAuthProfile(user?.profile || {});
   const createdAt = user?.first_login_at
     ? new Date(user.first_login_at).toISOString()
@@ -606,6 +606,7 @@ function buildAuthResponse(user) {
       lastLoginAt,
       loginCount: Number(user.login_count || 1),
     },
+    sessionToken: sessionToken || undefined,
   };
 }
 
@@ -709,7 +710,8 @@ createServer(async (req, res) => {
       `;
 
       const user = rows[0];
-      sendJson(res, 200, buildAuthResponse(user));
+      const sessionToken = await issueSessionToken(user.id);
+      sendJson(res, 200, buildAuthResponse(user, sessionToken));
       return;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Google login failed";
@@ -819,7 +821,8 @@ createServer(async (req, res) => {
         });
       });
 
-      sendJson(res, 200, buildAuthResponse(createdUser));
+      const sessionToken = await issueSessionToken(createdUser.id);
+      sendJson(res, 200, buildAuthResponse(createdUser, sessionToken));
       return;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Sign up failed";
@@ -867,7 +870,8 @@ createServer(async (req, res) => {
         RETURNING id, email, full_name, picture_url, profile, email_verified, onboarding_completed, first_login_at, last_login_at, login_count
       `;
 
-      sendJson(res, 200, buildAuthResponse(updatedRows[0]));
+      const sessionToken = await issueSessionToken(updatedRows[0].id);
+      sendJson(res, 200, buildAuthResponse(updatedRows[0], sessionToken));
       return;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Login failed";
@@ -1660,8 +1664,9 @@ createServer(async (req, res) => {
     try {
       if (!sql) { sendJson(res, 200, []); return; }
       await ensureSavedWordsSchema();
-      const userEmail = normalizeOwnerEmail(url.searchParams.get("userEmail") || url.searchParams.get("email") || LEGACY_OWNER_EMAIL);
-      const rows = await sql`SELECT * FROM saved_words WHERE user_email = ${userEmail} ORDER BY saved_at DESC`;
+      const authClaim = await validateSessionToken(req);
+      if (!authClaim) { sendJson(res, 401, { error: "Authentication required" }); return; }
+      const rows = await sql`SELECT * FROM saved_words WHERE user_email = ${authClaim.email} ORDER BY saved_at DESC`;
       sendJson(res, 200, rows);
     } catch (err) { sendJson(res, 500, { error: String(err) }); }
     return;
@@ -1671,8 +1676,10 @@ createServer(async (req, res) => {
     try {
       if (!sql) { sendJson(res, 503, { error: "Database not configured" }); return; }
       await ensureSavedWordsSchema();
+      const authClaim = await validateSessionToken(req);
+      if (!authClaim) { sendJson(res, 401, { error: "Authentication required" }); return; }
       const body = await readJsonBody(req);
-      const userEmail = normalizeOwnerEmail(body?.userEmail || body?.email || LEGACY_OWNER_EMAIL);
+      const userEmail = authClaim.email;
       const word = String(body?.word || "").trim().toLowerCase();
       if (!word) { sendJson(res, 400, { error: "word is required" }); return; }
       const phraseData = body.phrase_data ?? null;
@@ -1712,9 +1719,10 @@ createServer(async (req, res) => {
     try {
       if (!sql) { sendJson(res, 503, { error: "Database not configured" }); return; }
       await ensureSavedWordsSchema();
-      const userEmail = normalizeOwnerEmail(url.searchParams.get("userEmail") || url.searchParams.get("email") || LEGACY_OWNER_EMAIL);
+      const authClaim = await validateSessionToken(req);
+      if (!authClaim) { sendJson(res, 401, { error: "Authentication required" }); return; }
       const word = decodeURIComponent(pathname.slice("/api/words/".length));
-      await sql`DELETE FROM saved_words WHERE user_email = ${userEmail} AND word = ${word}`;
+      await sql`DELETE FROM saved_words WHERE user_email = ${authClaim.email} AND word = ${word}`;
       sendJson(res, 200, { ok: true });
     } catch (err) { sendJson(res, 500, { error: String(err) }); }
     return;
@@ -3147,13 +3155,38 @@ async function ensureAuthUsersSchema() {
     await sql`ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS login_count INTEGER NOT NULL DEFAULT 0`;
     await sql`ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS first_login_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`;
     await sql`ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`;
+    await sql`ALTER TABLE auth_users ADD COLUMN IF NOT EXISTS session_token_hash TEXT NOT NULL DEFAULT ''`;
     await sql`CREATE UNIQUE INDEX IF NOT EXISTS auth_users_google_sub_idx ON auth_users (google_sub)`;
     await sql`CREATE INDEX IF NOT EXISTS auth_users_email_idx ON auth_users (email)`;
     await sql`CREATE UNIQUE INDEX IF NOT EXISTS auth_users_email_unique_idx ON auth_users (email)`;
     await sql`CREATE INDEX IF NOT EXISTS auth_users_last_login_at_idx ON auth_users (last_login_at DESC)`;
+    await sql`CREATE INDEX IF NOT EXISTS auth_users_session_token_hash_idx ON auth_users (session_token_hash)`;
   } catch (error) {
     console.warn("Could not initialize auth_users schema:", error);
   }
+}
+
+async function issueSessionToken(userId) {
+  const raw = randomBytes(32).toString("hex");
+  const hash = sha256(raw);
+  if (sql) {
+    await sql`UPDATE auth_users SET session_token_hash = ${hash} WHERE id = ${userId}`.catch(() => {});
+  }
+  return raw;
+}
+
+async function validateSessionToken(req) {
+  if (!sql) return null;
+  const authHeader = String(req.headers["authorization"] || "");
+  if (!authHeader.startsWith("Bearer ")) return null;
+  const raw = authHeader.slice(7).trim();
+  if (!raw) return null;
+  const hash = sha256(raw);
+  const rows = await sql`
+    SELECT id, email FROM auth_users WHERE session_token_hash = ${hash} LIMIT 1
+  `.catch(() => []);
+  if (!rows.length) return null;
+  return { userId: rows[0].id, email: normalizeOwnerEmail(rows[0].email) };
 }
 
 async function ensurePasswordResetTokensSchema() {

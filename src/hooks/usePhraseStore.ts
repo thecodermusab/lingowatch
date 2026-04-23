@@ -3,6 +3,7 @@ import { Phrase, PhraseAudioPrepProgress, PhraseType, DifficultyLevel, ReviewRat
 import { generateAIExplanation } from "@/lib/ai/index";
 import { buildNextReviewDate } from "@/lib/learning/review";
 import { useAuth } from "@/contexts/AuthContext";
+import { getStoredSessionToken } from "@/contexts/AuthContext";
 import { accountStorageKey, legacyOwnerEmail, normalizeOwnerEmail } from "@/lib/auth/accountStorage";
 import { buildPhraseAudioRequests, getPhraseAudioPrepProgress, mergePhraseAudioAssets, requestPhraseAudioAssets } from "@/lib/audio/phraseAudio";
 import { translateText } from "@/lib/translation/googleTranslate";
@@ -19,12 +20,26 @@ function shouldTryLocalApiFallback() {
   return window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 }
 
+function withAuthHeader(init?: RequestInit): RequestInit {
+  const token = getStoredSessionToken();
+  if (!token) return init ?? {};
+  return {
+    ...init,
+    headers: {
+      ...(init?.headers as Record<string, string> | undefined),
+      Authorization: `Bearer ${token}`,
+    },
+  };
+}
+
 async function apiFetch(path: string, init?: RequestInit) {
+  const isWordsRoute = path.startsWith("/api/words") || path.includes("/api/words");
+  const requestInit = isWordsRoute ? withAuthHeader(init) : (init ?? {});
   try {
-    return await fetch(path, init);
+    return await fetch(path, requestInit);
   } catch (error) {
     if (path.startsWith("/api/") && shouldTryLocalApiFallback()) {
-      return fetch(`${LOCAL_API_ORIGIN}${path}`, init);
+      return fetch(`${LOCAL_API_ORIGIN}${path}`, requestInit);
     }
     throw error;
   }
@@ -431,24 +446,19 @@ export function usePhraseStore() {
       }
     };
 
-    const onVisibilityChange = () => {
+    const onVisible = () => {
       if (document.visibilityState === "visible") {
         void refresh();
       }
     };
 
-    const interval = window.setInterval(() => {
-      void refresh();
-    }, 2500);
-
-    document.addEventListener("visibilitychange", onVisibilityChange);
-    window.addEventListener("focus", onVisibilityChange);
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onVisible);
 
     return () => {
       stopped = true;
-      window.clearInterval(interval);
-      document.removeEventListener("visibilitychange", onVisibilityChange);
-      window.removeEventListener("focus", onVisibilityChange);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onVisible);
     };
   }, [syncExternalPhrases]);
 

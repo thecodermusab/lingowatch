@@ -34,3 +34,9 @@ CLAUDE.md
 *.sw?
 gcp-tts-key.json
 scripts/local/
+
+# User data files — never commit these
+server/data/ext-saved-phrases.json
+server/data/imported-text-sessions.json
+server/data/imported-texts.json
+server/data/inbox-captures.json

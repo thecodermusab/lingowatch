@@ -1,9 +1,3 @@
-const GOOGLE_TRANSLATE_ENDPOINT = "https://translation.googleapis.com/language/translate/v2";
-
-function getGoogleTranslateKey() {
-  return import.meta.env.VITE_GOOGLE_TRANSLATE_KEY as string | undefined;
-}
-
 function decodeHtml(value: string) {
   if (typeof document === "undefined") return value;
   const textarea = document.createElement("textarea");
@@ -23,51 +17,16 @@ export async function translateTexts(
     return [];
   }
 
-  try {
-    const response = await fetch("/api/translate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ texts: normalized, source, target }),
-    });
-    const data = await response.json().catch(() => ({}));
-    if (response.ok && Array.isArray(data?.translations)) {
-      return data.translations.map((item: unknown) => decodeHtml(String(item || "").trim()));
-    }
-  } catch {}
-
-  const apiKey = getGoogleTranslateKey();
-
-  if (!apiKey) {
-    throw new Error("Google Translate API key missing");
-  }
-
-  const response = await fetch(`${GOOGLE_TRANSLATE_ENDPOINT}?key=${apiKey}`, {
+  const response = await fetch("/api/translate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      q: normalized,
-      source,
-      target,
-      format: "text",
-    }),
+    body: JSON.stringify({ texts: normalized, source, target }),
   });
-
-  const data = await response.json();
-  if (!response.ok || data?.error) {
-    throw new Error(data?.error?.message || "Google Translate request failed");
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || !Array.isArray(data?.translations)) {
+    throw new Error(data?.error || "Translation request failed");
   }
-
-  const translations = Array.isArray(data?.data?.translations)
-    ? data.data.translations.map((entry: { translatedText?: string }) =>
-        decodeHtml(String(entry?.translatedText || "")).trim(),
-      )
-    : [];
-
-  while (translations.length < normalized.length) {
-    translations.push("");
-  }
-
-  return translations.slice(0, normalized.length);
+  return data.translations.map((item: unknown) => decodeHtml(String(item || "").trim()));
 }
 
 export async function translateText(

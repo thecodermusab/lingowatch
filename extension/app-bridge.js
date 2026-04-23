@@ -11,6 +11,9 @@
     if (event.source !== window || !event.data || typeof event.data.type !== "string") {
       return;
     }
+    if (event.origin !== window.location.origin) {
+      return;
+    }
 
     if (event.data.type === "LINGOWATCH_EXTENSION_PING") {
       window.postMessage({ type: "LINGOWATCH_EXTENSION_PONG" }, "*");
