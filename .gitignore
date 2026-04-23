@@ -20,9 +20,9 @@ public/world-stories/
 extension/world-stories/
 server/data/world-stories.json
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
+# Local workspace and editor files
+.claude/
+.vscode/
 .idea
 .DS_Store
 .playwright-mcp/
