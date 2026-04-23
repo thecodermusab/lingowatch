@@ -21,6 +21,7 @@ extension/world-stories/
 server/data/world-stories.json
 
 # Local workspace and editor files
+CLAUDE.md
 .claude/
 .vscode/
 .idea
