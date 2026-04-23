@@ -23,6 +23,7 @@ import SignupPage from "./pages/Signup";
 import OnboardingPage from "./pages/Onboarding";
 import VerifyEmailPage from "./pages/VerifyEmail";
 import ForgotPasswordPage from "./pages/ForgotPassword";
+import PrivacyPage from "./pages/Privacy";
 import AdminAnnouncementsPage from "./pages/AdminAnnouncements";
 import AddPhrasePage from "./pages/AddPhrase";
 import ReviewPage from "./pages/Review";
@@ -73,7 +74,7 @@ function RequireAuth({ children }: { children: JSX.Element }) {
 
 function AppRoutes() {
   const location = useLocation();
-  const noShellRoutes = ["/", "/login", "/signup", "/onboarding", "/verify-email", "/forgot-password"];
+  const noShellRoutes = ["/", "/login", "/signup", "/onboarding", "/verify-email", "/forgot-password", "/privacy"];
   const fullBleedRoutes = ["/watch", "/read", "/listen"];
   const isFullBleedRoute = noShellRoutes.includes(location.pathname) ||
     fullBleedRoutes.some((route) => location.pathname.startsWith(route));
@@ -86,6 +87,7 @@ function AppRoutes() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/onboarding" element={<RequireAuth><OnboardingPage /></RequireAuth>} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route path="/admin/announcements" element={<RequireAuth><AdminAnnouncementsPage /></RequireAuth>} />
