@@ -100,6 +100,12 @@ function blobToObjectUrl(blob: Blob) {
   return URL.createObjectURL(blob);
 }
 
+function setCachedAudioUrl(key: string, url: string) {
+  const old = audioCache.get(key);
+  if (old?.startsWith("blob:")) URL.revokeObjectURL(old);
+  audioCache.set(key, url);
+}
+
 async function audioUrlToBlob(audioUrl: string, signal?: AbortSignal): Promise<Blob | null> {
   try {
     const blobRes = await fetch(audioUrl, { signal });
@@ -120,7 +126,7 @@ export async function fetchTtsAudioContent(text: string, options: FetchTtsOption
   const cachedBlob = options.forceRefresh ? null : await readCachedBlob(idbKey("plain", key));
   if (cachedBlob?.blob) {
     const source = blobToObjectUrl(cachedBlob.blob);
-    audioCache.set(key, source);
+    setCachedAudioUrl(key, source);
     return source;
   }
 
@@ -157,11 +163,11 @@ export async function fetchTtsAudioContent(text: string, options: FetchTtsOption
         const blob = base64ToBlob(audioContent);
         await writeCachedBlob(idbKey("plain", key), blob);
         const source = blobToObjectUrl(blob);
-        audioCache.set(key, source);
+        setCachedAudioUrl(key, source);
         return source;
       }
 
-      audioCache.set(key, resolvedUrl);
+      setCachedAudioUrl(key, resolvedUrl);
       void audioUrlToBlob(resolvedUrl).then((blob) => {
         if (blob) void writeCachedBlob(idbKey("plain", key), blob);
       });
@@ -252,7 +258,7 @@ export async function fetchTimedTtsAudio(text: string, options: FetchTtsOptions 
         wordTimings,
       };
 
-      audioCache.set(key, resolvedUrl);
+      setCachedAudioUrl(key, resolvedUrl);
       timedAudioCache.set(key, result);
       void audioUrlToBlob(resolvedUrl).then((blob) => {
         if (blob) void writeCachedBlob(idbKey("timed", key), blob, wordTimings);

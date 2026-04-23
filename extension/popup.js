@@ -3,10 +3,6 @@ const toggleButton = document.getElementById("lw-popup-toggle");
 const saveButton = document.getElementById("lw-save-settings");
 const saveStatus = document.getElementById("lw-save-status");
 
-function normalizeBaseUrl(value) {
-  return String(value || "").trim().replace(/\/+$/, "");
-}
-
 // ── Range value display ──────────────────────────────────────────
 function bindRange(inputId, displayId, format) {
   const input = document.getElementById(inputId);
@@ -22,16 +18,15 @@ bindRange("lw-sub-offset",   "lw-sub-offset-val",   (v) => v);
 bindRange("lw-sub-opacity",  "lw-sub-opacity-val",  (v) => `${v}%`);
 
 // ── Load saved settings on open ──────────────────────────────────
-chrome.storage.local.get(["googleApiKey", "subtitleSettings", "lingowatchAppBaseUrl", "lingowatchApiBaseUrl"], (result) => {
+chrome.storage.local.get(["googleApiKey", "subtitleSettings"], (result) => {
   const apiKey = result.googleApiKey || "";
   document.getElementById("lw-api-key").value = apiKey;
-  document.getElementById("lw-app-base-url").value = result.lingowatchAppBaseUrl || "";
-  document.getElementById("lw-api-base-url").value = result.lingowatchApiBaseUrl || "";
 
   const s = result.subtitleSettings || {};
-  if (s.enabled !== undefined) {
-    const el = document.getElementById("lw-sub-enabled");
-    if (el) el.value = String(s.enabled);
+  const enabledEl = document.getElementById("lw-sub-enabled");
+  if (enabledEl) {
+    // Default to enabled if no setting saved yet
+    enabledEl.value = s.enabled === false ? "false" : "true";
   }
   if (s.mode)
     document.getElementById("lw-sub-mode").value = s.mode;
@@ -58,11 +53,10 @@ chrome.storage.local.get(["googleApiKey", "subtitleSettings", "lingowatchAppBase
 // ── Save settings ────────────────────────────────────────────────
 saveButton.addEventListener("click", () => {
   const apiKey = document.getElementById("lw-api-key").value.trim();
-  const appBaseUrl = normalizeBaseUrl(document.getElementById("lw-app-base-url").value);
-  const apiBaseUrl = normalizeBaseUrl(document.getElementById("lw-api-base-url").value);
 
+  const enabledEl = document.getElementById("lw-sub-enabled");
   const subtitleSettings = {
-    enabled: true,
+    enabled: enabledEl ? enabledEl.value !== "false" : true,
     mode: document.getElementById("lw-sub-mode").value,
     order: document.getElementById("lw-sub-order").value,
     fontSize: Number(document.getElementById("lw-sub-fontsize").value),
@@ -74,8 +68,6 @@ saveButton.addEventListener("click", () => {
   chrome.storage.local.set({
     googleApiKey: apiKey,
     subtitleSettings,
-    lingowatchAppBaseUrl: appBaseUrl,
-    lingowatchApiBaseUrl: apiBaseUrl,
   }, () => {
     saveStatus.textContent = "Saved!";
     setTimeout(() => { saveStatus.textContent = ""; }, 2000);

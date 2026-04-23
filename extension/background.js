@@ -1,5 +1,5 @@
-const DEFAULT_API_BASE_URL = "http://127.0.0.1:3001";
-const DEFAULT_APP_BASE_URL = "http://127.0.0.1:8080";
+const DEFAULT_API_BASE_URL = "https://maahir03.me";
+const DEFAULT_APP_BASE_URL = "https://maahir03.me";
 const EXTENSION_CONFIG_KEYS = ["lingowatchApiBaseUrl", "lingowatchAppBaseUrl"];
 const IMPORT_MENU_ID = "lingowatch-import-page";
 const IMPORT_MENU_ALT_ID = "lingowatch-import-page-alt";
@@ -47,6 +47,11 @@ chrome.webRequest.onBeforeRequest.addListener(
     if (!subtitleUrls[details.tabId].includes(url)) {
       subtitleUrls[details.tabId].push(url);
 
+      // Persist to session storage so URLs survive service worker restarts
+      if (chrome.storage.session) {
+        chrome.storage.session.set({ [`surl_${details.tabId}`]: subtitleUrls[details.tabId] }).catch(() => {});
+      }
+
       chrome.tabs.sendMessage(details.tabId, {
         type: "SUBTITLE_URL_FOUND",
         url
@@ -58,6 +63,9 @@ chrome.webRequest.onBeforeRequest.addListener(
 
 chrome.tabs.onRemoved.addListener((tabId) => {
   delete subtitleUrls[tabId];
+  if (chrome.storage.session) {
+    chrome.storage.session.remove(`surl_${tabId}`).catch(() => {});
+  }
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
@@ -68,7 +76,18 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === "GET_SUBTITLE_URLS") {
-    sendResponse({ urls: subtitleUrls[sender.tab?.id] || [] });
+    const tabId = sender.tab?.id;
+    const inMemory = subtitleUrls[tabId] || [];
+    if (inMemory.length || !chrome.storage.session) {
+      sendResponse({ urls: inMemory });
+      return true;
+    }
+    // Service worker was restarted — recover from session storage
+    chrome.storage.session.get(`surl_${tabId}`).then((result) => {
+      const stored = result[`surl_${tabId}`] || [];
+      if (stored.length) subtitleUrls[tabId] = stored;
+      sendResponse({ urls: stored });
+    }).catch(() => sendResponse({ urls: [] }));
     return true;
   }
 

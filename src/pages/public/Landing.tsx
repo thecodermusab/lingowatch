@@ -59,10 +59,30 @@ const FAQ_ITEMS = [
   { q: 'Can I use LingoWatch on other websites besides YouTube?', a: 'Currently LingoWatch is optimized for YouTube. Support for additional video platforms is on our roadmap and will be added in future updates.' },
 ];
 
-const FOOTER_COLS = [
-  { title: 'Overview', links: ['Features', 'How It Works', 'FAQ'] },
-  { title: 'Legal', links: ['Terms and Conditions', 'Privacy Policy'] },
-  { title: 'Contact', links: ['Email', 'Twitter', 'GitHub'] },
+const FOOTER_COLS: { title: string; links: { label: string; href: string; external?: boolean; scroll?: string }[] }[] = [
+  {
+    title: 'Overview',
+    links: [
+      { label: 'Features', href: '#features', scroll: 'features' },
+      { label: 'How It Works', href: '#features', scroll: 'features' },
+      { label: 'FAQ', href: '#faq', scroll: 'faq' },
+    ],
+  },
+  {
+    title: 'Legal',
+    links: [
+      { label: 'Terms and Conditions', href: '/terms' },
+      { label: 'Privacy Policy', href: '/privacy' },
+    ],
+  },
+  {
+    title: 'Contact',
+    links: [
+      { label: 'Email', href: 'mailto:maahir.engineer@gmail.com', external: true },
+      { label: 'Twitter', href: 'https://x.com/maahir_03', external: true },
+      { label: 'GitHub', href: 'https://github.com/thecodermusab', external: true },
+    ],
+  },
 ];
 
 export default function LandingPage() {
@@ -309,9 +329,15 @@ export default function LandingPage() {
           <h2 className="lw-cta-headline" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 400, fontSize: '52px', lineHeight: 1.2, color: '#fff', maxWidth: '480px', marginBottom: '36px' }}>
             Start learning<br />while you watch
           </h2>
-          <a href="#" className="lw-cta-btn lw-cta-btn-el" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.35)', color: '#fff', fontFamily: "'DM Sans', sans-serif", fontSize: '15px', padding: '13px 28px', borderRadius: '4px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', letterSpacing: '0.01em', textDecoration: 'none', width: 'fit-content', transition: 'background 0.25s ease' }}>
-            Add to Chrome &nbsp;›
-          </a>
+          {CHROME_STORE_URL ? (
+            <a href={CHROME_STORE_URL} target="_blank" rel="noopener noreferrer" className="lw-cta-btn lw-cta-btn-el" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.35)', color: '#fff', fontFamily: "'DM Sans', sans-serif", fontSize: '15px', padding: '13px 28px', borderRadius: '4px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', letterSpacing: '0.01em', textDecoration: 'none', width: 'fit-content', transition: 'background 0.25s ease' }}>
+              Add to Chrome &nbsp;›
+            </a>
+          ) : (
+            <span className="lw-cta-btn-el" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.4)', fontFamily: "'DM Sans', sans-serif", fontSize: '15px', padding: '13px 28px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 'fit-content' }}>
+              Coming to Chrome Soon
+            </span>
+          )}
         </div>
       </section>
 
@@ -373,9 +399,19 @@ export default function LandingPage() {
                 <div key={i} style={{ display: 'flex', flexDirection: 'column' }}>
                   <div style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: '14px', color: '#fff', marginBottom: '4px' }}>{col.title}</div>
                   {col.links.map((link, j) => (
-                    <a key={j} href="#" className="lw-footer-link" style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none', marginTop: '12px', transition: 'color 0.2s ease' }}>
-                      {link}
-                    </a>
+                    link.scroll ? (
+                      <button key={j} type="button" onClick={() => scrollToSection(link.scroll!)} className="lw-footer-link" style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none', marginTop: '12px', transition: 'color 0.2s ease', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left' }}>
+                        {link.label}
+                      </button>
+                    ) : link.external ? (
+                      <a key={j} href={link.href} target="_blank" rel="noopener noreferrer" className="lw-footer-link" style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none', marginTop: '12px', transition: 'color 0.2s ease' }}>
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link key={j} to={link.href} className="lw-footer-link" style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none', marginTop: '12px', transition: 'color 0.2s ease' }}>
+                        {link.label}
+                      </Link>
+                    )
                   ))}
                 </div>
               ))}

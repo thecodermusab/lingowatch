@@ -169,8 +169,8 @@
   <body>
     <div class="shell">
       <div class="hero">
-        <p class="kicker">LingoWatch</p>
-        <h1>PhrasePal</h1>
+        <p class="kicker">Chrome Extension</p>
+        <h1>LingoWatch</h1>
       </div>
       <div class="body">
 
@@ -186,19 +186,11 @@
         <p class="section-label">Translation</p>
         <div class="card">
           <div class="row">
-            <label for="lw-app-base-url">App URL</label>
-            <input id="lw-app-base-url" type="text" placeholder="https://app.example.com" autocomplete="off" />
-          </div>
-          <div class="row">
-            <label for="lw-api-base-url">API URL</label>
-            <input id="lw-api-base-url" type="text" placeholder="https://app.example.com" autocomplete="off" />
-          </div>
-          <div class="row">
             <label for="lw-api-key">Google API key</label>
             <input id="lw-api-key" type="password" placeholder="AIza…" autocomplete="off" />
           </div>
           <p style="margin:0;color:#475569;font-size:11px;line-height:1.5;">
-            Put your deployed DigitalOcean URL here for both fields if the app and API use the same domain.<br>
+            The extension now connects to Lingowatch automatically.<br>
             Optional — uses free fallback if empty.<br>
             Get a key at Google Cloud Console → Cloud Translation API.
           </p>
@@ -207,6 +199,13 @@
         <!-- Subtitle overlay settings -->
         <p class="section-label">Subtitle overlay</p>
         <div class="card">
+          <div class="row">
+            <label for="lw-sub-enabled">Subtitles</label>
+            <select id="lw-sub-enabled">
+              <option value="true">Enabled</option>
+              <option value="false">Disabled</option>
+            </select>
+          </div>
           <div class="row">
             <label for="lw-sub-mode">Show</label>
             <select id="lw-sub-mode">

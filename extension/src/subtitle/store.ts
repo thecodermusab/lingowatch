@@ -7,7 +7,7 @@ export function useSettings(): [SubtitleSettings, (patch: Partial<SubtitleSettin
   useEffect(() => {
     chrome.storage.local.get("subtitleSettings", (r) => {
       if (r.subtitleSettings) {
-        setS({ ...DEFAULT_SETTINGS, ...r.subtitleSettings, enabled: true });
+        setS({ ...DEFAULT_SETTINGS, ...r.subtitleSettings });
       }
     });
 

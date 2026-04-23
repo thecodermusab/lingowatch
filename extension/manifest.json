@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "LingoWatch PhrasePal",
+  "name": "LingoWatch",
   "version": "1.0.1",
   "description": "Learn English from any video with Somali translations",
   "permissions": ["storage", "activeTab", "webRequest", "contextMenus", "scripting", "tabs"],

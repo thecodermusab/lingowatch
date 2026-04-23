@@ -32,6 +32,8 @@ import PodcastPlayerPage from "./pages/media/PodcastPlayerPage";
 import BookReaderPage from "./pages/reader/BookReaderPage";
 import ImportedTextReaderPage from "./pages/reader/ImportedTextReaderPage";
 import NotFound from "./pages/public/NotFound";
+import TermsPage from "./pages/public/Terms";
+import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 
 const queryClient = new QueryClient();
 
@@ -88,6 +90,7 @@ function AppRoutes() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
         <Route path="/onboarding" element={<RequireAuth><OnboardingPage /></RequireAuth>} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route path="/admin/announcements" element={<RequireAuth><AdminAnnouncementsPage /></RequireAuth>} />
@@ -120,19 +123,21 @@ function AppRoutes() {
 }
 
 const App = () => (
-  <ThemeProvider>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <AuthProvider>
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
-        </AuthProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ThemeProvider>
+  <ErrorBoundary>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <AuthProvider>
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+          </AuthProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
+  </ErrorBoundary>
 );
 
 export default App;

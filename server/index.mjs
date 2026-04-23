@@ -106,6 +106,43 @@ const googleOAuthClientId = env.GOOGLE_CLIENT_ID || env.VITE_GOOGLE_CLIENT_ID ||
 const googleOAuthClient = googleOAuthClientId ? new OAuth2Client(googleOAuthClientId) : null;
 const ttsGenerationJobs = new Map();
 
+// ── Rate limiting for AI endpoints ──────────────────────────────────────────
+const RATE_LIMIT_RPM = 20;
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const OWNER_EMAIL = "maahir.engineer@gmail.com";
+const rateLimitMap = new Map(); // ip -> { count, windowStart }
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, entry] of rateLimitMap) {
+    if (now - entry.windowStart > RATE_LIMIT_WINDOW_MS * 2) rateLimitMap.delete(ip);
+  }
+}, 5 * 60 * 1000);
+
+function getClientIp(req) {
+  const forwarded = req.headers["x-forwarded-for"];
+  if (forwarded) return String(forwarded).split(",")[0].trim();
+  return req.socket?.remoteAddress || "unknown";
+}
+
+async function checkAiRateLimit(req) {
+  const ip = getClientIp(req);
+  if (ip === "127.0.0.1" || ip === "::1" || ip === "::ffff:127.0.0.1") return true;
+
+  const authClaim = await validateSessionToken(req).catch(() => null);
+  if (authClaim?.email === OWNER_EMAIL) return true;
+
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
+    rateLimitMap.set(ip, { count: 1, windowStart: now });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT_RPM) return false;
+  entry.count++;
+  return true;
+}
+
 // Run schema migrations
 if (sql) {
   void ensureAuthUsersSchema();
@@ -1199,6 +1236,10 @@ createServer(async (req, res) => {
 
   if (req.method === "POST" && pathname === "/api/ai/explain") {
     try {
+      if (!await checkAiRateLimit(req)) {
+        sendJson(res, 429, { error: "Too many requests. Please slow down and try again in a minute." });
+        return;
+      }
       const body = await readJsonBody(req);
       const phraseText = String(body?.phraseText || "").trim();
       const sentenceContext = String(body?.sentenceContext || "").trim();
@@ -1232,6 +1273,10 @@ createServer(async (req, res) => {
 
   if (req.method === "POST" && pathname === "/api/ai/story") {
     try {
+      if (!await checkAiRateLimit(req)) {
+        sendJson(res, 429, { error: "Too many requests. Please slow down and try again in a minute." });
+        return;
+      }
       const body = await readJsonBody(req);
       const words = Array.isArray(body?.words) ? body.words.map((w) => String(w || "").trim()).filter(Boolean) : [];
       const preferredProvider = normalizePreferredProvider(body?.preferredProvider);
