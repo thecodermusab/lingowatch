@@ -6,7 +6,7 @@ It includes:
 - a web app for reading, saving words, and studying later
 - a Chrome extension for subtitle translation and quick word help
 
-![LingoWatch feature preview](https://maahir03.me/feature1.gif)
+![LingoWatch feature preview](public/feature1.gif)
 
 ## Run locally
 
