@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { Phrase, PhraseAudioPrepProgress, PhraseType, DifficultyLevel, ReviewRating, DashboardStats } from "@/types";
-import { generateAIExplanation } from "@/lib/ai";
-import { buildNextReviewDate } from "@/lib/review";
+import { generateAIExplanation } from "@/lib/ai/index";
+import { buildNextReviewDate } from "@/lib/learning/review";
 import { useAuth } from "@/contexts/AuthContext";
-import { accountStorageKey, legacyOwnerEmail, normalizeOwnerEmail } from "@/lib/accountStorage";
-import { buildPhraseAudioRequests, getPhraseAudioPrepProgress, mergePhraseAudioAssets, requestPhraseAudioAssets } from "@/lib/phraseAudio";
-import { translateText } from "@/lib/googleTranslate";
+import { accountStorageKey, legacyOwnerEmail, normalizeOwnerEmail } from "@/lib/auth/accountStorage";
+import { buildPhraseAudioRequests, getPhraseAudioPrepProgress, mergePhraseAudioAssets, requestPhraseAudioAssets } from "@/lib/audio/phraseAudio";
+import { translateText } from "@/lib/translation/googleTranslate";
 
 const STORAGE_KEY = "lingowatch_phrases";
 const LEGACY_STORAGE_KEY = "phrasepal_phrases";

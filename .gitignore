@@ -25,9 +25,11 @@ server/data/world-stories.json
 !.vscode/extensions.json
 .idea
 .DS_Store
+.playwright-mcp/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 gcp-tts-key.json
+scripts/local/

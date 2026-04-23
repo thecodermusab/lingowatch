@@ -9,10 +9,10 @@ import { AnnotationToolbar, HighlightColor } from "@/components/reader/Annotatio
 import { HighlightableText, TextHighlight } from "@/components/reader/HighlightableText";
 import { SyncedTtsText, getActiveWordIndex } from "@/components/reader/SyncedTtsText";
 
-import { fetchImportedTextById } from "@/lib/importedTexts";
+import { fetchImportedTextById } from "@/lib/data/importedTexts";
 import { useAuth } from "@/contexts/AuthContext";
-import { translateTexts } from "@/lib/googleTranslate";
-import { fetchTimedTtsAudio, TtsAudioResult } from "@/lib/tts";
+import { translateTexts } from "@/lib/translation/googleTranslate";
+import { fetchTimedTtsAudio, TtsAudioResult } from "@/lib/audio/tts";
 
 interface AnnotationState {
   text: string;

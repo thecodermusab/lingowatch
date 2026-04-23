@@ -2,14 +2,14 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ChevronLeft, Play, Pause, BookMarked, X } from "lucide-react";
 import { MOCK_READER_DICTIONARY } from "./mockReaderData";
-import { translateText } from "@/lib/googleTranslate";
+import { translateText } from "@/lib/translation/googleTranslate";
 import { BOOK_ITEMS } from "../media/bookData";
 import { WordWithTooltip } from "./hidden/WordWithTooltip";
 import { AnnotationToolbar, HighlightColor, ExistingHighlight } from "@/components/reader/AnnotationToolbar";
 import { HighlightableText, TextHighlight } from "@/components/reader/HighlightableText";
 import { SyncedTtsText, getActiveWordIndex } from "@/components/reader/SyncedTtsText";
-import { fetchTimedTtsAudio, TtsAudioResult } from "@/lib/tts";
-import { startUnlockedPlaybackSession } from "@/lib/audioPlayback";
+import { fetchTimedTtsAudio, TtsAudioResult } from "@/lib/audio/tts";
+import { startUnlockedPlaybackSession } from "@/lib/audio/audioPlayback";
 
 interface SavedEntry {
   translation: string;

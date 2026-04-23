@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
-import { translateText } from "@/lib/googleTranslate";
+import { translateText } from "@/lib/translation/googleTranslate";
 
 const wordTranslationCache: Record<string, string> = {};
 

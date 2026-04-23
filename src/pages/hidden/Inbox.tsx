@@ -4,7 +4,7 @@ import { Archive, CheckCircle2, ExternalLink, Inbox, Loader2, PlusCircle } from 
 import { formatDistanceToNow } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { usePhraseStore } from "@/hooks/usePhraseStore";
-import { getInboxCaptures, InboxCapture, updateInboxCapture } from "@/lib/inbox";
+import { getInboxCaptures, InboxCapture, updateInboxCapture } from "@/lib/data/inbox";
 import { Button } from "@/components/ui/button";
 
 function inferDifficulty(word: string) {

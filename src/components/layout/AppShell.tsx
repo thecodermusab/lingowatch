@@ -16,7 +16,7 @@ import {
   Moon,
 } from "lucide-react";
 import { SelectionLearningOverlay } from "@/components/learning/SelectionLearningOverlay";
-import { BrandLogo } from "@/components/BrandLogo";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 

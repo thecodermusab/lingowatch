@@ -9,29 +9,29 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AppShell } from "@/components/layout/AppShell";
 
 // Core pages — eager so they never show a spinner
-import DashboardPage from "./pages/Dashboard";
+import DashboardPage from "./pages/learning/Dashboard";
 import MediaPage from "./pages/media/MediaPage";
-import WatchWorkspacePage from "./pages/WatchWorkspace";
-import LibraryPage from "./pages/Library";
-import PhraseDetailPage from "./pages/PhraseDetail";
-import StoriesPage from "./pages/Stories";
-import LandingPage from "./pages/Landing";
-import SettingsPage from "./pages/Settings";
-import RandomPhrasesPage from "./pages/RandomPhrases";
-import LoginPage from "./pages/Login";
-import SignupPage from "./pages/Signup";
-import OnboardingPage from "./pages/Onboarding";
-import VerifyEmailPage from "./pages/VerifyEmail";
-import ForgotPasswordPage from "./pages/ForgotPassword";
-import PrivacyPage from "./pages/Privacy";
-import AdminAnnouncementsPage from "./pages/AdminAnnouncements";
-import AddPhrasePage from "./pages/AddPhrase";
-import ReviewPage from "./pages/Review";
-import ProgressPage from "./pages/Progress";
+import WatchWorkspacePage from "./pages/workspace/WatchWorkspace";
+import LibraryPage from "./pages/workspace/Library";
+import PhraseDetailPage from "./pages/workspace/PhraseDetail";
+import StoriesPage from "./pages/workspace/Stories";
+import LandingPage from "./pages/public/Landing";
+import SettingsPage from "./pages/workspace/Settings";
+import RandomPhrasesPage from "./pages/learning/RandomPhrases";
+import LoginPage from "./pages/auth/Login";
+import SignupPage from "./pages/auth/Signup";
+import OnboardingPage from "./pages/auth/Onboarding";
+import VerifyEmailPage from "./pages/auth/VerifyEmail";
+import ForgotPasswordPage from "./pages/auth/ForgotPassword";
+import PrivacyPage from "./pages/public/Privacy";
+import AdminAnnouncementsPage from "./pages/admin/AdminAnnouncements";
+import AddPhrasePage from "./pages/learning/AddPhrase";
+import ReviewPage from "./pages/learning/Review";
+import ProgressPage from "./pages/learning/Progress";
 import PodcastPlayerPage from "./pages/media/PodcastPlayerPage";
 import BookReaderPage from "./pages/reader/BookReaderPage";
 import ImportedTextReaderPage from "./pages/reader/ImportedTextReaderPage";
-import NotFound from "./pages/NotFound";
+import NotFound from "./pages/public/NotFound";
 
 const queryClient = new QueryClient();
 

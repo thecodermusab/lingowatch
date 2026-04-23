@@ -5,8 +5,8 @@ import { cwd, env } from "node:process";
 import { createHash, createHmac, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import * as YoutubeTranscriptModule from "youtube-transcript/dist/youtube-transcript.esm.js";
 import { neon } from "@neondatabase/serverless";
-import { handlePodcastRoutes } from "./podcasts.mjs";
-import { handleImportedTextRoutes } from "./importedTexts.mjs";
+import { handlePodcastRoutes } from "./modules/podcasts.mjs";
+import { handleImportedTextRoutes } from "./modules/importedTexts.mjs";
 import { GoogleAuth, OAuth2Client } from "google-auth-library";
 import { PollyClient, SynthesizeSpeechCommand } from "@aws-sdk/client-polly";
 
@@ -94,7 +94,7 @@ const YOUTUBE_CHANNEL_SEEDS_FILE = join(DATA_DIR, "youtube-channel-seeds.txt");
 const CHANNEL_THUMBNAILS_FILE = join(DATA_DIR, "channel-thumbnails.json");
 const CHANNEL_THUMBNAIL_TTL_MS = 20 * 24 * 60 * 60 * 1000; // 20 days
 const LEGACY_OWNER_EMAIL = "maahir.engineer@gmail.com";
-const EMAIL_TEMPLATES_DIR = join(ROOT_DIR, "email-templates");
+const EMAIL_TEMPLATES_DIR = join(ROOT_DIR, "server", "email-templates");
 
 loadEnvFile();
 

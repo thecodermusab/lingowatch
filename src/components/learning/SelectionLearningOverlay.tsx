@@ -1,5 +1,5 @@
 import { RefObject, useEffect, useState } from "react";
-import { generateAIExplanation } from "@/lib/ai";
+import { generateAIExplanation } from "@/lib/ai/index";
 import { usePhraseStore } from "@/hooks/usePhraseStore";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";

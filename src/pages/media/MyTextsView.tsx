@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { ExternalLink, Plus, Trash2, Loader2, BookText } from "lucide-react";
-import { fetchImportedTexts } from "@/lib/importedTexts";
+import { fetchImportedTexts } from "@/lib/data/importedTexts";
 import { useAuth } from "@/contexts/AuthContext";
 import { ImportedTextListResponse } from "@/types";
 

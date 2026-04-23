@@ -1,5 +1,5 @@
 import { TranscriptCue } from "@/components/watch/types";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/core/utils";
 
 interface TranscriptRowProps {
   cue: TranscriptCue;

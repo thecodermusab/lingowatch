@@ -1,5 +1,5 @@
 import { TranscriptTab } from "@/components/watch/types";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/core/utils";
 
 interface TranscriptTabsProps {
   activeTab: TranscriptTab;
