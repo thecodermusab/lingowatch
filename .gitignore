@@ -16,7 +16,6 @@ dist-ssr
 !.env.local.example
 
 # Generated world stories data (run `npm run scrape:stories` to populate)
-public/world-stories/
 extension/world-stories/
 server/data/world-stories.json
 
