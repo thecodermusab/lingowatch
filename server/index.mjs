@@ -4594,8 +4594,10 @@ const DIRECT_AI_PROVIDERS = ["gemini", "gemini-lite", "deepseek", "grok", "openr
 const SELECTABLE_AI_PROVIDERS = ["auto", ...DIRECT_AI_PROVIDERS];
 
 const AUTO_PROVIDER_CHAINS = {
-  lookup: ["nvidia", "glm4", "deepseek", "gemini-lite", "gemini", "openrouter", "cerebras", "grok", "antigravity"],
-  bulk: ["deepseek", "nvidia", "glm4", "gemini-lite", "gemini", "openrouter", "cerebras", "grok", "antigravity"],
+  // NVIDIA GLM-5.1 is slower (~30s) than GLM-4.7 — keep GLM-4.7 first for
+  // the fast popup, use NVIDIA as a quality backup
+  lookup: ["glm4", "deepseek", "nvidia", "gemini-lite", "gemini", "openrouter", "cerebras", "grok", "antigravity"],
+  bulk: ["deepseek", "glm4", "nvidia", "gemini-lite", "gemini", "openrouter", "cerebras", "grok", "antigravity"],
   google: ["gemini-lite", "gemini", "glm4", "deepseek", "openrouter", "cerebras", "grok", "antigravity"],
 };
 
@@ -5445,6 +5447,9 @@ async function explainWithNvidiaGlm5Prompt(systemPrompt, userPrompt) {
     throw new Error("Missing NVIDIA_API_KEY in .env");
   }
 
+  // NVIDIA's NIM is slower than other providers — give it a longer timeout
+  const NVIDIA_TIMEOUT_MS = 45000;
+
   const response = await fetchWithTimeout(`${baseUrl}/chat/completions`, {
     method: "POST",
     headers: {
@@ -5460,11 +5465,11 @@ async function explainWithNvidiaGlm5Prompt(systemPrompt, userPrompt) {
       temperature: 0.2,
       max_tokens: 1200,
       top_p: 1,
-      // Disable thinking mode for fast responses — GLM 5.1 is still higher
-      // quality than 4.7 even without reasoning enabled
+      // Disable thinking mode for faster responses — GLM 5.1 still provides
+      // higher-quality output than 4.7 even without reasoning enabled
       chat_template_kwargs: { enable_thinking: false },
     }),
-  });
+  }, NVIDIA_TIMEOUT_MS);
 
   if (!response.ok) {
     const errorText = await response.text();
