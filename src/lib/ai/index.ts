@@ -2,6 +2,7 @@ import { AIGenerationResult, DifficultyLevel, Phrase, PhraseType, PreferredAiPro
 
 export const AI_PROVIDER_OPTIONS: { value: PreferredAiProvider; label: string }[] = [
   { value: "auto", label: "Auto" },
+  { value: "nvidia", label: "GLM-5.1 (NVIDIA)" },
   { value: "glm4", label: "GLM-4.7 Flash" },
   { value: "deepseek", label: "DeepSeek V3.2" },
   { value: "gemini-lite", label: "Gemini 2.5 Flash-Lite" },

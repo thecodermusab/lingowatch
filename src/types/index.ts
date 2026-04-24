@@ -2,7 +2,7 @@ export type PhraseType = "word" | "phrase" | "phrasal_verb" | "idiom" | "express
 export type DifficultyLevel = "beginner" | "intermediate" | "advanced";
 export type ExampleType = "simple" | "daily" | "work" | "extra" | "somali";
 export type ReviewRating = "again" | "hard" | "good" | "easy";
-export type PreferredAiProvider = "auto" | "glm4" | "deepseek" | "gemini-lite" | "gemini" | "grok" | "openrouter" | "cerebras" | "antigravity";
+export type PreferredAiProvider = "auto" | "nvidia" | "glm4" | "deepseek" | "gemini-lite" | "gemini" | "grok" | "openrouter" | "cerebras" | "antigravity";
 export type PhraseAudioStatus = "pending" | "ready" | "error";
 export type PhraseAudioPrepState = "idle" | "preparing" | "ready" | "partial" | "error";
 

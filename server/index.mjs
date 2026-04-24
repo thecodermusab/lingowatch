@@ -4590,12 +4590,12 @@ async function generateStory(words, preferredProvider) {
   return { title, content };
 }
 
-const DIRECT_AI_PROVIDERS = ["gemini", "gemini-lite", "deepseek", "grok", "openrouter", "cerebras", "antigravity", "glm4"];
+const DIRECT_AI_PROVIDERS = ["gemini", "gemini-lite", "deepseek", "grok", "openrouter", "cerebras", "antigravity", "glm4", "nvidia"];
 const SELECTABLE_AI_PROVIDERS = ["auto", ...DIRECT_AI_PROVIDERS];
 
 const AUTO_PROVIDER_CHAINS = {
-  lookup: ["glm4", "deepseek", "gemini-lite", "gemini", "openrouter", "cerebras", "grok", "antigravity"],
-  bulk: ["deepseek", "glm4", "gemini-lite", "gemini", "openrouter", "cerebras", "grok", "antigravity"],
+  lookup: ["nvidia", "glm4", "deepseek", "gemini-lite", "gemini", "openrouter", "cerebras", "grok", "antigravity"],
+  bulk: ["deepseek", "nvidia", "glm4", "gemini-lite", "gemini", "openrouter", "cerebras", "grok", "antigravity"],
   google: ["gemini-lite", "gemini", "glm4", "deepseek", "openrouter", "cerebras", "grok", "antigravity"],
 };
 
@@ -4656,6 +4656,7 @@ async function requestTextFromProviders({ preferredProvider, systemPrompt, userP
       if (provider === "cerebras") return await explainWithCerebrasPrompt(systemPrompt, userPrompt);
       if (provider === "antigravity") return await explainWithAntigravityPrompt(systemPrompt, userPrompt);
       if (provider === "glm4") return await explainWithGlm4Prompt(systemPrompt, userPrompt);
+      if (provider === "nvidia") return await explainWithNvidiaGlm5Prompt(systemPrompt, userPrompt);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown provider error";
       errors.push({ provider, message: summarizeProviderError(provider, message) });
@@ -4800,6 +4801,14 @@ function getAiHealth(preferredProvider) {
     };
   }
 
+  if (provider === "nvidia") {
+    return {
+      provider,
+      model: getNvidiaModel(),
+      configured: Boolean(getNvidiaApiKey()),
+    };
+  }
+
   return {
     provider: provider || "unset",
     model: "unset",
@@ -4859,6 +4868,11 @@ function getProviderChain(preferredProvider, task = "lookup", options = {}) {
       configuredProviders.push(provider);
       continue;
     }
+
+    if (provider === "nvidia" && getNvidiaApiKey()) {
+      configuredProviders.push(provider);
+      continue;
+    }
   }
 
   if (configuredProviders.length === 0) {
@@ -4904,6 +4918,8 @@ async function requestJsonFromProviders({ preferredProvider, systemPrompt, userP
         parsed = parseModelJson(await explainWithAntigravityPrompt(systemPrompt, userPrompt));
       } else if (provider === "glm4") {
         parsed = parseModelJson(await explainWithGlm4Prompt(systemPrompt, userPrompt));
+      } else if (provider === "nvidia") {
+        parsed = parseModelJson(await explainWithNvidiaGlm5Prompt(systemPrompt, userPrompt));
       }
 
       if (parsed && includeProviderMeta && typeof parsed === "object" && !Array.isArray(parsed)) {
@@ -4958,6 +4974,10 @@ async function requestJsonFromSingleProvider({ provider, systemPrompt, userPromp
     return parseModelJson(await explainWithGlm4Prompt(systemPrompt, userPrompt));
   }
 
+  if (provider === "nvidia") {
+    return parseModelJson(await explainWithNvidiaGlm5Prompt(systemPrompt, userPrompt));
+  }
+
   throw new Error("Unknown provider");
 }
 
@@ -4980,6 +5000,8 @@ function getProviderLabel(provider) {
             ? "Antigravity"
             : provider === "glm4"
             ? "GLM-4-Flash"
+            : provider === "nvidia"
+            ? "GLM-5.1 (NVIDIA)"
         : String(provider || "Unknown");
 }
 
@@ -5397,6 +5419,63 @@ async function explainWithGlm4Prompt(systemPrompt, userPrompt) {
 
   if (!text) {
     throw new Error("GLM-4-Flash returned an empty response");
+  }
+
+  return text;
+}
+
+function getNvidiaApiKey() {
+  return String(env.NVIDIA_API_KEY || "").trim();
+}
+
+function getNvidiaModel() {
+  return String(env.NVIDIA_GLM_MODEL || "z-ai/glm-5.1").trim();
+}
+
+function getNvidiaBaseUrl() {
+  return String(env.NVIDIA_BASE_URL || "https://integrate.api.nvidia.com/v1").trim().replace(/\/$/, "");
+}
+
+async function explainWithNvidiaGlm5Prompt(systemPrompt, userPrompt) {
+  const apiKey = getNvidiaApiKey();
+  const model = getNvidiaModel();
+  const baseUrl = getNvidiaBaseUrl();
+
+  if (!apiKey) {
+    throw new Error("Missing NVIDIA_API_KEY in .env");
+  }
+
+  const response = await fetchWithTimeout(`${baseUrl}/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      temperature: 0.2,
+      max_tokens: 1200,
+      top_p: 1,
+      // Disable thinking mode for fast responses — GLM 5.1 is still higher
+      // quality than 4.7 even without reasoning enabled
+      chat_template_kwargs: { enable_thinking: false },
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`NVIDIA GLM-5.1 request failed: ${errorText}`);
+  }
+
+  const data = await response.json();
+  const text = data?.choices?.[0]?.message?.content;
+
+  if (!text) {
+    throw new Error("NVIDIA GLM-5.1 returned an empty response");
   }
 
   return text;
