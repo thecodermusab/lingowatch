@@ -12,8 +12,8 @@
   window.__lingoWatchLoaded = true;
   console.log("LingoWatch loaded");
 
-  const APP_API_BASE_URL = "http://127.0.0.1:3001";
-  const APP_BASE_URL = "http://127.0.0.1:8080";
+  const APP_API_BASE_URL = "https://maahir03.me";
+  const APP_BASE_URL = "https://maahir03.me";
   const YOUTUBE_HOST_PATTERN = /(^|\.)youtube\.com$/i;
   const POPUP_AI_TIMEOUT_MS = 45000;
   const POPUP_SOMALI_TIMEOUT_MS = 30000;

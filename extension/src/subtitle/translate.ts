@@ -1,5 +1,5 @@
 const cache = new Map<string, string>();
-const DEFAULT_API_BASE_URL = "http://127.0.0.1:3001";
+const DEFAULT_API_BASE_URL = "https://maahir03.me";
 
 function isMyMemoryWarning(text: string): boolean {
   return text.trim().toUpperCase().startsWith("MYMEMORY WARNING");
