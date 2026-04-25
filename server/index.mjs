@@ -1332,7 +1332,7 @@ createServer(async (req, res) => {
   if (req.method === "GET" && pathname === "/api/ai/providers/status") {
     try {
       const statuses = await Promise.all(
-        ["glm4", "deepseek", "gemini-lite", "gemini", "grok", "openrouter", "cerebras", "antigravity"].map((provider) => testSingleProvider(provider))
+        ["nvidia", "glm4", "deepseek", "gemini-lite", "gemini", "grok", "openrouter", "cerebras", "antigravity"].map((provider) => testSingleProvider(provider))
       );
       sendJson(res, 200, statuses);
       return;
