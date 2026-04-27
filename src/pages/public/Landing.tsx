@@ -296,7 +296,7 @@ export default function LandingPage() {
           <div className="lw-testimonial-content" style={{ width: '919px', height: '482px', padding: '48px 56px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <p style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 400, fontSize: '22px', lineHeight: 1.7, color: '#fff', margin: '0 auto', textAlign: 'center', maxWidth: '780px' }}>
-                "I built LingoWatch because I saw how hard it was for Somali speakers to learn English through content they actually enjoy. The idea was simple — watch YouTube, tap any word, understand it instantly, and never lose your flow. What started as a personal tool has become something I'm genuinely proud of. LingoWatch is the learning experience I always wished existed."
+                "We built LingoWatch because we saw how hard it was for Somali speakers to learn English through content they actually enjoy. The idea was simple — watch YouTube, tap any word, understand it instantly, and never lose your flow. What started as a personal tool has become something we're genuinely proud of. LingoWatch is the learning experience we always wished existed."
               </p>
             </div>
             <div style={{ marginTop: '40px' }}>
