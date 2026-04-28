@@ -535,48 +535,10 @@
     const normalizedText = String(text || "").replace(/\s+/g, " ").trim();
     if (!normalizedText) return;
 
+    // Live captions feed the on-video overlay only; the sidebar transcript list
+    // shows a single source (backend or youtube-track) so the user always sees
+    // the full transcript at once instead of a one-line-at-a-time stream.
     dispatchSubtitle(normalizedText, "");
-
-    if (state.subtitles.length && state.subtitleSource !== "live-caption") {
-      return;
-    }
-
-    if (normalizedText === state.liveCaptionLastText) {
-      return;
-    }
-
-    const video = state.currentVideo;
-    const currentTime = Number(video?.currentTime) || 0;
-    const previous = state.subtitles[state.subtitles.length - 1];
-    const nextSubtitles = state.subtitles.slice(-59);
-
-    if (previous && previous.text === normalizedText) {
-      return;
-    }
-
-    if (nextSubtitles.length) {
-      const lastIndex = nextSubtitles.length - 1;
-      const last = nextSubtitles[lastIndex];
-      nextSubtitles[lastIndex] = {
-        ...last,
-        duration: Math.max(currentTime - last.start, 0.75),
-        end: Math.max(currentTime, last.start + 0.75),
-      };
-    }
-
-    nextSubtitles.push({
-      index: nextSubtitles.length,
-      text: normalizedText,
-      translation: "",
-      start: currentTime,
-      duration: 4,
-      end: currentTime + 4,
-    });
-
-    state.liveCaptionLastText = normalizedText;
-    state.subtitleSource = "live-caption";
-    clearTimeout(state.noSubtitleTimer);
-    setSubtitles(nextSubtitles, sessionId);
   }
 
   function bindSidebarLayout(video) {
@@ -1905,7 +1867,16 @@
   }
 
   async function fetchYouTubeCaptionTrack(sessionId = state.subtitleSessionId) {
-    const tracks = getYouTubeCaptionTracks();
+    // ytInitialPlayerResponse can lag the navigation by a beat. Retry a few
+    // times before giving up so we don't fall through to the slow backend
+    // path (which sometimes times out for long videos) when the tracks were
+    // simply not yet exposed on the page.
+    let tracks = getYouTubeCaptionTracks();
+    for (let attempt = 0; attempt < 6 && !tracks.length; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      if (sessionId !== state.subtitleSessionId) return false;
+      tracks = getYouTubeCaptionTracks();
+    }
     if (!tracks.length) {
       return false;
     }
@@ -2010,7 +1981,7 @@
       state.subtitleLoadController?.abort();
       const controller = new AbortController();
       state.subtitleLoadController = controller;
-      const timeout = setTimeout(() => controller.abort(), 12000);
+      const timeout = setTimeout(() => controller.abort(), 30000);
       const response = await fetch(`${apiBaseUrl}/api/transcript/${encodeURIComponent(videoId)}?lang=en`, {
         signal: controller.signal,
       });
