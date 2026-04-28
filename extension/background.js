@@ -1,5 +1,15 @@
-const DEFAULT_API_BASE_URL = "https://maahir03.me";
-const DEFAULT_APP_BASE_URL = "https://maahir03.me";
+try {
+  importScripts("config.global.js");
+} catch (_e) {
+  // importScripts isn't available outside service worker contexts (e.g. tests).
+}
+
+const DEFAULT_API_BASE_URL =
+  (globalThis.LINGOWATCH_CONFIG && globalThis.LINGOWATCH_CONFIG.API_BASE_URL) ||
+  "https://maahir03.me";
+const DEFAULT_APP_BASE_URL =
+  (globalThis.LINGOWATCH_CONFIG && globalThis.LINGOWATCH_CONFIG.APP_BASE_URL) ||
+  "https://maahir03.me";
 const EXTENSION_CONFIG_KEYS = ["lingowatchApiBaseUrl", "lingowatchAppBaseUrl"];
 const IMPORT_MENU_ID = "lingowatch-import-page";
 const IMPORT_MENU_ALT_ID = "lingowatch-import-page-alt";

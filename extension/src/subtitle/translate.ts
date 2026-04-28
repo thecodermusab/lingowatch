@@ -1,5 +1,7 @@
+import { API_BASE_URL } from "../../config.js";
+
 const cache = new Map<string, string>();
-const DEFAULT_API_BASE_URL = "https://maahir03.me";
+const DEFAULT_API_BASE_URL = API_BASE_URL;
 
 function isMyMemoryWarning(text: string): boolean {
   return text.trim().toUpperCase().startsWith("MYMEMORY WARNING");

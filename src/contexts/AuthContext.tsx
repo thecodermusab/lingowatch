@@ -33,6 +33,17 @@ function createDefaultProfile(): UserProfile {
   };
 }
 
+function trimTrailingSlash(value: string): string {
+  return value.replace(/\/+$/, "");
+}
+
+const EXTENSION_API_BASE_URL = trimTrailingSlash(
+  import.meta.env.VITE_API_BASE_URL || (typeof window !== "undefined" ? window.location.origin : "")
+);
+const EXTENSION_APP_BASE_URL = trimTrailingSlash(
+  import.meta.env.VITE_APP_BASE_URL || (typeof window !== "undefined" ? window.location.origin : "")
+);
+
 async function syncExtensionSession(user: UserProfile | null) {
   if (typeof window === "undefined") return;
 
@@ -42,7 +53,10 @@ async function syncExtensionSession(user: UserProfile | null) {
   }
 
   try {
-    const response = await fetch("/api/imported-texts/session", {
+    const sessionUrl = EXTENSION_API_BASE_URL
+      ? `${EXTENSION_API_BASE_URL}/api/imported-texts/session`
+      : "/api/imported-texts/session";
+    const response = await fetch(sessionUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -59,8 +73,8 @@ async function syncExtensionSession(user: UserProfile | null) {
       type: "LINGOWATCH_EXTENSION_SESSION",
       payload: {
         ...session,
-        apiBaseUrl: window.location.origin,
-        appBaseUrl: window.location.origin,
+        apiBaseUrl: EXTENSION_API_BASE_URL || window.location.origin,
+        appBaseUrl: EXTENSION_APP_BASE_URL || window.location.origin,
       },
     }, window.location.origin);
   } catch {

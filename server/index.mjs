@@ -10,10 +10,28 @@ import { handleImportedTextRoutes } from "./modules/importedTexts.mjs";
 import { GoogleAuth, OAuth2Client } from "google-auth-library";
 import { PollyClient, SynthesizeSpeechCommand } from "@aws-sdk/client-polly";
 
+// Prefer GOOGLE_APPLICATION_CREDENTIALS_JSON (the full service-account JSON as
+// a single env var) for cloud deploys; fall back to the local key file for dev.
 const GCP_KEY_PATH = join(cwd(), "server", "gcp-tts-key.json");
-const gcpAuth = existsSync(GCP_KEY_PATH)
-  ? new GoogleAuth({ keyFile: GCP_KEY_PATH, scopes: ["https://www.googleapis.com/auth/cloud-platform"] })
-  : null;
+const GCP_SCOPES = ["https://www.googleapis.com/auth/cloud-platform"];
+
+function buildGcpAuth() {
+  const inlineJson = env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+  if (inlineJson) {
+    try {
+      const credentials = JSON.parse(inlineJson);
+      return new GoogleAuth({ credentials, scopes: GCP_SCOPES });
+    } catch (err) {
+      console.warn("GOOGLE_APPLICATION_CREDENTIALS_JSON is not valid JSON:", err.message);
+    }
+  }
+  if (existsSync(GCP_KEY_PATH)) {
+    return new GoogleAuth({ keyFile: GCP_KEY_PATH, scopes: GCP_SCOPES });
+  }
+  return null;
+}
+
+const gcpAuth = buildGcpAuth();
 
 async function getTtsAccessToken() {
   if (!gcpAuth) return null;
@@ -648,7 +666,7 @@ function buildAuthResponse(user, sessionToken = "") {
 }
 
 createServer(async (req, res) => {
-  setCorsHeaders(res);
+  setCorsHeaders(res, req);
   const url = new URL(req.url || "/", `http://${HOST}:${PORT}`);
   const pathname = url.pathname;
 
@@ -1619,7 +1637,7 @@ createServer(async (req, res) => {
       // If already cached, redirect to CDN — instant playback
       const cached = await getCachedTtsAudio(cacheKey);
       if (cached?.audio_url) {
-        res.writeHead(302, { Location: cached.audio_url, "Access-Control-Allow-Origin": "*" });
+        res.writeHead(302, { Location: cached.audio_url });
         res.end();
         return;
       }
@@ -1634,7 +1652,6 @@ createServer(async (req, res) => {
       res.writeHead(200, {
         "Content-Type": "audio/mpeg",
         "Cache-Control": "public, max-age=3600",
-        "Access-Control-Allow-Origin": "*",
         "Transfer-Encoding": "chunked",
       });
 
@@ -3359,8 +3376,23 @@ function normalizeCaptureStatus(value) {
   return ["new", "imported", "archived"].includes(status) ? status : undefined;
 }
 
-function setCorsHeaders(res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+const CORS_ALLOWED_ORIGINS = new Set([
+  "chrome-extension://aijalfdehkkapjjjfbkghhmbbikaljmi",
+  "https://www.youtube.com",
+  "https://maahir03.me",
+  "https://www.maahir03.me",
+  ...(env.EXTRA_CORS_ORIGINS || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean),
+]);
+
+function setCorsHeaders(res, req) {
+  const origin = req?.headers?.origin || "";
+  if (origin && CORS_ALLOWED_ORIGINS.has(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+  }
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 }
@@ -3761,7 +3793,6 @@ async function streamSpacesObjectToResponse(req, res, objectKey) {
         res.writeHead(upstream.status || 200, {
           "Content-Type": upstream.headers.get("content-type") || "audio/mpeg",
           "Cache-Control": upstream.headers.get("cache-control") || "public, max-age=31536000, immutable",
-          "Access-Control-Allow-Origin": "*",
           "Accept-Ranges": upstream.headers.get("accept-ranges") || "bytes",
           ...(upstream.headers.get("content-length") ? { "Content-Length": upstream.headers.get("content-length") } : {}),
           ...(upstream.headers.get("content-range") ? { "Content-Range": upstream.headers.get("content-range") } : {}),
@@ -3778,7 +3809,6 @@ async function streamSpacesObjectToResponse(req, res, objectKey) {
     res.writeHead(upstream.status || 200, {
       "Content-Type": upstream.headers.get("content-type") || "audio/mpeg",
       "Cache-Control": upstream.headers.get("cache-control") || "public, max-age=31536000, immutable",
-      "Access-Control-Allow-Origin": "*",
       "Accept-Ranges": upstream.headers.get("accept-ranges") || "bytes",
       ...(upstream.headers.get("content-length") ? { "Content-Length": upstream.headers.get("content-length") } : {}),
       ...(upstream.headers.get("content-range") ? { "Content-Range": upstream.headers.get("content-range") } : {}),

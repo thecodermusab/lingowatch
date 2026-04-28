@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "start": "node server/index.mjs",
     "dev": "concurrently \"vite\" \"node --watch server/index.mjs\"",
     "dev:vite": "vite",
     "import:phrases": "node scripts/build-phrase-bank.mjs",

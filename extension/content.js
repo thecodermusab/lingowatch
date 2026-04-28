@@ -12,8 +12,12 @@
   window.__lingoWatchLoaded = true;
   console.log("LingoWatch loaded");
 
-  const APP_API_BASE_URL = "https://maahir03.me";
-  const APP_BASE_URL = "https://maahir03.me";
+  const APP_API_BASE_URL =
+    (globalThis.LINGOWATCH_CONFIG && globalThis.LINGOWATCH_CONFIG.API_BASE_URL) ||
+    "https://maahir03.me";
+  const APP_BASE_URL =
+    (globalThis.LINGOWATCH_CONFIG && globalThis.LINGOWATCH_CONFIG.APP_BASE_URL) ||
+    "https://maahir03.me";
   const YOUTUBE_HOST_PATTERN = /(^|\.)youtube\.com$/i;
   const POPUP_AI_TIMEOUT_MS = 45000;
   const POPUP_SOMALI_TIMEOUT_MS = 30000;
@@ -2025,7 +2029,7 @@
           return;
         }
         setSubtitles([], sessionId);
-        renderSubtitleStatus(backendMessage || "Could not load YouTube subtitles. Run `npm run server` or `npm run dev`, then try again.");
+        renderSubtitleStatus(backendMessage || "Lingowatch couldn't load subtitles for this video. Try refreshing the page.");
         return;
       }
 
@@ -2072,7 +2076,7 @@
         return;
       }
       setSubtitles([], sessionId);
-      renderSubtitleStatus("Could not reach the Lingowatch backend. Run `npm run server` or `npm run dev`, then try again.");
+      renderSubtitleStatus("Lingowatch couldn't reach the server. Check your connection and try again.");
     }
   }
 
