@@ -23,6 +23,10 @@
   // isolated-world fetch comes back 200/0-bytes due to YouTube anti-bot.
   const _bridgeCaptionTextByVideoId = Object.create(null);
   let _bridgeAlive = false;
+  // Last reason fetchYouTubeCaptionTrack returned false; surfaced in the
+  // sidebar empty-state. Hoisted to top of IIFE so closures can read it
+  // before the function declaration line is reached.
+  let _lastTrackFailureReason = "";
   window.addEventListener("message", (event) => {
     if (event.source !== window || !event.data) return;
     const { type } = event.data;
@@ -2002,11 +2006,6 @@
 
     return [];
   }
-
-  // Last reason fetchYouTubeCaptionTrack returned false. Used to show a
-  // specific empty-state message in the sidebar so we can diagnose without
-  // making the user open DevTools.
-  let _lastTrackFailureReason = "";
 
   async function fetchYouTubeCaptionTrack(sessionId = state.subtitleSessionId) {
     _lastTrackFailureReason = "";
