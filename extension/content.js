@@ -22,9 +22,15 @@
   // YouTube actually serve the body) and posts it back here; otherwise an
   // isolated-world fetch comes back 200/0-bytes due to YouTube anti-bot.
   const _bridgeCaptionTextByVideoId = Object.create(null);
+  let _bridgeAlive = false;
   window.addEventListener("message", (event) => {
     if (event.source !== window || !event.data) return;
-    const { type, videoId } = event.data;
+    const { type } = event.data;
+    if (type === "lw-yt-bridge-hello") {
+      _bridgeAlive = true;
+      return;
+    }
+    const { videoId } = event.data;
     if (typeof videoId !== "string") return;
     if (type === "lw-yt-caption-tracks" && Array.isArray(event.data.tracks)) {
       _bridgeTracksByVideoId[videoId] = event.data.tracks;
@@ -2068,13 +2074,21 @@
   }
 
   function getTrackFailureMessage() {
+    if (!getYouTubeVideoId()) {
+      return "Open a YouTube video to load subtitles.";
+    }
+    if (!_bridgeAlive && _lastTrackFailureReason === "caption-fetch-empty") {
+      return "Lingowatch helper script didn't load. Try reloading the page or the extension.";
+    }
     switch (true) {
       case _lastTrackFailureReason === "no-tracks-from-page":
-        return "Lingowatch couldn't read this video's caption list. Try refreshing.";
+        return _bridgeAlive
+          ? "This video has no captions available."
+          : "Lingowatch couldn't read this video's caption list. Try refreshing.";
       case _lastTrackFailureReason === "track-missing-baseurl":
         return "This video's caption track is missing a download URL.";
       case _lastTrackFailureReason === "caption-fetch-empty":
-        return "YouTube returned an empty caption file. Try a different video.";
+        return "YouTube didn't return caption text for this video. Try a different one.";
       case _lastTrackFailureReason === "caption-parse-empty":
         return "Lingowatch couldn't parse the caption file for this video.";
       case _lastTrackFailureReason.startsWith("caption-fetch-"):

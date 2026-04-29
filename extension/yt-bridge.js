@@ -8,8 +8,16 @@
 //      while a fetch from the page context succeeds because cookies and the
 //      page-session fingerprint flow naturally.
 (function () {
+  if (window.__lwYtBridgeLoaded) return;
+  window.__lwYtBridgeLoaded = true;
+
   const TAG_TRACKS = "lw-yt-caption-tracks";
   const TAG_TEXT = "lw-yt-caption-text";
+  const TAG_HELLO = "lw-yt-bridge-hello";
+
+  // Heartbeat the content script can listen for so it knows the bridge is
+  // actually running (vs. silently blocked by CSP / world isolation).
+  window.postMessage({ type: TAG_HELLO }, window.location.origin);
 
   const _publishedFor = new Set(); // videoId(s) we've already auto-fetched
   const _publishedTracksFor = new Set();
@@ -43,30 +51,45 @@
     if (_publishedFor.has(videoId)) return;
     const chosen = pickEnglishTrack(tracks);
     if (!chosen?.baseUrl) return;
+    // Mark as in-progress; we'll clear if all variants fail so a later pulse can retry.
     _publishedFor.add(videoId);
 
-    // Try json3 first (cleaner to parse). If it 404s, fall back to the
-    // raw signed URL which YouTube's player uses.
-    const urls = [
+    // Try several URL variants. YouTube serves different formats depending
+    // on the &fmt=, and an empty body for one variant doesn't always mean
+    // the others are empty.
+    const variants = [
       chosen.baseUrl + (chosen.baseUrl.includes("fmt=") ? "" : "&fmt=json3"),
+      chosen.baseUrl + (chosen.baseUrl.includes("fmt=") ? "" : "&fmt=srv1"),
+      chosen.baseUrl + (chosen.baseUrl.includes("fmt=") ? "" : "&fmt=srv3"),
       chosen.baseUrl,
     ];
 
-    for (const url of urls) {
+    // Headers that match what YouTube's own player sends when fetching
+    // captions. Some servers reject requests without these.
+    const headers = {
+      Accept: "*/*",
+      "Accept-Language": "en-US,en;q=0.9",
+    };
+
+    for (const url of variants) {
       try {
-        const res = await fetch(url, { credentials: "include" });
+        const res = await fetch(url, { credentials: "include", headers });
         if (!res.ok) continue;
         const text = await res.text();
-        if (!text) continue;
+        if (!text || text.length < 10) continue;
         window.postMessage(
           { type: TAG_TEXT, videoId, languageCode: chosen.languageCode || "en", body: text },
           window.location.origin,
         );
+        _publishedFor.add(videoId);
         return;
       } catch (_e) {
         // try next URL
       }
     }
+
+    // All variants failed — undo the published flag so a later retry can try again.
+    _publishedFor.delete(videoId);
   }
 
   function publish() {
