@@ -17,11 +17,23 @@
   // it's initialized before any function closure (e.g. getYouTubeCaptionTracks)
   // can be invoked via setInterval / event listeners later in the file.
   const _bridgeTracksByVideoId = Object.create(null);
+  // Cached caption payloads keyed by videoId. The bridge fetches caption
+  // text in the page's MAIN world (where cookies and the page session let
+  // YouTube actually serve the body) and posts it back here; otherwise an
+  // isolated-world fetch comes back 200/0-bytes due to YouTube anti-bot.
+  const _bridgeCaptionTextByVideoId = Object.create(null);
   window.addEventListener("message", (event) => {
-    if (event.source !== window || !event.data || event.data.type !== "lw-yt-caption-tracks") return;
-    const { videoId, tracks } = event.data;
-    if (typeof videoId !== "string" || !Array.isArray(tracks)) return;
-    _bridgeTracksByVideoId[videoId] = tracks;
+    if (event.source !== window || !event.data) return;
+    const { type, videoId } = event.data;
+    if (typeof videoId !== "string") return;
+    if (type === "lw-yt-caption-tracks" && Array.isArray(event.data.tracks)) {
+      _bridgeTracksByVideoId[videoId] = event.data.tracks;
+    } else if (type === "lw-yt-caption-text" && typeof event.data.body === "string") {
+      _bridgeCaptionTextByVideoId[videoId] = {
+        body: event.data.body,
+        languageCode: event.data.languageCode || "en",
+      };
+    }
   });
 
   // Inject yt-bridge.js into the page's MAIN world. We do this from the
@@ -1992,30 +2004,47 @@
 
   async function fetchYouTubeCaptionTrack(sessionId = state.subtitleSessionId) {
     _lastTrackFailureReason = "";
-    let tracks = getYouTubeCaptionTracks();
-    for (let attempt = 0; attempt < 8 && !tracks.length; attempt += 1) {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+    const currentVideoId = getYouTubeVideoId();
+
+    // Prefer the bridge-fetched caption body — the bridge runs in the page's
+    // MAIN world and gets the real caption payload. The isolated-world fetch
+    // we used to try gets 200/0-bytes from YouTube's anti-bot.
+    for (let attempt = 0; attempt < 12; attempt += 1) {
       if (sessionId !== state.subtitleSessionId) return false;
-      tracks = getYouTubeCaptionTracks();
+      const cached = currentVideoId ? _bridgeCaptionTextByVideoId[currentVideoId] : null;
+      if (cached?.body) {
+        const subtitles = parseYouTubeCaptionPayload(cached.body);
+        if (!subtitles.length) {
+          _lastTrackFailureReason = "caption-parse-empty";
+          return false;
+        }
+        state.subtitleSource = "youtube-track";
+        setSubtitles(subtitles, sessionId);
+        return true;
+      }
+      // Also accept tracks if the bridge published them but hasn't fetched
+      // the text yet — we'll keep waiting up to 6 seconds total.
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
+
+    // Bridge never delivered. Try the in-page script-tag parse one more time
+    // so we can at least say what tracks the page exposed.
+    const tracks = getYouTubeCaptionTracks();
     if (!tracks.length) {
       _lastTrackFailureReason = "no-tracks-from-page";
       return false;
     }
-
-    const englishTrack = chooseEnglishTrack(tracks);
-    const preferredTrack = englishTrack || tracks[0];
+    const preferredTrack = chooseEnglishTrack(tracks) || tracks[0];
     if (!preferredTrack?.baseUrl) {
       _lastTrackFailureReason = "track-missing-baseurl";
       return false;
     }
 
+    // Last-ditch isolated-world fetch (often 0 bytes — anti-bot).
     try {
-      const response = await fetch(preferredTrack.baseUrl);
+      const response = await fetch(preferredTrack.baseUrl, { credentials: "include" });
       const rawText = await response.text();
-      if (sessionId !== state.subtitleSessionId) {
-        return false;
-      }
+      if (sessionId !== state.subtitleSessionId) return false;
       if (!response.ok) {
         _lastTrackFailureReason = `caption-fetch-${response.status}`;
         return false;
@@ -2029,7 +2058,6 @@
         _lastTrackFailureReason = "caption-parse-empty";
         return false;
       }
-
       state.subtitleSource = "youtube-track";
       setSubtitles(subtitles, sessionId);
       return true;
