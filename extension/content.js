@@ -17,33 +17,11 @@
   // it's initialized before any function closure (e.g. getYouTubeCaptionTracks)
   // can be invoked via setInterval / event listeners later in the file.
   const _bridgeTracksByVideoId = Object.create(null);
-  // Cached caption payloads keyed by videoId. The bridge fetches caption
-  // text in the page's MAIN world (where cookies and the page session let
-  // YouTube actually serve the body) and posts it back here; otherwise an
-  // isolated-world fetch comes back 200/0-bytes due to YouTube anti-bot.
-  const _bridgeCaptionTextByVideoId = Object.create(null);
-  let _bridgeAlive = false;
-  // Last reason fetchYouTubeCaptionTrack returned false; surfaced in the
-  // sidebar empty-state. Hoisted to top of IIFE so closures can read it
-  // before the function declaration line is reached.
-  let _lastTrackFailureReason = "";
   window.addEventListener("message", (event) => {
-    if (event.source !== window || !event.data) return;
-    const { type } = event.data;
-    if (type === "lw-yt-bridge-hello") {
-      _bridgeAlive = true;
-      return;
-    }
-    const { videoId } = event.data;
-    if (typeof videoId !== "string") return;
-    if (type === "lw-yt-caption-tracks" && Array.isArray(event.data.tracks)) {
-      _bridgeTracksByVideoId[videoId] = event.data.tracks;
-    } else if (type === "lw-yt-caption-text" && typeof event.data.body === "string") {
-      _bridgeCaptionTextByVideoId[videoId] = {
-        body: event.data.body,
-        languageCode: event.data.languageCode || "en",
-      };
-    }
+    if (event.source !== window || !event.data || event.data.type !== "lw-yt-caption-tracks") return;
+    const { videoId, tracks } = event.data;
+    if (typeof videoId !== "string" || !Array.isArray(tracks)) return;
+    _bridgeTracksByVideoId[videoId] = tracks;
   });
 
   // Inject yt-bridge.js into the page's MAIN world. We do this from the
@@ -2008,92 +1986,41 @@
   }
 
   async function fetchYouTubeCaptionTrack(sessionId = state.subtitleSessionId) {
-    _lastTrackFailureReason = "";
-    const currentVideoId = getYouTubeVideoId();
-
-    // Prefer the bridge-fetched caption body — the bridge runs in the page's
-    // MAIN world and gets the real caption payload. The isolated-world fetch
-    // we used to try gets 200/0-bytes from YouTube's anti-bot.
-    for (let attempt = 0; attempt < 12; attempt += 1) {
-      if (sessionId !== state.subtitleSessionId) return false;
-      const cached = currentVideoId ? _bridgeCaptionTextByVideoId[currentVideoId] : null;
-      if (cached?.body) {
-        const subtitles = parseYouTubeCaptionPayload(cached.body);
-        if (!subtitles.length) {
-          _lastTrackFailureReason = "caption-parse-empty";
-          return false;
-        }
-        state.subtitleSource = "youtube-track";
-        setSubtitles(subtitles, sessionId);
-        return true;
-      }
-      // Also accept tracks if the bridge published them but hasn't fetched
-      // the text yet — we'll keep waiting up to 6 seconds total.
+    // ytInitialPlayerResponse can lag the navigation by a beat. Retry a few
+    // times before giving up so we don't fall through to the slow backend
+    // path (which sometimes times out for long videos) when the tracks were
+    // simply not yet exposed on the page.
+    let tracks = getYouTubeCaptionTracks();
+    for (let attempt = 0; attempt < 6 && !tracks.length; attempt += 1) {
       await new Promise((resolve) => setTimeout(resolve, 500));
+      if (sessionId !== state.subtitleSessionId) return false;
+      tracks = getYouTubeCaptionTracks();
     }
-
-    // Bridge never delivered. Try the in-page script-tag parse one more time
-    // so we can at least say what tracks the page exposed.
-    const tracks = getYouTubeCaptionTracks();
     if (!tracks.length) {
-      _lastTrackFailureReason = "no-tracks-from-page";
       return false;
     }
+
     const preferredTrack = chooseEnglishTrack(tracks) || tracks[0];
     if (!preferredTrack?.baseUrl) {
-      _lastTrackFailureReason = "track-missing-baseurl";
       return false;
     }
 
-    // Last-ditch isolated-world fetch (often 0 bytes — anti-bot).
     try {
-      const response = await fetch(preferredTrack.baseUrl, { credentials: "include" });
+      const response = await fetch(preferredTrack.baseUrl);
       const rawText = await response.text();
-      if (sessionId !== state.subtitleSessionId) return false;
-      if (!response.ok) {
-        _lastTrackFailureReason = `caption-fetch-${response.status}`;
-        return false;
-      }
-      if (!rawText) {
-        _lastTrackFailureReason = "caption-fetch-empty";
+      if (sessionId !== state.subtitleSessionId) {
         return false;
       }
       const subtitles = parseYouTubeCaptionPayload(rawText);
       if (!subtitles.length) {
-        _lastTrackFailureReason = "caption-parse-empty";
         return false;
       }
+
       state.subtitleSource = "youtube-track";
       setSubtitles(subtitles, sessionId);
       return true;
-    } catch (error) {
-      _lastTrackFailureReason = `caption-fetch-error:${(error?.message || error || "").toString().slice(0, 40)}`;
+    } catch (_error) {
       return false;
-    }
-  }
-
-  function getTrackFailureMessage() {
-    if (!getYouTubeVideoId()) {
-      return "Open a YouTube video to load subtitles.";
-    }
-    if (!_bridgeAlive && _lastTrackFailureReason === "caption-fetch-empty") {
-      return "Lingowatch helper script didn't load. Try reloading the page or the extension.";
-    }
-    switch (true) {
-      case _lastTrackFailureReason === "no-tracks-from-page":
-        return _bridgeAlive
-          ? "This video has no captions available."
-          : "Lingowatch couldn't read this video's caption list. Try refreshing.";
-      case _lastTrackFailureReason === "track-missing-baseurl":
-        return "This video's caption track is missing a download URL.";
-      case _lastTrackFailureReason === "caption-fetch-empty":
-        return "YouTube didn't return caption text for this video. Try a different one.";
-      case _lastTrackFailureReason === "caption-parse-empty":
-        return "Lingowatch couldn't parse the caption file for this video.";
-      case _lastTrackFailureReason.startsWith("caption-fetch-"):
-        return `YouTube blocked the caption download (${_lastTrackFailureReason.replace("caption-fetch-", "")}).`;
-      default:
-        return "";
     }
   }
 
@@ -2192,8 +2119,7 @@
           return;
         }
         setSubtitles([], sessionId);
-        const trackMsg = getTrackFailureMessage();
-        renderSubtitleStatus(trackMsg || backendMessage || "Lingowatch couldn't load subtitles for this video. Try refreshing the page.");
+        renderSubtitleStatus(backendMessage || "Lingowatch couldn't load subtitles for this video. Try refreshing the page.");
         return;
       }
 
@@ -2240,8 +2166,7 @@
         return;
       }
       setSubtitles([], sessionId);
-      const trackMsg = getTrackFailureMessage();
-      renderSubtitleStatus(trackMsg || "Lingowatch couldn't reach the server. Check your connection and try again.");
+      renderSubtitleStatus("Lingowatch couldn't reach the server. Check your connection and try again.");
     }
   }
 
