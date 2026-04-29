@@ -1859,23 +1859,76 @@
     return track?.src || "";
   }
 
+  // Walks `text` starting at `startIdx` (which must point at "{") and returns
+  // the index of the matching closing "}", honouring strings and escapes.
+  // Returns -1 if no balanced match is found.
+  function findBalancedBraceEnd(text, startIdx) {
+    let depth = 0;
+    let inString = false;
+    let escape = false;
+    for (let i = startIdx; i < text.length; i += 1) {
+      const c = text[i];
+      if (escape) { escape = false; continue; }
+      if (c === "\\") { escape = true; continue; }
+      if (c === "\"") { inString = !inString; continue; }
+      if (inString) continue;
+      if (c === "{") depth += 1;
+      else if (c === "}") {
+        depth -= 1;
+        if (depth === 0) return i;
+      }
+    }
+    return -1;
+  }
+
+  function extractPlayerResponseFromText(text) {
+    if (!text) return null;
+    const markers = [
+      "var ytInitialPlayerResponse",
+      "window.ytInitialPlayerResponse",
+      "ytInitialPlayerResponse",
+    ];
+    for (const marker of markers) {
+      let cursor = 0;
+      while ((cursor = text.indexOf(marker, cursor)) !== -1) {
+        const eq = text.indexOf("=", cursor + marker.length);
+        if (eq === -1) break;
+        let i = eq + 1;
+        while (i < text.length && text[i] !== "{") {
+          // Bail if we run into a non-whitespace, non-equals char first.
+          if (!/\s/.test(text[i])) { i = -1; break; }
+          i += 1;
+        }
+        if (i < 0 || text[i] !== "{") {
+          cursor = eq + 1;
+          continue;
+        }
+        const end = findBalancedBraceEnd(text, i);
+        if (end === -1) {
+          cursor = eq + 1;
+          continue;
+        }
+        try {
+          return JSON.parse(text.slice(i, end + 1));
+        } catch (_e) {
+          cursor = end + 1;
+        }
+      }
+    }
+    return null;
+  }
+
   function parsePlayerResponseFromScripts() {
     // MV3 content scripts run in an isolated world, so window.ytInitialPlayerResponse
     // from the page is invisible here. Scan inline script tags for the assignment
-    // YouTube emits server-side and parse it ourselves.
+    // YouTube emits server-side and parse it ourselves with a balanced-brace
+    // walker (the JSON has nested objects, so a non-greedy regex misses).
     const scripts = document.querySelectorAll("script");
     for (const script of scripts) {
       const text = script.textContent;
       if (!text || !text.includes("ytInitialPlayerResponse")) continue;
-      const match = text.match(/var ytInitialPlayerResponse\s*=\s*(\{[\s\S]+?\})\s*;\s*var /)
-        || text.match(/var ytInitialPlayerResponse\s*=\s*(\{[\s\S]+?\})\s*;\s*$/m)
-        || text.match(/ytInitialPlayerResponse\s*=\s*(\{[\s\S]+?\})\s*;/);
-      if (!match) continue;
-      try {
-        return JSON.parse(match[1]);
-      } catch (_error) {
-        // Not the right script or partially escaped — keep looking.
-      }
+      const parsed = extractPlayerResponseFromText(text);
+      if (parsed) return parsed;
     }
     return null;
   }
