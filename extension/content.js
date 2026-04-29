@@ -12,6 +12,18 @@
   window.__lingoWatchLoaded = true;
   console.log("LingoWatch loaded");
 
+  // The MAIN-world bridge in yt-bridge.js sends caption tracks across the
+  // world boundary via postMessage. Declared at the very top of the IIFE so
+  // it's initialized before any function closure (e.g. getYouTubeCaptionTracks)
+  // can be invoked via setInterval / event listeners later in the file.
+  const _bridgeTracksByVideoId = Object.create(null);
+  window.addEventListener("message", (event) => {
+    if (event.source !== window || !event.data || event.data.type !== "lw-yt-caption-tracks") return;
+    const { videoId, tracks } = event.data;
+    if (typeof videoId !== "string" || !Array.isArray(tracks)) return;
+    _bridgeTracksByVideoId[videoId] = tracks;
+  });
+
   const APP_API_BASE_URL =
     (globalThis.LINGOWATCH_CONFIG && globalThis.LINGOWATCH_CONFIG.API_BASE_URL) ||
     "https://maahir03.me";
@@ -1828,17 +1840,6 @@
     const track = tracks.find((item) => item.src);
     return track?.src || "";
   }
-
-  // The MAIN-world bridge in yt-bridge.js sends caption tracks across the
-  // world boundary via postMessage. We cache the latest payload here keyed
-  // by videoId so SPA navigations work without reloading the tab.
-  const _bridgeTracksByVideoId = Object.create(null);
-  window.addEventListener("message", (event) => {
-    if (event.source !== window || !event.data || event.data.type !== "lw-yt-caption-tracks") return;
-    const { videoId, tracks } = event.data;
-    if (typeof videoId !== "string" || !Array.isArray(tracks)) return;
-    _bridgeTracksByVideoId[videoId] = tracks;
-  });
 
   function parsePlayerResponseFromScripts() {
     // MV3 content scripts run in an isolated world, so window.ytInitialPlayerResponse
