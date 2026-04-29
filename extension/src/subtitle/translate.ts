@@ -5,30 +5,15 @@ const DEFAULT_API_BASE_URL = API_BASE_URL;
 
 function isMyMemoryWarning(text: string): boolean {
   const upper = text.trim().toUpperCase();
-  // MyMemory's free tier returns several flavors of garbage text instead of a
-  // real translation when the language pair isn't in their corpus. Treat all
-  // of them as failures so we fall through to the next provider.
+  // Only reject MyMemory's actual status / quota messages. The earlier broad
+  // rules (PREVIOUS / MYMEMORY-anywhere / TRANSLATED.NET-anywhere) caught
+  // legitimate Somali translations and dropped them, which made the overlay
+  // appear empty.
   return (
     upper.startsWith("MYMEMORY WARNING") ||
-    upper.startsWith("PREVIOUSLY TRANSLATED") ||
-    upper.startsWith("PREVIOUS ") ||
     upper.startsWith("QUERY LENGTH LIMIT") ||
-    upper.startsWith("MAX SUBSCRIPTION REACHED") ||
-    upper.includes("MYMEMORY") ||
-    upper.includes("TRANSLATED.NET")
+    upper.startsWith("MAX SUBSCRIPTION REACHED")
   );
-}
-
-function looksLikeUntranslated(source: string, candidate: string): boolean {
-  // Translation providers sometimes echo the source back when they can't
-  // translate. If the "Somali" output is identical to the English input
-  // (or differs only in punctuation/case), reject it so we keep trying.
-  const norm = (value: string) =>
-    value
-      .toLowerCase()
-      .replace(/[^\p{L}\p{N}]+/gu, " ")
-      .trim();
-  return norm(source) === norm(candidate);
 }
 
 async function getConfiguredApiBaseUrl(): Promise<string> {
@@ -54,7 +39,7 @@ async function tryBackendGoogle(key: string, target: string): Promise<string> {
 
   const data = await resp.json();
   const text = data.translations?.[0]?.trim() ?? "";
-  if (!text || isMyMemoryWarning(text) || looksLikeUntranslated(key, text)) return "";
+  if (!text || isMyMemoryWarning(text)) return "";
   return text;
 }
 
@@ -66,7 +51,7 @@ async function tryMyMemory(key: string, target: string): Promise<string> {
   // responseStatus 429 = daily limit hit; anything non-200 is an error
   if (data.responseStatus !== 200) return "";
   const text = data.responseData?.translatedText?.trim() ?? "";
-  if (!text || isMyMemoryWarning(text) || looksLikeUntranslated(key, text)) return "";
+  if (!text || isMyMemoryWarning(text)) return "";
   return text;
 }
 
@@ -98,7 +83,7 @@ async function tryStoredGoogleKey(key: string, target: string): Promise<string> 
 
   const data = await resp.json();
   const text = data.data?.translations?.[0]?.translatedText?.trim() ?? "";
-  if (!text || isMyMemoryWarning(text) || looksLikeUntranslated(key, text)) return "";
+  if (!text || isMyMemoryWarning(text)) return "";
   return text;
 }
 
