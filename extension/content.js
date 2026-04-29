@@ -1991,16 +1991,20 @@
     // path (which sometimes times out for long videos) when the tracks were
     // simply not yet exposed on the page.
     let tracks = getYouTubeCaptionTracks();
+    console.log("[LW] tracks attempt 0:", tracks.length, "scripts:", document.querySelectorAll("script").length, "bridgeKeys:", Object.keys(_bridgeTracksByVideoId));
     for (let attempt = 0; attempt < 6 && !tracks.length; attempt += 1) {
       await new Promise((resolve) => setTimeout(resolve, 500));
       if (sessionId !== state.subtitleSessionId) return false;
       tracks = getYouTubeCaptionTracks();
+      console.log(`[LW] tracks attempt ${attempt + 1}:`, tracks.length, "bridgeKeys:", Object.keys(_bridgeTracksByVideoId));
     }
     if (!tracks.length) {
+      console.log("[LW] no tracks found after 6 retries — falling through to backend");
       return false;
     }
 
     const preferredTrack = chooseEnglishTrack(tracks) || tracks[0];
+    console.log("[LW] preferred track:", preferredTrack?.languageCode, "kind:", preferredTrack?.kind, "hasBaseUrl:", !!preferredTrack?.baseUrl);
     if (!preferredTrack?.baseUrl) {
       return false;
     }
@@ -2008,10 +2012,12 @@
     try {
       const response = await fetch(preferredTrack.baseUrl);
       const rawText = await response.text();
+      console.log("[LW] caption fetch:", response.status, "bytes:", rawText.length);
       if (sessionId !== state.subtitleSessionId) {
         return false;
       }
       const subtitles = parseYouTubeCaptionPayload(rawText);
+      console.log("[LW] parsed subtitles:", subtitles.length);
       if (!subtitles.length) {
         return false;
       }
@@ -2019,7 +2025,8 @@
       state.subtitleSource = "youtube-track";
       setSubtitles(subtitles, sessionId);
       return true;
-    } catch (_error) {
+    } catch (error) {
+      console.log("[LW] caption fetch error:", error?.message || error);
       return false;
     }
   }
