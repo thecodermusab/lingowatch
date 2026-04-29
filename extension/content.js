@@ -1985,23 +1985,28 @@
     return [];
   }
 
+  // Last reason fetchYouTubeCaptionTrack returned false. Used to show a
+  // specific empty-state message in the sidebar so we can diagnose without
+  // making the user open DevTools.
+  let _lastTrackFailureReason = "";
+
   async function fetchYouTubeCaptionTrack(sessionId = state.subtitleSessionId) {
-    // ytInitialPlayerResponse can lag the navigation by a beat. Retry a few
-    // times before giving up so we don't fall through to the slow backend
-    // path (which sometimes times out for long videos) when the tracks were
-    // simply not yet exposed on the page.
+    _lastTrackFailureReason = "";
     let tracks = getYouTubeCaptionTracks();
-    for (let attempt = 0; attempt < 6 && !tracks.length; attempt += 1) {
+    for (let attempt = 0; attempt < 8 && !tracks.length; attempt += 1) {
       await new Promise((resolve) => setTimeout(resolve, 500));
       if (sessionId !== state.subtitleSessionId) return false;
       tracks = getYouTubeCaptionTracks();
     }
     if (!tracks.length) {
+      _lastTrackFailureReason = "no-tracks-from-page";
       return false;
     }
 
-    const preferredTrack = chooseEnglishTrack(tracks) || tracks[0];
+    const englishTrack = chooseEnglishTrack(tracks);
+    const preferredTrack = englishTrack || tracks[0];
     if (!preferredTrack?.baseUrl) {
+      _lastTrackFailureReason = "track-missing-baseurl";
       return false;
     }
 
@@ -2011,16 +2016,43 @@
       if (sessionId !== state.subtitleSessionId) {
         return false;
       }
+      if (!response.ok) {
+        _lastTrackFailureReason = `caption-fetch-${response.status}`;
+        return false;
+      }
+      if (!rawText) {
+        _lastTrackFailureReason = "caption-fetch-empty";
+        return false;
+      }
       const subtitles = parseYouTubeCaptionPayload(rawText);
       if (!subtitles.length) {
+        _lastTrackFailureReason = "caption-parse-empty";
         return false;
       }
 
       state.subtitleSource = "youtube-track";
       setSubtitles(subtitles, sessionId);
       return true;
-    } catch (_error) {
+    } catch (error) {
+      _lastTrackFailureReason = `caption-fetch-error:${(error?.message || error || "").toString().slice(0, 40)}`;
       return false;
+    }
+  }
+
+  function getTrackFailureMessage() {
+    switch (true) {
+      case _lastTrackFailureReason === "no-tracks-from-page":
+        return "Lingowatch couldn't read this video's caption list. Try refreshing.";
+      case _lastTrackFailureReason === "track-missing-baseurl":
+        return "This video's caption track is missing a download URL.";
+      case _lastTrackFailureReason === "caption-fetch-empty":
+        return "YouTube returned an empty caption file. Try a different video.";
+      case _lastTrackFailureReason === "caption-parse-empty":
+        return "Lingowatch couldn't parse the caption file for this video.";
+      case _lastTrackFailureReason.startsWith("caption-fetch-"):
+        return `YouTube blocked the caption download (${_lastTrackFailureReason.replace("caption-fetch-", "")}).`;
+      default:
+        return "";
     }
   }
 
@@ -2119,7 +2151,8 @@
           return;
         }
         setSubtitles([], sessionId);
-        renderSubtitleStatus(backendMessage || "Lingowatch couldn't load subtitles for this video. Try refreshing the page.");
+        const trackMsg = getTrackFailureMessage();
+        renderSubtitleStatus(trackMsg || backendMessage || "Lingowatch couldn't load subtitles for this video. Try refreshing the page.");
         return;
       }
 
@@ -2166,7 +2199,8 @@
         return;
       }
       setSubtitles([], sessionId);
-      renderSubtitleStatus("Lingowatch couldn't reach the server. Check your connection and try again.");
+      const trackMsg = getTrackFailureMessage();
+      renderSubtitleStatus(trackMsg || "Lingowatch couldn't reach the server. Check your connection and try again.");
     }
   }
 
