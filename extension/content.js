@@ -24,6 +24,24 @@
     _bridgeTracksByVideoId[videoId] = tracks;
   });
 
+  // Inject yt-bridge.js into the page's MAIN world. We do this from the
+  // isolated-world content script (instead of declaring `world: "MAIN"` in
+  // the manifest) because that approach silently no-ops in some Chrome
+  // versions and there's no error to debug. Script-tag injection is the
+  // reliable, decade-tested pattern.
+  try {
+    const bridgeUrl = chrome.runtime.getURL("yt-bridge.js");
+    if (bridgeUrl) {
+      const script = document.createElement("script");
+      script.src = bridgeUrl;
+      script.async = false;
+      script.onload = () => script.remove();
+      (document.head || document.documentElement).appendChild(script);
+    }
+  } catch (_e) {
+    // chrome.runtime missing in odd contexts — nothing to do.
+  }
+
   const APP_API_BASE_URL =
     (globalThis.LINGOWATCH_CONFIG && globalThis.LINGOWATCH_CONFIG.API_BASE_URL) ||
     "https://maahir03.me";
