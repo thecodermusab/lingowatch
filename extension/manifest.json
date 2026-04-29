@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LingoWatch",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "Learn English from any video with Somali translations",
   "permissions": ["storage", "activeTab", "webRequest", "contextMenus", "scripting", "tabs"],
   "host_permissions": ["<all_urls>"],
@@ -38,7 +38,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["data/frequency.json", "icons/icon128.png", "yt-bridge.js"],
+      "resources": ["data/frequency.json", "icons/icon128.png"],
       "matches": ["<all_urls>"]
     }
   ]

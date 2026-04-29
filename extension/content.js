@@ -12,36 +12,6 @@
   window.__lingoWatchLoaded = true;
   console.log("LingoWatch loaded");
 
-  // The MAIN-world bridge in yt-bridge.js sends caption tracks across the
-  // world boundary via postMessage. Declared at the very top of the IIFE so
-  // it's initialized before any function closure (e.g. getYouTubeCaptionTracks)
-  // can be invoked via setInterval / event listeners later in the file.
-  const _bridgeTracksByVideoId = Object.create(null);
-  window.addEventListener("message", (event) => {
-    if (event.source !== window || !event.data || event.data.type !== "lw-yt-caption-tracks") return;
-    const { videoId, tracks } = event.data;
-    if (typeof videoId !== "string" || !Array.isArray(tracks)) return;
-    _bridgeTracksByVideoId[videoId] = tracks;
-  });
-
-  // Inject yt-bridge.js into the page's MAIN world. We do this from the
-  // isolated-world content script (instead of declaring `world: "MAIN"` in
-  // the manifest) because that approach silently no-ops in some Chrome
-  // versions and there's no error to debug. Script-tag injection is the
-  // reliable, decade-tested pattern.
-  try {
-    const bridgeUrl = chrome.runtime.getURL("yt-bridge.js");
-    if (bridgeUrl) {
-      const script = document.createElement("script");
-      script.src = bridgeUrl;
-      script.async = false;
-      script.onload = () => script.remove();
-      (document.head || document.documentElement).appendChild(script);
-    }
-  } catch (_e) {
-    // chrome.runtime missing in odd contexts — nothing to do.
-  }
-
   const APP_API_BASE_URL =
     (globalThis.LINGOWATCH_CONFIG && globalThis.LINGOWATCH_CONFIG.API_BASE_URL) ||
     "https://maahir03.me";
@@ -565,10 +535,48 @@
     const normalizedText = String(text || "").replace(/\s+/g, " ").trim();
     if (!normalizedText) return;
 
-    // Live captions feed the on-video overlay only; the sidebar transcript list
-    // shows a single source (backend or youtube-track) so the user always sees
-    // the full transcript at once instead of a one-line-at-a-time stream.
     dispatchSubtitle(normalizedText, "");
+
+    if (state.subtitles.length && state.subtitleSource !== "live-caption") {
+      return;
+    }
+
+    if (normalizedText === state.liveCaptionLastText) {
+      return;
+    }
+
+    const video = state.currentVideo;
+    const currentTime = Number(video?.currentTime) || 0;
+    const previous = state.subtitles[state.subtitles.length - 1];
+    const nextSubtitles = state.subtitles.slice(-59);
+
+    if (previous && previous.text === normalizedText) {
+      return;
+    }
+
+    if (nextSubtitles.length) {
+      const lastIndex = nextSubtitles.length - 1;
+      const last = nextSubtitles[lastIndex];
+      nextSubtitles[lastIndex] = {
+        ...last,
+        duration: Math.max(currentTime - last.start, 0.75),
+        end: Math.max(currentTime, last.start + 0.75),
+      };
+    }
+
+    nextSubtitles.push({
+      index: nextSubtitles.length,
+      text: normalizedText,
+      translation: "",
+      start: currentTime,
+      duration: 4,
+      end: currentTime + 4,
+    });
+
+    state.liveCaptionLastText = normalizedText;
+    state.subtitleSource = "live-caption";
+    clearTimeout(state.noSubtitleTimer);
+    setSubtitles(nextSubtitles, sessionId);
   }
 
   function bindSidebarLayout(video) {
@@ -1859,80 +1867,6 @@
     return track?.src || "";
   }
 
-  // Walks `text` starting at `startIdx` (which must point at "{") and returns
-  // the index of the matching closing "}", honouring strings and escapes.
-  // Returns -1 if no balanced match is found.
-  function findBalancedBraceEnd(text, startIdx) {
-    let depth = 0;
-    let inString = false;
-    let escape = false;
-    for (let i = startIdx; i < text.length; i += 1) {
-      const c = text[i];
-      if (escape) { escape = false; continue; }
-      if (c === "\\") { escape = true; continue; }
-      if (c === "\"") { inString = !inString; continue; }
-      if (inString) continue;
-      if (c === "{") depth += 1;
-      else if (c === "}") {
-        depth -= 1;
-        if (depth === 0) return i;
-      }
-    }
-    return -1;
-  }
-
-  function extractPlayerResponseFromText(text) {
-    if (!text) return null;
-    const markers = [
-      "var ytInitialPlayerResponse",
-      "window.ytInitialPlayerResponse",
-      "ytInitialPlayerResponse",
-    ];
-    for (const marker of markers) {
-      let cursor = 0;
-      while ((cursor = text.indexOf(marker, cursor)) !== -1) {
-        const eq = text.indexOf("=", cursor + marker.length);
-        if (eq === -1) break;
-        let i = eq + 1;
-        while (i < text.length && text[i] !== "{") {
-          // Bail if we run into a non-whitespace, non-equals char first.
-          if (!/\s/.test(text[i])) { i = -1; break; }
-          i += 1;
-        }
-        if (i < 0 || text[i] !== "{") {
-          cursor = eq + 1;
-          continue;
-        }
-        const end = findBalancedBraceEnd(text, i);
-        if (end === -1) {
-          cursor = eq + 1;
-          continue;
-        }
-        try {
-          return JSON.parse(text.slice(i, end + 1));
-        } catch (_e) {
-          cursor = end + 1;
-        }
-      }
-    }
-    return null;
-  }
-
-  function parsePlayerResponseFromScripts() {
-    // MV3 content scripts run in an isolated world, so window.ytInitialPlayerResponse
-    // from the page is invisible here. Scan inline script tags for the assignment
-    // YouTube emits server-side and parse it ourselves with a balanced-brace
-    // walker (the JSON has nested objects, so a non-greedy regex misses).
-    const scripts = document.querySelectorAll("script");
-    for (const script of scripts) {
-      const text = script.textContent;
-      if (!text || !text.includes("ytInitialPlayerResponse")) continue;
-      const parsed = extractPlayerResponseFromText(text);
-      if (parsed) return parsed;
-    }
-    return null;
-  }
-
   function getYouTubeCaptionTracks() {
     // Only accept player responses whose videoId matches the current URL.
     // During SPA navigation ytInitialPlayerResponse still holds the previous
@@ -1940,26 +1874,11 @@
     // load under the new session ID (bypassing the sessionId guard entirely).
     const currentVideoId = getYouTubeVideoId();
 
-    // Path 1: live tracks from the MAIN-world bridge (handles SPA navigation).
-    if (currentVideoId && _bridgeTracksByVideoId[currentVideoId]?.length) {
-      return _bridgeTracksByVideoId[currentVideoId];
-    }
-
     const sources = [];
-    // Path 2: page window (works only if this script is in world: "MAIN").
     if (window.ytInitialPlayerResponse) {
       const responseVideoId = window.ytInitialPlayerResponse?.videoDetails?.videoId;
       if (!currentVideoId || responseVideoId === currentVideoId) {
         sources.push(window.ytInitialPlayerResponse);
-      }
-    }
-
-    // Path 3: parse the inline script tag (initial page load only).
-    const fromScripts = parsePlayerResponseFromScripts();
-    if (fromScripts) {
-      const responseVideoId = fromScripts?.videoDetails?.videoId;
-      if (!currentVideoId || responseVideoId === currentVideoId) {
-        sources.push(fromScripts);
       }
     }
 
@@ -1986,16 +1905,7 @@
   }
 
   async function fetchYouTubeCaptionTrack(sessionId = state.subtitleSessionId) {
-    // ytInitialPlayerResponse can lag the navigation by a beat. Retry a few
-    // times before giving up so we don't fall through to the slow backend
-    // path (which sometimes times out for long videos) when the tracks were
-    // simply not yet exposed on the page.
-    let tracks = getYouTubeCaptionTracks();
-    for (let attempt = 0; attempt < 6 && !tracks.length; attempt += 1) {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      if (sessionId !== state.subtitleSessionId) return false;
-      tracks = getYouTubeCaptionTracks();
-    }
+    const tracks = getYouTubeCaptionTracks();
     if (!tracks.length) {
       return false;
     }
@@ -2100,7 +2010,7 @@
       state.subtitleLoadController?.abort();
       const controller = new AbortController();
       state.subtitleLoadController = controller;
-      const timeout = setTimeout(() => controller.abort(), 30000);
+      const timeout = setTimeout(() => controller.abort(), 12000);
       const response = await fetch(`${apiBaseUrl}/api/transcript/${encodeURIComponent(videoId)}?lang=en`, {
         signal: controller.signal,
       });

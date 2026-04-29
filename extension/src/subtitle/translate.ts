@@ -4,31 +4,7 @@ const cache = new Map<string, string>();
 const DEFAULT_API_BASE_URL = API_BASE_URL;
 
 function isMyMemoryWarning(text: string): boolean {
-  const upper = text.trim().toUpperCase();
-  // MyMemory's free tier returns several flavors of garbage text instead of a
-  // real translation when the language pair isn't in their corpus. Treat all
-  // of them as failures so we fall through to the next provider.
-  return (
-    upper.startsWith("MYMEMORY WARNING") ||
-    upper.startsWith("PREVIOUSLY TRANSLATED") ||
-    upper.startsWith("PREVIOUS ") ||
-    upper.startsWith("QUERY LENGTH LIMIT") ||
-    upper.startsWith("MAX SUBSCRIPTION REACHED") ||
-    upper.includes("MYMEMORY") ||
-    upper.includes("TRANSLATED.NET")
-  );
-}
-
-function looksLikeUntranslated(source: string, candidate: string): boolean {
-  // Translation providers sometimes echo the source back when they can't
-  // translate. If the "Somali" output is identical to the English input
-  // (or differs only in punctuation/case), reject it so we keep trying.
-  const norm = (value: string) =>
-    value
-      .toLowerCase()
-      .replace(/[^\p{L}\p{N}]+/gu, " ")
-      .trim();
-  return norm(source) === norm(candidate);
+  return text.trim().toUpperCase().startsWith("MYMEMORY WARNING");
 }
 
 async function getConfiguredApiBaseUrl(): Promise<string> {
@@ -54,8 +30,7 @@ async function tryBackendGoogle(key: string, target: string): Promise<string> {
 
   const data = await resp.json();
   const text = data.translations?.[0]?.trim() ?? "";
-  if (!text || isMyMemoryWarning(text) || looksLikeUntranslated(key, text)) return "";
-  return text;
+  return text && !isMyMemoryWarning(text) ? text : "";
 }
 
 async function tryMyMemory(key: string, target: string): Promise<string> {
@@ -66,7 +41,8 @@ async function tryMyMemory(key: string, target: string): Promise<string> {
   // responseStatus 429 = daily limit hit; anything non-200 is an error
   if (data.responseStatus !== 200) return "";
   const text = data.responseData?.translatedText?.trim() ?? "";
-  if (!text || isMyMemoryWarning(text) || looksLikeUntranslated(key, text)) return "";
+  // Guard against the warning message being returned as a translation
+  if (isMyMemoryWarning(text)) return "";
   return text;
 }
 
@@ -98,8 +74,7 @@ async function tryStoredGoogleKey(key: string, target: string): Promise<string> 
 
   const data = await resp.json();
   const text = data.data?.translations?.[0]?.translatedText?.trim() ?? "";
-  if (!text || isMyMemoryWarning(text) || looksLikeUntranslated(key, text)) return "";
-  return text;
+  return text && !isMyMemoryWarning(text) ? text : "";
 }
 
 export async function translate(text: string, target = "so"): Promise<string> {
