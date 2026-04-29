@@ -1829,6 +1829,38 @@
     return track?.src || "";
   }
 
+  // The MAIN-world bridge in yt-bridge.js sends caption tracks across the
+  // world boundary via postMessage. We cache the latest payload here keyed
+  // by videoId so SPA navigations work without reloading the tab.
+  const _bridgeTracksByVideoId = Object.create(null);
+  window.addEventListener("message", (event) => {
+    if (event.source !== window || !event.data || event.data.type !== "lw-yt-caption-tracks") return;
+    const { videoId, tracks } = event.data;
+    if (typeof videoId !== "string" || !Array.isArray(tracks)) return;
+    _bridgeTracksByVideoId[videoId] = tracks;
+  });
+
+  function parsePlayerResponseFromScripts() {
+    // MV3 content scripts run in an isolated world, so window.ytInitialPlayerResponse
+    // from the page is invisible here. Scan inline script tags for the assignment
+    // YouTube emits server-side and parse it ourselves.
+    const scripts = document.querySelectorAll("script");
+    for (const script of scripts) {
+      const text = script.textContent;
+      if (!text || !text.includes("ytInitialPlayerResponse")) continue;
+      const match = text.match(/var ytInitialPlayerResponse\s*=\s*(\{[\s\S]+?\})\s*;\s*var /)
+        || text.match(/var ytInitialPlayerResponse\s*=\s*(\{[\s\S]+?\})\s*;\s*$/m)
+        || text.match(/ytInitialPlayerResponse\s*=\s*(\{[\s\S]+?\})\s*;/);
+      if (!match) continue;
+      try {
+        return JSON.parse(match[1]);
+      } catch (_error) {
+        // Not the right script or partially escaped — keep looking.
+      }
+    }
+    return null;
+  }
+
   function getYouTubeCaptionTracks() {
     // Only accept player responses whose videoId matches the current URL.
     // During SPA navigation ytInitialPlayerResponse still holds the previous
@@ -1836,11 +1868,26 @@
     // load under the new session ID (bypassing the sessionId guard entirely).
     const currentVideoId = getYouTubeVideoId();
 
+    // Path 1: live tracks from the MAIN-world bridge (handles SPA navigation).
+    if (currentVideoId && _bridgeTracksByVideoId[currentVideoId]?.length) {
+      return _bridgeTracksByVideoId[currentVideoId];
+    }
+
     const sources = [];
+    // Path 2: page window (works only if this script is in world: "MAIN").
     if (window.ytInitialPlayerResponse) {
       const responseVideoId = window.ytInitialPlayerResponse?.videoDetails?.videoId;
       if (!currentVideoId || responseVideoId === currentVideoId) {
         sources.push(window.ytInitialPlayerResponse);
+      }
+    }
+
+    // Path 3: parse the inline script tag (initial page load only).
+    const fromScripts = parsePlayerResponseFromScripts();
+    if (fromScripts) {
+      const responseVideoId = fromScripts?.videoDetails?.videoId;
+      if (!currentVideoId || responseVideoId === currentVideoId) {
+        sources.push(fromScripts);
       }
     }
 

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LingoWatch",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Learn English from any video with Somali translations",
   "permissions": ["storage", "activeTab", "webRequest", "contextMenus", "scripting", "tabs"],
   "host_permissions": ["<all_urls>"],
@@ -16,6 +16,12 @@
       ],
       "js": ["config.global.js", "app-bridge.js"],
       "run_at": "document_start"
+    },
+    {
+      "matches": ["*://*.youtube.com/watch*"],
+      "js": ["yt-bridge.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
     },
     {
       "matches": ["*://*.youtube.com/watch*"],
